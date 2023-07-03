@@ -112,6 +112,7 @@ bool SetWeather(Dpr::EvScript::EvDataManager::Object * manager)
 {
     Logger::log("_SET_WEATHER\n");
 
+    SmartPoint::Components::DebugMenu::getClass()->initIfNeeded();
     auto instance = SmartPoint::Components::DebugMenu::Create(System::String::Create("This is a caption"), nullptr);
     Logger::log("instance: %08X\n", instance);
 

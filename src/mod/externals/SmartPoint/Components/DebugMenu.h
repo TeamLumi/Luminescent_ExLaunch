@@ -10,7 +10,7 @@
 #include "externals/UnityEngine/UI/LayoutGroup.h"
 
 namespace SmartPoint::Components {
-    struct DebugMenu : ILClass<DebugMenu> {
+    struct DebugMenu : ILClass<DebugMenu, 0x04c64040> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             UnityEngine::GameObject::Object* _template;
             UnityEngine::RectTransform::Object* informationWindow;
