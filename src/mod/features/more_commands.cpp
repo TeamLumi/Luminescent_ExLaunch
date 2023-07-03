@@ -16,6 +16,7 @@
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
+#include "externals/SmartPoint/Components/DebugMenu.h"
 #include "externals/UnityEngine/BoxCollider.h"
 #include "externals/UnityEngine/Collider.h"
 #include "externals/UnityEngine/GameObject.h"
@@ -110,14 +111,9 @@ bool IsNullOrEgg(Pml::PokePara::PokemonParam::Object * param)
 bool SetWeather(Dpr::EvScript::EvDataManager::Object * manager)
 {
     Logger::log("_SET_WEATHER\n");
-    EvData::Aregment::Array* args = manager->fields._evArg;
 
-    if (args->max_length >= 2)
-    {
-        int32_t weather = GetWorkOrIntValue(args->m_Items[1]);
-        Logger::log("Calling set_WeatherID with weatherId: %d\n", weather);
-        WeatherWork::set_WeatherID(weather);
-    }
+    auto instance = SmartPoint::Components::DebugMenu::Create(System::String::Create("This is a caption"), nullptr);
+    Logger::log("instance: %08X\n", instance);
 
     return true;
 }
