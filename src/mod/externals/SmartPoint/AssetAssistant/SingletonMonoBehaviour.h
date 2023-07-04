@@ -20,6 +20,12 @@ namespace Dpr {
     }
 }
 
+namespace SmartPoint {
+    namespace Components {
+        struct DebugMenu;
+    }
+}
+
 namespace SmartPoint::AssetAssistant {
     struct SingletonMonoBehaviour : ILClass<SingletonMonoBehaviour, 0x04c59b28> {
         struct Fields : public UnityEngine::MonoBehaviour::Fields {
@@ -31,6 +37,7 @@ namespace SmartPoint::AssetAssistant {
         static inline StaticILMethod<0x04c676a0, Audio::AudioManager> Method$$AudioManager$$get_Instance {};
         static inline StaticILMethod<0x04c676c0, Dpr::Battle::View::BattleViewCore> Method$$BattleViewCore$$get_Instance {};
         static inline StaticILMethod<0x04c67700, Dpr::UI::UIManager> Method$$UIManager$$get_Instance {};
+        static inline StaticILMethod<0x04c67720, SmartPoint::Components::DebugMenu> Method$$DebugMenu$$get_Instance {};
 
         template <typename T>
         static inline typename T::Object* get_Instance(ILMethod<T>& method) {

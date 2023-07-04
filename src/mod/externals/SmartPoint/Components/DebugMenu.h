@@ -37,6 +37,10 @@ namespace SmartPoint::Components {
             };
         };
 
+        static inline SmartPoint::Components::DebugMenu::Object* instance() {
+            return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$DebugMenu$$get_Instance);
+        }
+
         static inline SmartPoint::Components::DebugMenu::MenuInstance::Object* Create(System::String::Object* caption, SmartPoint::Components::DebugMenu::MenuInstance::Object* parent) {
             return external<SmartPoint::Components::DebugMenu::MenuInstance::Object*>(0x02092420, caption, parent);
         }
