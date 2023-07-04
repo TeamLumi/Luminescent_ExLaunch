@@ -16,7 +16,11 @@
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
-#include "externals/SmartPoint/Components/DebugMenu.h"
+#include "externals/SmartPoint/Components/AudioChannel.h"
+#include "externals/SmartPoint/Components/AudioPlayer.h"
+#include "externals/UnityEngine/AssetBundle.h"
+#include "externals/UnityEngine/AudioClip.h"
+#include "externals/UnityEngine/AudioSource.h"
 #include "externals/UnityEngine/BoxCollider.h"
 #include "externals/UnityEngine/Collider.h"
 #include "externals/UnityEngine/GameObject.h"
@@ -111,6 +115,22 @@ bool IsNullOrEgg(Pml::PokePara::PokemonParam::Object * param)
 bool SetWeather(Dpr::EvScript::EvDataManager::Object * manager)
 {
     Logger::log("_SET_WEATHER\n");
+    
+    UnityEngine::AssetBundle::Object* bundle = UnityEngine::AssetBundle::LoadFromFile(System::String::Create("rom:/Data/StreamingAssets/AssetAssistant/Dpr/masterdatas_audio"));
+    Logger::log("Bundle = %08X\n", bundle);
+    UnityEngine::AudioSource::Object* audioSource = (UnityEngine::AudioSource::Object*)bundle->LoadAsset(System::String::Create("assets/audio/sandstorm_source.asset"));
+    Logger::log("Audio Source = %08X\n", audioSource);
+
+    //UnityEngine::GameObject::Object* prefab = (UnityEngine::GameObject::Object*)bundle->LoadAsset(System::String::Create("assets/audio/sandstorm.prefab"));
+    //Logger::log("Prefab = %08X\n", prefab);
+
+    //SmartPoint::Components::AudioChannel::Object* audio = SmartPoint::Components::AudioPlayer::PlayStreamDirect(0, clip, 0.0f);
+    //Logger::log("Audio = %08X\n", audio);
+
+    if (audioSource != nullptr)
+    {
+        audioSource->Play(0);
+    }
 
     return true;
 }
