@@ -18,12 +18,14 @@
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
 #include "externals/SmartPoint/Components/AudioChannel.h"
 #include "externals/SmartPoint/Components/AudioPlayer.h"
+#include "externals/System/Collections/IEnumerator.h"
 #include "externals/UnityEngine/AssetBundle.h"
 #include "externals/UnityEngine/AudioClip.h"
 #include "externals/UnityEngine/AudioSource.h"
 #include "externals/UnityEngine/BoxCollider.h"
 #include "externals/UnityEngine/Collider.h"
 #include "externals/UnityEngine/GameObject.h"
+#include "externals/Viewer.h"
 #include "externals/WeatherWork.h"
 
 #include "logger/logger.h"
@@ -116,20 +118,18 @@ bool SetWeather(Dpr::EvScript::EvDataManager::Object * manager)
 {
     Logger::log("_SET_WEATHER\n");
     
-    UnityEngine::AssetBundle::Object* bundle = UnityEngine::AssetBundle::LoadFromFile(System::String::Create("rom:/Data/StreamingAssets/AssetAssistant/Dpr/masterdatas_audio"));
+    UnityEngine::AssetBundle::Object* bundle = UnityEngine::AssetBundle::LoadFromFile(System::String::Create("rom:/Data/StreamingAssets/AssetAssistant/Dpr/spfishing"));
     Logger::log("Bundle = %08X\n", bundle);
-    UnityEngine::AudioSource::Object* audioSource = (UnityEngine::AudioSource::Object*)bundle->LoadAsset(System::String::Create("assets/audio/sandstorm_source.asset"));
-    Logger::log("Audio Source = %08X\n", audioSource);
-
-    //UnityEngine::GameObject::Object* prefab = (UnityEngine::GameObject::Object*)bundle->LoadAsset(System::String::Create("assets/audio/sandstorm.prefab"));
-    //Logger::log("Prefab = %08X\n", prefab);
-
-    //SmartPoint::Components::AudioChannel::Object* audio = SmartPoint::Components::AudioPlayer::PlayStreamDirect(0, clip, 0.0f);
-    //Logger::log("Audio = %08X\n", audio);
-
-    if (audioSource != nullptr)
+    if (bundle != nullptr)
     {
-        audioSource->Play(0);
+        Viewer::Object* viewer = (Viewer::Object*)bundle->LoadAsset(System::String::Create("assets/md/rarefish/viewer.asset"));
+        System::Collections::IEnumerator::Object* routine = viewer->Start();
+        Logger::log("routine = %08X\n", routine);
+
+        UnityEngine::MonoBehaviour::Object* viewerBehaviour = (UnityEngine::MonoBehaviour::Object*) viewer;
+        
+        auto coroutine = SmartPoint::AssetAssistant::Sequencer::Start(routine);
+        Logger::log("coroutine = %08X\n", coroutine);
     }
 
     return true;
