@@ -62,6 +62,9 @@ void exl_patches_main();
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
 
+// Makes Pokémon have unique color variations based on PID.
+void exl_pokemon_color_variations_main();
+
 // Adds support for two-button Pokétch.
 // Requires an edited uiresidentwindow bundle with a second Pokétch button.
 void exl_poketch_main();

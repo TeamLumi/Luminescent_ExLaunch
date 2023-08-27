@@ -19,6 +19,7 @@ void exl_features_main() {
     exl_level_cap_main();
     exl_patches_main();
     exl_pla_context_menu_main();
+    exl_pokemon_color_variations_main();
     exl_poketch_main();
     exl_relearn_tms_main();
     exl_save_data_expansion();

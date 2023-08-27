@@ -13,7 +13,7 @@ namespace UnityEngine {
             float a;
         };
 
-        Color HueShift(int degrees) {
+        Color::Object HueShift(float degrees) {
             auto fields = *(Color::Fields*)this;
             float cmax = fmaxf(std::fmax(fields.r, fields.g), fields.b);
             float cmin = fminf(std::fmin(fields.r, fields.g), fields.b);
@@ -69,7 +69,7 @@ namespace UnityEngine {
                 newFields.b = x+m;
             }
 
-            return *(Color*)&newFields;
+            return *(Color::Object*)&newFields;
         }
     };
 }

@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/BaseEntity.h"
+#include "externals/RendererInfo.h"
 #include "externals/UnityEngine/Renderer.h"
 #include "externals/UnityEngine/Transform.h"
 
@@ -15,6 +16,6 @@ struct BattleObjectEntity : ILClass<BattleObjectEntity> {
         float _animationSpeed;
         void* _shadowCastSystem; // Dpr_Battle_View_Systems_BattleShadowCastSystem_o*
         void* _animator; // UnityEngine_Animator_o*
-        void* _rendererInfos; // RendererInfo_array*
+        RendererInfo::Array* _rendererInfos;
     };
 };
