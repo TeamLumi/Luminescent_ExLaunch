@@ -52,6 +52,9 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         getExtraMoveHandlers()->currentIndex = size;
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Jump Kick")]) Handlers_JumpKick(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sonic Boom")]) Handlers_SonicBoom(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Dragon Rage")]) Handlers_DragonRage(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Rage")]) Handlers_Rage(array);
 
         ctx->X[0] = (uint64_t)array;
     }
@@ -61,4 +64,7 @@ void exl_move_handlers_main() {
     Handler_Waza_newGetFunc::InstallAtOffset(0x018298a8);
 
     SetActivatedMoveHandler(array_index(MOVES, "Jump Kick"));
+    SetActivatedMoveHandler(array_index(MOVES, "Sonic Boom"));
+    SetActivatedMoveHandler(array_index(MOVES, "Dragon Rage"));
+    SetActivatedMoveHandler(array_index(MOVES, "Rage"));
 };

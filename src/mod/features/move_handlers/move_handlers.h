@@ -4,7 +4,7 @@
 
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
 
-#include "features/move_handlers/data/data.h"
+#include "features/move_handlers/data/extra_move_handlers.h"
 
 ExtraMoveHandlers* getExtraMoveHandlers();
 
@@ -16,3 +16,12 @@ void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTabl
 
 // Adds handlers for Jump Kick.
 void Handlers_JumpKick(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Sonic Boom.
+void Handlers_SonicBoom(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Dragon Rage.
+void Handlers_DragonRage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Rage.
+void Handlers_Rage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
