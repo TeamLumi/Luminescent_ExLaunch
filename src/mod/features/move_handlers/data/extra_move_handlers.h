@@ -11,5 +11,7 @@ struct ExtraMoveHandlers {
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_SonicBoom = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_DragonRage = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Rage = nullptr;
+    Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Bide = nullptr;
+    Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_MirrorMove = nullptr;
     // ...
 };

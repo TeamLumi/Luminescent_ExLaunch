@@ -2,10 +2,16 @@
 
 #include "externals/il2cpp-api.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/Pml/WazaData/WazaSick.h"
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
     struct BTL_POKEPARAM : ILClass<BTL_POKEPARAM> {
+        enum class NemuriCheckMode : int32_t {
+            NEMURI_CHECK_ONLY_SICK = 0,
+            NEMURI_CHECK_INCLUDE_ZETTAINEMURI = 1,
+        };
+
         struct Fields {
             void* m_coreParam;
             void* m_baseParam;
@@ -81,6 +87,14 @@ namespace Dpr::Battle::Logic {
 
         inline Pml::PokePara::PokemonParam::Object* GetSrcData() {
             return external<Pml::PokePara::PokemonParam::Object*>(0x01fdd5b0, this);
+        }
+
+        inline bool CheckSick(Pml::WazaData::WazaSick sickType) {
+            return external<bool>(0x01fd8b30, this, sickType);
+        }
+
+        inline bool CheckNemuri(NemuriCheckMode checkMode) {
+            return external<bool>(0x01fd8ab0, this, checkMode);
         }
     };
 }

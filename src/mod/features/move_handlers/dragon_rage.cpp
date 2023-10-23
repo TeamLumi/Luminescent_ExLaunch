@@ -21,6 +21,7 @@ EventFactor::EventHandlerTable::Array* ADD_DragonRage() {
     if (table == nullptr) {
         table = CreateEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_DMG_PROC1, (Il2CppMethodPointer)&HandlerDragonRageWazaDmgProc1);
+        getExtraMoveHandlers()->HandlerTable_DragonRage = table;
     }
     return table;
 }

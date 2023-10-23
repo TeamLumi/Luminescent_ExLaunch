@@ -64,6 +64,7 @@ EventFactor::EventHandlerTable::Array* ADD_Rage() {
         table->m_Items[1] = CreateMoveEventHandler(EventID::WAZA_EXECUTE_EFFECTIVE, (Il2CppMethodPointer)&HandlerRageWazaExecuteEffective);
         table->m_Items[2] = CreateMoveEventHandler(EventID::WAZA_DMG_REACTION, (Il2CppMethodPointer)&HandlerRageWazaDmgReaction);
         table->m_Items[3] = CreateMoveEventHandler(EventID::MEMBER_OUT_FIXED, (Il2CppMethodPointer)&HandlerRageMemberOutFixed);
+        getExtraMoveHandlers()->HandlerTable_Rage = table;
     }
     return table;
 }

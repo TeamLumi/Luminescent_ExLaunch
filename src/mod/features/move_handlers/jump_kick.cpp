@@ -12,6 +12,7 @@ EventFactor::EventHandlerTable::Array* ADD_JumpKick() {
     if (table == nullptr) {
         table = CreateEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_EXECUTE_NO_EFFECT, *Handler::Waza::PTR_Method$$handler_Tobigeri_NoEffect);
+        getExtraMoveHandlers()->HandlerTable_JumpKick = table;
     }
     return table;
 }

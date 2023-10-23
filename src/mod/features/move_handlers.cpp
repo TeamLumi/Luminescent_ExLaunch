@@ -55,6 +55,8 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sonic Boom")]) Handlers_SonicBoom(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Dragon Rage")]) Handlers_DragonRage(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Rage")]) Handlers_Rage(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bide")]) Handlers_Bide(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mirror Move")]) Handlers_MirrorMove(array);
 
         ctx->X[0] = (uint64_t)array;
     }
@@ -67,4 +69,6 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandler(array_index(MOVES, "Sonic Boom"));
     SetActivatedMoveHandler(array_index(MOVES, "Dragon Rage"));
     SetActivatedMoveHandler(array_index(MOVES, "Rage"));
+    //SetActivatedMoveHandler(array_index(MOVES, "Bide"));
+    SetActivatedMoveHandler(array_index(MOVES, "Mirror Move"));
 };

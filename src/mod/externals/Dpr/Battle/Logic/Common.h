@@ -5,6 +5,7 @@
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
+#include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 
@@ -36,6 +37,18 @@ namespace Dpr::Battle::Logic {
 
         static inline bool RankEffect(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_RankEffect::Description::Object** desc) {
             return external<bool>(0x01d0ac60, args, desc);
+        }
+
+        static inline bool AddSick(EventFactor::EventHandlerArgs::Object** args, Section_AddSick::Description::Object** desc) {
+            return external<bool>(0x01d0aa80, args, desc);
+        }
+
+        static inline uint16_t GetSubID(EventFactor::EventHandlerArgs::Object** args) {
+            return external<uint16_t>(0x01d09cf0, args);
+        }
+
+        static inline uint8_t GetFrontPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t* pos) {
+            return external<uint8_t>(0x01d0a110, args, pos);
         }
     };
 }
