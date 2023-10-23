@@ -12,30 +12,22 @@
 using namespace Dpr::Battle::Logic;
 
 void HandlerMirrorMoveReqwazaParam(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID) {
-        Logger::log("Not pokeid\n");
+    if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID)
         return;
-    }
 
     uint8_t targetPokePos = Common::GetEventVar(args, EventVar::Label::POKEPOS_ORG);
     uint8_t targetPokeID = Common::GetFrontPokeID(args, &targetPokePos);
 
-    if (targetPokeID == PokeID::INVALID) {
-        Logger::log("pokeid invalid\n");
+    if (targetPokeID == PokeID::INVALID)
         return;
-    }
 
     int32_t targetWazaID = Common::GetPokeParam(args, targetPokeID)->fields.m_prevActWazaID;
 
-    if (targetWazaID == array_index(MOVES, "-MOVE ZERO-")) {
-        Logger::log("waza 0\n");
+    if (targetWazaID == array_index(MOVES, "-MOVE ZERO-"))
         return;
-    }
 
-    if (!WAZADATA::GetFlag(targetWazaID, Pml::WazaData::WazaFlag::OUMU)) {
-        Logger::log("Not Oumu\n");
+    if (!WAZADATA::GetFlag(targetWazaID, Pml::WazaData::WazaFlag::OUMU))
         return;
-    }
 
     Common::RewriteEventVar(args, EventVar::Label::WAZAID, targetWazaID);
     Common::RewriteEventVar(args, EventVar::Label::POKEPOS, targetPokePos);

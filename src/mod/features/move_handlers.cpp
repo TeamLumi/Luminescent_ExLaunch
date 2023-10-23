@@ -19,14 +19,21 @@ ExtraMoveHandlers* getExtraMoveHandlers() {
 
 using namespace Dpr::Battle::Logic;
 EventFactor::EventHandlerTable::Array* CreateEventHandlerTable(long size) {
-    return (EventFactor::EventHandlerTable::Array*)system_array_new(EventFactor::EventHandlerTable_array_TypeInfo(), size);
+    auto *array = (EventFactor::EventHandlerTable::Array*)IM_ALLOC(32 + 8 * size);
+    array->max_length = size;
+    for (int i = 0; i < size; ++i)
+        array->m_Items[i] = nullptr;
+    return array;
 }
 
 EventFactor::EventHandlerTable::Object* CreateMoveEventHandler(EventID eventID, Il2CppMethodPointer methodPointer) {
     MethodInfo* method = (*Handler::Waza::PTR_Method$$handler_Karagenki_WazaPow)->copyWith(methodPointer);
-    auto evtHandler = EventFactor::EventHandler::newInstance(0, method);
+    auto evtHandler = (EventFactor::EventHandler::Object*)IM_ALLOC(sizeof(EventFactor::EventHandler::Object));
+    evtHandler->ctor(0, method);
     evtHandler->fields.delegates = nullptr;
-    return EventFactor::EventHandlerTable::newInstance(eventID, evtHandler);
+    auto table = (EventFactor::EventHandlerTable::Object*)IM_ALLOC(sizeof(EventFactor::EventHandlerTable::Object));
+    table->ctor(eventID, evtHandler);
+    return table;
 }
 
 EventFactor::EventHandlerTable::Object* CreateMoveEventHandler(EventID eventID, MethodInfo* method) {
