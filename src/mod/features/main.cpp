@@ -22,6 +22,7 @@ void exl_features_main() {
     exl_key_items_main();
     exl_language_select_main();
     exl_level_cap_main();
+    exl_move_handlers_main();
     exl_npc_collision_audio_main();
     exl_outfit_neutral_ui_main();
     exl_patches_main();
@@ -29,13 +30,13 @@ void exl_features_main() {
     exl_poke_radar_fixes_main();
     exl_poketch_main();
     exl_relearn_tms_main();
+    exl_repel_fix_main();
     exl_save_data_expansion();
     exl_settings_main();
     exl_shiny_rates_main();
     exl_swarm_forms_main();
     exl_wild_held_items_main();
     exl_wild_forms_main();
-    exl_repel_fix_main();
 
     // Extra rombase features
     //exl_battle_revolver_main();
