@@ -1,6 +1,7 @@
 #include "exlaunch.hpp"
 #include "externals/il2cpp-api.h"
 
+#include "memory/vector.h"
 #include "data/outfits.h"
 #include "data/utils.h"
 #include "externals/Dpr/UI/ShopBoutiqueItemItem.h"
@@ -45,6 +46,10 @@ void exl_gender_neutral_boutique_main() {
     // Remove bike outfit override for battles on cycling road
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0x0202f120);
-    p.WriteInst(Movz(X0, 0));
+    exl::patch::CodePatcher p(0);
+    auto inst = nn::vector<exl::patch::Instruction> {
+        { 0x0202f120, Movz(X0, 0) }, // Remove bike outfit override for battles on cycling road
+        { 0x02cf3d38, Movz(W21, 1) }, // Reindex Dawn default outfit for intro
+    };
+    p.WriteInst(inst);
 };
