@@ -14,7 +14,7 @@ void HandlerPsywaveWazaDmgProc1(EventFactor::EventHandlerArgs::Object** args, ui
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    Common::RewriteEventVar(args, EventVar::Label::FIX_DAMAGE_FLAG, true);
+    Common::RewriteEventVar(args, EventVar::Label::FIX_DAMAGE_FLAG, 1);
 
     int32_t randRange = calc::RandRange(50, 150);
     int32_t level = Common::GetPokeParam(args, pokeID)->GetValue(BTL_POKEPARAM::ValueID::BPP_LEVEL);

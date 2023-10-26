@@ -73,6 +73,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mirror Move")]) Handlers_MirrorMove(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Psywave")]) Handlers_Psywave(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spider Web")]) Handlers_Spider_Web(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Nightmare")]) Handlers_Nightmare(array);
 
         ctx->X[0] = (uint64_t)array;
     }
