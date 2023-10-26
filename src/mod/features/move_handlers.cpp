@@ -7,7 +7,7 @@
 static ExtraMoveHandlers extraMoveHandlers {};
 static bool ACTIVATED_MOVE_HANDLERS[MOVE_COUNT];
 
-void SetActivatedMoveHandler(int32_t move)
+void SetActivatedMoveHandlers(int32_t move)
 {
     ACTIVATED_MOVE_HANDLERS[move] = true;
     getExtraMoveHandlers()->count++;
@@ -50,6 +50,13 @@ void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTabl
     elem->fields.func = func;
 }
 
+void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t wazaNo, MethodInfo* method) {
+    Handler::Waza::GET_FUNC_TABLE_ELEM::Object* elem = &getFuncTable->m_Items[index];
+    auto func = Handler::Waza::HandlerGetFunc::newInstance((intptr_t)method, method);
+    elem->fields.waza = wazaNo;
+    elem->fields.func = func;
+}
+
 HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto typeInfo = (Il2CppClass*)ctx->X[0];
@@ -65,6 +72,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bide")]) Handlers_Bide(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mirror Move")]) Handlers_MirrorMove(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Psywave")]) Handlers_Psywave(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spider Web")]) Handlers_Spider_Web(array);
 
         ctx->X[0] = (uint64_t)array;
     }
@@ -73,62 +81,62 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
 void exl_move_handlers_main() {
     Handler_Waza_newGetFunc::InstallAtOffset(0x018298a8);
 
-    SetActivatedMoveHandler(array_index(MOVES, "Jump Kick"));
-    SetActivatedMoveHandler(array_index(MOVES, "Sonic Boom"));
-    SetActivatedMoveHandler(array_index(MOVES, "Dragon Rage"));
-    SetActivatedMoveHandler(array_index(MOVES, "Rage"));
-    //SetActivatedMoveHandler(array_index(MOVES, "Bide"));
-    SetActivatedMoveHandler(array_index(MOVES, "Mirror Move"));
-    SetActivatedMoveHandler(array_index(MOVES, "Psywave"));
-    SetActivatedMoveHandler(array_index(MOVES, "Spider Web"));
-    SetActivatedMoveHandler(array_index(MOVES, "Nightmare"));
-    SetActivatedMoveHandler(array_index(MOVES, "Return"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Jump Kick"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Sonic Boom"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Dragon Rage"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Rage"));
+    //SetActivatedMoveHandlers(array_index(MOVES, "Bide"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Mirror Move"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Psywave"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Spider Web"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Nightmare"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Return"));
 
-    SetActivatedMoveHandler(array_index(MOVES, "Frustration"));
-    SetActivatedMoveHandler(array_index(MOVES, "Magnitude"));
-    SetActivatedMoveHandler(array_index(MOVES, "Pursuit"));
-    SetActivatedMoveHandler(array_index(MOVES, "Smelling Salts"));
-    SetActivatedMoveHandler(array_index(MOVES, "Assist"));
-    SetActivatedMoveHandler(array_index(MOVES, "Refresh"));
-    SetActivatedMoveHandler(array_index(MOVES, "Snatch"));
-    SetActivatedMoveHandler(array_index(MOVES, "Secret Power"));
-    SetActivatedMoveHandler(array_index(MOVES, "Camouflage"));
-    SetActivatedMoveHandler(array_index(MOVES, "Mud Sport"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Frustration"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Magnitude"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Pursuit"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Smelling Salts"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Assist"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Refresh"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Snatch"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Secret Power"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Camouflage"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Mud Sport"));
 
-    SetActivatedMoveHandler(array_index(MOVES, "Ice Ball"));
-    SetActivatedMoveHandler(array_index(MOVES, "Silver Wind"));
-    SetActivatedMoveHandler(array_index(MOVES, "Sky Uppercut"));
-    SetActivatedMoveHandler(array_index(MOVES, "Water Sport"));
-    SetActivatedMoveHandler(array_index(MOVES, "Wake-Up Slap"));
-    SetActivatedMoveHandler(array_index(MOVES, "Natural Gift"));
-    SetActivatedMoveHandler(array_index(MOVES, "Trump Card"));
-    SetActivatedMoveHandler(array_index(MOVES, "Wring Out"));
-    SetActivatedMoveHandler(array_index(MOVES, "Lucky Chant"));
-    SetActivatedMoveHandler(array_index(MOVES, "Me First"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Ice Ball"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Silver Wind"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Sky Uppercut"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Water Sport"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Wake-Up Slap"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Natural Gift"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Trump Card"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Wring Out"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Lucky Chant"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Me First"));
 
-    SetActivatedMoveHandler(array_index(MOVES, "Punishment"));
-    SetActivatedMoveHandler(array_index(MOVES, "Captivate"));
-    SetActivatedMoveHandler(array_index(MOVES, "Ominous Wind"));
-    SetActivatedMoveHandler(array_index(MOVES, "Flame Burst"));
-    SetActivatedMoveHandler(array_index(MOVES, "Synchronoise"));
-    SetActivatedMoveHandler(array_index(MOVES, "Chip Away"));
-    SetActivatedMoveHandler(array_index(MOVES, "Sky Drop"));
-    SetActivatedMoveHandler(array_index(MOVES, "Bestow"));
-    SetActivatedMoveHandler(array_index(MOVES, "Rototiller"));
-    SetActivatedMoveHandler(array_index(MOVES, "Ion Deluge"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Punishment"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Captivate"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Ominous Wind"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Flame Burst"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Synchronoise"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Chip Away"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Sky Drop"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Bestow"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Rototiller"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Ion Deluge"));
 
-    SetActivatedMoveHandler(array_index(MOVES, "Spotlight"));
-    SetActivatedMoveHandler(array_index(MOVES, "Guardian of Alola"));
-    SetActivatedMoveHandler(array_index(MOVES, "Genesis Supernova"));
-    SetActivatedMoveHandler(array_index(MOVES, "Light That Burns the Sky"));
-    SetActivatedMoveHandler(array_index(MOVES, "Searing Sunraze Smash"));
-    SetActivatedMoveHandler(array_index(MOVES, "Menacing Moonraze Maelstrom"));
-    SetActivatedMoveHandler(array_index(MOVES, "Splintered Stormshards"));
-    SetActivatedMoveHandler(array_index(MOVES, "Pika Papow"));
-    SetActivatedMoveHandler(array_index(MOVES, "Glitzy Glow"));
-    SetActivatedMoveHandler(array_index(MOVES, "Baddy Bad"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Spotlight"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Guardian of Alola"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Genesis Supernova"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Light That Burns the Sky"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Searing Sunraze Smash"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Menacing Moonraze Maelstrom"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Splintered Stormshards"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Pika Papow"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Glitzy Glow"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Baddy Bad"));
 
-    SetActivatedMoveHandler(array_index(MOVES, "Freezy Frost"));
-    SetActivatedMoveHandler(array_index(MOVES, "Sparkly Swirl"));
-    SetActivatedMoveHandler(array_index(MOVES, "Veevee Volley"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Freezy Frost"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Sparkly Swirl"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Veevee Volley"));
 };
