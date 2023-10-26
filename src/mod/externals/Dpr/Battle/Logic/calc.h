@@ -11,5 +11,9 @@ namespace Dpr::Battle::Logic {
         static inline bool PERSONAL_IsEvoCancelPokemon(int32_t monsno, int32_t formno, uint8_t level) {
             return external<bool>(0x01f75630, monsno, formno, level);
         }
+
+        static inline uint32_t RandRange(uint32_t min, uint32_t max) {
+            return external<uint32_t>(0x01f74a10, min, max);
+        }
     };
 }

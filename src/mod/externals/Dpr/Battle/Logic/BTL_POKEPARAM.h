@@ -12,6 +12,38 @@ namespace Dpr::Battle::Logic {
             NEMURI_CHECK_INCLUDE_ZETTAINEMURI = 1,
         };
 
+        enum class ValueID : int32_t {
+            BPP_VALUE_NULL = 0,
+            BPP_ATTACK_RANK = 1,
+            BPP_DEFENCE_RANK = 2,
+            BPP_SP_ATTACK_RANK = 3,
+            BPP_SP_DEFENCE_RANK = 4,
+            BPP_AGILITY_RANK = 5,
+            BPP_HIT_RATIO = 6,
+            BPP_AVOID_RATIO = 7,
+            BPP_ATTACK = 8,
+            BPP_DEFENCE = 9,
+            BPP_SP_ATTACK = 10,
+            BPP_SP_DEFENCE = 11,
+            BPP_AGILITY = 12,
+            BPP_HP = 13,
+            BPP_HP_BEFORE_G = 14,
+            BPP_MAX_HP = 15,
+            BPP_MAX_HP_BEFORE_G = 16,
+            BPP_LEVEL = 17,
+            BPP_TOKUSEI = 18,
+            BPP_TOKUSEI_EFFECTIVE = 19,
+            BPP_SEX = 20,
+            BPP_SEIKAKU = 21,
+            BPP_PERSONAL_RAND = 22,
+            BPP_EXP = 23,
+            BPP_MONS_POW = 24,
+            BPP_MONS_AGILITY = 25,
+            BPP_RANKVALUE_START = 1,
+            BPP_RANKVALUE_END = 7,
+            BPP_RANKVALUE_RANGE = 7,
+        };
+
         struct Fields {
             void* m_coreParam;
             void* m_baseParam;
@@ -61,7 +93,7 @@ namespace Dpr::Battle::Logic {
             return external<uint16_t>(0x01fdcfb0, this);
         }
 
-        inline int32_t GetValue(int32_t vid) {
+        inline int32_t GetValue(BTL_POKEPARAM::ValueID vid) {
             return external<int32_t>(0x01fdd010, this, vid);
         }
 
