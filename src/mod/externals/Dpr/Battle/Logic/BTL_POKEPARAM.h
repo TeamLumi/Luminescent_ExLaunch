@@ -128,5 +128,9 @@ namespace Dpr::Battle::Logic {
         inline bool CheckNemuri(NemuriCheckMode checkMode) {
             return external<bool>(0x01fd8ab0, this, checkMode);
         }
+
+        inline uint8_t GetFriendship() {
+            return external<uint8_t>(0x01fda180, this);
+        }
     };
 }

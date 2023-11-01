@@ -42,3 +42,9 @@ void Handlers_Spider_Web(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable
 
 // Adds handlers for Nightmare.
 void Handlers_Nightmare(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Return.
+void Handlers_Return(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Frustration.
+void Handlers_Frustration(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
