@@ -69,6 +69,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Return")]) Handlers_Return(array);
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Frustration")]) Handlers_Frustration(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Magnitude")]) Handlers_Magnitude(array);
 
         ctx->X[0] = (uint64_t)array;
     }

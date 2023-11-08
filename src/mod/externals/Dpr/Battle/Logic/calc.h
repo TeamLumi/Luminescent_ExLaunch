@@ -15,5 +15,9 @@ namespace Dpr::Battle::Logic {
         static inline uint32_t RandRange(uint32_t min, uint32_t max) {
             return external<uint32_t>(0x01f74a10, min, max);
         }
+
+        static inline uint32_t GetRand(uint32_t range) {
+            return external<uint32_t>(0x01f74990, range);
+        }
     };
 }

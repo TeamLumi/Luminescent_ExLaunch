@@ -48,3 +48,6 @@ void Handlers_Return(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds handlers for Frustration.
 void Handlers_Frustration(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Magnitude.
+void Handlers_Magnitude(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
