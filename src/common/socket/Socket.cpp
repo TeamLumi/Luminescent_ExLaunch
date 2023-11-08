@@ -111,7 +111,7 @@ const char *Socket::receiveMessage() {
         }
     }
 
-    char* ptr = (char*)IM_ALLOC(message.length() * sizeof(char));
+    char* ptr = (char*)nn_malloc(message.length() * sizeof(char));
     strcpy(ptr, message.c_str());
 
     return ptr;

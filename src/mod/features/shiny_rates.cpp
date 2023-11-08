@@ -4,19 +4,12 @@
 #include "data/utils.h"
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/ItemWork.h"
-#include "externals/Pml/Local/Random.h"
-#include "externals/Pml/Local/RandomGenerator.h"
-#include "externals/Pml/PokePara/CalcTool.h"
 #include "externals/Pml/PokePara/InitialSpec.h"
 #include "romdata/romdata.h"
 
-uint32_t ShinyRolls(Pml::PokePara::InitialSpec::Object* pFixSpec, Pml::Local::RandomGenerator::Object* rng)
-{
-    uint32_t rareTryCount = pFixSpec->fields.rareTryCount;
-    uint32_t rareRnd = 0;
-    uint32_t id = pFixSpec->fields.id;
+uint8_t ShinyRolls() {
+    uint8_t rareTryCount = 0;
 
-    // Base rolls
     rareTryCount += GetShinyRates().baseRolls;
 
     // Shiny charm rolls
@@ -26,37 +19,13 @@ uint32_t ShinyRolls(Pml::PokePara::InitialSpec::Object* pFixSpec, Pml::Local::Ra
         rareTryCount += GetShinyRates().charmRolls;
     }
 
-    for (uint32_t i=0; i<rareTryCount; i++)
-    {
-        if (rng == nullptr) rareRnd = Pml::Local::Random::GetValue();
-        else rareRnd = rng->GetRand();
-
-        if (Pml::PokePara::CalcTool::IsRareColor(id, rareRnd))
-        {
-            break;
-        }
-    }
-
-    // Make sure that we don't keep looping
-    pFixSpec->fields.rareTryCount = 0;
-
-    return rareRnd;
+    return rareTryCount;
 }
 
-HOOK_DEFINE_INLINE(Shiny_GetValue) {
-    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto pFixSpec = (Pml::PokePara::InitialSpec::Object*)ctx->X[19];
-
-        ctx->X[0] = (uint64_t)ShinyRolls(pFixSpec, nullptr);
-    }
-};
-
-HOOK_DEFINE_INLINE(Shiny_GetRand) {
-    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto pFixSpec = (Pml::PokePara::InitialSpec::Object*)ctx->X[20];
-        auto rng = (Pml::Local::RandomGenerator::Object*)ctx->X[19];
-
-        ctx->X[0] = (uint64_t)ShinyRolls(pFixSpec, rng);
+HOOK_DEFINE_TRAMPOLINE(InitialSpec_ctor) {
+    static void Callback(Pml::PokePara::InitialSpec::Object* __this) {
+        Orig(__this);
+        __this->fields.rareTryCount = ShinyRolls();
     }
 };
 
@@ -67,25 +36,7 @@ HOOK_DEFINE_INLINE(Shiny_Masuda) {
 };
 
 void exl_shiny_rates_main() {
-    // != 0xffffffffffffffff
-    Shiny_GetValue::InstallAtOffset(0x0205393c);
-    Shiny_GetRand::InstallAtOffset(0x0205391c);
-
-    // 0xffffffffffffffff
-    Shiny_GetValue::InstallAtOffset(0x02053928);
-    Shiny_GetRand::InstallAtOffset(0x020538f8);
-
-    // 0x1ffffffff
-    Shiny_GetValue::InstallAtOffset(0x02053ab0);
-    Shiny_GetRand::InstallAtOffset(0x02053a58);
-
-    // 0x2ffffffff
-    Shiny_GetValue::InstallAtOffset(0x02053adc);
-    Shiny_GetRand::InstallAtOffset(0x02053a88);
-
-    // 0x3ffffffff
-    Shiny_GetValue::InstallAtOffset(0x02053a08);
-    Shiny_GetRand::InstallAtOffset(0x020539a0);
+    InitialSpec_ctor::InstallAtOffset(0x020521d0);
 
     Shiny_Masuda::InstallAtOffset(0x02050874);
 

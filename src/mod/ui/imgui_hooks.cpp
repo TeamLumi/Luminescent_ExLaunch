@@ -8,6 +8,7 @@
 #include "checks.hpp"
 #include "logger/logger.h"
 #include "ui/base/root_element.h"
+#include "memory/nn_allocator.h"
 
 nvn::Device *nvnDevice;
 nvn::Queue *nvnQueue;
@@ -38,20 +39,17 @@ ui::Root* getRootElement() {
     return &root;
 }
 
-static void* (*mallocFuncPtr)(size_t size);
-static void (*freeFuncPtr)(void *ptr);
-
 bool InitImGui() {
     if (nvnDevice && nvnQueue && nvnCmdBuf) {
         Logger::log("Creating ImGui.\n");
         IMGUI_CHECKVERSION();
 
         ImGuiMemAllocFunc allocFunc = [](size_t size, void *user_data) {
-            return mallocFuncPtr(size);
+            return nn_malloc(size);
         };
 
         ImGuiMemFreeFunc freeFunc = [](void *ptr, void *user_data) {
-            freeFuncPtr(ptr);
+            nn_free(ptr);
         };
 
         Logger::log("Setting Allocator Functions.\n");
@@ -262,8 +260,6 @@ INPUT_HOOK(JoyLeftState);
 INPUT_HOOK(JoyRightState);
 
 void exl_imgui_main() {
-    nn::ro::LookupSymbol(reinterpret_cast<uintptr_t *>(&mallocFuncPtr), "malloc");
-    nn::ro::LookupSymbol(reinterpret_cast<uintptr_t *>(&freeFuncPtr), "free");
     NvnBootstrapHook::InstallAtSymbol("nvnBootstrapLoader");
     DisableFullKeyState::InstallAtSymbol("_ZN2nn3hid6detail13GetNpadStatesEPiPNS0_16NpadFullKeyStateEiRKj");
     DisableHandheldState::InstallAtSymbol("_ZN2nn3hid6detail13GetNpadStatesEPiPNS0_17NpadHandheldStateEiRKj");

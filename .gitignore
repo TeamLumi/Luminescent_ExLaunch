@@ -1,5 +1,6 @@
 # Build directory
 build/
+build-release/
 .cache/
 cmake-build-*/
 

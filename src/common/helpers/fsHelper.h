@@ -11,6 +11,8 @@ namespace FsHelper {
         int alignment = 8;
         void *buffer;
         long bufSize;
+
+        ~LoadData();
     };
 
     nn::Result writeFileToPath(void *buf, size_t size, const char *path);

@@ -5,6 +5,11 @@
 #include "imgui.h"
 
 namespace FsHelper {
+    LoadData::~LoadData() {
+        if(buffer != nullptr)
+            nn_free(buffer);
+    }
+
     nn::Result writeFileToPath(void *buf, size_t size, const char *path) {
         nn::fs::FileHandle handle{};
 
@@ -44,7 +49,7 @@ namespace FsHelper {
         long size = 0;
         nn::fs::GetFileSize(&size, handle);
         long alignedSize = ALIGN_UP(std::max(size, loadData.bufSize), loadData.alignment);
-        loadData.buffer = IM_ALLOC(alignedSize);
+        loadData.buffer = nn_malloc(alignedSize);
         loadData.bufSize = alignedSize;
 
         EXL_ASSERT(loadData.buffer, "Failed to Allocate Buffer! File Size: %ld", size);
@@ -88,9 +93,6 @@ namespace FsHelper {
 
             nn::string strBuffer((char*)data.buffer, data.bufSize);
             nn::json j = nn::json::parse(strBuffer);
-
-            // Free buffer
-            IM_FREE(data.buffer);
 
             return j;
         }

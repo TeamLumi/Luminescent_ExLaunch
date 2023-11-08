@@ -40,4 +40,5 @@ add_compile_definitions(
     PEARL=0x010018E011D92000
     # Disable saving to test save migration and changelog
     #DEBUG_DISABLE_SAVE
+    DEBUG_BUILD=$<CONFIG:Debug>
 )

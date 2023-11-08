@@ -125,6 +125,9 @@ void exl_swarm_forms_main();
 // Makes TMs infinite use.
 void exl_tms_main();
 
+// Allows alternate forms of Pokémon roaming in the Underground.
+void exl_ug_forms_main();
+
 // Adds support for wild Pokémon of any form number.
 void exl_wild_forms_main();
 

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <cstddef>
-#include "imgui.h"
+#include "memory/nn_allocator.h"
 #include "exlaunch.hpp"
 
 typedef void(*Il2CppMethodPointer)();
@@ -37,7 +37,7 @@ struct MethodInfo {
     uint8_t bitflags;
 
     MethodInfo* copyWith(Il2CppMethodPointer method) {
-        auto m = new MethodInfo;
+        auto m = (MethodInfo*)nn_malloc(sizeof(MethodInfo));
         memcpy(m, this, sizeof(MethodInfo));
         m->methodPointer = method;
         return m;

@@ -8,6 +8,7 @@
 #include "features/features.h"
 #include "save/save.h"
 #include "nn/err.h"
+#include "memory/nn_allocator.h"
 
 static Socket gSocket {};
 HOOK_DEFINE_TRAMPOLINE(MainInitHook){
@@ -59,7 +60,7 @@ extern "C" void exl_main(void* x0, void* x1) {
 
     MainInitHook::InstallAtSymbol("nnMain");
 
-#if CMAKE_BUILD_TYPE == Debug
+#if DEBUG_BUILD
     exl_imgui_main();
     exl_debug_menu_main();
 #endif
