@@ -19,20 +19,14 @@ ExtraMoveHandlers* getExtraMoveHandlers() {
 
 using namespace Dpr::Battle::Logic;
 EventFactor::EventHandlerTable::Array* CreateEventHandlerTable(long size) {
-    auto *array = (EventFactor::EventHandlerTable::Array*)IM_ALLOC(32 + 8 * size);
-    array->max_length = size;
-    for (int i = 0; i < size; ++i)
-        array->m_Items[i] = nullptr;
-    return array;
+    return EventFactor::EventHandlerTable::newArray(size);
 }
 
 EventFactor::EventHandlerTable::Object* CreateMoveEventHandler(EventID eventID, Il2CppMethodPointer methodPointer) {
     MethodInfo* method = (*Handler::Waza::PTR_Method$$handler_Karagenki_WazaPow)->copyWith(methodPointer);
-    auto evtHandler = (EventFactor::EventHandler::Object*)IM_ALLOC(sizeof(EventFactor::EventHandler::Object));
-    evtHandler->ctor(0, method);
+    auto evtHandler = EventFactor::EventHandler::newInstance(0, method);
     evtHandler->fields.delegates = nullptr;
-    auto table = (EventFactor::EventHandlerTable::Object*)IM_ALLOC(sizeof(EventFactor::EventHandlerTable::Object));
-    table->ctor(eventID, evtHandler);
+    auto table = EventFactor::EventHandlerTable::newInstance(eventID, evtHandler);
     return table;
 }
 
@@ -45,16 +39,14 @@ EventFactor::EventHandlerTable::Object* CreateMoveEventHandler(EventID eventID, 
 void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t wazaNo, Il2CppMethodPointer methodPointer) {
     MethodInfo* method = (*Handler::Waza::PTR_Method$$ADD_Karagenki)->copyWith(methodPointer);
     Handler::Waza::GET_FUNC_TABLE_ELEM::Object* elem = &getFuncTable->m_Items[index];
-    auto func = Handler::Waza::HandlerGetFunc::newInstance((intptr_t)methodPointer, method);
-    elem->fields.waza = wazaNo;
-    elem->fields.func = func;
+    auto func = Handler::Waza::HandlerGetFunc::newInstance(0, method);
+    elem->ctor(wazaNo, func);
 }
 
 void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t wazaNo, MethodInfo* method) {
     Handler::Waza::GET_FUNC_TABLE_ELEM::Object* elem = &getFuncTable->m_Items[index];
-    auto func = Handler::Waza::HandlerGetFunc::newInstance((intptr_t)method, method);
-    elem->fields.waza = wazaNo;
-    elem->fields.func = func;
+    auto func = Handler::Waza::HandlerGetFunc::newInstance(0, method);
+    elem->ctor(wazaNo, func);
 }
 
 HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {

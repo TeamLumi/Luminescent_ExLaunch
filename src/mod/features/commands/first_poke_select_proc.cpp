@@ -22,7 +22,7 @@ bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager)
         case Dpr::EvScript::EvDataManager::TalkState::Init: {
             manager->fields._talkStart = Dpr::EvScript::EvDataManager::TalkState::EndWait;
 
-            auto demo = Dpr::Demo::Demo_Gosanke::getClass()->newInstance();
+            auto demo = Dpr::Demo::Demo_Gosanke::newInstance();
 
             MethodInfo* mi = *Dpr::EvScript::EvDataManager::Method$$EvDataManager_CmdFirstPokeSelectProc;
             auto onEndDemo = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(manager, mi);

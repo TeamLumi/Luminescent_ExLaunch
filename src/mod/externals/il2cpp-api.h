@@ -96,7 +96,7 @@ public:
     };
 };
 
-template <typename T, long TypeInfo = 0>
+template <typename T, long TypeInfo = 0, long ArrayTypeInfo = 0>
 struct ILClass : _ILExternal {
 protected:
     ILClass() = default;
@@ -125,6 +125,10 @@ public:
             auto obj = reinterpret_cast<T::Object*>(il2cpp_object_new((Il2CppClass*)this));
             obj->ctor(args...);
             return obj;
+        }
+
+        T::Array* newInstance(long length) {
+            return reinterpret_cast<T::Array*>(system_array_new((Il2CppClass*)this, length));
         }
     };
 
@@ -203,6 +207,12 @@ public:
         return klass->newInstance(args...);
     }
 
+    static Array* newArray(long length) {
+        auto klass = getArrayClass();
+        klass->initIfNeeded();
+        return klass->newInstance(length);
+    }
+
     static Class* getClass() {
         static_assert(TypeInfo != 0, "TypeInfo address not set");
         return *reinterpret_cast<T::Class**>(exl::util::modules::GetTargetOffset(TypeInfo));
@@ -210,6 +220,11 @@ public:
 
     static Class* getClass(long ti) {
         return *reinterpret_cast<T::Class**>(exl::util::modules::GetTargetOffset(ti));
+    }
+
+    static Class* getArrayClass() {
+        static_assert(ArrayTypeInfo != 0, "ArrayTypeInfo address not set");
+        return *reinterpret_cast<T::Class**>(exl::util::modules::GetTargetOffset(ArrayTypeInfo));
     }
 };
 

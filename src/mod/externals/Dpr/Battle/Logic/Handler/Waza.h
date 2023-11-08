@@ -20,6 +20,10 @@ namespace Dpr::Battle::Logic::Handler {
                 int32_t waza;
                 HandlerGetFunc::Object* func;
             };
+
+            inline void ctor(int32_t waza, HandlerGetFunc::Object* func) {
+                external<void>(0x0202bc50, this, waza, func);
+            }
         };
 
         static Il2CppClass* GET_FUNC_TABLE_ELEM_array_TypeInfo() {

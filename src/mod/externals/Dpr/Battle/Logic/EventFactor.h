@@ -30,7 +30,7 @@ namespace Dpr::Battle::Logic {
             };
         };
 
-        struct EventHandlerTable : ILClass<EventHandlerTable, 0x04c5b158> {
+        struct EventHandlerTable : ILClass<EventHandlerTable, 0x04c5b158, 0x04c5b148> {
             struct Fields {
                 EventID eventID;
                 Dpr::Battle::Logic::EventFactor::EventHandler::Object* eventHandler;
@@ -40,9 +40,5 @@ namespace Dpr::Battle::Logic {
                 external<void>(0x01d12ed0, this, eventID, eventHandler);
             }
         };
-
-        static Il2CppClass* EventHandlerTable_array_TypeInfo() {
-            return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c5b148));
-        }
     };
 }
