@@ -51,3 +51,9 @@ void Handlers_Frustration(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTabl
 
 // Adds handlers for Magnitude.
 void Handlers_Magnitude(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Pursuit.
+void Handlers_Pursuit(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Installs hooks for Pursuit.
+void InstallHooks_Pursuit();

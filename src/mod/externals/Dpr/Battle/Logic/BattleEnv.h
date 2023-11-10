@@ -2,16 +2,17 @@
 
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/Battle/Logic/POKECON.h"
+#include "externals/Dpr/Battle/Logic/PosPoke.h"
 
 namespace Dpr::Battle::Logic {
     struct BattleEnv : ILClass<BattleEnv> {
         struct Fields {
-            Dpr::Battle::Logic::POKECON::Object* m_pokecon;
+            POKECON::Object* m_pokecon;
             void* m_fieldStatus; // Dpr_Battle_Logic_FieldStatus_o
             void* m_sideEffectManager; // Dpr_Battle_Logic_SideEffectManager_o
             void* m_posEffectManager; // Dpr_Battle_Logic_PosEffectManager_o
             void* m_eventFactorContainer; // Dpr_Battle_Logic_EventFactorContainer_o
-            void* m_posPoke; // Dpr_Battle_Logic_PosPoke_o
+            PosPoke::Object* m_posPoke;
             void* m_deadRec; // Dpr_Battle_Logic_DeadRec_o
             void* m_wazaRec; // Dpr_Battle_Logic_WazaRec_o
             void* m_affCounter; // Dpr_Battle_Logic_AffCounter_o

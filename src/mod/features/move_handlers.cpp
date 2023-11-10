@@ -57,6 +57,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         auto array = (Handler::Waza::GET_FUNC_TABLE_ELEM::Array*)system_array_new(typeInfo, size + getExtraMoveHandlers()->count);
         getExtraMoveHandlers()->currentIndex = size;
 
+        // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Jump Kick")]) Handlers_JumpKick(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sonic Boom")]) Handlers_SonicBoom(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Dragon Rage")]) Handlers_DragonRage(array);
@@ -70,10 +71,16 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Frustration")]) Handlers_Frustration(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Magnitude")]) Handlers_Magnitude(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) Handlers_Pursuit(array);
 
         ctx->X[0] = (uint64_t)array;
     }
 };
+
+void InstallActivatedMoveHooks() {
+    // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
+    if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Pursuit();
+}
 
 void exl_move_handlers_main() {
     Handler_Waza_newGetFunc::InstallAtOffset(0x018298a8);
@@ -136,4 +143,6 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Freezy Frost"));
     SetActivatedMoveHandlers(array_index(MOVES, "Sparkly Swirl"));
     SetActivatedMoveHandlers(array_index(MOVES, "Veevee Volley"));
-};
+
+    InstallActivatedMoveHooks();
+}

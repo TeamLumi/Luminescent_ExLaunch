@@ -43,6 +43,47 @@ namespace Dpr::Battle::Logic {
             BPP_RANKVALUE_END = 7,
             BPP_RANKVALUE_RANGE = 7,
         };
+        
+        enum class Counter : int32_t {
+            COUNTER_TAKUWAERU = 0,
+            COUNTER_TAKUWAERU_DEF = 1,
+            COUNTER_TAKUWAERU_SPDEF = 2,
+            COUNTER_MAMORU = 3,
+            COUNTER_FREEFALL = 4,
+            COUNTER_TURN_FROM_GWALL_BROKEN = 5,
+            COUNTER_MAX = 6,
+        };
+
+        enum class TurnFlag : int32_t {
+            TURNFLG_ACTION_START = 0,
+            TURNFLG_ACTION_DONE = 1,
+            TURNFLG_DAMAGED = 2,
+            TURNFLG_WAZAPROC_DONE = 3,
+            TURNFLG_SHRINK = 4,
+            TURNFLG_KIAI_READY = 5,
+            TURNFLG_KIAI_SHRINK = 6,
+            TURNFLG_MAMORU = 7,
+            TURNFLG_ITEM_CONSUMED = 8,
+            TURNFLG_ITEM_CANT_USE = 9,
+            TURNFLG_COMBIWAZA_READY = 10,
+            TURNFLG_TAMEHIDE_OFF = 11,
+            TURNFLG_MOVED = 12,
+            TURNFLG_TURNCHECK_SICK_PASSED = 13,
+            TURNFLG_HITRATIO_UP = 14,
+            TURNFLG_NAGETUKERU_USING = 15,
+            TURNFLG_MAMORU_ONLY_DAMAGE_WAZA = 16,
+            TURNFLG_RESERVE_ITEM_SPEND = 17,
+            TURNFLG_APPEARED_BY_POKECHANGE = 18,
+            TURNFLG_CANT_ACTION = 19,
+            TURNFLG_TRAPPSHELL_READY = 20,
+            TURNFLG_GWALL_BROKEN = 21,
+            TURNFLG_RAIDBOSS_REINFORCE_DONE = 22,
+            TURNFLG_RAIDBOSS_ANGRY = 23,
+            TURNFLG_RAIDBOSS_ANGRY_WAZA_ADD_DONE = 24,
+            TURNFLG_RANK_UP = 25,
+            TURNFLG_RANK_DOWN = 26,
+            TURNFLG_MAX = 27,
+        };
 
         struct Fields {
             void* m_coreParam;
@@ -109,11 +150,11 @@ namespace Dpr::Battle::Logic {
             return external<uint16_t>(0x01fdfd50, this);
         }
 
-        inline void COUNTER_Inc(int32_t cnt) {
+        inline void COUNTER_Inc(Counter cnt) {
             external<void>(0x01fe2cd0, this, cnt);
         }
 
-        inline uint8_t COUNTER_Get(int32_t cnt) {
+        inline uint8_t COUNTER_Get(Counter cnt) {
             return external<uint8_t>(0x01fe0140, this, cnt);
         }
 
@@ -131,6 +172,14 @@ namespace Dpr::Battle::Logic {
 
         inline uint8_t GetFriendship() {
             return external<uint8_t>(0x01fda180, this);
+        }
+
+        inline bool IsDead() {
+            return external<bool>(0x01fd8a60, this);
+        }
+
+        inline void TURNFLAG_Set(TurnFlag flagID) {
+            external<void>(0x01fe0d90, this, flagID);
         }
     };
 }

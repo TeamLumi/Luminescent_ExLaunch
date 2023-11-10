@@ -50,5 +50,9 @@ namespace Dpr::Battle::Logic {
         static inline uint8_t GetFrontPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t* pos) {
             return external<uint8_t>(0x01d0a110, args, pos);
         }
+
+        static inline bool IsFriendPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID1, uint8_t pokeID2) {
+            return external<bool>(0x01d0a040, args, pokeID1, pokeID2);
+        }
     };
 }

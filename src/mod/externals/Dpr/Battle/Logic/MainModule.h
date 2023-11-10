@@ -6,6 +6,7 @@
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 #include "externals/Dpr/Battle/Logic/BattleEnv.h"
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "externals/Dpr/Battle/Logic/BtlEscapeMode.h"
 #include "externals/Dpr/Battle/Logic/BtlRule.h"
 #include "externals/Dpr/Battle/Logic/MyStatus.h"
 #include "externals/Pml/PokeParty.h"
@@ -83,6 +84,14 @@ namespace Dpr::Battle::Logic {
 
         inline Pml::PokeParty::Object* GetSrcParty(uint8_t clientID, bool fForServer) {
             return external<Pml::PokeParty::Object*>(0x020325a0, this, clientID, fForServer);
+        }
+
+        inline bool IsFriendPokeID(uint8_t pokeID1, uint8_t pokeID2) {
+            return external<bool>(0x02037470, this, pokeID1, pokeID2);
+        }
+
+        inline BtlEscapeMode GetEscapeMode() {
+            return external<BtlEscapeMode>(0x02034bb0, this);
         }
     };
 }
