@@ -26,7 +26,6 @@
 using namespace Dpr::Battle::Logic;
 
 void HandlerPursuitWazaExeStart(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    Logger::log("HandlerPursuitWazaExeStart\n");
     if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID)
         return;
 
@@ -37,7 +36,6 @@ void HandlerPursuitWazaExeStart(EventFactor::EventHandlerArgs::Object** args, ui
 }
 
 void HandlerPursuitCalcHitCancel(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    Logger::log("HandlerPursuitCalcHitCancel\n");
     if (!Common::GetWorkValue(args, WorkValue::A))
         return;
 
@@ -48,7 +46,6 @@ void HandlerPursuitCalcHitCancel(EventFactor::EventHandlerArgs::Object** args, u
 }
 
 void HandlerPursuitWazaPower(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    Logger::log("HandlerPursuitWazaPower\n");
     if (!Common::GetWorkValue(args, WorkValue::A))
         return;
 
@@ -76,7 +73,6 @@ void Handlers_Pursuit(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
 }
 
 void PursuitInterrupt(Section_ProcessActionCore::Object* section, PokeAction::Object* action, uint8_t targetPokeID) {
-    Logger::log("PursuitInterrupt\n");
     if (((Section::Object*)section)->CheckEncoreWazaChange(action) != array_index(MOVES, "-MOVE ZERO-"))
         return;
 
@@ -86,7 +82,6 @@ void PursuitInterrupt(Section_ProcessActionCore::Object* section, PokeAction::Ob
 }
 
 void PursuitProcess(Section_ProcessActionCore::Object* section, PokeActionContainer::Object* pokeActionContainer, PokeAction::Object* thisAction) {
-    Logger::log("PursuitProcess\n");
     bool isPursuitTarget = thisAction->fields.actionCategory == PokeActionCategory::PokeChange;
     bool isFight = thisAction->fields.actionCategory == PokeActionCategory::Fight;
     if (!isPursuitTarget && isFight) {
@@ -123,7 +118,6 @@ void PursuitProcess(Section_ProcessActionCore::Object* section, PokeActionContai
 
 HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Section_ProcessActionCore_Execute) {
     static void Callback(Section_ProcessActionCore::Object* __this, Section_ProcessActionCore::Result::Object* pResult, Section_ProcessActionCore::Description::Object** description) {
-        Logger::log("Dpr_Battle_Logic_Section_ProcessActionCore_Execute\n");
         PokeAction::Object* pa = (*description)->fields.pokeAction;
         if (pa->fields.fDone)
             return;
@@ -181,7 +175,6 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Section_ProcessActionCore_Execute) {
 HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart) {
     static uint8_t Callback(EventLauncher::Object* __this, ActionDesc::Object* actionDesc, BTL_POKEPARAM::Object* attacker,
                          WazaParam::Object* wazaParam, PokeSet::Object* rec, WazaEffectParams::Object* pWazaEffectParams) {
-        Logger::log("Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart\n");
         uint8_t pokeCount = rec->fields.m_count;
         EventSystem::Object* es = __this->fields.m_pEventSystem->instance();
 
@@ -196,8 +189,9 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart) {
         es->EVENTVAR_SetConstValue(EventVar::Label::ACTION_DESC_IS_ODORIKO_REACTION, actionDesc->fields.isOdorikoReaction);
         es->EVENTVAR_SetConstValue(EventVar::Label::TARGET_POKECNT, pokeCount);
 
-        for (auto i=(uint16_t)EventVar::Label::POKEID_TARGET1; i<pokeCount; i++) {
-            es->EVENTVAR_SetConstValue((EventVar::Label)i, rec->Get(i)->GetID());
+        for (uint8_t i=0; i<pokeCount; i++) {
+            auto target = (EventVar::Label)(i + (uint16_t)EventVar::Label::POKEID_TARGET1);
+            es->EVENTVAR_SetConstValue(target, rec->Get(i)->GetID());
         }
 
         es->EVENTVAR_SetRewriteOnceValue(EventVar::Label::ENABLE_MODE, 0);

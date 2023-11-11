@@ -127,8 +127,10 @@ public:
             return obj;
         }
 
-        T::Array* newInstance(long length) {
-            return reinterpret_cast<T::Array*>(system_array_new((Il2CppClass*)this, length));
+        T::Array* newArray(long length) {
+            auto array = reinterpret_cast<T::Array*>(system_array_new((Il2CppClass*)this, length));
+            system_array_init(array, nullptr);
+            return array;
         }
     };
 
@@ -207,10 +209,25 @@ public:
         return klass->newInstance(args...);
     }
 
+    template <typename... Args>
+    static Object* newInstanceMAlloc(Args... args) {
+        auto obj = reinterpret_cast<Object*>(nn_malloc(sizeof(Object)));
+        obj->ctor(args...);
+        return obj;
+    }
+
     static Array* newArray(long length) {
         auto klass = getArrayClass();
         klass->initIfNeeded();
-        return klass->newInstance(length);
+        return klass->newArray(length);
+    }
+
+    static Array* newArrayMAlloc(long length) {
+        auto array = reinterpret_cast<Array*>(nn_malloc(32 + 8*length));
+        array->max_length = length;
+        for (long i=0; i<length; i++)
+            array->m_Items[i] = nullptr;
+        return array;
     }
 
     static Class* getClass() {

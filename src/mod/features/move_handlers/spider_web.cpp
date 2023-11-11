@@ -8,7 +8,7 @@
 
 using namespace Dpr::Battle::Logic;
 
-void Handlers_Spider_Web(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_SpiderWeb(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Spider Web"), *Handler::Waza::PTR_Method$$ADD_KumoNoSu);
     getExtraMoveHandlers()->currentIndex++;
 }

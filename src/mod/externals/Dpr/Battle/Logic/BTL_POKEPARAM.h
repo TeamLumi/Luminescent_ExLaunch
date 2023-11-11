@@ -138,8 +138,8 @@ namespace Dpr::Battle::Logic {
             return external<int32_t>(0x01fdd010, this, vid);
         }
 
-        inline int32_t GetID() {
-            return external<int32_t>(0x01fd8a50, this);
+        inline uint8_t GetID() {
+            return external<uint8_t>(0x01fd8a50, this);
         }
 
         inline bool CONFRONT_REC_IsMatch(int32_t pokeID) {

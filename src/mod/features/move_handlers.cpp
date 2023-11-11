@@ -19,21 +19,20 @@ ExtraMoveHandlers* getExtraMoveHandlers() {
 
 using namespace Dpr::Battle::Logic;
 EventFactor::EventHandlerTable::Array* CreateEventHandlerTable(long size) {
-    return EventFactor::EventHandlerTable::newArray(size);
+    return EventFactor::EventHandlerTable::newArrayMAlloc(size);
 }
 
 EventFactor::EventHandlerTable::Object* CreateMoveEventHandler(EventID eventID, Il2CppMethodPointer methodPointer) {
     MethodInfo* method = (*Handler::Waza::PTR_Method$$handler_Karagenki_WazaPow)->copyWith(methodPointer);
-    auto evtHandler = EventFactor::EventHandler::newInstance(0, method);
+    auto evtHandler = EventFactor::EventHandler::newInstanceMAlloc(0, method);
     evtHandler->fields.delegates = nullptr;
-    auto table = EventFactor::EventHandlerTable::newInstance(eventID, evtHandler);
-    return table;
+    return EventFactor::EventHandlerTable::newInstanceMAlloc(eventID, evtHandler);
 }
 
 EventFactor::EventHandlerTable::Object* CreateMoveEventHandler(EventID eventID, MethodInfo* method) {
-    auto evtHandler = EventFactor::EventHandler::newInstance(0, method);
+    auto evtHandler = EventFactor::EventHandler::newInstanceMAlloc(0, method);
     evtHandler->fields.delegates = nullptr;
-    return EventFactor::EventHandlerTable::newInstance(eventID, evtHandler);
+    return EventFactor::EventHandlerTable::newInstanceMAlloc(eventID, evtHandler);
 }
 
 void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t wazaNo, Il2CppMethodPointer methodPointer) {
@@ -65,20 +64,21 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bide")]) Handlers_Bide(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mirror Move")]) Handlers_MirrorMove(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Psywave")]) Handlers_Psywave(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spider Web")]) Handlers_Spider_Web(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spider Web")]) Handlers_SpiderWeb(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Nightmare")]) Handlers_Nightmare(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Return")]) Handlers_Return(array);
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Frustration")]) Handlers_Frustration(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Magnitude")]) Handlers_Magnitude(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) Handlers_Pursuit(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Smelling Salts")]) Handlers_SmellingSalts(array);
 
         ctx->X[0] = (uint64_t)array;
     }
 };
 
 void InstallActivatedMoveHooks() {
-    // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
+    // DO NOT REMOVE ANY OF THESE! If you want to disable the moves, do it in exl_move_handlers_main() below instead!
     if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Pursuit();
 }
 

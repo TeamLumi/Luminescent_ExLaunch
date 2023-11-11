@@ -38,7 +38,7 @@ void Handlers_MirrorMove(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable
 void Handlers_Psywave(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds handlers for Spider Web.
-void Handlers_Spider_Web(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+void Handlers_SpiderWeb(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds handlers for Nightmare.
 void Handlers_Nightmare(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
@@ -57,3 +57,6 @@ void Handlers_Pursuit(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Installs hooks for Pursuit.
 void InstallHooks_Pursuit();
+
+// Adds handlers for Smelling Salts.
+void Handlers_SmellingSalts(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

@@ -6,6 +6,7 @@
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
+#include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 
@@ -53,6 +54,10 @@ namespace Dpr::Battle::Logic {
 
         static inline bool IsFriendPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID1, uint8_t pokeID2) {
             return external<bool>(0x01d0a040, args, pokeID1, pokeID2);
+        }
+
+        static inline bool CureSick(EventFactor::EventHandlerArgs::Object** args, Section_CureSick::Description::Object** desc) {
+            return external<bool>(0x01d0a960, args, desc);
         }
     };
 }

@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
+#include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 
 #include "logger/logger.h"
@@ -17,6 +18,19 @@ void HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID
     addSickDesc->fields.isDisplayTokuseiWindow = false;
     addSickDesc->fields.isFailResultDisplay = false;
     Common::AddSick(args, &addSickDesc);
+}
+
+void HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID)
+{
+    system_load_typeinfo(0x893f);
+    auto cureSickDesc = Section_CureSick::Description::newInstance();
+    cureSickDesc->fields.pokeID = causePokeID;
+    cureSickDesc->fields.sick = (Dpr::Battle::Logic::WazaSickEx)sickID;
+    cureSickDesc->fields.targetPokeID->m_Items[0] = targetPokeID;
+    cureSickDesc->fields.targetPokeCount = 1;
+    cureSickDesc->fields.isDisplayTokuseiWindow = false;
+    cureSickDesc->fields.isStandardMessageDisable = false;
+    Common::CureSick(args, &cureSickDesc);
 }
 
 void HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, Pml::WazaData::WazaRankEffect rankType, int8_t rankVolume, bool displayAbility, bool ignoreSubstitute, bool messageOnFail)
