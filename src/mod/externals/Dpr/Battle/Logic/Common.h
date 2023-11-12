@@ -59,5 +59,17 @@ namespace Dpr::Battle::Logic {
         static inline bool CureSick(EventFactor::EventHandlerArgs::Object** args, Section_CureSick::Description::Object** desc) {
             return external<bool>(0x01d0a960, args, desc);
         }
+
+        static inline BTL_PARTY::Object* GetPartyData(EventFactor::EventHandlerArgs::Object** args, int32_t clientID) {
+            return external<BTL_PARTY::Object*>(0x01d0f030, args, clientID);
+        }
+
+        static inline BTL_PARTY::Object* GetPartyData(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            return external<BTL_PARTY::Object*>(0x01d0f050, args, pokeID);
+        }
+
+        static inline uint8_t DecideWazaTargetAuto(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t wazano) {
+            return external<uint8_t>(0x01d0d090, args, pokeID, wazano);
+        }
     };
 }

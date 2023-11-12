@@ -60,3 +60,6 @@ void InstallHooks_Pursuit();
 
 // Adds handlers for Smelling Salts.
 void Handlers_SmellingSalts(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Assist.
+void Handlers_Assist(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

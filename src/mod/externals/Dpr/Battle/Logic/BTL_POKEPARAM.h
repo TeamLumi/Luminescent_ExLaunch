@@ -181,5 +181,9 @@ namespace Dpr::Battle::Logic {
         inline void TURNFLAG_Set(TurnFlag flagID) {
             external<void>(0x01fe0d90, this, flagID);
         }
+
+        inline int32_t WAZA_GetID(uint8_t idx) {
+            return external<int32_t>(0x01fdeb70, this, idx);
+        }
     };
 }

@@ -72,6 +72,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Magnitude")]) Handlers_Magnitude(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) Handlers_Pursuit(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Smelling Salts")]) Handlers_SmellingSalts(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Assist")]) Handlers_Assist(array);
 
         ctx->X[0] = (uint64_t)array;
     }
