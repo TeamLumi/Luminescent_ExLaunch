@@ -63,3 +63,6 @@ void Handlers_SmellingSalts(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTa
 
 // Adds handlers for Assist.
 void Handlers_Assist(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Refresh.
+void Handlers_Refresh(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

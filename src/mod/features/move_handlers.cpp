@@ -73,13 +73,14 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) Handlers_Pursuit(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Smelling Salts")]) Handlers_SmellingSalts(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Assist")]) Handlers_Assist(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Refresh")]) Handlers_Refresh(array);
 
         ctx->X[0] = (uint64_t)array;
     }
 };
 
 void InstallActivatedMoveHooks() {
-    // DO NOT REMOVE ANY OF THESE! If you want to disable the moves, do it in exl_move_handlers_main() below instead!
+    // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
     if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Pursuit();
 }
 

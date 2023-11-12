@@ -9,6 +9,7 @@
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
+#include "externals/Pml/PokePara/Sick.h"
 
 namespace Dpr::Battle::Logic {
     struct Common : ILClass<Common, 0x04c5ad48> {
@@ -70,6 +71,10 @@ namespace Dpr::Battle::Logic {
 
         static inline uint8_t DecideWazaTargetAuto(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t wazano) {
             return external<uint8_t>(0x01d0d090, args, pokeID, wazano);
+        }
+
+        static inline Pml::PokePara::Sick CheckPokeSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            return external<Pml::PokePara::Sick>(0x01d0eb40, args, pokeID);
         }
     };
 }
