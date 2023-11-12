@@ -10,6 +10,7 @@
 
 using namespace Dpr::Battle::Logic;
 
+// Possibly just move this to a move flag?
 static constexpr int32_t ASSIST_UNCALLABLE[] = {
     array_index(MOVES, "Baneful Bunker"),
     array_index(MOVES, "Beak Blast"),

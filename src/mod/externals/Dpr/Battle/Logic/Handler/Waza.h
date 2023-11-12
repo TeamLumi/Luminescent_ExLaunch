@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
+#include "externals/Dpr/Battle/Logic/EventSystem.h"
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic::Handler {
@@ -329,6 +330,10 @@ namespace Dpr::Battle::Logic::Handler {
 
         static inline void common_Korogaru_Unlock(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
             external<void>(0x01803ac0, args, pokeID);
+        }
+
+        static inline void removeHandlerForce(EventSystem::Object* pEventSystem, uint8_t pokeID, int32_t waza) {
+            external<void>(0x017f99a0, pEventSystem, pokeID, waza);
         }
     };
 }

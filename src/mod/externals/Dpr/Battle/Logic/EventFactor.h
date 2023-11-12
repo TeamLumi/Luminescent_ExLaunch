@@ -7,6 +7,9 @@
 #include "externals/System/MulticastDelegate.h"
 
 namespace Dpr::Battle::Logic {
+    struct EventSystem;
+    struct MainModule;
+
     struct EventFactor : ILClass<EventFactor> {
         struct EventHandler : ILClass<EventHandler, 0x04c5b150> {
             struct Fields : System::MulticastDelegate::Fields {};
@@ -18,15 +21,15 @@ namespace Dpr::Battle::Logic {
 
         struct EventHandlerArgs : ILClass<EventHandlerArgs> {
             struct Fields {
-                Dpr::Battle::Logic::MainModule::Object* pMainModule;
+                MainModule* pMainModule;
                 void* pBattleEnv; // Dpr::Battle::Logic::BattleEnv::Object*
                 void* pPokeActionContainer; // Dpr::Battle::Logic::PokeActionContainer::Object*
                 void* pPokeChangeRequest; // Dpr::Battle::Logic::PokeChangeRequest::Object*
                 void* pSectionContainer; // Dpr::Battle::Logic::SectionContainer::Object*
                 void* pSectionSharedData; // Dpr::Battle::Logic::SectionSharedData::Object*
-                void* pEventSystem; // Dpr::Battle::Logic::EventSystem::Object*
+                EventSystem* pEventSystem;
                 void* pEventVar; // Dpr::Battle::Logic::EventVarSet::Object*
-                Dpr::Battle::Logic::EventFactor::Object* pMyFactor;
+                EventFactor::Object* pMyFactor;
             };
         };
 

@@ -66,3 +66,6 @@ void Handlers_Assist(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds handlers for Refresh.
 void Handlers_Refresh(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Snatch.
+void Handlers_Snatch(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
