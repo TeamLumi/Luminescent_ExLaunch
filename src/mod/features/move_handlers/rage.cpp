@@ -43,7 +43,7 @@ void HandlerRageWazaDmgReaction(EventFactor::EventHandlerArgs::Object** args, ui
     if (Common::GetEventVar(args, EventVar::Label::MIGAWARI_FLAG))
         return;
 
-    HandlerRankEffect(args, pokeID, pokeID, Pml::WazaData::WazaRankEffect::ATTACK, 1, false, false, true);
+    HandlerRankEffect(args, pokeID, pokeID, Pml::WazaData::WazaRankEffect::ATTACK, 1, false, false, true, false);
 }
 
 void HandlerRageMemberOutFixed(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+#include "externals/Dpr/Battle/Logic/BTL_SICKCONT.h"
+#include "externals/Pml/WazaData/WazaSick.h"
 
 namespace Dpr::Battle::Logic {
     struct calc : ILClass<calc, 0x04c5a768> {
@@ -18,6 +20,10 @@ namespace Dpr::Battle::Logic {
 
         static inline uint32_t GetRand(uint32_t range) {
             return external<uint32_t>(0x01f74990, range);
+        }
+
+        static inline BTL_SICKCONT::Object MakeDefaultPokeSickCont(Pml::WazaData::WazaSick sick, uint8_t causePokeID, bool isCantUseRand) {
+            return external<BTL_SICKCONT::Object>(0x01f74d20, sick, causePokeID, isCantUseRand);
         }
     };
 }

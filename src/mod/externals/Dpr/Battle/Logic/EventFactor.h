@@ -43,5 +43,9 @@ namespace Dpr::Battle::Logic {
                 external<void>(0x01d12ed0, this, eventID, eventHandler);
             }
         };
+
+        inline void SetSubID(uint16_t value) {
+            external<void>(0x01d12ac0, this, value);
+        }
     };
 }

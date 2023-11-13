@@ -2,12 +2,16 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/BTL_FIELD_SITUATION.h"
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "externals/Dpr/Battle/Logic/BtlGround.h"
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Shrink.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 #include "externals/Pml/PokePara/Sick.h"
 
@@ -75,6 +79,26 @@ namespace Dpr::Battle::Logic {
 
         static inline Pml::PokePara::Sick CheckPokeSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
             return external<Pml::PokePara::Sick>(0x01d0eb40, args, pokeID);
+        }
+
+        static inline BtlGround GetGround(EventFactor::EventHandlerArgs::Object** args) {
+            return external<BtlGround>(0x01d0a060, args);
+        }
+
+        static inline BTL_FIELD_SITUATION::Object* GetFieldSituation(EventFactor::EventHandlerArgs::Object** args) {
+            return external<BTL_FIELD_SITUATION::Object*>(0x01d0a080, args);
+        }
+
+        static inline bool Shrink(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_Shrink::Description::Object** desc) {
+            return external<bool>(0x01d0c3a0, args, desc);
+        }
+
+        static inline void PlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_PlayWazaEffect::Description::Object** desc) {
+            external<void>(0x01d0d300, args, desc);
+        }
+
+        static inline uint8_t GetExistFrontPokePos(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            return external<uint8_t>(0x01d0f1e0, args, pokeID);
         }
     };
 }

@@ -8,5 +8,9 @@ namespace Dpr::Battle::Logic {
         static inline bool GetFlag(int32_t id, Pml::WazaData::WazaFlag flag) {
             return external<bool>(0x01f72bf0, id, flag);
         }
+
+        static inline uint8_t GetType(int32_t id) {
+            return external<uint8_t>(0x01f72b20, id);
+        }
     };
 }
