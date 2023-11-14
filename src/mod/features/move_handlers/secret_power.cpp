@@ -4,6 +4,7 @@
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
+#include "externals/Dpr/Battle/Logic/SectionContainer.h"
 #include "externals/Dpr/Battle/Logic/WAZADATA.h"
 #include "data/moves.h"
 #include "data/utils.h"
@@ -55,9 +56,17 @@ void HandlerSecretPowerWazaExeStart(EventFactor::EventHandlerArgs::Object** args
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    uint8_t pos = Common::GetExistFrontPokePos(args, pokeID);
+    // Plays an additional move effect.
+    // This plays before the actual move effect, which is not replaced.
+    /*uint8_t atkPos = Common::GetExistFrontPokePos(args, pokeID);
+    uint8_t defPos = Common::GetExistFrontPokePos(args, Common::GetEventVar(args, EventVar::Label::POKEID_TARGET1));
     int32_t waza = GetSecretPowerMove(args);
-    HandlerPlayEffect(args, pos, waza, WAZADATA::GetType(waza));
+    HandlerPlayEffect(args, atkPos, defPos, waza, WAZADATA::GetType(waza));*/
+
+    // Changes the effect waza to be the new move.
+    // It just completely replaces the visuals with the new move, including the text.
+    /*auto section = ((Section::Object*)(*args)->fields.pSectionContainer->instance()->fields.m_section_FromEvent_SetWazaEffectIndex);
+    section->GetActionSharedData()->fields.wazaEffectParams->fields.effectWazaID = waza;*/
 }
 
 void HandlerSecretPowerDamageprocEndHitReal(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
@@ -138,9 +147,10 @@ void HandlerSecretPowerDamageprocEndHitReal(EventFactor::EventHandlerArgs::Objec
 EventFactor::EventHandlerTable::Array* ADD_SecretPower() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_SecretPower;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(2);
-        table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_EXE_START, (Il2CppMethodPointer)&HandlerSecretPowerWazaExeStart);
-        table->m_Items[1] = CreateMoveEventHandler(EventID::DAMAGEPROC_END_HIT_REAL, (Il2CppMethodPointer)&HandlerSecretPowerDamageprocEndHitReal);
+        table = CreateEventHandlerTable(1);
+        table->m_Items[0] = CreateMoveEventHandler(EventID::DAMAGEPROC_END_HIT_REAL, (Il2CppMethodPointer)&HandlerSecretPowerDamageprocEndHitReal);
+        // FOR REPLACING THE MOVE EFFECT, DOESN'T WORK CURRENTLY
+        //table->m_Items[1] = CreateMoveEventHandler(EventID::WAZA_EXE_START, (Il2CppMethodPointer)&HandlerSecretPowerWazaExeStart);
         getExtraMoveHandlers()->HandlerTable_SecretPower = table;
     }
     return table;

@@ -2,10 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
-#include "externals/Dpr/Battle/Logic/RankEffectCause.h"
-#include "externals/Dpr/Battle/Logic/RankEffectViewType.h"
 #include "externals/Dpr/Battle/Logic/Section.h"
-#include "externals/Pml/WazaData/WazaRankEffect.h"
 
 namespace Dpr::Battle::Logic {
     struct Section_FromEvent_PlayWazaEffect : ILClass<Section_FromEvent_PlayWazaEffect, 0x04c5b9a0> {

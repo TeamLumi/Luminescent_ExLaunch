@@ -22,5 +22,9 @@ namespace Dpr::Battle::Logic {
             bool fItazuraGokoro;
             bool fInvalidMessageDisable;
         };
+
+        inline void CopyFrom(WazaParam::Object* src) {
+            external<void>(0x01f734c0, this, src);
+        }
     };
 }

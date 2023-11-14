@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_InterruptAction.h"
 
 namespace Dpr::Battle::Logic {
@@ -139,7 +140,7 @@ namespace Dpr::Battle::Logic {
             void* m_section_FromEvent_SetPower; // Dpr_Battle_Logic_Section_FromEvent_SetPower_o*
             void* m_section_FromEvent_SetTurnFlag; // Dpr_Battle_Logic_Section_FromEvent_SetTurnFlag_o*
             void* m_section_FromEvent_SetWazaEffectEnable; // Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectEnable_o*
-            void* m_section_FromEvent_SetWazaEffectIndex; // Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_o*
+            Section_FromEvent_SetWazaEffectIndex::Object* m_section_FromEvent_SetWazaEffectIndex; // Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_o*
             void* m_section_FromEvent_SetWeight; // Dpr_Battle_Logic_Section_FromEvent_SetWeight_o*
             void* m_section_FromEvent_ShiftHP; // Dpr_Battle_Logic_Section_FromEvent_ShiftHP_o*
             void* m_section_FromEvent_Shrink; // Dpr_Battle_Logic_Section_FromEvent_Shrink_o*

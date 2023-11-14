@@ -9,6 +9,7 @@
 namespace Dpr::Battle::Logic {
     struct EventSystem;
     struct MainModule;
+    struct SectionContainer;
 
     struct EventFactor : ILClass<EventFactor> {
         struct EventHandler : ILClass<EventHandler, 0x04c5b150> {
@@ -25,7 +26,7 @@ namespace Dpr::Battle::Logic {
                 void* pBattleEnv; // Dpr::Battle::Logic::BattleEnv::Object*
                 void* pPokeActionContainer; // Dpr::Battle::Logic::PokeActionContainer::Object*
                 void* pPokeChangeRequest; // Dpr::Battle::Logic::PokeChangeRequest::Object*
-                void* pSectionContainer; // Dpr::Battle::Logic::SectionContainer::Object*
+                SectionContainer* pSectionContainer;
                 void* pSectionSharedData; // Dpr::Battle::Logic::SectionSharedData::Object*
                 EventSystem* pEventSystem;
                 void* pEventVar; // Dpr::Battle::Logic::EventVarSet::Object*

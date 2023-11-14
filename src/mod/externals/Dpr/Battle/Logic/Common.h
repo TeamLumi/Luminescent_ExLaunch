@@ -11,6 +11,8 @@
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Shrink.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 #include "externals/Pml/PokePara/Sick.h"
@@ -99,6 +101,14 @@ namespace Dpr::Battle::Logic {
 
         static inline uint8_t GetExistFrontPokePos(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
             return external<uint8_t>(0x01d0f1e0, args, pokeID);
+        }
+
+        static inline void SetWazaEffectIndex(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_SetWazaEffectIndex::Description::Object** desc) {
+            external<void>(0x01d0cb40, args, desc);
+        }
+
+        static inline void SetWazaEffectEnable(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_SetWazaEffectEnable::Description::Object** desc) {
+            external<void>(0x01d0cbc0, args, desc);
         }
     };
 }

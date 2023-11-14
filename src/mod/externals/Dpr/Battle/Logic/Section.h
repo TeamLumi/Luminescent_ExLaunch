@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/ActionSharedData.h"
 #include "externals/Dpr/Battle/Logic/BtlCompetitor.h"
 #include "externals/Dpr/Battle/Logic/BtlRule.h"
 #include "externals/Dpr/Battle/Logic/PokeAction.h"
@@ -46,6 +47,10 @@ namespace Dpr::Battle::Logic {
 
         inline uint8_t GetPokePos(uint8_t pokeID) {
             return external<uint8_t>(0x020d6580, this, pokeID);
+        }
+
+        inline ActionSharedData::Object* GetActionSharedData() {
+            return external<ActionSharedData::Object*>(0x020d6400, this);
         }
     };
 }
