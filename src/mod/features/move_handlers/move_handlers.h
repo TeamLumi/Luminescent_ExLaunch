@@ -72,3 +72,6 @@ void Handlers_Snatch(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds handlers for Secret Power.
 void Handlers_SecretPower(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds handlers for Camouflage.
+void Handlers_Camouflage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

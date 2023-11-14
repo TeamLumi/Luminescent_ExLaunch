@@ -14,8 +14,6 @@
 
 using namespace Dpr::Battle::Logic;
 
-constexpr uint8_t SECONDARY_EFFECT_PERCENT = 30;
-
 int32_t GetSecretPowerMove(EventFactor::EventHandlerArgs::Object** args) {
     switch (Common::GetGround(args))
     {
@@ -35,20 +33,20 @@ int32_t GetSecretPowerMove(EventFactor::EventHandlerArgs::Object** args) {
     return GetExtraArenaData(arenaId).secretPowerMove;
 }
 
-void HandlerSecretPowerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t defender, uint32_t sickID) {
-    if (calc::GetRand(100) < SECONDARY_EFFECT_PERCENT) {
+void HandlerSecretPowerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t defender, uint32_t sickID, int32_t percent) {
+    if (calc::IsOccurPer(percent)) {
         uint8_t causePokeID = Common::GetEventVar(args, EventVar::Label::POKEID_ATK);
         HandlerAddSick(args, causePokeID, defender, (Pml::WazaData::WazaSick)sickID, calc::MakeDefaultPokeSickCont((Pml::WazaData::WazaSick)sickID, causePokeID, false).fields.raw);
     }
 }
 
-void HandlerSecretPowerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t defender, uint32_t rankType) {
-    if (calc::GetRand(100) < SECONDARY_EFFECT_PERCENT)
+void HandlerSecretPowerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t defender, uint32_t rankType,  int32_t percent) {
+    if (calc::IsOccurPer(percent))
         HandlerRankEffect(args, Common::GetEventVar(args, EventVar::Label::POKEID_ATK), defender, (Pml::WazaData::WazaRankEffect)rankType, -1, false, false, false, true);
 }
 
-void HandlerSecretPowerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t defender, uint32_t arg) {
-    HandlerShrink(args, defender, SECONDARY_EFFECT_PERCENT);
+void HandlerSecretPowerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t defender, uint32_t arg, int32_t percent) {
+    HandlerShrink(args, defender, percent);
 }
 
 void HandlerSecretPowerWazaExeStart(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
@@ -76,7 +74,7 @@ void HandlerSecretPowerDamageprocEndHitReal(EventFactor::EventHandlerArgs::Objec
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    void (*effect) (EventFactor::EventHandlerArgs::Object**, uint8_t, uint32_t);
+    void (*effect) (EventFactor::EventHandlerArgs::Object**, uint8_t, uint32_t, int32_t);
 
     uint32_t arg = 0;
     switch (GetSecretPowerMove(args)) {
@@ -140,7 +138,7 @@ void HandlerSecretPowerDamageprocEndHitReal(EventFactor::EventHandlerArgs::Objec
     uint8_t targetCount = Common::GetEventVar(args, EventVar::Label::TARGET_POKECNT);
     for (uint8_t i=0; i<targetCount; i++) {
         auto target = (EventVar::Label)(i + (uint16_t)EventVar::Label::POKEID_TARGET1);
-        effect(args, Common::GetEventVar(args, target), arg);
+        effect(args, Common::GetEventVar(args, target), arg, WAZADATA::GetSickPer(array_index(MOVES, "Secret Power")));
     }
 }
 

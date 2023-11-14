@@ -5,20 +5,22 @@
 #include "externals/Dpr/Battle/Logic/BTL_SICKCONT.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
+#include "externals/Dpr/Battle/Logic/PokeTypePair.h"
 
 using namespace Dpr::Battle::Logic;
 //bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns);
 //void HandlerAddPosEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID);
-void HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont);
+bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont);
 //bool HandlerAddSideEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, int32_t side, BTL_SICKCONT::Object cont);
+bool HandlerChangeType(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, PokeTypePair::Object type, BTL_POKEPARAM::ExTypeCause exTypeCause, bool isStandardMessageDisable, bool isFailMessageEnable, bool isDisplayTokuseiWindow);
+bool HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID);
 //void HandlerDamage(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, uint16_t damage, bool disableDeadProcess, bool displayAbility);
-void HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID);
 //void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t nextForm, bool persistOnSwitch, bool displayAbility, bool animationEnabled);
 //void HandlerMessage(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility);
-void HandlerPlayEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType);
-void HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, Pml::WazaData::WazaRankEffect rankType, int8_t rankVolume, bool displayAbility, bool ignoreSubstitute, bool messageOnFail, bool byWazaEffect);
+void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType);
+bool HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, Pml::WazaData::WazaRankEffect rankType, int8_t rankVolume, bool displayAbility, bool ignoreSubstitute, bool messageOnFail, bool byWazaEffect);
 //void HandlerRankReset(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID);
 //void HandlerRankResetAll(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID);
 void HandlerSetEffectEnable(EventFactor::EventHandlerArgs::Object** args);
 void HandlerSetEffectIndex(EventFactor::EventHandlerArgs::Object** args, uint8_t effectIndex);
-void HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetPokeID, uint8_t percentage);
+bool HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetPokeID, uint8_t percentage);

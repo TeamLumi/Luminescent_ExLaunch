@@ -9,6 +9,7 @@
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -109,6 +110,10 @@ namespace Dpr::Battle::Logic {
 
         static inline void SetWazaEffectEnable(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_SetWazaEffectEnable::Description::Object** desc) {
             external<void>(0x01d0cbc0, args, desc);
+        }
+
+        static inline bool ChangeType(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_ChangePokeType::Description::Object** desc) {
+            return external<bool>(0x01d0b050, args, desc);
         }
     };
 }

@@ -85,6 +85,12 @@ namespace Dpr::Battle::Logic {
             TURNFLG_MAX = 27,
         };
 
+        enum class ExTypeCause : int32_t {
+            EXTYPE_CAUSE_NONE = 0,
+            EXTYPE_CAUSE_HALLOWEEN = 1,
+            EXTYPE_CAUSE_MORINONOROI = 2,
+        };
+
         struct Fields {
             void* m_coreParam;
             void* m_baseParam;
@@ -184,6 +190,10 @@ namespace Dpr::Battle::Logic {
 
         inline int32_t WAZA_GetID(uint8_t idx) {
             return external<int32_t>(0x01fdeb70, this, idx);
+        }
+
+        inline bool IsMatchType(uint8_t type) {
+            return external<bool>(0x01fdfad0, this, type);
         }
     };
 }

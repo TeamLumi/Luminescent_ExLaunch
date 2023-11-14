@@ -76,6 +76,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Refresh")]) Handlers_Refresh(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Snatch")]) Handlers_Snatch(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Secret Power")]) Handlers_SecretPower(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Camouflage")]) Handlers_Camouflage(array);
 
         ctx->X[0] = (uint64_t)array;
     }

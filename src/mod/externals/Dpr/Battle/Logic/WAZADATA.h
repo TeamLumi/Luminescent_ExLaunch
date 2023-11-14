@@ -12,5 +12,9 @@ namespace Dpr::Battle::Logic {
         static inline uint8_t GetType(int32_t id) {
             return external<uint8_t>(0x01f72b20, id);
         }
+
+        static inline int32_t GetSickPer(int32_t id) {
+            return external<int32_t>(0x01f72b10, id);
+        }
     };
 }

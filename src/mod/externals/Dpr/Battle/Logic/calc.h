@@ -25,5 +25,9 @@ namespace Dpr::Battle::Logic {
         static inline BTL_SICKCONT::Object MakeDefaultPokeSickCont(Pml::WazaData::WazaSick sick, uint8_t causePokeID, bool isCantUseRand) {
             return external<BTL_SICKCONT::Object>(0x01f74d20, sick, causePokeID, isCantUseRand);
         }
+
+        static inline bool IsOccurPer(uint32_t per) {
+            return external<bool>(0x01f75e20, per);
+        }
     };
 }

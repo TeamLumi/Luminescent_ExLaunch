@@ -2,6 +2,7 @@
 
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -10,7 +11,7 @@
 
 #include "logger/logger.h"
 
-void HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont)
+bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont)
 {
     system_load_typeinfo(0xa9aa);
     auto addSickDesc = Section_AddSick::Description::newInstance();
@@ -21,10 +22,23 @@ void HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID
     addSickDesc->fields.sickCause = SickCause::OTHER;
     addSickDesc->fields.isDisplayTokuseiWindow = false;
     addSickDesc->fields.isFailResultDisplay = false;
-    Common::AddSick(args, &addSickDesc);
+    return Common::AddSick(args, &addSickDesc);
 }
 
-void HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID)
+bool HandlerChangeType(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, PokeTypePair::Object type, BTL_POKEPARAM::ExTypeCause exTypeCause, bool isStandardMessageDisable, bool isFailMessageEnable, bool isDisplayTokuseiWindow)
+{
+    system_load_typeinfo(0xaa5e);
+    auto changeTypeDesc = Section_FromEvent_ChangePokeType::Description::newInstance();
+    changeTypeDesc->fields.pokeID = pokeID;
+    changeTypeDesc->fields.nextType = type;
+    changeTypeDesc->fields.exTypeCause = exTypeCause;
+    changeTypeDesc->fields.isStandardMessageDisable = isStandardMessageDisable;
+    changeTypeDesc->fields.isFailMessageEnable = isFailMessageEnable;
+    changeTypeDesc->fields.isDisplayTokuseiWindow = isDisplayTokuseiWindow;
+    return Common::ChangeType(args, &changeTypeDesc);
+}
+
+bool HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID)
 {
     system_load_typeinfo(0x893f);
     auto cureSickDesc = Section_CureSick::Description::newInstance();
@@ -34,10 +48,10 @@ void HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t cause
     cureSickDesc->fields.targetPokeCount = 1;
     cureSickDesc->fields.isDisplayTokuseiWindow = false;
     cureSickDesc->fields.isStandardMessageDisable = false;
-    Common::CureSick(args, &cureSickDesc);
+    return Common::CureSick(args, &cureSickDesc);
 }
 
-void HandlerPlayEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType)
+void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType)
 {
     system_load_typeinfo(0xa922);
     auto playEffectDesc = Section_FromEvent_PlayWazaEffect::Description::newInstance();
@@ -50,7 +64,7 @@ void HandlerPlayEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atk
     Common::PlayWazaEffect(args, &playEffectDesc);
 }
 
-void HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, Pml::WazaData::WazaRankEffect rankType, int8_t rankVolume, bool displayAbility, bool ignoreSubstitute, bool messageOnFail, bool byWazaEffect)
+bool HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, Pml::WazaData::WazaRankEffect rankType, int8_t rankVolume, bool displayAbility, bool ignoreSubstitute, bool messageOnFail, bool byWazaEffect)
 {
     system_load_typeinfo(0x89b2);
     auto rankEffectDesc = Section_FromEvent_RankEffect::Description::newInstance();
@@ -64,7 +78,7 @@ void HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t cau
     rankEffectDesc->fields.isMigawariThrew = ignoreSubstitute;
     rankEffectDesc->fields.isSpFailMessageDisplay = messageOnFail;
     rankEffectDesc->fields.byWazaEffect = byWazaEffect;
-    Common::RankEffect(args, &rankEffectDesc);
+    return Common::RankEffect(args, &rankEffectDesc);
 }
 
 void HandlerSetEffectEnable(EventFactor::EventHandlerArgs::Object** args)
@@ -82,11 +96,11 @@ void HandlerSetEffectIndex(EventFactor::EventHandlerArgs::Object** args, uint8_t
     Common::SetWazaEffectIndex(args, &setEffectIndexDesc);
 }
 
-void HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetPokeID, uint8_t percentage)
+bool HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetPokeID, uint8_t percentage)
 {
     system_load_typeinfo(0x58b8);
     auto shrinkDesc = Section_FromEvent_Shrink::Description::newInstance();
     shrinkDesc->fields.pokeID = targetPokeID;
     shrinkDesc->fields.percentage = percentage;
-    Common::Shrink(args, &shrinkDesc);
+    return Common::Shrink(args, &shrinkDesc);
 }

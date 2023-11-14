@@ -8,7 +8,7 @@ namespace RomData
     struct Arena
     {
         int32_t secretPowerMove;
-        int32_t camouflageType;
+        uint8_t camouflageType;
     };
 
     JSON_TEMPLATE
