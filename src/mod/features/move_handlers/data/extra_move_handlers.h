@@ -25,5 +25,6 @@ struct ExtraMoveHandlers {
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Snatch = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_SecretPower = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Camouflage = nullptr;
+    Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_MudSport = nullptr;
     // ...
 };

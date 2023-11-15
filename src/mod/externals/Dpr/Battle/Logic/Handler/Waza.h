@@ -27,10 +27,6 @@ namespace Dpr::Battle::Logic::Handler {
             }
         };
 
-        static Il2CppClass* GET_FUNC_TABLE_ELEM_array_TypeInfo() {
-            return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c5b440));
-        }
-
         struct handler_JitabataTableElem : ILStruct<handler_JitabataTableElem> {
             struct Fields {
                 uint16_t dot_ratio;

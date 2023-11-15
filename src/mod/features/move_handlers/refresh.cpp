@@ -33,14 +33,14 @@ void HandlerRefreshUncategorizeWaza(EventFactor::EventHandlerArgs::Object** args
 EventFactor::EventHandlerTable::Array* ADD_Refresh() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Refresh;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::UNCATEGORIZE_WAZA, (Il2CppMethodPointer)&HandlerRefreshUncategorizeWaza);
         getExtraMoveHandlers()->HandlerTable_Refresh = table;
     }
     return table;
 }
 
-void Handlers_Refresh(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Refresh(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Refresh"), (Il2CppMethodPointer)&ADD_Refresh);
     getExtraMoveHandlers()->currentIndex++;
 }

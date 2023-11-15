@@ -42,20 +42,20 @@ void HandlerCamouflageUncategorizeWaza(EventFactor::EventHandlerArgs::Object** a
     if (!HandlerChangeType(args, pokeID, PokeTypePair::MakePure(type), BTL_POKEPARAM::ExTypeCause::EXTYPE_CAUSE_NONE, false, false, false))
         return;
 
-    Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, true);
+    Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, 1);
 }
 
 EventFactor::EventHandlerTable::Array* ADD_Camouflage() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Camouflage;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::UNCATEGORIZE_WAZA, (Il2CppMethodPointer)&HandlerCamouflageUncategorizeWaza);
         getExtraMoveHandlers()->HandlerTable_Camouflage = table;
     }
     return table;
 }
 
-void Handlers_Camouflage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Camouflage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Camouflage"), (Il2CppMethodPointer)&ADD_Camouflage);
     getExtraMoveHandlers()->currentIndex++;
 }

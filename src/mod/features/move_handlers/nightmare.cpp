@@ -27,14 +27,14 @@ void HandlerNightmareAddsickCheckfail(EventFactor::EventHandlerArgs::Object** ar
 EventFactor::EventHandlerTable::Array* ADD_Nightmare() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Nightmare;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::ADDSICK_CHECKFAIL, (Il2CppMethodPointer)&HandlerNightmareAddsickCheckfail);
         getExtraMoveHandlers()->HandlerTable_Nightmare = table;
     }
     return table;
 }
 
-void Handlers_Nightmare(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Nightmare(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Nightmare"), (Il2CppMethodPointer)&ADD_Nightmare);
     getExtraMoveHandlers()->currentIndex++;
 }

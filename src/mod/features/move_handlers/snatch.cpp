@@ -46,7 +46,7 @@ void HandlerSnatchUncategorizeWaza(EventFactor::EventHandlerArgs::Object** args,
 EventFactor::EventHandlerTable::Array* ADD_Snatch() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Snatch;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(3);
+        table = CreateMoveEventHandlerTable(3);
         table->m_Items[0] = CreateMoveEventHandler(EventID::CHECK_WAZA_ROB, (Il2CppMethodPointer)&HandlerSnatchCheckWazaRob);
         table->m_Items[1] = CreateMoveEventHandler(EventID::TURNCHECK_END, (Il2CppMethodPointer)&HandlerSnatchTurncheckEnd);
         table->m_Items[2] = CreateMoveEventHandler(EventID::UNCATEGORIZE_WAZA, (Il2CppMethodPointer)&HandlerSnatchUncategorizeWaza);
@@ -55,7 +55,7 @@ EventFactor::EventHandlerTable::Array* ADD_Snatch() {
     return table;
 }
 
-void Handlers_Snatch(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Snatch(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Snatch"), (Il2CppMethodPointer)&ADD_Snatch);
     getExtraMoveHandlers()->currentIndex++;
 }

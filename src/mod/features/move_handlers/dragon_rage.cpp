@@ -19,14 +19,14 @@ void HandlerDragonRageWazaDmgProc1(EventFactor::EventHandlerArgs::Object** args,
 EventFactor::EventHandlerTable::Array* ADD_DragonRage() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_DragonRage;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_DMG_PROC1, (Il2CppMethodPointer)&HandlerDragonRageWazaDmgProc1);
         getExtraMoveHandlers()->HandlerTable_DragonRage = table;
     }
     return table;
 }
 
-void Handlers_DragonRage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_DragonRage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Dragon Rage"), (Il2CppMethodPointer)&ADD_DragonRage);
     getExtraMoveHandlers()->currentIndex++;
 }

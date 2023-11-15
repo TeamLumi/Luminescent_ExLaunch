@@ -24,14 +24,14 @@ void HandlerPsywaveWazaDmgProc1(EventFactor::EventHandlerArgs::Object** args, ui
 EventFactor::EventHandlerTable::Array* ADD_Psywave() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Psywave;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_DMG_PROC1, (Il2CppMethodPointer)&HandlerPsywaveWazaDmgProc1);
         getExtraMoveHandlers()->HandlerTable_Psywave = table;
     }
     return table;
 }
 
-void Handlers_Psywave(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Psywave(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Psywave"), (Il2CppMethodPointer)&ADD_Psywave);
     getExtraMoveHandlers()->currentIndex++;
 }

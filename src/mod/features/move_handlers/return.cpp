@@ -23,14 +23,14 @@ void HandlerReturnWazaPower(EventFactor::EventHandlerArgs::Object** args, uint8_
 EventFactor::EventHandlerTable::Array* ADD_Return() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Return;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_POWER, (Il2CppMethodPointer)&HandlerReturnWazaPower);
         getExtraMoveHandlers()->HandlerTable_Return = table;
     }
     return table;
 }
 
-void Handlers_Return(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Return(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Return"), (Il2CppMethodPointer)&ADD_Return);
     getExtraMoveHandlers()->currentIndex++;
 }

@@ -15,6 +15,7 @@ void exl_features_main() {
     exl_ev_iv_ui_main();
     exl_evolution_methods_main();
     exl_extended_tm_learnsets_main();
+    exl_field_handlers_main();
     exl_form_change_held_items_main();
     exl_gender_neutral_boutique_main();
     exl_hidden_power_ui_main();

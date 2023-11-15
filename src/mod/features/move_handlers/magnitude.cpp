@@ -30,7 +30,7 @@ void HandlerMagnitudeWazaPower(EventFactor::EventHandlerArgs::Object** args, uin
 EventFactor::EventHandlerTable::Array* ADD_Magnitude() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Magnitude;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(3);
+        table = CreateMoveEventHandlerTable(3);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_POWER, (Il2CppMethodPointer) &HandlerMagnitudeWazaPower);
         table->m_Items[1] = CreateMoveEventHandler(EventID::WAZA_DMG_PROC3, *Handler::Waza::PTR_Method$$handler_Jisin_damage);
         table->m_Items[2] = CreateMoveEventHandler(EventID::CHECK_POKE_HIDE, *Handler::Waza::PTR_Method$$handler_Jisin_checkHide);
@@ -39,7 +39,7 @@ EventFactor::EventHandlerTable::Array* ADD_Magnitude() {
     return table;
 }
 
-void Handlers_Magnitude(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Magnitude(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Magnitude"), (Il2CppMethodPointer)&ADD_Magnitude);
     getExtraMoveHandlers()->currentIndex++;
 }

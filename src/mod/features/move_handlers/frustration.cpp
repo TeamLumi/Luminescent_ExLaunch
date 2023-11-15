@@ -23,14 +23,14 @@ void HandlerFrustrationWazaPower(EventFactor::EventHandlerArgs::Object** args, u
 EventFactor::EventHandlerTable::Array* ADD_Frustration() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Frustration;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_POWER, (Il2CppMethodPointer)&HandlerFrustrationWazaPower);
         getExtraMoveHandlers()->HandlerTable_Frustration = table;
     }
     return table;
 }
 
-void Handlers_Frustration(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Frustration(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Frustration"), (Il2CppMethodPointer)&ADD_Frustration);
     getExtraMoveHandlers()->currentIndex++;
 }

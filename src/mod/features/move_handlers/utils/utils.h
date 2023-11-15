@@ -8,7 +8,7 @@
 #include "externals/Dpr/Battle/Logic/PokeTypePair.h"
 
 using namespace Dpr::Battle::Logic;
-//bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns);
+bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns);
 //void HandlerAddPosEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID);
 bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont);
 //bool HandlerAddSideEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, int32_t side, BTL_SICKCONT::Object cont);

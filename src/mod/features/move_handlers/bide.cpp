@@ -116,7 +116,7 @@ void HandlerBideTurncheckEnd(EventFactor::EventHandlerArgs::Object** args, uint8
 EventFactor::EventHandlerTable::Array* ADD_Bide() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Bide;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(7);
+        table = CreateMoveEventHandlerTable(7);
         table->m_Items[0] = CreateMoveEventHandler(EventID::CHECK_DELAY_WAZA, (Il2CppMethodPointer)&HandlerBideCheckDelayWaza);
         table->m_Items[1] = CreateMoveEventHandler(EventID::WAZA_EXECUTE_CHECK_3RD, (Il2CppMethodPointer)&HandlerBideWazaExecuteCheck3rd);
         table->m_Items[2] = CreateMoveEventHandler(EventID::WAZA_CALL_DECIDE, (Il2CppMethodPointer)&HandlerBideWazaCallDecide);
@@ -129,7 +129,7 @@ EventFactor::EventHandlerTable::Array* ADD_Bide() {
     return table;
 }
 
-void Handlers_Bide(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Bide(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Bide"), (Il2CppMethodPointer)&ADD_Bide);
     getExtraMoveHandlers()->currentIndex++;
 }

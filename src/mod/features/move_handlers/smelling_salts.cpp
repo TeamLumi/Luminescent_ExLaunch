@@ -42,7 +42,7 @@ void HandlerSmellingSaltsDamageprocEndHitReal(EventFactor::EventHandlerArgs::Obj
 EventFactor::EventHandlerTable::Array* ADD_SmellingSalts() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_SmellingSalts;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(2);
+        table = CreateMoveEventHandlerTable(2);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_POWER, (Il2CppMethodPointer)&HandlerSmellingSaltsWazaPower);
         table->m_Items[1] = CreateMoveEventHandler(EventID::DAMAGEPROC_END_HIT_REAL, (Il2CppMethodPointer)&HandlerSmellingSaltsDamageprocEndHitReal);
         getExtraMoveHandlers()->HandlerTable_SmellingSalts = table;
@@ -50,7 +50,7 @@ EventFactor::EventHandlerTable::Array* ADD_SmellingSalts() {
     return table;
 }
 
-void Handlers_SmellingSalts(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_SmellingSalts(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Smelling Salts"), (Il2CppMethodPointer)&ADD_SmellingSalts);
     getExtraMoveHandlers()->currentIndex++;
 }

@@ -9,6 +9,7 @@
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
+#include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
@@ -114,6 +115,14 @@ namespace Dpr::Battle::Logic {
 
         static inline bool ChangeType(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_ChangePokeType::Description::Object** desc) {
             return external<bool>(0x01d0b050, args, desc);
+        }
+
+        static inline bool AddFieldEffect(EventFactor::EventHandlerArgs::Object** args, Section_FieldEffect_Add::Description::Object** desc) {
+            return external<bool>(0x01d0b730, args, desc);
+        }
+
+        static inline void MulEventVar(EventFactor::EventHandlerArgs::Object** args, EventVar::Label label, int32_t value) {
+            external<void>(0x01d09cc0, args, label, value);
         }
     };
 }

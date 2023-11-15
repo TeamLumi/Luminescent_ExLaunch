@@ -107,14 +107,14 @@ void HandlerAssistReqwazaParam(EventFactor::EventHandlerArgs::Object** args, uin
 EventFactor::EventHandlerTable::Array* ADD_Assist() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Assist;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::REQWAZA_PARAM, (Il2CppMethodPointer)&HandlerAssistReqwazaParam);
         getExtraMoveHandlers()->HandlerTable_Assist = table;
     }
     return table;
 }
 
-void Handlers_Assist(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Assist(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Assist"), (Il2CppMethodPointer)&ADD_Assist);
     getExtraMoveHandlers()->currentIndex++;
 }

@@ -2,14 +2,27 @@
 
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
+#include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Shrink.h"
+#include "externals/Dpr/Battle/Logic/SICKCONT.h"
 
 #include "logger/logger.h"
+
+bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns)
+{
+    Logger::log("HandlerAddFieldEffect\n");
+    system_load_typeinfo(0xaa75);
+    auto fieldEffectAddDesc = Section_FieldEffect_Add::Description::newInstance();
+    fieldEffectAddDesc->fields.pokeID = pokeID;
+    fieldEffectAddDesc->fields.effect = effect;
+    fieldEffectAddDesc->fields.cont = SICKCONT::MakeTurn(pokeID, turns);
+    return Common::AddFieldEffect(args, &fieldEffectAddDesc);
+}
 
 bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont)
 {

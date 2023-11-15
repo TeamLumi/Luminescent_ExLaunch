@@ -18,7 +18,7 @@ ExtraMoveHandlers* getExtraMoveHandlers() {
 }
 
 using namespace Dpr::Battle::Logic;
-EventFactor::EventHandlerTable::Array* CreateEventHandlerTable(long size) {
+EventFactor::EventHandlerTable::Array* CreateMoveEventHandlerTable(long size) {
     return EventFactor::EventHandlerTable::newArrayMAlloc(size);
 }
 
@@ -57,26 +57,27 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         getExtraMoveHandlers()->currentIndex = size;
 
         // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Jump Kick")]) Handlers_JumpKick(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sonic Boom")]) Handlers_SonicBoom(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Dragon Rage")]) Handlers_DragonRage(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Rage")]) Handlers_Rage(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bide")]) Handlers_Bide(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mirror Move")]) Handlers_MirrorMove(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Psywave")]) Handlers_Psywave(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spider Web")]) Handlers_SpiderWeb(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Nightmare")]) Handlers_Nightmare(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Return")]) Handlers_Return(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Jump Kick")]) Handlers_Move_JumpKick(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sonic Boom")]) Handlers_Move_SonicBoom(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Dragon Rage")]) Handlers_Move_DragonRage(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Rage")]) Handlers_Move_Rage(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bide")]) Handlers_Move_Bide(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mirror Move")]) Handlers_Move_MirrorMove(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Psywave")]) Handlers_Move_Psywave(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spider Web")]) Handlers_Move_SpiderWeb(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Nightmare")]) Handlers_Move_Nightmare(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Return")]) Handlers_Move_Return(array);
 
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Frustration")]) Handlers_Frustration(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Magnitude")]) Handlers_Magnitude(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) Handlers_Pursuit(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Smelling Salts")]) Handlers_SmellingSalts(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Assist")]) Handlers_Assist(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Refresh")]) Handlers_Refresh(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Snatch")]) Handlers_Snatch(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Secret Power")]) Handlers_SecretPower(array);
-        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Camouflage")]) Handlers_Camouflage(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Frustration")]) Handlers_Move_Frustration(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Magnitude")]) Handlers_Move_Magnitude(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) Handlers_Move_Pursuit(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Smelling Salts")]) Handlers_Move_SmellingSalts(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Assist")]) Handlers_Move_Assist(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Refresh")]) Handlers_Move_Refresh(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Snatch")]) Handlers_Move_Snatch(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Secret Power")]) Handlers_Move_SecretPower(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Camouflage")]) Handlers_Move_Camouflage(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mud Sport")]) Handlers_Move_MudSport(array);
 
         ctx->X[0] = (uint64_t)array;
     }
@@ -84,7 +85,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
 
 void InstallActivatedMoveHooks() {
     // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
-    if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Pursuit();
+    if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Move_Pursuit();
 }
 
 void exl_move_handlers_main() {

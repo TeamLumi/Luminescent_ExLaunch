@@ -54,6 +54,9 @@ void exl_exp_share_main();
 // Redirects TM learnsets to external JSON files that contain more data.
 void exl_extended_tm_learnsets_main();
 
+// Adds support for new field effects in battle.
+void exl_field_handlers_main();
+
 // Adds new Pokémon/held item combos that trigger a form change when held.
 void exl_form_change_held_items_main();
 

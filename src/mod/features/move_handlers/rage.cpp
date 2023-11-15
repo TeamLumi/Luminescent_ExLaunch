@@ -59,7 +59,7 @@ void HandlerRageMemberOutFixed(EventFactor::EventHandlerArgs::Object** args, uin
 EventFactor::EventHandlerTable::Array* ADD_Rage() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Rage;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(4);
+        table = CreateMoveEventHandlerTable(4);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_CALL_DECIDE, (Il2CppMethodPointer)&HandlerRageWazaCallDecide);
         table->m_Items[1] = CreateMoveEventHandler(EventID::WAZA_EXECUTE_EFFECTIVE, (Il2CppMethodPointer)&HandlerRageWazaExecuteEffective);
         table->m_Items[2] = CreateMoveEventHandler(EventID::WAZA_DMG_REACTION, (Il2CppMethodPointer)&HandlerRageWazaDmgReaction);
@@ -69,7 +69,7 @@ EventFactor::EventHandlerTable::Array* ADD_Rage() {
     return table;
 }
 
-void Handlers_Rage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Rage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Rage"), (Il2CppMethodPointer)&ADD_Rage);
     getExtraMoveHandlers()->currentIndex++;
 }

@@ -58,7 +58,7 @@ void HandlerPursuitWazaPower(EventFactor::EventHandlerArgs::Object** args, uint8
 EventFactor::EventHandlerTable::Array* ADD_Pursuit() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Pursuit;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(3);
+        table = CreateMoveEventHandlerTable(3);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_EXE_START, (Il2CppMethodPointer)&HandlerPursuitWazaExeStart);
         table->m_Items[1] = CreateMoveEventHandler(EventID::CALC_HIT_CANCEL, (Il2CppMethodPointer)&HandlerPursuitCalcHitCancel);
         table->m_Items[2] = CreateMoveEventHandler(EventID::WAZA_POWER, (Il2CppMethodPointer)&HandlerPursuitWazaPower);
@@ -67,7 +67,7 @@ EventFactor::EventHandlerTable::Array* ADD_Pursuit() {
     return table;
 }
 
-void Handlers_Pursuit(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_Pursuit(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Pursuit"), (Il2CppMethodPointer)&ADD_Pursuit);
     getExtraMoveHandlers()->currentIndex++;
 }
@@ -208,7 +208,7 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart) {
     }
 };
 
-void InstallHooks_Pursuit() {
+void InstallHooks_Move_Pursuit() {
     Dpr_Battle_Logic_Section_ProcessActionCore_Execute::InstallAtOffset(0x021c0460);
     Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart::InstallAtOffset(0x01d1cc90);
 }

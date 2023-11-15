@@ -36,14 +36,14 @@ void HandlerMirrorMoveReqwazaParam(EventFactor::EventHandlerArgs::Object** args,
 EventFactor::EventHandlerTable::Array* ADD_MirrorMove() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_MirrorMove;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::REQWAZA_PARAM, (Il2CppMethodPointer)&HandlerMirrorMoveReqwazaParam);
         getExtraMoveHandlers()->HandlerTable_MirrorMove = table;
     }
     return table;
 }
 
-void Handlers_MirrorMove(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_MirrorMove(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Mirror Move"), (Il2CppMethodPointer)&ADD_MirrorMove);
     getExtraMoveHandlers()->currentIndex++;
 }

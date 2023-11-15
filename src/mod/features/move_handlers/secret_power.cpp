@@ -145,7 +145,7 @@ void HandlerSecretPowerDamageprocEndHitReal(EventFactor::EventHandlerArgs::Objec
 EventFactor::EventHandlerTable::Array* ADD_SecretPower() {
     EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_SecretPower;
     if (table == nullptr) {
-        table = CreateEventHandlerTable(1);
+        table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::DAMAGEPROC_END_HIT_REAL, (Il2CppMethodPointer)&HandlerSecretPowerDamageprocEndHitReal);
         // FOR REPLACING THE MOVE EFFECT, DOESN'T WORK CURRENTLY
         //table->m_Items[1] = CreateMoveEventHandler(EventID::WAZA_EXE_START, (Il2CppMethodPointer)&HandlerSecretPowerWazaExeStart);
@@ -154,7 +154,7 @@ EventFactor::EventHandlerTable::Array* ADD_SecretPower() {
     return table;
 }
 
-void Handlers_SecretPower(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Move_SecretPower(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Secret Power"), (Il2CppMethodPointer)&ADD_SecretPower);
     getExtraMoveHandlers()->currentIndex++;
 }
