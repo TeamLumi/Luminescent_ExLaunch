@@ -79,6 +79,9 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Camouflage")]) Handlers_Move_Camouflage(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Mud Sport")]) Handlers_Move_MudSport(array);
 
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Ice Ball")]) Handlers_Move_IceBall(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Silver Wind")]) Handlers_Move_SilverWind(array);
+
         ctx->X[0] = (uint64_t)array;
     }
 };

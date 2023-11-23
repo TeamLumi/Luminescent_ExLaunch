@@ -314,6 +314,8 @@ namespace Dpr::Battle::Logic::Handler {
 
         static inline StaticILMethod<0x04c6a1c0> PTR_Method$$ADD_Karagenki {};
         static inline StaticILMethod<0x04c6a228> PTR_Method$$ADD_KumoNoSu {};
+        static inline StaticILMethod<0x04c6a218> PTR_Method$$ADD_Korogaru {};
+        static inline StaticILMethod<0x04c6a040> PTR_Method$$ADD_GensiNoTikara {};
 
         static inline StaticILMethod<0x04c7a3b0, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Karagenki_WazaPow {};
 

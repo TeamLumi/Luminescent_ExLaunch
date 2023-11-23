@@ -78,3 +78,9 @@ void Handlers_Move_Camouflage(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 
 // Adds move handlers for Mud Sport.
 void Handlers_Move_MudSport(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Ice Ball.
+void Handlers_Move_IceBall(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Silver Wind.
+void Handlers_Move_SilverWind(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
