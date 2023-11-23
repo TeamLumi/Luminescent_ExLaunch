@@ -324,6 +324,8 @@ namespace Dpr::Battle::Logic::Handler {
         static inline StaticILMethod<0x04c7a320, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Jisin_damage {};
         static inline StaticILMethod<0x04c7a318, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Jisin_checkHide {};
 
+        static inline StaticILMethod<0x04c7a978, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tatumaki_checkHide {};
+
         static_assert(sizeof(StaticFields) == 0x858);
 
         static inline void common_Korogaru_Unlock(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
