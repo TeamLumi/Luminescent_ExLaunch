@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/BTL_SICKCONT.h"
+#include "externals/Dpr/Battle/Logic/BtlGround.h"
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
@@ -30,6 +31,10 @@ namespace Dpr::Battle::Logic {
 
         inline void clearFactorWork(int32_t effect) {
             external<void>(0x018fa380, this, effect);
+        }
+
+        inline BtlGround GetGround() {
+            return external<BtlGround>(0x018fb760, this);
         }
     };
 }

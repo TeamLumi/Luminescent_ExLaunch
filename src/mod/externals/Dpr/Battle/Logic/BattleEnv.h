@@ -1,6 +1,7 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+#include "externals/Dpr/Battle/Logic/FieldStatus.h"
 #include "externals/Dpr/Battle/Logic/POKECON.h"
 #include "externals/Dpr/Battle/Logic/PosPoke.h"
 
@@ -8,7 +9,7 @@ namespace Dpr::Battle::Logic {
     struct BattleEnv : ILClass<BattleEnv> {
         struct Fields {
             POKECON::Object* m_pokecon;
-            void* m_fieldStatus; // Dpr_Battle_Logic_FieldStatus_o
+            FieldStatus::Object* m_fieldStatus; // Dpr_Battle_Logic_FieldStatus_o
             void* m_sideEffectManager; // Dpr_Battle_Logic_SideEffectManager_o
             void* m_posEffectManager; // Dpr_Battle_Logic_PosEffectManager_o
             void* m_eventFactorContainer; // Dpr_Battle_Logic_EventFactorContainer_o

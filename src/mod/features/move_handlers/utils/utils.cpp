@@ -13,7 +13,7 @@
 
 #include "logger/logger.h"
 
-bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns)
+bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns, BtlStrType strType, uint16_t strID)
 {
     Logger::log("HandlerAddFieldEffect\n");
     system_load_typeinfo(0xaa75);
@@ -21,6 +21,8 @@ bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t
     fieldEffectAddDesc->fields.pokeID = pokeID;
     fieldEffectAddDesc->fields.effect = effect;
     fieldEffectAddDesc->fields.cont = SICKCONT::MakeTurn(pokeID, turns);
+    fieldEffectAddDesc->fields.successMessage->Setup(strType, strID);
+    fieldEffectAddDesc->fields.successMessage->AddArg(pokeID);
     return Common::AddFieldEffect(args, &fieldEffectAddDesc);
 }
 

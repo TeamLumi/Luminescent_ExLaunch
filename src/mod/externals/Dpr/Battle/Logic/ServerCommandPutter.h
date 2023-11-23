@@ -28,5 +28,21 @@ namespace Dpr::Battle::Logic {
         inline void SetContFlag(BTL_POKEPARAM::Object* poke, ContFlag flag) {
             external<void>(0x01f187e0, this, poke, flag);
         }
+
+        inline bool RemoveFieldEffect(int32_t effect) {
+            return external<bool>(0x01f2a0b0, this, effect);
+        }
+
+        inline bool RemoveFieldEffect_DependPoke(BTL_POKEPARAM::Object* causedPoke, int32_t fieldEffect) {
+            return external<bool>(0x01f2a260, this, causedPoke, fieldEffect);
+        }
+
+        inline void RemoveFieldHandler(int32_t effect) {
+            external<void>(0x01f305e0, this, effect);
+        }
+
+        inline void Message_Std(uint16_t strID) {
+            external<void>(0x01f289e0, this, strID);
+        }
     };
 }

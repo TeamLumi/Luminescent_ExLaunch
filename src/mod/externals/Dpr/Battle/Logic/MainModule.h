@@ -93,5 +93,9 @@ namespace Dpr::Battle::Logic {
         inline BtlEscapeMode GetEscapeMode() {
             return external<BtlEscapeMode>(0x02034bb0, this);
         }
+
+        inline BtlGround GetDefaultGround() {
+            return external<BtlGround>(0x02035090, this);
+        }
     };
 }

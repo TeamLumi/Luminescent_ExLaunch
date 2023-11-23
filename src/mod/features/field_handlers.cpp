@@ -1,6 +1,9 @@
 #include "features/field_handlers/field_handlers.h"
 
+#include "externals/Dpr/Battle/Logic/BtlGround.h"
 #include "externals/Dpr/Battle/Logic/FieldStatus.h"
+#include "externals/Dpr/Battle/Logic/Section_FieldEffect_End.h"
+#include "externals/Dpr/Battle/Logic/ServerCommandPutter.h"
 
 #include "data/field_effects.h"
 #include "data/utils.h"
@@ -51,6 +54,104 @@ void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* get
     elem->ctor(fieldEffect, func);
 }
 
+HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_FieldStatus_initWork) {
+    static void Callback(FieldStatus::Object* __this) {
+        for (int32_t i=0; i<10+getExtraFieldEffectHandlers()->count; i++)
+            __this->clearFactorWork(i);
+
+        __this->fields.m_data->fields.weather = 0;
+        __this->fields.m_data->fields.weatherTurn = 255;
+        __this->fields.m_data->fields.weatherTurnCount = 0;
+        __this->fields.m_data->fields.weatherCausePokeID = 31;
+    }
+};
+
+HOOK_DEFINE_REPLACE(Section_FieldEffect_End_Execute) {
+    static void Callback(Section_FieldEffect_End::Object* __this, Section_FieldEffect_End::Result::Object* pResult, Section_FieldEffect_End::Description::Object** description) {
+        pResult->fields.isRemoved = false;
+
+        int32_t effectID = (*description)->fields.effect;
+        BTL_POKEPARAM::Object* causedPoke = (*description)->fields.pDependPoke;
+
+        if (effectID == array_index(FIELD_EFFECTS, "Terrain"))
+        {
+            BtlGround currentTerrain = __this->fields.m_pBattleEnv->instance()->fields.m_fieldStatus->GetGround();
+            BtlGround initialTerrain = __this->fields.m_pMainModule->instance()->GetDefaultGround();
+            if (currentTerrain == initialTerrain)
+                return;
+        }
+
+        ServerCommandPutter::Object* serverCommandPutter = __this->fields.m_pServerCmdPutter->instance();
+        if (causedPoke == nullptr && !serverCommandPutter->RemoveFieldEffect(effectID))
+            return;
+
+        if (causedPoke != nullptr && !serverCommandPutter->RemoveFieldEffect_DependPoke(causedPoke, effectID))
+            return;
+
+        serverCommandPutter->RemoveFieldHandler(effectID);
+
+        switch(effectID)
+        {
+            case array_index(FIELD_EFFECTS, "Trick Room"):
+                serverCommandPutter->Message_Std(133);
+                break;
+
+            case array_index(FIELD_EFFECTS, "Gravity"):
+                serverCommandPutter->Message_Std(135);
+                break;
+
+            case array_index(FIELD_EFFECTS, "Wonder Room"):
+                serverCommandPutter->Message_Std(200);
+                break;
+
+            case array_index(FIELD_EFFECTS, "Magic Room"):
+                serverCommandPutter->Message_Std(202);
+                __this->checkItemReaction_All();
+                break;
+
+            case array_index(FIELD_EFFECTS, "Terrain"):
+                switch (__this->fields.m_pBattleEnv->instance()->fields.m_fieldStatus->GetGround())
+                {
+                    case BtlGround::BTL_GROUND_GRASS:
+                        serverCommandPutter->Message_Std(223);
+                        break;
+
+                    case BtlGround::BTL_GROUND_MIST:
+                        serverCommandPutter->Message_Std(225);
+                        break;
+
+                    case BtlGround::BTL_GROUND_ELEKI:
+                        serverCommandPutter->Message_Std(227);
+                        break;
+
+                    case BtlGround::BTL_GROUND_PHYCHO:
+                        serverCommandPutter->Message_Std(347);
+                        break;
+
+                    default:
+                        break;
+                }
+                __this->resetGround();
+                break;
+
+            case array_index(FIELD_EFFECTS, "Neutralizing Gas"):
+                serverCommandPutter->Message_Std(408);
+                __this->resetKagakuhenkaGas();
+                break;
+
+            case array_index(FIELD_EFFECTS, "Mud Sport"):
+                if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Mud Sport")])
+                    FieldEffect_End_MudSport(__this, pResult, description);
+                break;
+
+            default:
+                break;
+        }
+
+        pResult->fields.isRemoved = true;
+    }
+};
+
 HOOK_DEFINE_INLINE(Field_system_array_new) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto typeInfo = (Il2CppClass*)ctx->X[0];
@@ -66,21 +167,10 @@ HOOK_DEFINE_INLINE(Field_system_array_new) {
     }
 };
 
-HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_FieldStatus_initWork) {
-    static void Callback(FieldStatus::Object* __this) {
-        for (int32_t i=0; i<10+getExtraFieldEffectHandlers()->count; i++)
-            __this->clearFactorWork(i);
-
-        __this->fields.m_data->fields.weather = 0;
-        __this->fields.m_data->fields.weatherTurn = 255;
-        __this->fields.m_data->fields.weatherTurnCount = 0;
-        __this->fields.m_data->fields.weatherCausePokeID = 31;
-    }
-};
-
 void exl_field_handlers_main() {
-    Field_system_array_new::InstallAtOffset(0x01904274);
     Dpr_Battle_Logic_FieldStatus_initWork::InstallAtOffset(0x018fa2b0);
+    Section_FieldEffect_End_Execute::InstallAtOffset(0x021b53f0);
+    Field_system_array_new::InstallAtOffset(0x01904274);
 
     SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Mud Sport"));
     SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Water Sport"));
