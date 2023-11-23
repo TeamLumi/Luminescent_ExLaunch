@@ -3,8 +3,6 @@
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
-#include "externals/Dpr/Battle/Logic/Section_FieldEffect_End.h"
-#include "externals/Dpr/Battle/Logic/ServerCommandPutter.h"
 #include "data/field_effects.h"
 #include "data/moves.h"
 #include "data/utils.h"
@@ -36,9 +34,4 @@ EventFactor::EventHandlerTable::Array* ADD_MudSport() {
 void Handlers_Move_MudSport(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetMoveFunctionTable(getFuncTable, getExtraMoveHandlers()->currentIndex, array_index(MOVES, "Mud Sport"), (Il2CppMethodPointer)&ADD_MudSport);
     getExtraMoveHandlers()->currentIndex++;
-}
-
-void FieldEffect_End_MudSport(Section_FieldEffect_End::Object* __this, Section_FieldEffect_End::Result::Object* pResult, Section_FieldEffect_End::Description::Object** description) {
-    ServerCommandPutter::Object* serverCommandPutter = __this->fields.m_pServerCmdPutter->instance();
-    serverCommandPutter->Message_Std(132);
 }

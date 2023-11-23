@@ -144,6 +144,11 @@ HOOK_DEFINE_REPLACE(Section_FieldEffect_End_Execute) {
                     FieldEffect_End_MudSport(__this, pResult, description);
                 break;
 
+            case array_index(FIELD_EFFECTS, "Water Sport"):
+                if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Water Sport")])
+                    FieldEffect_End_WaterSport(__this, pResult, description);
+                break;
+
             default:
                 break;
         }
@@ -162,6 +167,7 @@ HOOK_DEFINE_INLINE(Field_system_array_new) {
 
         // DO NOT REMOVE ANY OF THESE! Disable the field effects in exl_field_handlers_main() below instead!
         if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Mud Sport")]) Handlers_FieldEffect_MudSport(array);
+        if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Water Sport")]) Handlers_FieldEffect_WaterSport(array);
 
         ctx->X[0] = (uint64_t)array;
     }

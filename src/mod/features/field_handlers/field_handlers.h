@@ -22,3 +22,9 @@ void Handlers_FieldEffect_MudSport(Handler::Field::GET_FUNC_TABLE_ELEM::Array* g
 
 // Adds field effect removal code for Mud Sport.
 void FieldEffect_End_MudSport(Section_FieldEffect_End::Object* __this, Section_FieldEffect_End::Result::Object* pResult, Section_FieldEffect_End::Description::Object** description);
+
+// Adds field effect handlers for Water Sport.
+void Handlers_FieldEffect_WaterSport(Handler::Field::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds field effect removal code for Water Sport.
+void FieldEffect_End_WaterSport(Section_FieldEffect_End::Object* __this, Section_FieldEffect_End::Result::Object* pResult, Section_FieldEffect_End::Description::Object** description);

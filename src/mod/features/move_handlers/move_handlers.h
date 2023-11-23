@@ -87,3 +87,6 @@ void Handlers_Move_SilverWind(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 
 // Adds move handlers for Sky Uppercut.
 void Handlers_Move_SkyUppercut(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Water Sport
+void Handlers_Move_WaterSport(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
