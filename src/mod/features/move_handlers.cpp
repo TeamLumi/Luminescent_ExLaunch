@@ -84,6 +84,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sky Uppercut")]) Handlers_Move_SkyUppercut(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Water Sport")]) Handlers_Move_WaterSport(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Wake-Up Slap")]) Handlers_Move_WakeUpSlap(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Natural Gift")]) Handlers_Move_NaturalGift(array);
 
         ctx->X[0] = (uint64_t)array;
     }

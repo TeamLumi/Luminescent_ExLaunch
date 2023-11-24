@@ -11,11 +11,13 @@
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Shrink.h"
+#include "externals/Dpr/Battle/Logic/WazaFailCause.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 #include "externals/Pml/PokePara/Sick.h"
 
@@ -123,6 +125,18 @@ namespace Dpr::Battle::Logic {
 
         static inline void MulEventVar(EventFactor::EventHandlerArgs::Object** args, EventVar::Label label, int32_t value) {
             external<void>(0x01d09cc0, args, label, value);
+        }
+
+        static inline bool CheckItemUsable(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            return external<bool>(0x01d0f270, args, pokeID);
+        }
+
+        static inline bool RewriteEventVar_FAIL_CAUSE(EventFactor::EventHandlerArgs::Object** args, WazaFailCause value) {
+            return external<bool>(0x01d09ca0, args, value);
+        }
+
+        static inline void ConsumeItem(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_ConsumeItem::Description::Object** desc) {
+            external<void>(0x01d0bfe0, args, desc);
         }
     };
 }

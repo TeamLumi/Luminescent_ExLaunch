@@ -4,6 +4,7 @@
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -51,6 +52,17 @@ bool HandlerChangeType(EventFactor::EventHandlerArgs::Object** args, uint8_t pok
     changeTypeDesc->fields.isFailMessageEnable = isFailMessageEnable;
     changeTypeDesc->fields.isDisplayTokuseiWindow = isDisplayTokuseiWindow;
     return Common::ChangeType(args, &changeTypeDesc);
+}
+
+void HandlerConsumeItem(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool isUseActionDisable, bool isKinomiCheckDisable)
+{
+    system_load_typeinfo(0xa9ee);
+    auto consumeItemDesc = Section_FromEvent_ConsumeItem::Description::newInstance();
+    consumeItemDesc->fields.userPokeID = pokeID;
+    consumeItemDesc->fields.isUseActionDisable = isUseActionDisable;
+    consumeItemDesc->fields.isKinomiCheckDisable = isKinomiCheckDisable;
+    consumeItemDesc->fields.isConsumeMessageEnable = false;
+    Common::ConsumeItem(args, &consumeItemDesc);
 }
 
 bool HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID)
