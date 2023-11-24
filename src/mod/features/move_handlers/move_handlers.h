@@ -90,3 +90,6 @@ void Handlers_Move_SkyUppercut(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFun
 
 // Adds move handlers for Water Sport
 void Handlers_Move_WaterSport(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Wake-Up Slap
+void Handlers_Move_WakeUpSlap(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
