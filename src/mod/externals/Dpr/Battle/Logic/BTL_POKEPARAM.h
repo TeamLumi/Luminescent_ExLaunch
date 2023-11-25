@@ -195,5 +195,13 @@ namespace Dpr::Battle::Logic {
         inline bool IsMatchType(uint8_t type) {
             return external<bool>(0x01fdfad0, this, type);
         }
+
+        inline uint8_t WAZA_SearchIdx(int32_t waza) {
+            return external<uint8_t>(0x01fdf880, this, waza);
+        }
+
+        inline uint16_t WAZA_GetPP(uint8_t wazaIdx) {
+            return external<uint16_t>(0x01fdf140, this, wazaIdx);
+        }
     };
 }

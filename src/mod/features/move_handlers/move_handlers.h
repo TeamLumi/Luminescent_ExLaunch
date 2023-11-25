@@ -96,3 +96,6 @@ void Handlers_Move_WakeUpSlap(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 
 // Adds move handlers for Natural Gift.
 void Handlers_Move_NaturalGift(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Trump Card.
+void Handlers_Move_TrumpCard(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
