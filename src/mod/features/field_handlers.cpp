@@ -32,7 +32,6 @@ EventFactor::EventHandlerTable::Object* CreateFieldEffectEventHandler(EventID ev
     auto evtHandler = EventFactor::EventHandler::newInstanceMAlloc(0, method);
     evtHandler->fields.delegates = nullptr;
     return EventFactor::EventHandlerTable::newInstanceMAlloc(eventID, evtHandler);
-    Logger::log(" CreateFieldEffectEventHandler end\n");
 }
 
 EventFactor::EventHandlerTable::Object* CreateFieldEffectEventHandler(EventID eventID, MethodInfo* method) {

@@ -119,6 +119,9 @@ void exl_settings_main();
 // Reworks the shiny rates.
 void exl_shiny_rates_main();
 
+// Adds support for new side effects in battle.
+void exl_side_handlers_main();
+
 // Adds support for Sigma Platinum-style Sound encounters.
 void exl_sounds_main();
 

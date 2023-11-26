@@ -2,6 +2,8 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/BTL_SICKCONT.h"
+#include "externals/Dpr/Battle/Logic/BtlSideEffect.h"
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
 #include "externals/Dpr/Battle/Logic/EventSystem.h"
 #include "externals/System/Primitives.h"
@@ -334,6 +336,14 @@ namespace Dpr::Battle::Logic::Handler {
 
         static inline void removeHandlerForce(EventSystem::Object* pEventSystem, uint8_t pokeID, int32_t waza) {
             external<void>(0x017f99a0, pEventSystem, pokeID, waza);
+        }
+
+        static inline bool common_SideEffectCore(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t side, BtlSideEffect effect, BTL_SICKCONT::Object* cont, int32_t strType, uint32_t strID, int32_t strArg, bool replaceStrArg0ByExpandSide) {
+            return external<bool>(0x018114a0, args, pokeID, side, effect, cont, strType, strID, strArg, replaceStrArg0ByExpandSide);
+        }
+
+        static inline bool common_SideEffectStdMsg(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID, int32_t side, BtlSideEffect effect, BTL_SICKCONT::Object* cont, uint16_t strID) {
+            return external<bool>(0x0180fe10, args, pokeID, side, effect, cont, strID);
         }
     };
 }

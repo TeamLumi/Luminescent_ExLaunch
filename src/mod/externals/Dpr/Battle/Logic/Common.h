@@ -17,6 +17,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Shrink.h"
+#include "externals/Dpr/Battle/Logic/Section_SideEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/WazaFailCause.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 #include "externals/Pml/PokePara/Sick.h"
@@ -137,6 +138,14 @@ namespace Dpr::Battle::Logic {
 
         static inline void ConsumeItem(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_ConsumeItem::Description::Object** desc) {
             external<void>(0x01d0bfe0, args, desc);
+        }
+
+        static inline bool AddSideEffect(EventFactor::EventHandlerArgs::Object** args, Section_SideEffect_Add::Description::Object** desc) {
+            return external<bool>(0x01d0b4b0, args, desc);
+        }
+
+        static inline int32_t PokeIDtoSide(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID) {
+            return external<int32_t>(0x01d09f50, args, pokeID);
         }
     };
 }

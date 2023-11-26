@@ -35,6 +35,7 @@ void exl_features_main() {
     exl_save_data_expansion();
     exl_settings_main();
     exl_shiny_rates_main();
+    exl_side_handlers_main();
     exl_swarm_forms_main();
     exl_ug_forms_main();
     exl_wild_held_items_main();

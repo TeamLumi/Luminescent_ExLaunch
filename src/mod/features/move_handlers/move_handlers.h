@@ -99,3 +99,6 @@ void Handlers_Move_NaturalGift(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFun
 
 // Adds move handlers for Trump Card.
 void Handlers_Move_TrumpCard(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Lucky Chant.
+void Handlers_Move_LuckyChant(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
