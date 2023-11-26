@@ -147,5 +147,9 @@ namespace Dpr::Battle::Logic {
         static inline int32_t PokeIDtoSide(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID) {
             return external<int32_t>(0x01d09f50, args, pokeID);
         }
+
+        static inline PokeAction::Object* SearchByPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool isSkipGStart, bool isSkipNull) {
+            return external<PokeAction::Object*>(0x01d0a1c0, args, pokeID, isSkipGStart, isSkipNull);
+        }
     };
 }

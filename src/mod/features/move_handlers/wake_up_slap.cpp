@@ -2,6 +2,7 @@
 
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
+#include "externals/Dpr/Battle/Logic/FX32.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
 #include "data/moves.h"
 #include "data/utils.h"
@@ -18,7 +19,7 @@ void HandlerWakeUpSlapWazaPower(EventFactor::EventHandlerArgs::Object** args, ui
     if (!bpp->CheckNemuri(Dpr::Battle::Logic::BTL_POKEPARAM::NemuriCheckMode::NEMURI_CHECK_INCLUDE_ZETTAINEMURI))
         return;
 
-    Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, 8192);
+    Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, FX32::CONST_2_0);
     Common::SetWorkValue(args, WorkValue::A, 1);
 }
 

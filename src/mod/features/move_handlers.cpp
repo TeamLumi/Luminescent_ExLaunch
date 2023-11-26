@@ -88,6 +88,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Trump Card")]) Handlers_Move_TrumpCard(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Wring Out")]) Handlers_Move_WringOut(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Lucky Chant")]) Handlers_Move_LuckyChant(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Me First")]) Handlers_Move_MeFirst(array);
 
         ctx->X[0] = (uint64_t)array;
     }

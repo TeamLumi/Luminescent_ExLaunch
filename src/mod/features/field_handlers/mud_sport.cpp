@@ -2,6 +2,7 @@
 
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
+#include "externals/Dpr/Battle/Logic/FX32.h"
 #include "externals/Dpr/Battle/Logic/Handler/Field.h"
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_End.h"
 #include "externals/Dpr/Battle/Logic/ServerCommandPutter.h"
@@ -17,7 +18,7 @@ void HandlerFieldEffectMudSportFieldWazaPower(EventFactor::EventHandlerArgs::Obj
         return;
 
     // 1/3 power
-    Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, 0x555);
+    Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, FX32::CONST_0_333);
 }
 
 EventFactor::EventHandlerTable::Array* ADD_FieldEffect_MudSport() {

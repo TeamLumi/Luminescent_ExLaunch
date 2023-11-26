@@ -2,6 +2,7 @@
 
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
+#include "externals/Dpr/Battle/Logic/FX32.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
 #include "data/moves.h"
 #include "data/utils.h"
@@ -18,7 +19,7 @@ void HandlerSmellingSaltsWazaPower(EventFactor::EventHandlerArgs::Object** args,
     if (!bpp->CheckSick(Pml::WazaData::WazaSick::WAZASICK_MAHI))
         return;
 
-    Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, 8192);
+    Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, FX32::CONST_2_0);
     Common::SetWorkValue(args, WorkValue::A, 1);
 }
 

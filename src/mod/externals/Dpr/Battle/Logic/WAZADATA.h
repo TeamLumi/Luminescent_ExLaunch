@@ -16,5 +16,9 @@ namespace Dpr::Battle::Logic {
         static inline int32_t GetSickPer(int32_t id) {
             return external<int32_t>(0x01f72b10, id);
         }
+
+        static inline bool IsDamage(int32_t id) {
+            return external<bool>(0x01f72c80, id);
+        }
     };
 }

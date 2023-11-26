@@ -203,5 +203,9 @@ namespace Dpr::Battle::Logic {
         inline uint16_t WAZA_GetPP(uint8_t wazaIdx) {
             return external<uint16_t>(0x01fdf140, this, wazaIdx);
         }
+
+        inline bool TURNFLAG_Get(TurnFlag flagID) {
+            return external<bool>(0x01fdfe70, this, flagID);
+        }
     };
 }

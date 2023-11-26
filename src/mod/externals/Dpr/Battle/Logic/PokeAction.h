@@ -24,5 +24,9 @@ namespace Dpr::Battle::Logic {
             bool fIntrCheck;
             bool fRecalcPriority;
         };
+
+        static inline int32_t GetWazaID(PokeAction::Object* action) {
+            return external<int32_t>(0x02042560, action);
+        }
     };
 }
