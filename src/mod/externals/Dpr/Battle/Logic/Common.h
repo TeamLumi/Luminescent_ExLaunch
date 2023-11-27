@@ -156,5 +156,9 @@ namespace Dpr::Battle::Logic {
         static inline bool Damage(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_Damage::Description::Object** desc) {
             return external<bool>(0x01d0a720, args, desc);
         }
+
+        static inline uint8_t GetAllOpponentFrontPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t basePokeID, System::Byte_array* dst) {
+            return external<uint8_t>(0x01d0f400, args, basePokeID, dst);
+        }
     };
 }

@@ -27,7 +27,7 @@ void HandlerFlameBurstDamageprocEndHitReal(EventFactor::EventHandlerArgs::Object
         for (int32_t j=0; j<opponentCount; j++)
         {
             uint8_t opponentPokeID = opponents->m_Items[j];
-            if (targetPokeID != opponentPokeID)
+            if (targetPokeID != opponentPokeID && Common::IsFriendPokeID(args, targetPokeID, opponentPokeID))
             {
                 auto damage = calc::QuotMaxHP(Common::GetPokeParam(args, opponentPokeID), 16, true);
                 HandlerDamage(args, pokeID, opponentPokeID, damage, false, false, BtlStrType::BTL_STRTYPE_SET, 1498);
