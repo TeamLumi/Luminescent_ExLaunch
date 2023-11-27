@@ -120,3 +120,6 @@ void Handlers_Move_OminousWind(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFun
 
 // Adds move handlers for Flame Burst.
 void Handlers_Move_FlameBurst(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Synchronoise.
+void Handlers_Move_Synchronoise(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

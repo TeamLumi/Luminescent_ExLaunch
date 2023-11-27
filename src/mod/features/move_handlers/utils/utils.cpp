@@ -161,8 +161,12 @@ uint8_t GetAllOtherOutPokeID(EventFactor::EventHandlerArgs::Object** args, uint8
         if (count >= result->max_length)
             break;
 
-        result->m_Items[count] = bpp->GetID();
-        count++;
+        uint8_t newId = bpp->GetID();
+        if (pokeID != newId)
+        {
+            result->m_Items[count] = newId;
+            count++;
+        }
     }
 
     return count;

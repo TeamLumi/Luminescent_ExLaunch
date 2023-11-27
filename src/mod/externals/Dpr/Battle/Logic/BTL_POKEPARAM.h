@@ -1,6 +1,7 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+#include "externals/Dpr/Battle/Logic/PokeTypePair.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/WazaData/WazaSick.h"
 #include "externals/System/Primitives.h"
@@ -206,6 +207,10 @@ namespace Dpr::Battle::Logic {
 
         inline bool TURNFLAG_Get(TurnFlag flagID) {
             return external<bool>(0x01fdfe70, this, flagID);
+        }
+
+        inline PokeTypePair::Object GetPokeType() {
+            return external<PokeTypePair::Object>(0x01fdfa80, this);
         }
     };
 }
