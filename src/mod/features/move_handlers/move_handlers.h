@@ -123,3 +123,6 @@ void Handlers_Move_FlameBurst(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 
 // Adds move handlers for Synchronoise.
 void Handlers_Move_Synchronoise(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Chip Away.
+void Handlers_Move_ChipAway(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

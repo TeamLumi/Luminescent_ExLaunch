@@ -95,6 +95,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Ominous Wind")]) Handlers_Move_OminousWind(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Flame Burst")]) Handlers_Move_FlameBurst(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Synchronoise")]) Handlers_Move_Synchronoise(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Chip Away")]) Handlers_Move_ChipAway(array);
 
         ctx->X[0] = (uint64_t)array;
     }
