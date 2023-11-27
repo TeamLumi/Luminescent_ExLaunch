@@ -34,5 +34,6 @@ struct ExtraMoveHandlers {
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_LuckyChant = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_MeFirst = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Punishment = nullptr;
+    Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_FlameBurst = nullptr;
     // ...
 };

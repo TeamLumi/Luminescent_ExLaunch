@@ -12,6 +12,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -150,6 +151,10 @@ namespace Dpr::Battle::Logic {
 
         static inline PokeAction::Object* SearchByPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool isSkipGStart, bool isSkipNull) {
             return external<PokeAction::Object*>(0x01d0a1c0, args, pokeID, isSkipGStart, isSkipNull);
+        }
+
+        static inline bool Damage(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_Damage::Description::Object** desc) {
+            return external<bool>(0x01d0a720, args, desc);
         }
     };
 }

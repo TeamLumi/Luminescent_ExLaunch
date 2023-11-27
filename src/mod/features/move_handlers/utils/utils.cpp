@@ -1,10 +1,12 @@
 #include "utils.h"
 
+#include "externals/Dpr/Battle/Logic/FrontPokeAccessor.h"
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -16,7 +18,6 @@
 
 bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns, BtlStrType strType, uint16_t strID)
 {
-    Logger::log("HandlerAddFieldEffect\n");
     system_load_typeinfo(0xaa75);
     auto fieldEffectAddDesc = Section_FieldEffect_Add::Description::newInstance();
     fieldEffectAddDesc->fields.pokeID = pokeID;
@@ -78,6 +79,22 @@ bool HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t cause
     return Common::CureSick(args, &cureSickDesc);
 }
 
+bool HandlerDamage(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, uint16_t damage, bool disableDeadProcess, bool displayAbility, BtlStrType strType, uint16_t strID)
+{
+    system_load_typeinfo(0x8a36);
+    auto damageDesc = Section_FromEvent_Damage::Description::newInstance();
+    damageDesc->fields.pokeID = causePokeID;
+    damageDesc->fields.targetPokeID = targetPokeID;
+    damageDesc->fields.damage = damage;
+    damageDesc->fields.damageCause = DamageCause::OTHER;
+    damageDesc->fields.damageCausePokeID = causePokeID;
+    damageDesc->fields.disableDeadProcess = disableDeadProcess;
+    damageDesc->fields.isDisplayTokuseiWindow = displayAbility;
+    damageDesc->fields.successMessage->Setup(strType, strID);
+    damageDesc->fields.successMessage->AddArg(targetPokeID);
+    return Common::Damage(args, &damageDesc);
+}
+
 void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType)
 {
     system_load_typeinfo(0xa922);
@@ -130,4 +147,23 @@ bool HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetP
     shrinkDesc->fields.pokeID = targetPokeID;
     shrinkDesc->fields.percentage = percentage;
     return Common::Shrink(args, &shrinkDesc);
+}
+
+
+uint8_t GetAllOtherOutPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, System::Byte_array* result)
+{
+    system_load_typeinfo(0x2c5b);
+    auto frontPokeAccessor = FrontPokeAccessor::newInstance((*args)->fields.pMainModule->instance(), (*args)->fields.pBattleEnv->instance());
+    uint8_t count = 0;
+    BTL_POKEPARAM::Object* bpp = nullptr;
+    while (frontPokeAccessor->GetNext(&bpp))
+    {
+        if (count >= result->max_length)
+            break;
+
+        result->m_Items[count] = bpp->GetID();
+        count++;
+    }
+
+    return count;
 }

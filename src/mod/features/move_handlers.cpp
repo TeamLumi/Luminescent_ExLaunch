@@ -92,6 +92,8 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Punishment")]) Handlers_Move_Punishment(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Captivate")]) Handlers_Move_Captivate(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Ominous Wind")]) Handlers_Move_OminousWind(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Flame Burst")]) Handlers_Move_FlameBurst(array);
 
         ctx->X[0] = (uint64_t)array;
     }
