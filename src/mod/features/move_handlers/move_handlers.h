@@ -108,3 +108,6 @@ void Handlers_Move_LuckyChant(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 
 // Adds move handlers for Me First.
 void Handlers_Move_MeFirst(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Punishment.
+void Handlers_Move_Punishment(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

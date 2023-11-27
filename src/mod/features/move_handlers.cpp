@@ -90,6 +90,8 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Lucky Chant")]) Handlers_Move_LuckyChant(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Me First")]) Handlers_Move_MeFirst(array);
 
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Punishment")]) Handlers_Move_Punishment(array);
+
         ctx->X[0] = (uint64_t)array;
     }
 };
