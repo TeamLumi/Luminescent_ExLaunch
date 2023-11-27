@@ -91,6 +91,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Me First")]) Handlers_Move_MeFirst(array);
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Punishment")]) Handlers_Move_Punishment(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Captivate")]) Handlers_Move_Captivate(array);
 
         ctx->X[0] = (uint64_t)array;
     }

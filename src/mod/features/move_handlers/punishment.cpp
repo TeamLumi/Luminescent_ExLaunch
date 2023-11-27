@@ -29,11 +29,11 @@ void HandlerPunishmentWazaPowerBase(EventFactor::EventHandlerArgs::Object** args
 }
 
 EventFactor::EventHandlerTable::Array* ADD_Punishment() {
-    EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Refresh;
+    EventFactor::EventHandlerTable::Array* table = getExtraMoveHandlers()->HandlerTable_Punishment;
     if (table == nullptr) {
         table = CreateMoveEventHandlerTable(1);
         table->m_Items[0] = CreateMoveEventHandler(EventID::WAZA_POWER_BASE, (Il2CppMethodPointer)&HandlerPunishmentWazaPowerBase);
-        getExtraMoveHandlers()->HandlerTable_Refresh = table;
+        getExtraMoveHandlers()->HandlerTable_Punishment = table;
     }
     return table;
 }

@@ -111,3 +111,6 @@ void Handlers_Move_MeFirst(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTab
 
 // Adds move handlers for Punishment.
 void Handlers_Move_Punishment(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Captivate.
+void Handlers_Move_Captivate(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
