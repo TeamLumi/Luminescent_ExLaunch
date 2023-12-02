@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_InterruptAction.h"
 
@@ -108,7 +109,7 @@ namespace Dpr::Battle::Logic {
             void* m_section_FieldEffect_Add; // Dpr_Battle_Logic_Section_FieldEffect_Add_o*
             void* m_section_FromEvent_FieldEffect_Remove; // Dpr_Battle_Logic_Section_FromEvent_FieldEffect_Remove_o*
             void* m_section_FromEvent_FormChange; // Dpr_Battle_Logic_Section_FromEvent_FormChange_o*
-            void* m_section_FromEvent_FreeFallStart; // Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_o*
+            Section_FromEvent_FreeFallStart::Object* m_section_FromEvent_FreeFallStart;
             void* m_section_FromEvent_FriendshipEffect; // Dpr_Battle_Logic_Section_FromEvent_FriendshipEffect_o*
             void* m_section_FromEvent_GetWeather; // Dpr_Battle_Logic_Section_FromEvent_GetWeather_o*
             void* m_section_FromEvent_GetWeight; // Dpr_Battle_Logic_Section_FromEvent_GetWeight_o*
@@ -140,7 +141,7 @@ namespace Dpr::Battle::Logic {
             void* m_section_FromEvent_SetPower; // Dpr_Battle_Logic_Section_FromEvent_SetPower_o*
             void* m_section_FromEvent_SetTurnFlag; // Dpr_Battle_Logic_Section_FromEvent_SetTurnFlag_o*
             void* m_section_FromEvent_SetWazaEffectEnable; // Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectEnable_o*
-            Section_FromEvent_SetWazaEffectIndex::Object* m_section_FromEvent_SetWazaEffectIndex; // Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_o*
+            Section_FromEvent_SetWazaEffectIndex::Object* m_section_FromEvent_SetWazaEffectIndex;
             void* m_section_FromEvent_SetWeight; // Dpr_Battle_Logic_Section_FromEvent_SetWeight_o*
             void* m_section_FromEvent_ShiftHP; // Dpr_Battle_Logic_Section_FromEvent_ShiftHP_o*
             void* m_section_FromEvent_Shrink; // Dpr_Battle_Logic_Section_FromEvent_Shrink_o*

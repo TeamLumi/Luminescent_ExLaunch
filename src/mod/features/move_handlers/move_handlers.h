@@ -126,3 +126,6 @@ void Handlers_Move_Synchronoise(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFu
 
 // Adds move handlers for Chip Away.
 void Handlers_Move_ChipAway(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Sky Drop.
+void Handlers_Move_SkyDrop(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

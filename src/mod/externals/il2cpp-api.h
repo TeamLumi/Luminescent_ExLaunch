@@ -209,6 +209,7 @@ public:
         return klass->newInstance(args...);
     }
 
+    // Make sure to use nn_free() on this instance afterwards!
     template <typename... Args>
     static Object* newInstanceMAlloc(Args... args) {
         auto obj = reinterpret_cast<Object*>(nn_malloc(sizeof(Object)));

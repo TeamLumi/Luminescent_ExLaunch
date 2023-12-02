@@ -13,6 +13,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -159,6 +160,10 @@ namespace Dpr::Battle::Logic {
 
         static inline uint8_t GetAllOpponentFrontPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t basePokeID, System::Byte_array* dst) {
             return external<uint8_t>(0x01d0f400, args, basePokeID, dst);
+        }
+
+        static inline bool FreeFallStart(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FreeFallStart::Description::Object** desc) {
+            return external<bool>(0x01d0cd50, args, desc);
         }
     };
 }

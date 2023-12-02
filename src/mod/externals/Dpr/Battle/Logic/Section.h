@@ -52,5 +52,9 @@ namespace Dpr::Battle::Logic {
         inline ActionSharedData::Object* GetActionSharedData() {
             return external<ActionSharedData::Object*>(0x020d6400, this);
         }
+
+        inline BTL_POKEPARAM::Object* GetPokeParam(uint8_t pokeID) {
+            return external<BTL_POKEPARAM::Object*>(0x020d64a0, this, pokeID);
+        }
     };
 }

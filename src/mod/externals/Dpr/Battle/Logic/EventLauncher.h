@@ -5,6 +5,7 @@
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/PokeAction.h"
 #include "externals/Dpr/Battle/Logic/PokeActionCategory.h"
+#include "externals/Dpr/Battle/Logic/WazaParam.h"
 
 namespace Dpr::Battle::Logic {
     struct BattleEnv;
@@ -28,6 +29,10 @@ namespace Dpr::Battle::Logic {
 
         inline void Event_ActProcEnd(BTL_POKEPARAM::Object* bpp, PokeActionCategory actionCmd) {
             external<void>(0x01d17c30, this, bpp, actionCmd);
+        }
+
+        inline void Event_GetWazaParam(int32_t waza, int32_t orgWaza, int32_t gSrcWaza, int32_t wazaPri, BTL_POKEPARAM::Object* attacker, WazaParam::Object* param) {
+            external<void>(0x01d14030, this, waza, orgWaza, gSrcWaza, wazaPri, attacker, param);
         }
     };
 }
