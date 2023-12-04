@@ -3,7 +3,6 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/UI/UIModelViewController.h"
-#include "externals/Dpr/UI/UIWazaManage.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/System/Action.h"
 #include "externals/System/Func.h"
@@ -13,11 +12,22 @@
 #include "externals/XLSXContent/UIDatabase.h"
 
 namespace Dpr::UI {
+    struct UIWindow;
+
+    struct BoxWindow;
     struct ShopBoutiqueChange;
+    struct UIWazaManage;
 }
 
 namespace Dpr::UI {
     struct UIManager : ILClass<UIManager, 0x04c5cc28> {
+        struct UIInstance : ILClass<UIInstance> {
+            struct Fields {
+                UIWindow* _uiWindow;
+                UIWindowID _windowId;
+            };
+        };
+
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             UnityEngine::Transform::Object* _activeRoot;
             Dpr::UI::UIModelViewController::Object* _modelView;
@@ -59,6 +69,7 @@ namespace Dpr::UI {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$UIManager$$get_Instance);
         }
 
+        static inline StaticILMethod<0x04c8ff30, Dpr::UI::BoxWindow> Method$$CreateUIWindow_BoxWindow_ {};
         static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow_ShopBoutiqueChange_ {};
         static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow_UIWazaManage_ {};
 

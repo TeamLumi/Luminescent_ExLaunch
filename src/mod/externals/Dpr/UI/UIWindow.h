@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/UI/UIManager.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 
@@ -15,7 +16,7 @@ namespace Dpr::UI {
             int32_t _transitionFadeType;
             int32_t _prevWindowId;
             void* _messageWindow;
-            void* instance;
+            UIManager::UIInstance::Object* instance;
             UnityEngine::Events::UnityAction::Object* onClosed;
             UnityEngine::Events::UnityAction::Object* onPreClose;
             bool _IsClosing_k__BackingField;

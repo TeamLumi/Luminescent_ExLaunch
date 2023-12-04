@@ -79,6 +79,9 @@ void exl_language_select_main();
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
 
+// Adds support for new UIWindows.
+void exl_more_ui_main();
+
 // Adds support for new moves.
 void exl_move_handlers_main();
 

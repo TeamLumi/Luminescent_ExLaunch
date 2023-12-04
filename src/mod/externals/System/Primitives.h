@@ -11,6 +11,7 @@ namespace System {
     typedef int32_t Int32;
     typedef uint32_t UInt32;
     typedef int64_t Int64;
+    typedef float Single;
 
     PRIMITIVE_ARRAY(Boolean);
     static Il2CppClass* Boolean_array_TypeInfo() {
@@ -28,4 +29,5 @@ namespace System {
     }
     PRIMITIVE_ARRAY(UInt32);
     PRIMITIVE_ARRAY(Int64);
+    PRIMITIVE_ARRAY(Single);
 }
