@@ -12,7 +12,7 @@ namespace DG::Tweening {
             float timeScale;
             bool isBackwards;
             Il2CppObject* id;
-            struct System_String_o* stringId;
+            System::String::Object* stringId;
             int32_t intId;
             Il2CppObject* target;
             int32_t updateType;

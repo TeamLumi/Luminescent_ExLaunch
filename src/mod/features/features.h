@@ -29,6 +29,9 @@ void exl_battle_revolver_main();
 // Forces battle camera transition direct from Wait camera to Attack camera
 void exl_battle_camera_fix_main();
 
+// Adds support for battle status UI.
+void exl_battle_situation_main();
+
 // Adds support for custom color variations for player and NPCs.
 void exl_color_variations_main();
 

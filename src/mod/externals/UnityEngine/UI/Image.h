@@ -1,6 +1,8 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
+#include "externals/System/Collections/Generic/Dictionary.h"
 #include "externals/UnityEngine/UI/MaskableGraphic.h"
 
 namespace UnityEngine::UI {
@@ -21,5 +23,11 @@ namespace UnityEngine::UI {
             float m_PixelsPerUnitMultiplier;
             float m_CachedReferencePixelsPerUnit;
         };
+    };
+}
+
+namespace System::Collections::Generic {
+    struct Dictionary$$int32_t$$UnityEngine_UI_Image : Dictionary$$int32_t<Dictionary$$int32_t$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
+        static inline StaticILMethod<0x04c87bb0> Method$$set_Item {};
     };
 }

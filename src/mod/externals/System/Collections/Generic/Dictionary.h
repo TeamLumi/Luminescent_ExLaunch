@@ -5,8 +5,8 @@
 
 namespace System::Collections::Generic {
     template <typename T, typename K, typename V>
-    struct Dictionary : IlClass<T> {
-        struct Entry : IlStruct<Entry> {
+    struct Dictionary$$Object : ILClass<T> {
+        struct Entry : ILStruct<Entry> {
             struct Fields {
                 int32_t hashCode;
                 int32_t next;
@@ -27,5 +27,34 @@ namespace System::Collections::Generic {
             void* values;
             Il2CppObject* _syncRoot;
         };
+    };
+
+    template <typename T, typename V>
+    struct Dictionary$$int32_t : ILClass<T> {
+        struct Entry : ILStruct<Entry> {
+            struct Fields {
+                int32_t hashCode;
+                int32_t next;
+                int32_t key;
+                V::Object* value;
+            };
+        };
+
+        struct Fields {
+            System::Int32_array* buckets;
+            Entry::Array* entries;
+            int32_t count;
+            int32_t version;
+            int32_t freeList;
+            int32_t freeCount;
+            void* comparer;
+            void* keys;
+            void* values;
+            Il2CppObject* _syncRoot;
+        };
+
+        inline void set_Item(int32_t key, V::Object* value) {
+            ILClass<T>::template external<void>(0x028da060, this, key, value, *T::Method$$set_Item);
+        }
     };
 }

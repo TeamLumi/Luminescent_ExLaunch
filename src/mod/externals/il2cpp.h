@@ -120,16 +120,6 @@ struct Il2CppClass {
     void* rgctx_data;
     Il2CppClass_2 _2;
     void* vtable;
-
-    bool isOfClass(Il2CppClass* otherKlass) {
-        if ((otherKlass->_2).typeHierarchyDepth > (this->_2).typeHierarchyDepth) // Hierarchy depth is not deep enough
-            return false;
-
-        if ((this->_2).typeHierarchy[(otherKlass->_2).typeHierarchyDepth - 1] != otherKlass) // Class at same depth doesn't match
-            return false;
-        else
-            return true;
-    }
 };
 
 struct Il2CppArrayBounds {

@@ -5,8 +5,6 @@
 
 namespace UnityEngine::EventSystems {
     struct UIBehaviour : ILClass<UIBehaviour> {
-        struct Fields : UnityEngine::MonoBehaviour::Fields {
-
-        };
+        struct Fields : UnityEngine::MonoBehaviour::Fields {};
     };
 }

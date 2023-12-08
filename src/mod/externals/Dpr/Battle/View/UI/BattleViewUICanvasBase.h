@@ -7,6 +7,8 @@
 #include "externals/System/Action.h"
 
 namespace Dpr::Battle::View::UI {
+    struct BUISituationButton;
+
     struct BattleViewUICanvasBase : ILClass<BattleViewUICanvasBase> {
         struct TransitionParams : ILStruct<TransitionParams> {
             struct Fields {
@@ -33,5 +35,20 @@ namespace Dpr::Battle::View::UI {
             bool _IsTransition_k__BackingField;
             int32_t _animationState_k__BackingField;
         };
+
+        static inline StaticILMethod<0x04c7c3d0, BUISituationButton> Method$$BUISituationButton$$SelectButton {};
+
+        inline void Show(System::Action::Object* onComplete) {
+            external<void>(0x01d20420, this, onComplete);
+        }
+
+        inline bool Hide(bool isForce, System::Action::Object* onComplete) {
+            return external<bool>(0x01d21340, this, isForce, onComplete);
+        }
+
+        template <typename T>
+        inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, ILMethod<T>& method) {
+            external<void>(0x01a88450, this, buttons, index, isPlaySe, *method);
+        }
     };
 }

@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "memory/string.h"
+#include "externals/System/Collections/Generic/Dictionary.h"
 #include "externals/System/Collections/Generic/List.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/Text/Encoding.h"
@@ -95,5 +96,9 @@ namespace System::Collections::Generic {
     struct List$$String : List<List$$String, System::String> {
         static inline StaticILMethod<0x04c8a528> Method$$Add {};
         static inline StaticILMethod<0x04c8a538> Method$$Clear {};
+    };
+
+    struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {
+        static inline StaticILMethod<0x04c87a08> Method$$set_Item {};
     };
 }

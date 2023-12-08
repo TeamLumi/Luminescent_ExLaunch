@@ -19,10 +19,16 @@ namespace UnityEngine::UI {
     struct HorizontalLayoutGroup;
 }
 
-namespace Dpr::UI {
-    struct SelectLanguageItem;
-    struct SettingMenuItem;
-    struct UIText;
+namespace Dpr {
+    namespace Battle::View::UI {
+        struct BUISituation;
+    }
+
+    namespace UI {
+        struct SelectLanguageItem;
+        struct SettingMenuItem;
+        struct UIText;
+    }
 }
 
 namespace UnityEngine {

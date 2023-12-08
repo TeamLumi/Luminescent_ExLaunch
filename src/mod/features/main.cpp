@@ -9,6 +9,7 @@ void exl_features_main() {
     exl_balls_main();
     exl_battle_camera_fix_main();
     exl_battle_escape_flag_main();
+    exl_battle_situation_main();
     exl_color_variations_main();
     exl_commands_main();
     exl_encounter_slots_main();
@@ -23,7 +24,7 @@ void exl_features_main() {
     exl_key_items_main();
     exl_language_select_main();
     exl_level_cap_main();
-    exl_more_ui_main();
+    //exl_more_ui_main();
     exl_move_handlers_main();
     exl_npc_collision_audio_main();
     exl_outfit_neutral_ui_main();
