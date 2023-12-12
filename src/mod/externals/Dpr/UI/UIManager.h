@@ -88,6 +88,10 @@ namespace Dpr::UI {
         static inline int32_t Repeat(int32_t value, int32_t start, int32_t end) {
             return external<int32_t>(0x017c4990, value, start, end);
         }
+
+        inline void LoadSpritePokemon(int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
+            external<void>(0x017c3ef0, this, monsNo, formNo, sex, rareType, isEgg, onComplete);
+        }
     };
 }
 

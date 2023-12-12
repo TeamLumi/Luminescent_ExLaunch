@@ -4,20 +4,27 @@
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/BTL_ACTION_PARAM_OBJ.h"
 #include "externals/Dpr/Battle/View/BattleViewCore.h"
+#include "externals/Dpr/Battle/View/BtlvInput.h"
 #include "externals/Dpr/Battle/View/Systems/BattleViewUISystem.h"
 #include "externals/Dpr/Battle/View/UI/BUISituation.h"
+#include "externals/Dpr/NetworkUtils/NetworkManager.h"
+#include "externals/Dpr/UI/PokemonIcon.h"
 #include "externals/ExtensionMethods.h"
+#include "externals/UnityEngine/Sprite.h"
 
 #include "logger/logger.h"
+
+Dpr::Battle::View::UI::BUISituation::Object* getSituationUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
+    auto situationTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituation"));
+    auto situationGO = ((UnityEngine::Component::Object*)situationTF)->get_gameObject();
+    auto situationCmpList = (UnityEngine::Component::Array*)situationGO->GetAllComponents();
+    return (Dpr::Battle::View::UI::BUISituation::Object*)situationCmpList->m_Items[2];
+}
 
 HOOK_DEFINE_REPLACE(BattleViewUISystem_CMD_UI_SelectWaza_Start) {
     static void Callback(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this, Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex, Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
         Logger::log("BattleViewUISystem_CMD_UI_SelectWaza_Start\n");
-        auto situationTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituation"));
-        auto situationGO = ((UnityEngine::Component::Object*)situationTF)->get_gameObject();
-        auto situationCmpList = (UnityEngine::Component::Array*)situationGO->GetAllComponents();
-        auto situationUI = (Dpr::Battle::View::UI::BUISituation::Object*)situationCmpList->m_Items[2];
-
+        auto situationUI = getSituationUI(__this);
         situationUI->Initialize();
         ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)situationUI)->Show(nullptr);
     }
@@ -26,21 +33,25 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem_CMD_UI_SelectWaza_Start) {
 HOOK_DEFINE_REPLACE(BattleViewUISystem_CMD_UI_SelectWaza_End) {
     static bool Callback(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
         Logger::log("BattleViewUISystem_CMD_UI_SelectWaza_End\n");
-        auto situationTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituation"));
-        auto situationGO = ((UnityEngine::Component::Object*)situationTF)->get_gameObject();
-        auto situationCmpList = (UnityEngine::Component::Array*)situationGO->GetAllComponents();
-        auto situationUI = (Dpr::Battle::View::UI::BUISituation::Object*)situationCmpList->m_Items[2];
-
+        auto situationUI = getSituationUI(__this);
         ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)situationUI)->Hide(false, nullptr);
         return true;
     }
 };
 
-HOOK_DEFINE_TRAMPOLINE(BattleViewUICanvasBase_Startup) {
-    static void Callback(Dpr::Battle::View::UI::BattleViewUICanvasBase::Object* __this) {
-        Logger::log("BattleViewUICanvasBase_Startup\n");
+HOOK_DEFINE_TRAMPOLINE(UIManager_GetAtlasSprite) {
+    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t spriteAtlasId, System::String::Object* name) {
+        Logger::log("UIManager_GetAtlasSprite\n");
+        Logger::log("name %08X\n", name);
+        Logger::log("%s\n", name->asCString().c_str());
+        Orig(__this, spriteAtlasId, name);
+    }
+};
 
-        Orig(__this);
+HOOK_DEFINE_TRAMPOLINE(UIManager_GetPokemonIconData) {
+    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg) {
+        Logger::log("UIManager_GetPokemonIconData(%d, %d, %d, %d, %d)\n", monsNo, formNo, sex, rareType, isEgg);
+        Orig(__this, monsNo, formNo, sex, rareType, isEgg);
     }
 };
 
@@ -118,15 +129,132 @@ HOOK_DEFINE_REPLACE(BUISituation_OnShow) {
     }
 };
 
+void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Sprite::Object* sprite)
+{
+    Logger::log("LoadSpriteToImage!\n");
+    system_load_typeinfo(0x6d82);
+
+    __this->set_sprite(sprite);
+    auto go = ((UnityEngine::Component::Object*)__this)->get_gameObject();
+    go->SetActive(UnityEngine::_Object::op_Inequality((UnityEngine::_Object::Object*)sprite, nullptr));
+}
+
+HOOK_DEFINE_TRAMPOLINE(BUISituationButton_Initialize) {
+    static void Callback(Dpr::Battle::View::UI::BUISituationButton::Object* __this, Dpr::Battle::Logic::BTL_POKEPARAM::Object* btlParam, System::String::Object* trainerName) {
+        Logger::log("BUISituationButton_Initialize\n");
+        Orig(__this, btlParam, trainerName);
+
+        system_load_typeinfo(0x1f63);
+        system_load_typeinfo(0x239d);
+        system_load_typeinfo(0x6d80);
+
+        auto coreParam = (Pml::PokePara::CoreParam::Object*)btlParam->GetSrcData();
+        MethodInfo* mi = Dpr::UI::PokemonIcon::getMethod$$BUISituationLoadIcon((Il2CppMethodPointer) &LoadSpriteToImage);
+        auto onLoad = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::Sprite_TypeInfo)->newInstance(__this->fields._pokeIcon, mi);
+        auto uiManager = Dpr::UI::UIManager::instance();
+
+        uiManager->LoadSpritePokemon(coreParam->GetMonsNo(), coreParam->GetFormNo(), coreParam->GetSex(), coreParam->GetRareType(), coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG), onLoad);
+    }
+};
+
+HOOK_DEFINE_REPLACE(BUISituation_OnUpdate) {
+    static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this, float deltaTime) {
+        Logger::log("BUISituation_OnUpdate\n");
+        system_load_typeinfo(0x1f52);
+
+        if (!__this->fields._IsFocus_k__BackingField) {
+            Logger::log("Not in focus!\n");
+            return;
+        }
+
+        Dpr::NetworkUtils::NetworkManager::getClass()->initIfNeeded();
+        if (Dpr::NetworkUtils::NetworkManager::IsShowApplicationErrorDialog()) {
+            Logger::log("Showing App Error!\n");
+            return;
+        }
+
+        Dpr::UI::UIManager::getClass()->initIfNeeded();
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true)
+            || Dpr::Battle::View::BtlvInput::GetRepeat(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true))
+        {
+            Logger::log("Holding Down!\n");
+            __this->PreparaNextV(false);
+        }
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)
+            || Dpr::Battle::View::BtlvInput::GetRepeat(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true))
+        {
+            Logger::log("Holding Up!\n");
+            __this->PreparaNextV(false);
+        }
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true)
+            || Dpr::Battle::View::BtlvInput::GetRepeat(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true))
+        {
+            Logger::log("Holding Left!\n");
+            __this->PreparaNextH(false);
+        }
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true)
+            || Dpr::Battle::View::BtlvInput::GetRepeat(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true))
+        {
+            Logger::log("Holding Right!\n");
+            __this->PreparaNextH(false);
+        }
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, true))
+        {
+            Logger::log("Pressed A!\n");
+            __this->OnSubmit();
+        }
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, true)
+            || Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonY, true))
+        {
+            Logger::log("Pressed B or Y!\n");
+            __this->OnCancel();
+        }
+    }
+};
+
+HOOK_DEFINE_INLINE(BattleViewUISystem_OnUpdate) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto viewUISys = (Dpr::Battle::View::Systems::BattleViewUISystem::Object*)ctx->X[19];
+
+        // Get from float register s0
+        float deltaTime;
+        __asm(
+            R"(
+                mov %0.16B, v8.16B
+            )"
+            : "=w"(deltaTime)
+        );
+
+        // Add BUISituation OnUpdate
+        auto situationUI = getSituationUI(viewUISys);
+        situationUI->Virtual_OnUpdate(deltaTime);
+
+        ctx->X[8] = (uint64_t)viewUISys->fields._autoPilot;
+    }
+};
+
 void exl_battle_situation_main() {
     // Open from selecting fight for testing
     BattleViewUISystem_CMD_UI_SelectWaza_Start::InstallAtOffset(0x01e765a0);
     BattleViewUISystem_CMD_UI_SelectWaza_End::InstallAtOffset(0x01e76b40);
 
-    // Startup method support on BUISituation
-    //BattleViewUICanvasBase_Startup::InstallAtOffset(0x01d1f930);
+    // Debug Trampolines
+    //UIManager_GetAtlasSprite::InstallAtOffset(0x017a9080);
+    //UIManager_GetPokemonIconData::InstallAtOffset(0x017c1250);
+
+    // Add more to OnUpdate
+    BattleViewUISystem_OnUpdate::InstallAtOffset(0x01e79c04);
 
     // Rewrite methods
     BUISituation_Initialize::InstallAtOffset(0x01d22cb0);
     BUISituation_OnShow::InstallAtOffset(0x01d23a40);
+    //BUISituation_OnUpdate::InstallAtOffset(0x01d23280);
+
+    BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
 }

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "externals/il2cpp.h"
 #include "externals/il2cpp-api.h"
+
 #include "externals/System/MulticastDelegate.h"
+#include "externals/UnityEngine/Sprite.h"
 
 namespace UnityEngine::Events {
     struct UnityAction : ILClass<UnityAction> {
@@ -12,6 +13,7 @@ namespace UnityEngine::Events {
 
         static const inline long bool_String_TypeInfo = 0x04c5ee10;
         static const inline long void_TypeInfo = 0x04c57230;
+        static const inline long Sprite_TypeInfo = 0x04c5e1a0;
 
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {

@@ -36,6 +36,8 @@ struct MethodInfo {
     uint8_t parameters_count;
     uint8_t bitflags;
 
+    // Make sure to free once you're 100% sure it won't be used anymore.
+    // Alternatively, keep a reference to re-use.
     MethodInfo* copyWith(Il2CppMethodPointer method) {
         auto m = (MethodInfo*)nn_malloc(sizeof(MethodInfo));
         memcpy(m, this, sizeof(MethodInfo));
