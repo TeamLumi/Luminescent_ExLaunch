@@ -17,6 +17,7 @@
 #include "externals/Dpr/Battle/View/Objects/BtlvSound.h"
 #include "externals/System/String.h"
 #include "externals/System/Nullable.h"
+#include "externals/UnityEngine/UI/Image.h"
 
 namespace Dpr::Battle::View::Systems {
     struct BattleViewSystem : ILClass<BattleViewSystem> {
@@ -476,6 +477,10 @@ namespace Dpr::Battle::View::Systems {
         inline uint8_t Virtual_GetBtlvPosToClientId(int32_t vpos) {
             return (*(this->instance()->klass->vtable)._34_GetBtlvPosToClientId.methodPtr)
                 (this->instance(), vpos, this->instance()->klass->vtable._34_GetBtlvPosToClientId.method);
+        }
+
+        inline void SetSexIcon(uint8_t sex, UnityEngine::UI::Image::Object* target) {
+            return external<void>(0x01e7c7d0, this, sex, target);
         }
     };
 }

@@ -8,6 +8,7 @@
 
 namespace Dpr::Battle::View::UI {
     struct BUISituationButton;
+    struct BUISituationDescriptionButton;
 
     struct BattleViewUICanvasBase : ILClass<BattleViewUICanvasBase> {
         struct TransitionParams : ILStruct<TransitionParams> {
@@ -37,6 +38,7 @@ namespace Dpr::Battle::View::UI {
         };
 
         static inline StaticILMethod<0x04c7c3d0, BUISituationButton> Method$$BUISituationButton$$SelectButton {};
+        static inline StaticILMethod<0x04c7c3d8, BUISituationDescriptionButton> Method$$BUISituationDescriptionButton$$SelectButton {};
 
         inline void Show(System::Action::Object* onComplete) {
             external<void>(0x01d20420, this, onComplete);

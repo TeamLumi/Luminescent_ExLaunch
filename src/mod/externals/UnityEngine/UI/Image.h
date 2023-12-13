@@ -9,8 +9,8 @@
 namespace UnityEngine::UI {
     struct Image : ILClass<Image> {
         struct Fields : UnityEngine::UI::MaskableGraphic::Fields {
-            void* m_Sprite;
-            void* m_OverrideSprite;
+            UnityEngine::Sprite::Object* m_Sprite;
+            UnityEngine::Sprite::Object* m_OverrideSprite;
             int32_t m_Type;
             bool m_PreserveAspect;
             bool m_FillCenter;
@@ -32,7 +32,15 @@ namespace UnityEngine::UI {
 }
 
 namespace System::Collections::Generic {
+    struct List$$UnityEngine_UI_Image : List<List$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
+    };
+
     struct Dictionary$$int32_t$$UnityEngine_UI_Image : Dictionary$$int32_t<Dictionary$$int32_t$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
         static inline StaticILMethod<0x04c87bb0> Method$$set_Item {};
+        static inline StaticILMethod<0x04c70da8> Method$$get_Values {};
+    };
+
+    struct IEnumerable$$UnityEngine_UI_Image : IEnumerable<IEnumerable$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
+        static inline StaticILMethod<0x04c71770> Method$$ToList {};
     };
 }

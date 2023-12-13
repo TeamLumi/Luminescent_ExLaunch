@@ -69,5 +69,13 @@ namespace Dpr::Battle::View::Systems {
         };
 
         static_assert(sizeof(Fields) == 0x150);
+
+        inline void PlaySe(uint32_t eventId) {
+            external<void>(0x01e7c5f0, this, eventId);
+        }
+
+        inline void SwitchShowDecoImage(bool isShow) {
+            external<void>(0x01e765e0, this, isShow);
+        }
     };
 }

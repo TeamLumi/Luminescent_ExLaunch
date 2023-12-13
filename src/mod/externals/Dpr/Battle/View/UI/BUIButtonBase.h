@@ -8,6 +8,8 @@
 #include "externals/UnityEngine/EventSystems/UIBehaviour.h"
 
 namespace Dpr::Battle::View::UI {
+    struct BUIActionSelectButton;
+
     struct BUIButtonBase : ILClass<BUIButtonBase> {
         struct Fields : UnityEngine::EventSystems::UIBehaviour::Fields {
             UnityEngine::UI::Image::Object* _backgroundImage;
@@ -22,5 +24,10 @@ namespace Dpr::Battle::View::UI {
             System::Action::Object* _onSelected;
             System::Action::Object* _onSubmit;
         };
+
+        // The MethodInfo in this method is unused so not necessary
+        inline bool Submit() {
+            return external<bool>(0x021d47f0, this);
+        }
     };
 }

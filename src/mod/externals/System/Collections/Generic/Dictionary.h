@@ -1,6 +1,7 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+#include "externals/System/Collections/Generic/IEnumerable.h"
 #include "externals/System/Primitives.h"
 
 namespace System::Collections::Generic {
@@ -55,6 +56,15 @@ namespace System::Collections::Generic {
 
         inline void set_Item(int32_t key, V::Object* value) {
             ILClass<T>::template external<void>(0x028da060, this, key, value, *T::Method$$set_Item);
+        }
+
+        inline V::Object* get_Item(int32_t key) {
+            ILClass<T>::template external<void>(0x028d9f90, this, key, *T::Method$$get_Item);
+        }
+
+        template <typename E>
+        inline IEnumerable<E, T>* get_Values() {
+            return ILClass<T>::template external<IEnumerable<E, T>*>(0x028d9ef0, this, *T::Method$$get_Values);
         }
     };
 }

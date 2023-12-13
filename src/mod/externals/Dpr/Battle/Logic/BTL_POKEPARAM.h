@@ -7,6 +7,7 @@
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/WazaData/WazaSick.h"
 #include "externals/System/Collections/Generic/Dictionary.h"
+#include "externals/System/Collections/Generic/List.h"
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
@@ -223,7 +224,17 @@ namespace Dpr::Battle::Logic {
 }
 
 namespace System::Collections::Generic {
+    struct List$$BTL_POKEPARAM : List<List$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
+        static inline StaticILMethod<0x04c74028> Method$$IndexOf {};
+    };
+
     struct Dictionary$$int32_t$$BTL_POKEPARAM : Dictionary$$int32_t<Dictionary$$int32_t$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
         static inline StaticILMethod<0x04c875b0> Method$$set_Item {};
+        static inline StaticILMethod<0x04c68af8> Method$$get_Item {};
+        static inline StaticILMethod<0x04c70d90> Method$$get_Values {};
+    };
+
+    struct IEnumerable$$BTL_POKEPARAM : IEnumerable<IEnumerable$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
+        static inline StaticILMethod<0x04c716e0> Method$$ToList {};
     };
 }

@@ -27,6 +27,10 @@ namespace System::Collections::Generic {
         inline void Clear() {
             ILClass<T>::template external<void>(0x02a3ca20, this, *T::Method$$Clear);
         }
+
+        inline int32_t IndexOf(E* item) {
+            return ILClass<T>::template external<int32_t>(0x02a3d630, this, item, *T::Method$$IndexOf);
+        }
     };
 
     struct List$$int32_t : ILClass<List$$int32_t> {

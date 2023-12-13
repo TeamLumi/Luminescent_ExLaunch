@@ -100,5 +100,10 @@ namespace System::Collections::Generic {
 
     struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {
         static inline StaticILMethod<0x04c87a08> Method$$set_Item {};
+        static inline StaticILMethod<0x04c70d98> Method$$get_Values {};
+    };
+
+    struct IEnumerable$$String : IEnumerable<IEnumerable$$String, System::String> {
+        static inline StaticILMethod<0x04c71720> Method$$ToList {};
     };
 }
