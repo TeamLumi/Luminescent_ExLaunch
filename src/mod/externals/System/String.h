@@ -7,6 +7,7 @@
 #include "externals/System/Collections/Generic/List.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/Text/Encoding.h"
+#include "externals/System/ValueTuple.h"
 
 namespace System {
     struct String : ILClass<String> {
@@ -92,10 +93,19 @@ namespace System {
     };
 }
 
+namespace System {
+    struct ValueTuple2$$String$$int32_t : ValueTuple2<ValueTuple2$$String$$int32_t, System::String::Object*, int32_t> {};
+    struct ValueTuple3$$String$$String$$String : ValueTuple3<ValueTuple3$$String$$String$$String, System::String::Object*, System::String::Object*, System::String::Object*> {};
+}
+
 namespace System::Collections::Generic {
     struct List$$String : List<List$$String, System::String> {
         static inline StaticILMethod<0x04c8a528> Method$$Add {};
         static inline StaticILMethod<0x04c8a538> Method$$Clear {};
+    };
+
+    struct List$$ValueTuple3$$String$$String$$String : List<List$$ValueTuple3$$String$$String$$String, ValueTuple3$$String$$String$$String> {
+        static inline StaticILMethod<0x04c8a858> Method$$Clear{};
     };
 
     struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {

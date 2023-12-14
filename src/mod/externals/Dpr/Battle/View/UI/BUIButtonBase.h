@@ -29,5 +29,10 @@ namespace Dpr::Battle::View::UI {
         inline bool Submit() {
             return external<bool>(0x021d47f0, this);
         }
+
+        // The MethodInfo in this method is unused so not necessary
+        inline UnityEngine::RectTransform::Object* get_rectTransform() {
+            return external<UnityEngine::RectTransform::Object*>(0x021d4530, this);
+        }
     };
 }

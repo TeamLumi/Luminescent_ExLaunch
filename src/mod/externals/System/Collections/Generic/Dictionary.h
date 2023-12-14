@@ -58,8 +58,8 @@ namespace System::Collections::Generic {
             ILClass<T>::template external<void>(0x028da060, this, key, value, *T::Method$$set_Item);
         }
 
-        inline V::Object* get_Item(int32_t key) {
-            ILClass<T>::template external<void>(0x028d9f90, this, key, *T::Method$$get_Item);
+        inline V* get_Item(int32_t key) {
+            return ILClass<T>::template external<V*>(0x028d9f90, this, key, *T::Method$$get_Item);
         }
 
         template <typename E>

@@ -44,6 +44,7 @@ namespace ui {
                             ZukanWork::SetPoke(i, 3, 1, 0, false);
                             ZukanWork::AddLangFlag(i, 4);
                             ZukanWork::AddLangFlag(i, 3);
+                            ZukanWork::AddLangFlag(i, 2);
                         }
                     };
                 });

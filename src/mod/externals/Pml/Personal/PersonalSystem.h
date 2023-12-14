@@ -60,5 +60,13 @@ namespace Pml::Personal {
         static inline uint16_t GetEvolutionParam(uint8_t route_index) {
             return external<uint16_t>(0x024a2620, route_index);
         }
+
+        static inline void LoadGrowTable(int32_t monsno, uint16_t formno) {
+            external<void>(0x024a1700, monsno, formno);
+        }
+
+        static inline uint32_t GetMinExp(uint8_t level) {
+            return external<uint32_t>(0x024a1a30, level);
+        }
     };
 }

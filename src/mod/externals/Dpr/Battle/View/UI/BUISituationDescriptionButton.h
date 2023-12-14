@@ -14,5 +14,6 @@ namespace Dpr::Battle::View::UI {
 
 namespace System::Collections::Generic {
     struct List$$BUISituationDescriptionButton : List<List$$BUISituationDescriptionButton, Dpr::Battle::View::UI::BUISituationDescriptionButton> {
+        static inline StaticILMethod<0x04c890f0> Method$$RemoveRange {};
     };
 }

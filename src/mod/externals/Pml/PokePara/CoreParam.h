@@ -181,5 +181,9 @@ namespace Pml::PokePara {
         inline uint8_t GetRareType() {
             return external<uint8_t>(0x0204a5a0, this);
         }
+
+        inline uint32_t GetExp() {
+            return external<uint32_t>(0x02043f30, this);
+        }
     };
 }
