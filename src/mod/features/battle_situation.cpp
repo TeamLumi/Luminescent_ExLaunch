@@ -136,6 +136,7 @@ HOOK_DEFINE_REPLACE(BUISituation_OnShow) {
 HOOK_DEFINE_REPLACE(BUISituation_OnSubmit) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
         Logger::log("BUISituation_OnSubmit\n");
+
         system_load_typeinfo(0x1f51);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
@@ -144,29 +145,24 @@ HOOK_DEFINE_REPLACE(BUISituation_OnSubmit) {
         __this->fields._IsValid_k__BackingField = true;
         __this->fields._IsFocus_k__BackingField = false;
 
-        Logger::log("mons!\n");
         auto mons = __this->fields._monsParams->get_Values<System::Collections::Generic::IEnumerable$$BTL_POKEPARAM>();
         auto monsList = System::Linq::Enumerable::ToList<System::Collections::Generic::IEnumerable$$BTL_POKEPARAM, System::Collections::Generic::List$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM>(mons->instance());
-        Logger::log("mons done!\n");
 
         auto trainerNames = __this->fields._trainerNames->get_Values<System::Collections::Generic::IEnumerable$$String>();
         auto trainerNamesList = System::Linq::Enumerable::ToList<System::Collections::Generic::IEnumerable$$String, System::Collections::Generic::List$$String, System::String>(trainerNames->instance());
-        Logger::log("trainers done!\n");
 
         auto icons = __this->fields._icons->get_Values<System::Collections::Generic::IEnumerable$$UnityEngine_UI_Image>();
         auto iconsList = System::Linq::Enumerable::ToList<System::Collections::Generic::IEnumerable$$UnityEngine_UI_Image, System::Collections::Generic::List$$UnityEngine_UI_Image, UnityEngine::UI::Image>(icons->instance());
-        Logger::log("icons done!\n");
 
         Dpr::Battle::Logic::BTL_POKEPARAM::Object* currentMon = __this->fields._monsParams->get_Item(__this->fields._CurrentIndex_k__BackingField)->instance();
         int32_t index = monsList->IndexOf(currentMon);
-        Logger::log("indexing done!\n");
 
-        battleViewUISystem->PlaySe(0x132562f0);
         ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) __this)->Hide(false, nullptr);
         auto situationDetailUI = getSituationDetailUI(battleViewUISystem);
         situationDetailUI->Initialize(monsList->instance(), trainerNamesList->instance(), iconsList->instance(), index);
         ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) situationDetailUI)->Show(nullptr);
-        Logger::log("BUISituation_OnSubmit done!\n");
+
+        battleViewUISystem->PlaySe(0x132562f0);
     }
 };
 
@@ -369,6 +365,28 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
     }
 };
 
+HOOK_DEFINE_REPLACE(BUISituationDetail_OnCancel) {
+    static void Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this) {
+        Logger::log("BUISituationDetail_OnCancel\n");
+
+        system_load_typeinfo(0x1f43);
+
+        __this->fields._IsFocus_k__BackingField = false;
+
+        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)__this)->PlayTransitionAnimation(false);
+
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        auto battleViewCore = Dpr::Battle::View::BattleViewCore::instance();
+        Dpr::Battle::View::Systems::BattleViewUISystem::Object* battleViewUISystem = battleViewCore->fields._UISystem_k__BackingField;
+
+        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) __this)->Hide(false, nullptr);
+        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) battleViewUISystem->fields._actionList)->Show(nullptr);
+        battleViewUISystem->SwitchShowDecoImage(true);
+
+        battleViewUISystem->PlaySe(0xa4eb827e);
+    }
+};
+
 void exl_battle_situation_main() {
     BUIActionList_OnUpdate::InstallAtOffset(0x01e8bdb0);
 
@@ -383,4 +401,5 @@ void exl_battle_situation_main() {
     BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
 
     BUISituationDetail_Initialize::InstallAtOffset(0x01d23f70);
+    BUISituationDetail_OnCancel::InstallAtOffset(0x01d26080);
 }

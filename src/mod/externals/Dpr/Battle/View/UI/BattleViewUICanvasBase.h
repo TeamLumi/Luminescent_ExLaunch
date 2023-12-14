@@ -52,5 +52,9 @@ namespace Dpr::Battle::View::UI {
         inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, ILMethod<T>& method) {
             external<void>(0x01a88450, this, buttons, index, isPlaySe, *method);
         }
+
+        inline void PlayTransitionAnimation(bool isShow) {
+            external<void>(0x01d2d960, this, isShow);
+        }
     };
 }
