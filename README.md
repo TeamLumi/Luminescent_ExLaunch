@@ -20,17 +20,10 @@ It has been modified to be used for Pokémon Luminescent.
 - Element inspector for Unity transforms
 - 2-button poketch
 
-### Installation
-Installation requires Linux or a WSL instance for the building process.
+### Building
+Building requires Linux or a WSL instance for the building process.
 
-1. Clone the repository and its submodule using `git clone --recurse-submodules https://github.com/TeamLumi/Luminescent_ExLaunch.git`.
-2. Build the project using `cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Debug" -DCMAKE_INSTALL_PREFIX:PATH="out/install/WSL-GCC-Debug" -DCMAKE_TOOLCHAIN_FILE:FILEPATH="cmake/toolchain.cmake" -Bbuild`.
-3. In the `build` directory, make the RomBase target with `make RomBase`.
-4. Again, in the `build` directory, make the RomBase_release_x target with `make RomBase_release_x` where x is yuzu, ryujinx, or atmosphere. The only difference between all these targets should be the directory structure of the output.
-5. Copy the built files from the corresponding directory in `build/RomBase_Diamond_releases`, or use the existing copy/ftp tasks from cmake.
-6. Put `embedded_files/shaders/imgui.bin` at `sdmc:/shaders/imgui.bin` (or `sdcard/shaders/imgui.bin` for Ryujinx)
-<br>
-After the initial installation, only steps 4-6 need to be repeated to rebuild the mod.
+Detailed instructions can be found on [Team Luminescent's website](https://luminescent.team/rom-hacking/exefs/guide#building).
 
 ### License
 
