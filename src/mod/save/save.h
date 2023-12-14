@@ -17,7 +17,7 @@
 
 #include "logger/logger.h"
 
-constexpr int32_t DexSize = 1017;
+constexpr int32_t DexSize = 1025;
 constexpr int32_t WorkCount = 5000;
 constexpr int32_t FlagCount = 15000;
 constexpr int32_t SysFlagCount = 15000;
