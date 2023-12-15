@@ -16,6 +16,12 @@
 #include "externals/System/ThrowHelper.h"
 #include "externals/UnityEngine/Sprite.h"
 
+#include "data/field_effects.h"
+#include "data/side_effects.h"
+#include "data/utils.h"
+#include "data/weathers.h"
+#include "features/field_handlers/field_handlers.h"
+
 #include "logger/logger.h"
 
 Dpr::Battle::View::UI::BUISituation::Object* getSituationUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
@@ -220,6 +226,94 @@ HOOK_DEFINE_INLINE(BattleViewUISystem_OnUpdate) {
     }
 };
 
+HOOK_DEFINE_INLINE(BUISituationDetail_ctor_fieldIDs) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        Logger::log("BUISituationDetail_ctor_fieldIDs\n");
+
+        auto fieldIds = (System::Collections::Generic::Dictionary$$int32_t$$String::Object*)ctx->X[0];
+        fieldIds->ctor();
+
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Trick Room"), System::String::Create("TrickRoom"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Gravity"), System::String::Create("Gravity"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Imprison"), System::String::Create("Imprison"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Wonder Room"), System::String::Create("WonderRoom"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Magic Room"), System::String::Create("MagicRoom"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Ion Deluge"), System::String::Create("IonDeluge"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Fairy Lock"), System::String::Create("FairyLock"));
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Neutralizing Gas"), System::String::Create("NeutralizingGas"));
+
+        AddSituationDetailFieldEffectLabels(fieldIds);
+
+        ctx->X[21] = (uint64_t)fieldIds;
+    }
+};
+
+HOOK_DEFINE_INLINE(BUISituationDetail_ctor_weatherIDs) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        Logger::log("BUISituationDetail_ctor_weatherIDs\n");
+
+        auto weatherIDs = (System::Collections::Generic::Dictionary$$uint8_t$$String::Object*)ctx->X[0];
+        weatherIDs->ctor();
+
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Harsh Sunlight"), System::String::Create("HarshSunlight"));
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Rain"), System::String::Create("Rain"));
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Hail"), System::String::Create("Hail"));
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Sandstorm"), System::String::Create("Sandstorm"));
+
+        ctx->X[21] = (uint64_t)weatherIDs;
+    }
+};
+
+HOOK_DEFINE_INLINE(BUISituationDetail_ctor_groundIDs) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        Logger::log("BUISituationDetail_ctor_groundIDs\n");
+
+        auto groundIDs = (System::Collections::Generic::Dictionary$$uint8_t$$String::Object*)ctx->X[0];
+        groundIDs->ctor();
+
+        groundIDs->Add((uint8_t)BtlGround::BTL_GROUND_GRASS, System::String::Create("GrassyTerrain"));
+        groundIDs->Add((uint8_t)BtlGround::BTL_GROUND_MIST, System::String::Create("MistyTerrain"));
+        groundIDs->Add((uint8_t)BtlGround::BTL_GROUND_ELEKI, System::String::Create("ElectricTerrain"));
+        groundIDs->Add((uint8_t)BtlGround::BTL_GROUND_PHYCHO, System::String::Create("PsychicTerrain"));
+
+        ctx->X[21] = (uint64_t)groundIDs;
+    }
+};
+
+HOOK_DEFINE_INLINE(BUISituationDetail_ctor_sideIDs) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        Logger::log("BUISituationDetail_ctor_sideIDs\n");
+
+        auto sideIDs = (System::Collections::Generic::Dictionary$$int32_t$$String::Object*)ctx->X[0];
+        sideIDs->ctor();
+
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Reflect"), System::String::Create("Reflect"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Light Screen"), System::String::Create("LightScreen"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Safeguard"), System::String::Create("Safeguard"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Mist"), System::String::Create("Mist"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Tailwind"), System::String::Create("Tailwind"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Lucky Chant"), System::String::Create("LuckyChant"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Spikes"), System::String::Create("Spikes"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Toxic Spikes"), System::String::Create("ToxicSpikes"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Stealth Rock"), System::String::Create("StealthRock"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Wide Guard"), System::String::Create("WideGuard"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Quick Guard"), System::String::Create("QuickGuard"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Rainbow"), System::String::Create("Rainbow"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Sea of Fire"), System::String::Create("SeaOfFire"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Swamp"), System::String::Create("Swamp"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Sticky Web"), System::String::Create("StickyWeb"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Mat Block"), System::String::Create("MatBlock"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Crafty Shield"), System::String::Create("CraftyShield"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Aurora Veil"), System::String::Create("AuroraVeil"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "Spotlight"), System::String::Create("Spotlight"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Steelsurge"), System::String::Create("GSteelsurge"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Wildfire"), System::String::Create("GWildfire"));
+        sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Volcalith"), System::String::Create("GVolcalith"));
+
+        ctx->X[21] = (uint64_t)sideIDs;
+    }
+};
+
 HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this) {
         Logger::log("BUISituationDetail_Initialize\n");
@@ -268,8 +362,6 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
         System::String::Object* pokeName = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIPokeName(System::String::Create("msg_ui_btl_pokename"), btlPokeParam->GetID(), false, false);
         __this->fields._nameText->Virtual_set_text(pokeName);
 
-        // TODO: Unused type stuff
-
         // EXP Slider
         if (isPlayerOwned) {
             int32_t monsno = coreParam->GetMonsNo();
@@ -303,7 +395,7 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
 
         // Stat changes
         for (uint64_t i=0; i<__this->fields._params->max_length && i<__this->fields._paramIDs->max_length; i++) {
-            System::ValueTuple2$$String$$int32_t::Object tuple = __this->fields._paramIDs->m_Items[i];
+            System::ValueTuple2$$String$$int32::Object tuple = __this->fields._paramIDs->m_Items[i];
             System::String::Object* paramText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(tuple.fields.Item1, nullptr);
             int32_t paramValue = btlPokeParam->GetValue((Dpr::Battle::Logic::BTL_POKEPARAM::ValueID)tuple.fields.Item2);
             __this->fields._params->m_Items[i]->Initialize(paramText, paramValue);
@@ -388,6 +480,7 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_OnCancel) {
 };
 
 void exl_battle_situation_main() {
+    // Allow Y Button press for Battle Situation
     BUIActionList_OnUpdate::InstallAtOffset(0x01e8bdb0);
 
     // Add more to OnUpdate
@@ -400,6 +493,23 @@ void exl_battle_situation_main() {
 
     BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
 
+    BUISituationDetail_ctor_fieldIDs::InstallAtOffset(0x01d26780);
+    BUISituationDetail_ctor_weatherIDs::InstallAtOffset(0x01d26868);
+    BUISituationDetail_ctor_groundIDs::InstallAtOffset(0x01d26930);
+    BUISituationDetail_ctor_sideIDs::InstallAtOffset(0x01d26988);
+
     BUISituationDetail_Initialize::InstallAtOffset(0x01d23f70);
     BUISituationDetail_OnCancel::InstallAtOffset(0x01d26080);
+
+    // Assembly Patches
+    using namespace exl::armv8::inst;
+    using namespace exl::armv8::reg;
+    exl::patch::CodePatcher p(0);
+    auto inst = nn::vector<exl::patch::Instruction> {
+        { 0x01d26784, Branch(0xb4) }, // BUISituationDetail_ctor_fieldIDs skip vanilla assignments
+        { 0x01d2686c, Branch(0x94) }, // BUISituationDetail_ctor_weatherIDs skip vanilla assignments
+        { 0x01d26934, Branch(0x24) }, // BUISituationDetail_ctor_groundIDs skip vanilla assignments
+        { 0x01d2698c, Branch(0x190) }, // BUISituationDetail_ctor_sideIDs skip vanilla assignments
+    };
+    p.WriteInst(inst);
 }

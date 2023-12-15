@@ -17,6 +17,9 @@ EventFactor::EventHandlerTable::Object* CreateFieldEffectEventHandler(EventID ev
 void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t fieldEffect, Il2CppMethodPointer methodPointer);
 void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t fieldEffect, MethodInfo* method);
 
+// Adds field effect label names to the Battle Situation UI.
+void AddSituationDetailFieldEffectLabels(System::Collections::Generic::Dictionary$$int32_t$$String::Object* fieldIDs);
+
 // Adds field effect handlers for Mud Sport.
 void Handlers_FieldEffect_MudSport(Handler::Field::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 

@@ -94,6 +94,14 @@ public:
             return iterator(&this->m_Items[this->max_length]);
         }
     };
+
+    static Array* newArrayMAlloc(long length) {
+        auto array = reinterpret_cast<Array*>(nn_malloc(32 + sizeof(Fields)*length));
+        array->max_length = length;
+        for (long i=0; i<length; i++)
+            array->m_Items[i] = {};
+        return array;
+    }
 };
 
 template <typename T, long TypeInfo = 0, long ArrayTypeInfo = 0>

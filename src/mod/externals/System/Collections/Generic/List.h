@@ -4,8 +4,8 @@
 #include "externals/System/Primitives.h"
 
 namespace System::Collections::Generic {
-    template <typename T, typename E>
-    struct List : ILClass<T> {
+    template <typename T, typename E, long TypeInfo = 0>
+    struct List : ILClass<T, TypeInfo> {
         struct Fields {
             E::Array* _items;
             int32_t _size;
@@ -18,6 +18,10 @@ namespace System::Collections::Generic {
             auto tmp = arr[i];
             arr[i] = arr[j];
             arr[j] = tmp;
+        }
+
+        inline void ctor() {
+            ILClass<T>::template external<void>(0x02b08940, this, *T::Method$$ctor);
         }
 
         inline void Add(E* item) {

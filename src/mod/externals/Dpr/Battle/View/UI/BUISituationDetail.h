@@ -40,11 +40,11 @@ namespace Dpr::Battle::View::UI {
             System::Collections::Generic::List$$BTL_POKEPARAM::Object* _pokeList;
             System::Collections::Generic::List$$String::Object* _trainerNames;
             System::Collections::Generic::List$$UnityEngine_UI_Image::Object* _icons;
-            System::ValueTuple2$$String$$int32_t::Array* _paramIDs;
+            System::ValueTuple2$$String$$int32::Array* _paramIDs;
             System::Collections::Generic::List$$ValueTuple3$$String$$String$$String::Object* _statusTexts;
             System::Collections::Generic::Dictionary$$int32_t$$String::Object* _fieldIDs;
-            void* _weatherIDs; // System_Collections_Generic_Dictionary_BtlWeather__string__o* (uint8_t)
-            void* _groundIDs; // System_Collections_Generic_Dictionary_BtlGround__string__o* (uint8_t)
+            System::Collections::Generic::Dictionary$$uint8_t$$String::Object* _weatherIDs;
+            System::Collections::Generic::Dictionary$$uint8_t$$String::Object* _groundIDs;
             System::Collections::Generic::Dictionary$$int32_t$$String::Object* _sideIDs;
         };
 

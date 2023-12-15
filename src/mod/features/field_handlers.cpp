@@ -53,6 +53,13 @@ void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* get
     elem->ctor(fieldEffect, func);
 }
 
+void AddSituationDetailFieldEffectLabels(System::Collections::Generic::Dictionary$$int32_t$$String::Object* fieldIDs) {
+    if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Mud Sport")])
+        fieldIDs->Add(array_index(FIELD_EFFECTS, "Mud Sport"), System::String::Create("MudSport"));
+    if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Water Sport")])
+        fieldIDs->Add(array_index(FIELD_EFFECTS, "Water Sport"), System::String::Create("WaterSport"));
+}
+
 HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_FieldStatus_initWork) {
     static void Callback(FieldStatus::Object* __this) {
         for (int32_t i=0; i<10+getExtraFieldEffectHandlers()->count; i++)
@@ -196,6 +203,7 @@ void exl_field_handlers_main() {
         { 0x018fb470, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
         { 0x018fb528, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
         { 0x018fb598, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
+        { 0x01d25158, CmpImmediate(W24, 10 + getExtraFieldEffectHandlers()->count) },
         { 0x02170b2c, CmpImmediate(W20, 11 + getExtraFieldEffectHandlers()->count) },
     };
     p.WriteInst(inst);
