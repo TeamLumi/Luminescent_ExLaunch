@@ -94,7 +94,7 @@ namespace System {
 }
 
 namespace System {
-    struct ValueTuple2$$String$$int32_t : ValueTuple2<ValueTuple2$$String$$int32_t, System::String::Object*, int32_t> {};
+    struct ValueTuple2$$String$$int32 : ValueTuple2<ValueTuple2$$String$$int32, System::String::Object*, int32_t> {};
     struct ValueTuple3$$String$$String$$String : ValueTuple3<ValueTuple3$$String$$String$$String, System::String::Object*, System::String::Object*, System::String::Object*> {};
 }
 
@@ -109,8 +109,15 @@ namespace System::Collections::Generic {
     };
 
     struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {
+        static inline StaticILMethod<0x04c87350> Method$$ctor {};
+        static inline StaticILMethod<0x04c87358> Method$$Add {};
         static inline StaticILMethod<0x04c87a08> Method$$set_Item {};
         static inline StaticILMethod<0x04c70d98> Method$$get_Values {};
+    };
+
+    struct Dictionary$$uint8_t$$String : Dictionary$$uint8_t<Dictionary$$uint8_t$$String, System::String> {
+        static inline StaticILMethod<0x04c87318> Method$$ctor {};
+        static inline StaticILMethod<0x04c87320> Method$$Add {};
     };
 
     struct IEnumerable$$String : IEnumerable<IEnumerable$$String, System::String> {
