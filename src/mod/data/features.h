@@ -24,6 +24,7 @@ static constexpr const char* FEATURES[] = {
     "Outfit Neutral UI",
     "Party Context Menu",
     "Poké Radar Fixes",
+    "Thief Deposits to Bag",
     "Two-Button Pokétch",
     "Relearn TMs",
     "Controls Remap",
@@ -35,6 +36,7 @@ static constexpr const char* FEATURES[] = {
     "Underground Forms",
     "Wild Forms",
     "Wild Held Item Rates",
+
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

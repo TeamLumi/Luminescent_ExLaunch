@@ -114,6 +114,9 @@ void exl_sounds_main();
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 
+// Deposits items obtained by thief directly into the player's bag.
+void exl_thief_patches_main();
+
 // Assigns a work value to be used as a total turn counter for the last battle. By default, this is work value 449.
 void exl_turn_counter_main();
 

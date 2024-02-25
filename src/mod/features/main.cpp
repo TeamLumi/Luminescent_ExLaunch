@@ -52,6 +52,8 @@ void CallFeatureHooks()
         exl_pla_context_menu_main();
     if (IsActivatedFeature(array_index(FEATURES, "Poké Radar Fixes")))
         exl_poke_radar_fixes_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag")))
+        exl_thief_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Two-Button Pokétch")))
         exl_poketch_main();
     if (IsActivatedFeature(array_index(FEATURES, "Relearn TMs")))
@@ -114,6 +116,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Outfit Neutral UI"));
     SetActivatedFeature(array_index(FEATURES, "Party Context Menu"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
+    SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
     SetActivatedFeature(array_index(FEATURES, "Two-Button Pokétch"));
     SetActivatedFeature(array_index(FEATURES, "Relearn TMs"));
     SetActivatedFeature(array_index(FEATURES, "New Settings"));
