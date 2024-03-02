@@ -300,6 +300,18 @@ static constexpr const char *ABILITIES[] = {
     "Armor Tail",
     "Earth Eater",
     "Mycelium Might",
+    "Hospitality",
+    "Mind's Eye",
+    "Embody Aspect (Teal)",
+    "Embody Aspect (Wellspring)",
+    "Embody Aspect (Hearthflame)",
+    "Embody Aspect (Cornerstone)",
+    "Toxic Chain",
+    "Supersweet Syrup",
+    "Tera Shift",
+    "Tera Shell",
+    "Teraform Zero",
+    "Poison Puppeteer",
 };
 
 const int ABILITY_COUNT = sizeof(ABILITIES) / sizeof(ABILITIES[0]);

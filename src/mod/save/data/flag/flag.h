@@ -7,8 +7,8 @@
 
 template <int32_t size>
 struct FlagSaveData {
-    const char* fileName = "SaveData:/Lumi_Flags.bin";
-    const char* backupFileName = "SaveData:/Lumi_Flags_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Flags.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Flags_BK.bin";
 
     System::Boolean items[size];
 

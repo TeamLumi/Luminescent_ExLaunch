@@ -7,8 +7,8 @@
 
 template <int32_t size>
 struct WorkSaveData {
-    const char* fileName = "SaveData:/Lumi_Works.bin";
-    const char* backupFileName = "SaveData:/Lumi_Works_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Works.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Works_BK.bin";
 
     System::Int32 items[size];
 

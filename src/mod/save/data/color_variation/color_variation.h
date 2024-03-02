@@ -7,8 +7,8 @@
 #include "logger/logger.h"
 
 struct ColorVariationSaveData {
-    const char* fileName = "SaveData:/Lumi_PlayerColorVariation.bin";
-    const char* backupFileName = "SaveData:/Lumi_PlayerColorVariation_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_PlayerColorVariation.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_PlayerColorVariation_BK.bin";
 
     System::Int32 playerColorID;
 

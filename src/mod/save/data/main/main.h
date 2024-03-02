@@ -16,8 +16,8 @@ enum class ModVersion : int32_t {
 };
 
 struct MainSaveData {
-    const char* fileName = "SaveData:/Lumi_Main.bin";
-    const char* backupFileName = "SaveData:/Lumi_Main_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Main.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Main_BK.bin";
 
     ModVersion version;
 

@@ -7,8 +7,8 @@
 
 template <int32_t size>
 struct BerrySaveData {
-    const char* fileName = "SaveData:/Lumi_Berries.bin";
-    const char* backupFileName = "SaveData:/Lumi_Berries_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Berries.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Berries_BK.bin";
 
     DPData::KinomiGrow::Object items[size];
 

@@ -50,6 +50,6 @@ HOOK_DEFINE_REPLACE(CalcExp) {
     }
 };
 
-void exl_exp_share_main() {
+void exl_items_exp_share_main() {
     CalcExp::InstallAtOffset(0x018f8c10);
 }

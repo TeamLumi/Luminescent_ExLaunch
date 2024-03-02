@@ -1,6 +1,8 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
+#include "externals/Dpr/Battle/Logic/BattleCounter.h"
 #include "externals/Dpr/Battle/Logic/FieldStatus.h"
 #include "externals/Dpr/Battle/Logic/POKECON.h"
 #include "externals/Dpr/Battle/Logic/PosPoke.h"
@@ -9,7 +11,7 @@ namespace Dpr::Battle::Logic {
     struct BattleEnv : ILClass<BattleEnv> {
         struct Fields {
             POKECON::Object* m_pokecon;
-            FieldStatus::Object* m_fieldStatus; // Dpr_Battle_Logic_FieldStatus_o
+            FieldStatus::Object* m_fieldStatus;
             void* m_sideEffectManager; // Dpr_Battle_Logic_SideEffectManager_o
             void* m_posEffectManager; // Dpr_Battle_Logic_PosEffectManager_o
             void* m_eventFactorContainer; // Dpr_Battle_Logic_EventFactorContainer_o
@@ -24,7 +26,7 @@ namespace Dpr::Battle::Logic {
             void* m_gGauge; // Dpr_Battle_Logic_GGauge_array
             void* m_raidBattleStatus; // Dpr_Battle_Logic_RaidBattleStatus_o
             void* m_flags; // Dpr_Battle_Logic_BattleFlags_o
-            void* m_counter; // Dpr_Battle_Logic_BattleCounter_o
+            Dpr::Battle::Logic::BattleCounter::Object* m_counter;
             void* m_escapeInfo; // Dpr_Battle_Logic_EscapeInfo_o
             void* m_lastExecutedWaza; // Dpr_Battle_Logic_WazaParam_o
             void* m_tamaHiroiData; // Dpr_Battle_Logic_TamaHiroiData_o

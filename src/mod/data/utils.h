@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <array>
+#include <string_view>
+#include "common.hpp"
 
 template <int N>
 consteval bool array_contains(const char* const (&arr)[N], const char* element) {

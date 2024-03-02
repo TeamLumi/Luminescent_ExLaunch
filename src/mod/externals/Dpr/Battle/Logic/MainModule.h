@@ -10,6 +10,7 @@
 #include "externals/Dpr/Battle/Logic/BtlRule.h"
 #include "externals/Dpr/Battle/Logic/MyStatus.h"
 #include "externals/Pml/PokeParty.h"
+#include "externals/System/Collections/IEnumerator.h"
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
@@ -96,6 +97,10 @@ namespace Dpr::Battle::Logic {
 
         inline BtlGround GetDefaultGround() {
             return external<BtlGround>(0x02035090, this);
+        }
+        
+        inline System::Collections::IEnumerator::Object* LeavenOnErrorCoroutine() {
+            return external<System::Collections::IEnumerator::Object*>(0x0202e6b0, this);
         }
     };
 }

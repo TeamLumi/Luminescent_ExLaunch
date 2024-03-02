@@ -42,7 +42,7 @@ HOOK_DEFINE_TRAMPOLINE(IsUseSpray){
 };
 
 
-void exl_repel_fix_main(){
+void exl_items_repel_main(){
     RepelInventoryOverride::InstallAtOffset(0x02c550b8);
     EncDataSave_CanUseSpray::InstallAtOffset(0x01f08ac0);
     IsUseSpray::InstallAtOffset(0x01aeb720);

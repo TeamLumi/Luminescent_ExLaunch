@@ -8,7 +8,53 @@
 #include "features/features.h"
 #include "save/save.h"
 #include "nn/err.h"
-#include "memory/nn_allocator.h"
+#include "features/activated_features.h"
+#include "data/features.h"
+#include "data/utils.h"
+
+void logFeatures() {
+    Logger::log("Main Features:\n");
+    for (int i=0; i<FEATURE_COUNT; i++)
+        if (IsActivatedFeature(i))
+            Logger::log(" %s\n", FEATURES[i]);
+    Logger::log("\n");
+
+    Logger::log("Debug Features:\n");
+    for (int i=0; i<DEBUG_FEATURE_COUNT; i++)
+        if (IsActivatedDebugFeature(i))
+            Logger::log(" %s\n", DEBUG_FEATURES[i]);
+    Logger::log("\n");
+
+    Logger::log("Item Features:\n");
+    for (int i=0; i<ITEM_FEATURE_COUNT; i++)
+        if (IsActivatedItemFeature(i))
+            Logger::log(" %s\n", ITEM_FEATURES[i]);
+    Logger::log("\n");
+
+    Logger::log("Key Item Features:\n");
+    for (int i=0; i<KEY_ITEM_FEATURE_COUNT; i++)
+        if (IsActivatedKeyItemFeature(i))
+            Logger::log(" %s\n", KEY_ITEM_FEATURES[i]);
+    Logger::log("\n");
+
+    Logger::log("Small Patch Features:\n");
+    for (int i=0; i<SMALL_PATCH_FEATURE_COUNT; i++)
+        if (IsActivatedSmallPatchFeature(i))
+            Logger::log(" %s\n", SMALL_PATCH_FEATURES[i]);
+    Logger::log("\n");
+
+    Logger::log("Save Data Features:\n");
+    for (int i=0; i<SAVE_FEATURE_COUNT; i++)
+        if (IsActivatedSaveFeature(i))
+            Logger::log(" %s\n", SAVE_FEATURES[i]);
+    Logger::log("\n");
+
+    Logger::log("Battle Features:\n");
+    for (int i=0; i<BATTLE_FEATURE_COUNT; i++)
+        if (IsActivatedBattleFeature(i))
+            Logger::log(" %s\n", BATTLE_FEATURES[i]);
+    Logger::log("\n");
+}
 
 static Socket gSocket {};
 HOOK_DEFINE_TRAMPOLINE(MainInitHook){
@@ -28,6 +74,9 @@ HOOK_DEFINE_TRAMPOLINE(MainInitHook){
         nn::oe::DisplayVersion display_version{};
         nn::oe::GetDisplayVersion(&display_version);
         Logger::log("Detected version: %s\n", display_version.name);
+
+        if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging")))
+            logFeatures();
 
         Orig();
     }

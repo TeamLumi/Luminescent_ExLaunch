@@ -55,11 +55,15 @@ namespace Pml::Personal {
 
         // New methods (Luminescent)
         HELD_ITEM = 48,
-        _49 = 49,
+        IN_PARTY_OR_PREV_EVO = 49,
         RND_1_OF_100 = 50,
         RND_99_OF_100 = 51,
         FOLLOWER = 52,
         BAG_ITEM_1 = 53,
         BAG_ITEM_999 = 54,
+        RND_1_OF_100_MOVE = 55,
+        RND_99_OF_100_MOVE = 56,
+        TOTAL_DAMAGE_RECIEVED_MALE = 57,
+        TOTAL_DAMAGE_RECIEVED_FEMALE = 58,
     };
 }

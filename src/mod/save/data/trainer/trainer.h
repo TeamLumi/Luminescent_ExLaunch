@@ -7,8 +7,8 @@
 
 template <int32_t size>
 struct TrainerSaveData {
-    const char* fileName = "SaveData:/Lumi_Trainers.bin";
-    const char* backupFileName = "SaveData:/Lumi_Trainers_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Trainers.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Trainers_BK.bin";
 
     DPData::TR_BATTLE_DATA::Object items[size];
 

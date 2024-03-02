@@ -8,8 +8,8 @@
 
 template <int32_t size>
 struct BoxSaveData {
-    const char* fileName = "SaveData:/Lumi_Boxes.bin";
-    const char* backupFileName = "SaveData:/Lumi_Boxes_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Boxes.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Boxes_BK.bin";
 
     Dpr::Box::SaveBoxData::_STR17::Object boxNames[size];
     System::Byte wallpapers[size];

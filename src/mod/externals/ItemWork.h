@@ -19,6 +19,10 @@ struct ItemWork : ILClass<ItemWork> {
     }
 
     static inline XLSXContent::ItemTable::SheetItem::Object* GetItemData(uint16_t id) {
-        return external<XLSXContent::ItemTable::SheetItem::Object*>(0x01aea840, id);
+        return external<XLSXContent::ItemTable::SheetItem::Object *>(0x01aea840, id);
+    }
+
+    static inline bool IsWazaMachine(int32_t itemno) {
+        return external<bool>(0x01aeb380, itemno);
     }
 };

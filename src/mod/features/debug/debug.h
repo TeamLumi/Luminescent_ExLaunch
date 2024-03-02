@@ -8,6 +8,9 @@ void exl_battle_bundles_in_ui_main();
 // Changes the boutique models to one of your choosing in works 4000 and 4001, if sysflag 998 is set.
 void exl_boutique_model_main();
 
+// Outputs all activated features at launch.
+void exl_feature_log_main();
+
 // Reroutes IL2CPP logs to the ExLaunch logger.
 void exl_il2cpp_log_main();
 

@@ -5,20 +5,13 @@
 #include "save/save.h"
 #include "save/migration/save_migration.h"
 
-static CustomSaveData gCustomSaveData {
-    .main = {},
-    .dex = {},
-    .works = {},
-    .flags = {},
-    .sysflags = {},
-    .trainers = {},
-    .items = {},
-    .berries = {},
-    .playerColorVariation = {},
-};
+static CustomSaveData* gCustomSaveData = nullptr;
 
 CustomSaveData* getCustomSaveData() {
-    return &gCustomSaveData;
+    if (gCustomSaveData == nullptr)
+        gCustomSaveData = (CustomSaveData*)nn_malloc(sizeof(CustomSaveData));
+
+    return gCustomSaveData;
 }
 
 HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {

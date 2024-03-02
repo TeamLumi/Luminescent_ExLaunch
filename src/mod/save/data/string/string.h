@@ -4,8 +4,8 @@
 
 template <int32_t size>
 struct StringSaveData {
-    const char* fileName = "SaveData:/Lumi_Strings.bin";
-    const char* backupFileName = "SaveData:/Lumi_Strings_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Strings.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Strings_BK.bin";
 
     Dpr::Box::SaveBoxData::_STR17::Object items[size];
 

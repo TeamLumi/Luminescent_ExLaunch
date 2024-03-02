@@ -5,8 +5,8 @@
 
 template <int32_t size>
 struct BadgeSaveData {
-    const char* fileName = "SaveData:/Lumi_Badges.bin";
-    const char* backupFileName = "SaveData:/Lumi_Badges_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Badges.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Badges_BK.bin";
 
     System::Byte items[size];
 

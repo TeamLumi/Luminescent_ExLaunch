@@ -71,8 +71,8 @@ struct DexSaveDataElement {
 
 template <int32_t size>
 struct DexSaveData {
-    const char* fileName = "SaveData:/Lumi_Dex.bin";
-    const char* backupFileName = "SaveData:/Lumi_Dex_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Dex.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Dex_BK.bin";
 
     DexSaveDataElement elements[size];
 

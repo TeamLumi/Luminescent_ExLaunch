@@ -35,6 +35,8 @@ struct ExtraEvoData {
     ExtraPartyEvoData extraPartyEvoData[6];
     uint32_t followerRnd;
     int32_t followerStepCount;
+    int32_t prevMonsNo;
+    int32_t prevFormNo;
     Pml::PokePara::EvolveSituation::Fields currentEvolutionSituation;
 };
 
@@ -42,6 +44,8 @@ static ExtraEvoData extraEvoData = {
     .extraPartyEvoData = {{}, {}, {}, {}, {}, {} },
     .followerRnd = 0,
     .followerStepCount = 0,
+    .prevMonsNo = 0,
+    .prevFormNo = 0,
     .currentEvolutionSituation = {},
 };
 
@@ -113,21 +117,21 @@ bool IsGameVersion(uint16_t version)
 bool IsHoldingSweet(Pml::PokePara::CoreParam::Object* poke)
 {
     return poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Strawberry Sweet") ||
-        poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Love Sweet") ||
-        poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Berry Sweet") ||
-        poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Clover Sweet") ||
-        poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Flower Sweet") ||
-        poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Star Sweet") ||
-        poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Ribbon Sweet");
+           poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Love Sweet") ||
+           poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Berry Sweet") ||
+           poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Clover Sweet") ||
+           poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Flower Sweet") ||
+           poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Star Sweet") ||
+           poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Ribbon Sweet");
 }
 
 bool HasHighContestCondition(Pml::PokePara::CoreParam::Object* poke)
 {
     return poke->fields.m_accessor->GetStyle() >= 170 ||
-        poke->fields.m_accessor->GetBeautiful() >= 170 ||
-        poke->fields.m_accessor->GetCute() >= 170 ||
-        poke->fields.m_accessor->GetClever() >= 170 ||
-        poke->fields.m_accessor->GetStrong() >= 170;
+           poke->fields.m_accessor->GetBeautiful() >= 170 ||
+           poke->fields.m_accessor->GetCute() >= 170 ||
+           poke->fields.m_accessor->GetClever() >= 170 ||
+           poke->fields.m_accessor->GetStrong() >= 170;
 }
 
 uint16_t GetAlcremieForm(Pml::PokePara::CoreParam::Object* poke)
@@ -235,7 +239,7 @@ void CopyEvolveSituation(Pml::PokePara::EvolveSituation::Object* situation)
 
 HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
     static bool Callback(Pml::PokePara::EvolveManager::Object* __this, Pml::PokePara::CoreParam::Object* poke, Pml::PokeParty::Object* party,
-        Pml::PokePara::EvolveSituation::Object* situation, XLSXContent::EvolveTable::SheetEvolve::Object* evolveData, int32_t evolveRouteIndex) {
+                         Pml::PokePara::EvolveSituation::Object* situation, XLSXContent::EvolveTable::SheetEvolve::Object* evolveData, int32_t evolveRouteIndex) {
         system_load_typeinfo(0x4724);
 
         Logger::log("IsSatisfyEvolveConditionLevelUp\n");
@@ -431,9 +435,9 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
                 Logger::log("HELD_ITEM\n");
                 return poke->fields.m_accessor->GetItemNo() == evolutionParam;
 
-            case Pml::Personal::EvolveCond::_49: // TBD
-                Logger::log("49\n");
-                return false;
+            case Pml::Personal::EvolveCond::IN_PARTY_OR_PREV_EVO: // Pokémon in party OR Just evolved
+                Logger::log("IN_PARTY_OR_PREV_EVO\n");
+                return party->CheckPokeExist(evolutionParam) || extraEvoData.prevMonsNo == evolutionParam;
 
             case Pml::Personal::EvolveCond::RND_1_OF_100: // Encryption Constant % 100 = 0
                 Logger::log("RND_1_OF_100\n");
@@ -454,6 +458,30 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
             case Pml::Personal::EvolveCond::BAG_ITEM_999: // 999 of an item in the bag
                 Logger::log("BAG_ITEM_999\n");
                 return PlayerWork::GetItem(evolutionParam).fields.Count >= 999;
+
+            case Pml::Personal::EvolveCond::RND_1_OF_100_MOVE: // Encryption Constant % 100 = 0 + Move
+                Logger::log("RND_1_OF_100_MOVE\n");
+                return poke->GetPersonalRnd() % 100 == 0 && HasMove(poke, evolutionParam);
+
+            case Pml::Personal::EvolveCond::RND_99_OF_100_MOVE: // Encryption Constant % 100 > 0 + Move
+                Logger::log("RND_99_OF_100_MOVE\n");
+                return poke->GetPersonalRnd() % 100 > 0 && HasMove(poke, evolutionParam);
+
+            case Pml::Personal::EvolveCond::TOTAL_DAMAGE_RECIEVED_MALE: // Total damage received in last battle + Male
+                Logger::log("TOTAL_DAMAGE_RECIEVED_MALE\n");
+                if (extraDataIndex != -1) {
+                    Logger::log("  damage: %d\n", extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived);
+                    return extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived >= evolutionParam && poke->GetSex() == (uint8_t)Pml::Sex::MALE;
+                }
+                return false;
+
+            case Pml::Personal::EvolveCond::TOTAL_DAMAGE_RECIEVED_FEMALE: // Total damage received in last battle + Female
+                Logger::log("TOTAL_DAMAGE_RECIEVED_FEMALE\n");
+                if (extraDataIndex != -1) {
+                    Logger::log("  damage: %d\n", extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived);
+                    return extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived >= evolutionParam && poke->GetSex() == (uint8_t)Pml::Sex::FEMALE;
+                }
+                return false;
 
             default:
                 return false;
@@ -520,19 +548,19 @@ HOOK_DEFINE_REPLACE(CoreParam_Evolve) {
                 __this->RemoveItem();
                 break;
 
-            // Adjust Alcremie's form
+                // Adjust Alcremie's form
             case Pml::Personal::EvolveCond::AMEZAIKU:
                 Logger::log("Fixing Alcremie form to %d!\n", GetAlcremieForm(__this));
                 __this->ChangeFormNo(GetAlcremieForm(__this), nullptr);
                 __this->RemoveItem();
                 break;
 
-            // Remove Bag Item x1
+                // Remove Bag Item x1
             case Pml::Personal::EvolveCond::BAG_ITEM_1:
                 ItemWork::SubItem(evolutionParam, 1);
                 break;
 
-            // Remove Bag Item x999
+                // Remove Bag Item x999
             case Pml::Personal::EvolveCond::BAG_ITEM_999:
                 ItemWork::SubItem(evolutionParam, 999);
                 break;
@@ -540,6 +568,10 @@ HOOK_DEFINE_REPLACE(CoreParam_Evolve) {
             default:
                 break;
         }
+
+        // Keep track of previous evolution
+        extraEvoData.prevMonsNo = monsno;
+        extraEvoData.prevFormNo = formno;
     }
 };
 

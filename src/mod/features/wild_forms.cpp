@@ -34,7 +34,7 @@ uint16_t GetFormDouble(FieldManager::Object *__this, int32_t mons, int32_t karan
         return __this->GetFormNo(mons, karana, anno);
     }
 
-    return karana & 0xFFFF0000 >> 16;
+    return (karana & 0xFFFF0000) >> 16;
 }
 
 HOOK_DEFINE_REPLACE(PatchDataInit) {

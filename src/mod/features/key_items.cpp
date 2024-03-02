@@ -1,13 +1,13 @@
 #include "exlaunch.hpp"
 
+#include "data/features.h"
 #include "data/items.h"
 #include "data/utils.h"
 
-#include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/UI/UIBag.h"
 #include "externals/FieldManager.h"
-#include "externals/FlagWork.h"
 
+#include "features/activated_features.h"
 #include "features/key_items/key_items.h"
 
 #include "logger/logger.h"
@@ -15,10 +15,14 @@
 bool CanUseRegisteredCustomItem(uint16_t itemno)
 {
     switch(itemno) {
-        case array_index(ITEMS, "Clothing Trunk"):
-        case array_index(ITEMS, "Incense Burner"):
+        case array_index(ITEMS, "Clothing Trunk"): {
+            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Clothing Trunk"));
+        }
+        case array_index(ITEMS, "Incense Burner"): {
+            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Incense Burner"));
+        }
         case array_index(ITEMS, "Infinite Repel"): {
-            return true;
+            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"));
         }
         default: {
             return false;
@@ -29,16 +33,25 @@ bool CanUseRegisteredCustomItem(uint16_t itemno)
 bool CustomItemBehavior(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__DisplayClass127_1::Object* bagDisplayClass) {
     switch(itemId) {
         case array_index(ITEMS, "Clothing Trunk"): {
-            UseClothingTrunk(itemId, fromBag, bagDisplayClass);
-            return true;
+            if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Clothing Trunk"))) {
+                UseClothingTrunk(itemId, fromBag, bagDisplayClass);
+                return true;
+            }
+            return false;
         }
         case array_index(ITEMS, "Incense Burner"): {
-            UseIncenseBurner(itemId, fromBag, bagDisplayClass);
-            return true;
+            if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Incense Burner"))) {
+                UseIncenseBurner(itemId, fromBag, bagDisplayClass);
+                return true;
+            }
+            return false;
         }
         case array_index(ITEMS, "Infinite Repel"): {
-            UseInfiniteRepel(itemId, fromBag, bagDisplayClass);
-            return true;
+            if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"))) {
+                UseInfiniteRepel(itemId, fromBag, bagDisplayClass);
+                return true;
+            }
+            return false;
         }
         default: {
             return false;

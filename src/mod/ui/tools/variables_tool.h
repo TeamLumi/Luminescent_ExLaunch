@@ -26,7 +26,14 @@ namespace ui {
                 _.Button([flagSelector, flagValue](Button &_) {
                     _.label = "Set Flag State";
                     _.onClick = [flagSelector, flagValue]() {
-                        FlagWork::SetSysFlag(flagSelector->value, flagValue->enabled);
+                        FlagWork::SetFlag(flagSelector->value, flagValue->enabled);
+                    };
+                });
+
+                _.Button([flagSelector, flagValue](Button &_) {
+                    _.label = "Load Flag State";
+                    _.onClick = [flagSelector, flagValue]() {
+                        flagValue->enabled = FlagWork::GetFlag(flagSelector->value);
                     };
                 });
 
@@ -51,6 +58,13 @@ namespace ui {
                     };
                 });
 
+                _.Button([sysFlagSelector, sysFlagValue](Button &_) {
+                    _.label = "Load System Flag State";
+                    _.onClick = [sysFlagSelector, sysFlagValue]() {
+                        sysFlagValue->enabled = FlagWork::GetSysFlag(sysFlagSelector->value);
+                    };
+                });
+
                 _.Spacing();
 
                 auto *workSelector = _.InputInt([](InputInt &_) {
@@ -71,6 +85,13 @@ namespace ui {
                     _.label = "Set Work Value";
                     _.onClick = [workSelector, workValue]() {
                         FlagWork::SetWork(workSelector->value, workValue->value);
+                    };
+                });
+
+                _.Button([workSelector, workValue](Button &_) {
+                    _.label = "Load Work Value";
+                    _.onClick = [workSelector, workValue]() {
+                        workValue->value = FlagWork::GetWork(workSelector->value);
                     };
                 });
             });

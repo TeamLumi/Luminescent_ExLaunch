@@ -2,16 +2,17 @@
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/Dpr/UI/UIBag.h"
 #include "externals/PlayerWork.h"
-#include "externals/ItemWork.h"
 #include "externals/FlagWork.h"
 #include "data/utils.h"
 #include "data/items.h"
+#include "data/features.h"
+#include "features/activated_features.h"
 #include "romdata/romdata.h"
 
 uint32_t isValidRareCandy(uint32_t level, Dpr::UI::UIBag::Object *bagRef) {
-
     // Is Level Cap enabled
-    if (!PlayerWork::GetBool((int32_t) FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP)) {
+    if (!IsActivatedFeature(array_index(FEATURES, "Level Cap")) ||
+        !PlayerWork::GetBool((int32_t) FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP)) {
         return 100 - level;
     }
 
@@ -30,14 +31,6 @@ uint32_t isValidRareCandy(uint32_t level, Dpr::UI::UIBag::Object *bagRef) {
     }
 }
 
-int32_t ItemWork_SubItem(int32_t itemno, int32_t num) {
-    if (itemno != array_index(ITEMS, "Everlasting Candy")) {
-        return ItemWork::SubItem(itemno, num);
-    }
-
-    return 0;
-}
-
 void exl_items_everlasting_candies_main(){
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
@@ -50,7 +43,4 @@ void exl_items_everlasting_candies_main(){
     p.WriteInst(Nop());
     p.WriteInst(Nop());
     p.WriteInst(Nop());
-
-    p.Seek(0x0185eb8c);
-    p.BranchLinkInst((void*)&ItemWork_SubItem);
 };

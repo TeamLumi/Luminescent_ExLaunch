@@ -3240,6 +3240,7 @@ enum class FlagWork_Work : int32_t {
     SCWK_WK_END = 437,
 
     // Luminescent Works
+    WK_LAST_BATTLE_TURN_COUNTER = 449,
     WK_INCENSE_SLOT = 495,
     SCWK_WK_SAVE_SIZE = 500,
 

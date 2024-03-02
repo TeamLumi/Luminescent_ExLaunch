@@ -7,8 +7,8 @@
 
 template <int32_t size>
 struct ItemSaveData {
-    const char* fileName = "SaveData:/Lumi_Items.bin";
-    const char* backupFileName = "SaveData:/Lumi_Items_BK.bin";
+    static constexpr const char* fileName = "SaveData:/Lumi_Items.bin";
+    static constexpr const char* backupFileName = "SaveData:/Lumi_Items_BK.bin";
 
     Dpr::Item::SaveItem::Object items[size];
 
