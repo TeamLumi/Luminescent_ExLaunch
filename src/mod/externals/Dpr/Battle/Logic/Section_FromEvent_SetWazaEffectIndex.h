@@ -13,8 +13,8 @@ namespace Dpr::Battle::Logic {
                 uint8_t effectIndex;
             };
 
-            void ctor() {
-                return external<void>(0x01fb7f40, this);
+            inline void ctor() {
+                external<void>(0x01fb7f40, this);
             }
         };
     };

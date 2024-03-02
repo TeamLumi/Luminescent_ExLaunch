@@ -19,8 +19,8 @@ namespace Dpr::Battle::Logic {
                 StrParam::Object* successMessage3;
             };
 
-            void ctor() {
-                return external<void>(0x01fb8800, this);
+            inline void ctor() {
+                external<void>(0x01fb8800, this);
             }
         };
     };

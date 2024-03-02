@@ -3,24 +3,30 @@
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
-#include "externals/Dpr/Battle/Logic/Calc.h"
+#include "externals/Dpr/Battle/Logic/calc.h"
 #include "externals/Dpr/Battle/Logic/EventFactor.h"
 #include "externals/Dpr/Battle/Logic/EventID.h"
+#include "externals/Dpr/Battle/Logic/EventSystem.h"
+#include "externals/Dpr/Battle/Logic/EventVarSet.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SwapItem.h"
 #include "externals/ItemWork.h"
+#include "externals/Dpr/Battle/Logic/BattleCounter.h"
+#include "logger/logger.h"
 
 using namespace Dpr::Battle::Logic;
 
 // Changes the handler for Thief to put the item into the player's bag.
 
 HOOK_DEFINE_REPLACE(Handler_Dorobou) {
-    static void Callback(EventFactor::EventHandlerArgs::Object **args, uint8_t pokeID, MethodInfo *method)
+    static void Callback(EventFactor::EventHandlerArgs::Object **args, uint8_t pokeID)
     {
 
+        Logger::log("[Thief Patch] Arg PokeID: %d\n", pokeID);
         // Check that we're looking at the attacking pokémon.
         uint32_t attackingPoke = Common::GetEventVar(args, EventVar::Label::POKEID_ATK);
+        Logger::log("[Thief Patch] AttackingPoke: %d\n", attackingPoke);
         if (attackingPoke == pokeID)
         {
             // Check that the attacking pokémon is not holding an item.
@@ -28,18 +34,21 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
             if (attackerHasNoItem)
             {
                 // Check the target??
-                uint targetPoke = Common::GetEventVar(args, EventVar::Label::POKEID_TARGET1);
+                uint32_t targetPoke = Common::GetEventVar(args, EventVar::Label::POKEID_TARGET1);
+                Logger::log("[Thief Patch] TargetPoke: %d\n", targetPoke);
                 if ((targetPoke & 0xff) != 0x1f)
                 {
                     // Check if the target is holding an item.
                     BTL_POKEPARAM::Object* targetPokeParam = Common::GetPokeParam(args, (uint8_t)targetPoke);
                     uint16_t item = targetPokeParam->GetItem();
+                    Logger::log("[Thief Patch] TargetPoke holding item no. %d\n", item);
                     if (item != 0)
                     {
                         // Check if the item can be thieved. (Form change items, wild pokémon using the move, etc.)
                         bool cantSteal = Common::CheckCantStealPoke(args, pokeID, (uint8_t)targetPoke);
                         if (!cantSteal)
                         {
+                            Logger::log("[Thief Patch] Item is stealable\n", item);
                             if (Common::GetCompetitor(args) != 0) // Is a trainer
                             {
                                 Section_FromEvent_SwapItem::Description::Object* swapItemDesc = Section_FromEvent_SwapItem::Description::newInstance();
@@ -48,8 +57,8 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
                                 swapItemDesc->fields.isIncRecordCount_StealItemFromWildPoke = true;
 
                                 swapItemDesc->fields.successMessage1->Setup(2, 0x598);
-                                swapItemDesc->fields.successMessage1->AddArg(attackingPoke);
-                                swapItemDesc->fields.successMessage1->AddArg(targetPoke & 0xff);
+                                swapItemDesc->fields.successMessage1->AddArg((int32_t)attackingPoke);
+                                swapItemDesc->fields.successMessage1->AddArg((int32_t)targetPoke & 0xff);
                                 swapItemDesc->fields.successMessage1->AddArg(item);
 
                                 bool swapped = Common::SwapItem(args, &swapItemDesc);
@@ -62,14 +71,19 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
                             }
                             else // Is wild
                             {
+                                Logger::log("[Thief Patch] Pokemon is Wild\n");
                                 Section_FromEvent_SetItem::Description::Object* setItemDesc = Section_FromEvent_SetItem::Description::newInstance();
+                                Logger::log("[Set Item] Object Created\n");
                                 setItemDesc->fields.userPokeID = pokeID;
+                                Logger::log("[Set Item] pokeID set: %d\n", pokeID);
                                 setItemDesc->fields.targetPokeID = (uint8_t)targetPoke;
                                 setItemDesc->fields.itemID = 0;
 
+                                Logger::log("[Thief Patch] Still good\n");
+
                                 setItemDesc->fields.successMessage->Setup(2, 0x598);
-                                setItemDesc->fields.successMessage->AddArg(attackingPoke);
-                                setItemDesc->fields.successMessage->AddArg(targetPoke & 0xff);
+                                setItemDesc->fields.successMessage->AddArg((int32_t)attackingPoke);
+                                setItemDesc->fields.successMessage->AddArg((int32_t)targetPoke & 0xff);
                                 setItemDesc->fields.successMessage->AddArg(item);
 
                                 bool itemSet = Common::SetItem(args, &setItemDesc);
@@ -92,7 +106,7 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
 // Remove the check for if the attacking Pokémon is holding an item (for wilds)
 
 HOOK_DEFINE_REPLACE(Dorobou_CheckEnable) {
-    static bool Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, MethodInfo *method)
+    static bool Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID)
     {
         BTL_POKEPARAM::Object *pokeparam = (*args)->fields.pBattleEnv->fields.m_pokecon->GetPokeParamConst(pokeID);
         uint16_t item = pokeparam->GetItem();
@@ -115,7 +129,9 @@ HOOK_DEFINE_REPLACE(Dorobou_CheckEnable) {
         else // Is wild
         {
             // Always set to true (attacking poke has no item)
+            Logger::log("[Thief Patch] Thief-able verified.\n");
             return true;
+
         }
     }
 };

@@ -21,12 +21,12 @@ namespace Dpr::Battle::Logic {
             Param::Object* m_param;
         };
 
-        void Setup(int32_t type, uint16_t strID) {
-            return external<void>(0x01f720f0, this, type, strID);
+        inline void Setup(int32_t type, uint16_t strID) {
+            external<void>(0x01f720f0, this, type, strID);
         }
 
-        void AddArg(int32_t arg) {
-            return external<void>(0x01f72130, this, arg);
+        inline void AddArg(int32_t arg) {
+            external<void>(0x01f72130, this, arg);
         }
     };
 }

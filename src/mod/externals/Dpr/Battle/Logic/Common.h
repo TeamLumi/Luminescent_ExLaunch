@@ -44,7 +44,7 @@ namespace Dpr::Battle::Logic {
         }
 
         static inline void SetWazaEffectIndex(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_SetWazaEffectIndex::Description::Object** desc) {
-            return external<void>(0x01d0cb40, args, desc);
+            external<void>(0x01d0cb40, args, desc);
         }
     };
 }
