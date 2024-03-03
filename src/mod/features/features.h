@@ -96,6 +96,9 @@ void exl_poke_radar_fixes_main();
 // Requires an edited uiresidentwindow bundle with a second Pokétch button.
 void exl_poketch_main();
 
+// Replaces pickup ranges with new ranges abiding by Lumi level caps
+void exl_pickup_main();
+
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
 

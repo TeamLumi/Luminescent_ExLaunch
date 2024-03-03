@@ -23,6 +23,7 @@ static constexpr const char* FEATURES[] = {
     "NPC Collision Audio",
     "Outfit Neutral UI",
     "Party Context Menu",
+    "Pickup Changes",
     "Poké Radar Fixes",
     "Thief Deposits to Bag",
     "Two-Button Pokétch",
@@ -48,6 +49,7 @@ static constexpr const char* DEBUG_FEATURES[] = {
     "PokemonInfo Logging",
     "Unity Logging",
     "Feature Logging",
+    "Pickup 100%",
 };
 
 constexpr int DEBUG_FEATURE_COUNT = sizeof(DEBUG_FEATURES) / sizeof(DEBUG_FEATURES[0]);
