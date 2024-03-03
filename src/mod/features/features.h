@@ -125,6 +125,9 @@ void exl_ug_forms_main();
 // Repoints Large and DP/Pixel Pokémon sprites to the base ones.
 void exl_uniform_ui_main();
 
+// Removes validity checks.
+void exl_validity_checks_main();
+
 // Adds support for wild Pokémon of any form number.
 void exl_wild_forms_main();
 
