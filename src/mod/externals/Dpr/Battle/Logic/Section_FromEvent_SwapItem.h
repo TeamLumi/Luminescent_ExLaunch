@@ -7,7 +7,7 @@
 #include "externals/Dpr/Battle/Logic/CommonParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_SwapItem : ILClass<Section_FromEvent_SwapItem> {
+    struct Section_FromEvent_SwapItem : ILClass<Section_FromEvent_SwapItem, 0x04c5ba88> {
         struct Description : ILClass<Description, 0x04c5b1f0> {
             struct Fields {
                 uint8_t userPokeID;

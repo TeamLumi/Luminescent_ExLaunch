@@ -7,7 +7,7 @@
 #include "externals/Dpr/Battle/Logic/CommonParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_SetWazaEffectIndex : ILClass<Section_FromEvent_SetWazaEffectIndex> {
+    struct Section_FromEvent_SetWazaEffectIndex : ILClass<Section_FromEvent_SetWazaEffectIndex, 0x04c5ba48> {
         struct Description : ILClass<Description, 0x04c5b350> {
             struct Fields {
                 uint8_t effectIndex;

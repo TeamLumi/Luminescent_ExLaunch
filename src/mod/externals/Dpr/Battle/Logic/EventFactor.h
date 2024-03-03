@@ -24,8 +24,6 @@ namespace Dpr::Battle::Logic {
                 bool tmpItemFlag;
                 bool existFlag;
                 System::Int32_array* work;
-
-
             };
         };
         struct EventHandlerArgs : ILClass<EventHandlerArgs> {
@@ -43,10 +41,10 @@ namespace Dpr::Battle::Logic {
         };
 
         struct Fields {
-            Data::Object* m_data;
             uint16_t m_instanceID;
-            EventFactor::Object* m_nextFactor;
             EventFactor::Object* m_prevFactor;
+            EventFactor::Object* m_nextFactor;
+            Data::Object* m_data;
         };
 
 
