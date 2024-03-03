@@ -35,6 +35,7 @@ static constexpr const char* FEATURES[] = {
     "Underground Forms",
     "Wild Forms",
     "Wild Held Item Rates",
+    "Validity Checks",
     "Contest NPC Forms",
 };
 
