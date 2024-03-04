@@ -81,7 +81,20 @@ HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_GetCharacterBagData) {
     }
 };
 
-void exl_outfit_neutral_ui_main() {
+HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_LoadSpritePokemonDot) {
+    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
+        __this->LoadSpritePokemon(monsNo, formNo, sex, rareType, isEgg, onComplete);
+    }
+};
+
+HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_LoadSpritePokemonLarge) {
+    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
+        __this->LoadSpritePokemon(monsNo, formNo, sex, rareType, isEgg, onComplete);
+    }
+};
+
+void exl_uniform_ui_main() {
+    // Outfit-neutral UI
     Dpr_UI_UIManager_GetCharacterBagData::InstallAtOffset(0x017c5710);
 
     using namespace exl::armv8::inst;
@@ -98,4 +111,8 @@ void exl_outfit_neutral_ui_main() {
     p.BranchLinkInst((void*)&GetEncSeqPath);
     p.Seek(0x01f077e0);
     p.BranchLinkInst((void*)&GetEncSeqPath);
+
+    // Repoint Large and DP/Pixel sprites to base one
+    Dpr_UI_UIManager_LoadSpritePokemonDot::InstallAtOffset(0x017c46a0);
+    Dpr_UI_UIManager_LoadSpritePokemonLarge::InstallAtOffset(0x017c4140);
 };

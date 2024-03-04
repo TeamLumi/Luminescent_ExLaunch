@@ -34,7 +34,7 @@ System::String::Object* Convert_ZoneID(void* typeinfo, int32_t* zoneId) {
 int32_t ConvertZoneIDToArriveFlag(int32_t zoneId) {
     int32_t startRange1 = array_index(ZONE_CODES, "C01");
     int32_t startRange2 = array_index(ZONE_CODES, "D10R0902");
-    int32_t startRange3 = array_index(ZONE_CODES, "DEBUG");
+    int32_t startRange3 = array_index(ZONE_CODES, "D10R0601B") + 1;
 
     if (zoneId >= startRange1 && zoneId < startRange2)
     {

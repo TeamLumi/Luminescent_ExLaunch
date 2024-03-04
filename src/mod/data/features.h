@@ -21,7 +21,7 @@ static constexpr const char* FEATURES[] = {
     "Language Select",
     "Level Cap",
     "NPC Collision Audio",
-    "Outfit Neutral UI",
+    "Uniform UI",
     "Party Context Menu",
     "Poké Radar Fixes",
     "Thief Deposits to Bag",
@@ -36,7 +36,8 @@ static constexpr const char* FEATURES[] = {
     "Underground Forms",
     "Wild Forms",
     "Wild Held Item Rates",
-
+    "Validity Checks",
+    "Contest NPC Forms",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

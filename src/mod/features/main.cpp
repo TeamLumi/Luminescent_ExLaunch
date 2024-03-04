@@ -46,8 +46,8 @@ void CallFeatureHooks()
         exl_level_cap_main();
     if (IsActivatedFeature(array_index(FEATURES, "NPC Collision Audio")))
         exl_npc_collision_audio_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Outfit Neutral UI")))
-        exl_outfit_neutral_ui_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Uniform UI")))
+        exl_uniform_ui_main();
     if (IsActivatedFeature(array_index(FEATURES, "Party Context Menu")))
         exl_pla_context_menu_main();
     if (IsActivatedFeature(array_index(FEATURES, "Poké Radar Fixes")))
@@ -72,10 +72,14 @@ void CallFeatureHooks()
         exl_turn_counter_main();
     if (IsActivatedFeature(array_index(FEATURES, "Underground Forms")))
         exl_ug_forms_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Validity Checks")))
+        exl_validity_checks_main();
     if (IsActivatedFeature(array_index(FEATURES, "Wild Forms")))
         exl_wild_forms_main();
     if (IsActivatedFeature(array_index(FEATURES, "Wild Held Item Rates")))
         exl_wild_held_items_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Contest NPC Forms")))
+        exl_contest_npc_forms_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
@@ -113,7 +117,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Language Select"));
     SetActivatedFeature(array_index(FEATURES, "Level Cap"));
     SetActivatedFeature(array_index(FEATURES, "NPC Collision Audio"));
-    SetActivatedFeature(array_index(FEATURES, "Outfit Neutral UI"));
+    SetActivatedFeature(array_index(FEATURES, "Uniform UI"));
     SetActivatedFeature(array_index(FEATURES, "Party Context Menu"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
     SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
@@ -124,14 +128,16 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Swarm Forms"));
     SetActivatedFeature(array_index(FEATURES, "Turn Counter"));
     SetActivatedFeature(array_index(FEATURES, "Underground Forms"));
+    SetActivatedFeature(array_index(FEATURES, "Validity Checks"));
     SetActivatedFeature(array_index(FEATURES, "Wild Forms"));
     SetActivatedFeature(array_index(FEATURES, "Wild Held Item Rates"));
+    SetActivatedFeature(array_index(FEATURES, "Contest NPC Forms"));
 
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Battle Bundles in UI"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Boutique Models"));
     //SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "IL2CPP Logging"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "PokemonInfo Logging"));
-    //SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Unity Logging"));
+    SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Unity Logging"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging"));
 
     SetActivatedItemFeature(array_index(ITEM_FEATURES, "Ability Patch"));

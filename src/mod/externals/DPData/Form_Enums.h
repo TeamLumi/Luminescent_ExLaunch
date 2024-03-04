@@ -8,6 +8,8 @@ enum class MewtwoForm : int32_t {
     MEGA_Y = 2,
     ARMORED_MK2 = 3,
     ARMORED_MK1 = 4,
+
+    MAX
 };
 
 enum class UnownForm : int32_t {
@@ -39,6 +41,8 @@ enum class UnownForm : int32_t {
     Z = 25,
     EXCLAMATION = 26,
     QUESTION = 27,
+
+    MAX
 };
 
 enum class CastformForm : int32_t {
@@ -46,6 +50,8 @@ enum class CastformForm : int32_t {
     SUN = 1,
     RAIN = 2,
     SNOW = 3,
+
+    MAX
 };
 
 enum class DeoxysForm : int32_t {
@@ -53,39 +59,53 @@ enum class DeoxysForm : int32_t {
     ATTACK = 1,
     DEFENSE = 2,
     SPEED = 3,
+
+    MAX
 };
 
 enum class BurmyForm : int32_t {
     PLANT = 0,
     SANDY = 1,
     TRASH = 2,
+
+    MAX
 };
 
 enum class WormadamForm : int32_t {
     PLANT = 0,
     SANDY = 1,
     TRASH = 2,
+
+    MAX
 };
 
 enum class MothimForm : int32_t {
     PLANT = 0,
     SANDY = 1,
     TRASH = 2,
+
+    MAX
 };
 
 enum class CherrimForm : int32_t {
     OVERCAST = 0,
     SUNSHINE = 1,
+
+    MAX
 };
 
 enum class ShellosForm : int32_t {
     WEST = 0,
     EAST = 1,
+
+    MAX
 };
 
 enum class GastrodonForm : int32_t {
     WEST = 0,
     EAST = 1,
+
+    MAX
 };
 
 enum class RotomForm : int32_t {
@@ -95,16 +115,22 @@ enum class RotomForm : int32_t {
     FROST = 3,
     FAN = 4,
     MOW = 5,
+
+    MAX
 };
 
 enum class GiratinaForm : int32_t {
     ALTERED = 0,
     ORIGIN = 1,
+
+    MAX
 };
 
 enum class ShayminForm : int32_t {
     LAND = 0,
     SKY = 1,
+
+    MAX
 };
 
 enum class ArceusForm : int32_t {
@@ -126,6 +152,8 @@ enum class ArceusForm : int32_t {
     DRAGON = 15,
     DARK = 16,
     FAIRY = 17,
+
+    MAX
 };
 
 enum class GenesectForm : int32_t {
@@ -134,6 +162,8 @@ enum class GenesectForm : int32_t {
     SHOCK_DRIVE = 2,
     BURN_DRIVE = 3,
     CHILL_DRIVE = 4,
+
+    MAX
 };
 
 enum class VivillonForm : int32_t {
@@ -157,6 +187,8 @@ enum class VivillonForm : int32_t {
     JUNGLE = 17,
     FANCY = 18,
     POKE_BALL = 19,
+
+    MAX
 };
 
 enum class SilvallyForm : int32_t {
@@ -178,6 +210,8 @@ enum class SilvallyForm : int32_t {
     DRAGON = 15,
     DARK = 16,
     FAIRY = 17,
+
+    MAX
 };
 
 enum class AlcremieCream : int32_t {
@@ -190,6 +224,8 @@ enum class AlcremieCream : int32_t {
     RUBY_SWIRL = 6,
     CARAMEL_SWIRL = 7,
     RAINBOW_SWIRL = 8,
+
+    MAX
 };
 
 enum class AlcremieSweet : int32_t {
@@ -200,14 +236,20 @@ enum class AlcremieSweet : int32_t {
     CLOVER_SWEET = 4,
     FLOWER_SWEET = 5,
     RIBBON_SWEET = 6,
+
+    MAX
 };
 
 enum class ZacianForm : int32_t {
     HERO_OF_MANY_BATTLES = 0,
     CROWNED_SWORD = 1,
+
+    MAX
 };
 
 enum class ZamazentaForm : int32_t {
     HERO_OF_MANY_BATTLES = 0,
     CROWNED_SHIELD = 1,
+
+    MAX
 };

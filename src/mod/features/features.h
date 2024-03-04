@@ -51,6 +51,9 @@ void exl_color_variations_main();
 // Adds support for new ev_script commands.
 void exl_commands_main();
 
+// Adds support for contest NPCs to have alternate forms of Pokémon.
+void exl_contest_npc_forms_main();
+
 // Rewrites the methods that deal with determining a zone's encounter slots.
 // Defaults to changing slots how Luminescent does it.
 void exl_encounter_slots_main();
@@ -82,9 +85,6 @@ void exl_level_cap_main();
 
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
-
-// Changes all UI elements that are outfit and ColorVariation dependent to the default ones.
-void exl_outfit_neutral_ui_main();
 
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
@@ -122,6 +122,14 @@ void exl_turn_counter_main();
 
 // Allows alternate forms of Pokémon roaming in the Underground.
 void exl_ug_forms_main();
+
+// Uniformizes certain UI elements:
+// Changes all UI elements that are outfit and ColorVariation dependent to the default ones.
+// Repoints Large and DP/Pixel Pokémon sprites to the base ones.
+void exl_uniform_ui_main();
+
+// Removes validity checks.
+void exl_validity_checks_main();
 
 // Adds support for wild Pokémon of any form number.
 void exl_wild_forms_main();
