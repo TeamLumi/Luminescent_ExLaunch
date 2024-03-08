@@ -97,5 +97,13 @@ namespace Pml::PokePara {
         inline bool IsFuseiTamago() {
             return external<bool>(0x024a4bc0, this);
         }
+
+        inline int32_t GetMonsNo() {
+            return external<int32_t>(0x024a4e70, this);
+        }
+
+        inline uint16_t GetFormNo() {
+            return external<uint16_t>(0x024a64e0, this);
+        }
     };
 }
