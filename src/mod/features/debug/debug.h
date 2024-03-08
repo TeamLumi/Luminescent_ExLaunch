@@ -20,5 +20,5 @@ void exl_pokemoninfo_hooks_main();
 // Reroutes Unity logs to the ExLaunch logger.
 void exl_unity_log_main();
 
-//
+// 100% Chance to activates a Pokemon's pickup ability after a battle.
 void exl_pickup_debug_main();
