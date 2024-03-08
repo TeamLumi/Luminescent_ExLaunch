@@ -52,6 +52,8 @@ void CallFeatureHooks()
         exl_pla_context_menu_main();
     if (IsActivatedFeature(array_index(FEATURES, "Poké Radar Fixes")))
         exl_poke_radar_fixes_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Pickup Changes")))
+        exl_pickup_main();
     if (IsActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag")))
         exl_thief_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Two-Button Pokétch")))
@@ -119,6 +121,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "NPC Collision Audio"));
     SetActivatedFeature(array_index(FEATURES, "Uniform UI"));
     SetActivatedFeature(array_index(FEATURES, "Party Context Menu"));
+    SetActivatedFeature(array_index(FEATURES, "Pickup Changes"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
     SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
     SetActivatedFeature(array_index(FEATURES, "Two-Button Pokétch"));
@@ -139,6 +142,7 @@ void exl_features_main() {
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "PokemonInfo Logging"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Unity Logging"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging"));
+    SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Pickup 100%"));
 
     SetActivatedItemFeature(array_index(ITEM_FEATURES, "Ability Patch"));
     SetActivatedItemFeature(array_index(ITEM_FEATURES, "Everlasting Candies"));
