@@ -96,6 +96,9 @@ void exl_poke_radar_fixes_main();
 // Requires an edited uiresidentwindow bundle with a second Pokétch button.
 void exl_poketch_main();
 
+// Replaces pickup ranges with new ranges abiding by Lumi level caps
+void exl_pickup_main();
+
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
 
@@ -113,6 +116,9 @@ void exl_sounds_main();
 
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
+
+// Deposits items obtained by thief directly into the player's bag.
+void exl_thief_patches_main();
 
 // Assigns a work value to be used as a total turn counter for the last battle. By default, this is work value 449.
 void exl_turn_counter_main();
