@@ -33,6 +33,7 @@ static constexpr const char* FEATURES[] = {
     "Shiny Rates",
     "Sound Encounters",
     "Swarm Forms",
+    "Trainer Double Battle",
     "Turn Counter",
     "Underground Forms",
     "Wild Forms",
