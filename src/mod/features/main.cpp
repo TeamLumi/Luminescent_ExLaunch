@@ -62,6 +62,8 @@ void CallFeatureHooks()
         exl_settings_main();
     if (IsActivatedFeature(array_index(FEATURES, "Shiny Rates")))
         exl_shiny_rates_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Static Held Items")))
+        exl_static_held_items_main();
     if (IsActivatedFeature(array_index(FEATURES, "Sound Encounters")))
         exl_sounds_main();
     if (IsActivatedFeature(array_index(FEATURES, "Swarm Forms")))
@@ -122,6 +124,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Relearn TMs"));
     SetActivatedFeature(array_index(FEATURES, "New Settings"));
     SetActivatedFeature(array_index(FEATURES, "Shiny Rates"));
+    SetActivatedFeature(array_index(FEATURES, "Static Held Items"));
     SetActivatedFeature(array_index(FEATURES, "Swarm Forms"));
     SetActivatedFeature(array_index(FEATURES, "Turn Counter"));
     SetActivatedFeature(array_index(FEATURES, "Underground Forms"));
