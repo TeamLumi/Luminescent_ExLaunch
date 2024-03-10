@@ -1767,7 +1767,7 @@ enum class FlagWork_Flag : int32_t {
 
     // Luminescent Flags
     FLAG_INFINITE_REPEL = 2195,
-    
+    FLAG_TRAINER_DOUBLE = 2196,
     FLAG_DISABLE_LEVEL_CAP = 2197,
     FLAG_DISABLE_EXP_SHARE = 2198,
     FLAG_DISABLE_AFFECTION = 2199,
