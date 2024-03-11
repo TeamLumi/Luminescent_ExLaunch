@@ -36,19 +36,22 @@ HOOK_DEFINE_REPLACE(WildHeldItems) {
 
             auto firstPokemonCoreParam = reinterpret_cast<Pml::PokePara::CoreParam::Object *>(firstPartyPokemon);
 
-            auto abilityNo = firstPokemonCoreParam->GetTokuseiNo();
-
 
             int32_t firstRate = 0;
             int32_t secondRate = 0;
 
-            if (abilityNo == array_index(ABILITIES, "Frisk")
-            || abilityNo == array_index(ABILITIES, "Compound Eyes")
-            || abilityNo == array_index(ABILITIES, "Super Luck"))
-            {
-                firstRate = 60;
-                secondRate = 20;
+            if (!firstPokemonCoreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG)) {
+                auto abilityNo = firstPokemonCoreParam->GetTokuseiNo();
+
+                if (abilityNo == array_index(ABILITIES, "Frisk")
+                    || abilityNo == array_index(ABILITIES, "Compound Eyes")
+                    || abilityNo == array_index(ABILITIES, "Super Luck"))
+                {
+                    firstRate = 60;
+                    secondRate = 20;
+                }
             }
+
             else
             {
                 firstRate = 50;

@@ -111,6 +111,9 @@ void exl_settings_main();
 // Reworks the shiny rates.
 void exl_shiny_rates_main();
 
+// Allows static encounters such as Rotom/Legendary Encounters/Honey Trees to have held items.
+void exl_static_held_items_main();
+
 // Adds support for Sigma Platinum-style Sound encounters.
 void exl_sounds_main();
 

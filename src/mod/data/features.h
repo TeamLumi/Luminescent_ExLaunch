@@ -31,6 +31,7 @@ static constexpr const char* FEATURES[] = {
     "Controls Remap",
     "New Settings",
     "Shiny Rates",
+    "Static Held Items",
     "Sound Encounters",
     "Swarm Forms",
     "Trainer Double Battle",
