@@ -3,8 +3,12 @@
 #include "externals/il2cpp-api.h"
 #include "externals/UnityEngine/UI/MaskableGraphic.h"
 #include "externals/System/String.h"
-#include "externals/System/Collections/Generic/List.h"
 #include "externals/TMPro/TextMeshProUGUI.h"
+#include "externals/System/Collections/Generic/List.h"
+
+namespace System::Collections::Generic {
+    struct List$$UIText;
+}
 
 namespace Dpr::UI {
     struct UIText : ILClass<UIText> {
@@ -34,6 +38,14 @@ namespace Dpr::UI {
 
 namespace System::Collections::Generic {
     struct List$$UIText : List<List$$UIText, Dpr::UI::UIText> {
-
+        struct Fields {
+            Dpr::UI::UIText::Array* _items;
+            int32_t _size;
+            int32_t _version;
+            Il2CppObject* _syncRoot;
+        };
+        static inline StaticILMethod<0x04c89ac0, Dpr::UI::UIText> Method$$UIText$$Add {};
+        static inline StaticILMethod<0x04c89ac8, Dpr::UI::UIText> Method$$UIText$$Clear {};
     };
+
 }

@@ -39,6 +39,7 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c667c0, Dpr::UI::SelectLanguageItem> Method$$SelectLanguageItem$$GetComponent {};
         static inline StaticILMethod<0x04c667d0, Dpr::UI::SettingMenuItem> Method$$SettingMenuItem$$GetComponent {};
         static inline StaticILMethod<0x04c667e0, Dpr::UI::UIText> Method$$UIText$$GetComponent {};
+        static inline StaticILMethod<0x04c66a18, Dpr::UI::UIText> Method$$UIText$$GetComponentInChildren {};
         static inline StaticILMethod<0x04c66970, UnityEngine::UI::HorizontalLayoutGroup> Method$$HorizontalLayoutGroup$$GetComponent {};
         static inline StaticILMethod<0x04c66918, UnityEngine::RectTransform> Method$$RectTransform$$GetComponent {};
         static inline StaticILMethod<0x04c67050, UnityEngine::BoxCollider> Method$$BoxCollider$$GetComponent {};
@@ -60,6 +61,11 @@ namespace UnityEngine {
         template <typename T>
         inline T::Object* GetComponent(ILMethod<T>& method) {
             return external<typename T::Object*>(0x01f48340, this, *method);
+        }
+
+        template <typename T>
+        inline T::Object* GetComponentInChildren(bool includeInactive, ILMethod<T>& method) {
+            return external<typename T::Object*>(0x01f484e0, this, *method);
         }
 
         inline void GetComponents(System::Type* type, System::Collections::Generic::List$$Component* results) {

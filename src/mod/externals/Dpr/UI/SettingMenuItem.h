@@ -38,6 +38,13 @@ namespace Dpr::UI {
 
 namespace System::Collections::Generic {
     struct List$$SettingMenuItem : List<List$$SettingMenuItem, Dpr::UI::SettingMenuItem> {
+        struct Fields {
+            Dpr::UI::SettingMenuItem::Array* _items;
+            int32_t _size;
+            int32_t _version;
+            Il2CppObject* _syncRoot;
+        };
+
         static inline StaticILMethod<0x04c89908> Method$$Add {};
 
         void insert(Dpr::UI::SettingMenuItem* elem, int32_t pos) {
