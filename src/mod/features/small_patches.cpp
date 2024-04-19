@@ -24,7 +24,7 @@ HOOK_DEFINE_REPLACE(FriendshipFlag) {
             PokeID::getClass()->initIfNeeded();
 
             auto clientID = PokeID::PokeIdtoClientId(pokeID);
-            if ((clientID & 256) == 0) {
+            if ((clientID & 255) == 0) {
                 auto gMode = bpp->isGMode();
                 return !(gMode) && FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION);
                 /* The original logic is (~bVar1 & 1). If gMode is true then Friendship flag is returned false.
