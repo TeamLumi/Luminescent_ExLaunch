@@ -5,10 +5,38 @@
 #include "data/utils.h"
 #include "externals/FlagWork.h"
 #include "features/activated_features.h"
+#include "externals/Dpr/Battle/Logic/MainModule.h"
+#include "externals/Dpr/Battle/Logic/PokeID.h"
+
+using namespace Dpr::Battle::Logic;
 
 HOOK_DEFINE_REPLACE(FriendshipFlag) {
-    static bool Callback() {
-        return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION);
+    static bool Callback(MainModule::Object* _this, BTL_POKEPARAM::Object* bpp) {
+        system_load_typeinfo(0x5f3f);
+
+        /* (BtlRule: 0 = Single, 1 = Double, 2 = Raid) (Competitor: 0 = Wild, 1 = Trainer, 2+ is irrelevant) */
+        if ((int32_t)(_this->fields.m_rule) != 2 && ((uint)(_this->fields.m_setupParam->fields.competitor) < 2)) {
+            auto pokeID = bpp->GetID();
+
+            MainModule::getClass()->initIfNeeded();
+            system_load_typeinfo(0x5f4d);
+
+            PokeID::getClass()->initIfNeeded();
+
+            auto clientID = PokeID::PokeIdtoClientId(pokeID);
+            if ((clientID & 256) == 0) {
+                auto gMode = bpp->isGMode();
+                return !(gMode) && FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION);
+                /* The original logic is (~bVar1 & 1). If gMode is true then Friendship flag is returned false.
+                 * Conversely, gMode being false returns true (active Friendship). If gMode is true, !gMode will be
+                 * false. Therefore, the whole expression will be false, regardless of the value returned by
+                 * FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION). If gMode is false, !gMode will be true.
+                 * In this case, the expression will evaluate to the value returned by
+                 * FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION). */
+            }
+        }
+        return false; // Returns false automatically if it's not a wild/trainer battle, or it's a raid.
+
     }
 };
 
