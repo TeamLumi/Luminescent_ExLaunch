@@ -5,6 +5,7 @@
 #include "data/utils.h"
 #include "externals/FlagWork.h"
 #include "features/activated_features.h"
+#include "externals/Dpr/Message/MessageEnumData.h"
 
 HOOK_DEFINE_REPLACE(FriendshipFlag) {
     static bool Callback() {
@@ -15,6 +16,12 @@ HOOK_DEFINE_REPLACE(FriendshipFlag) {
 HOOK_DEFINE_REPLACE(ExpShareFlag) {
     static bool Callback() {
         return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE);
+    }
+};
+
+HOOK_DEFINE_REPLACE(GetMessageLangIdFromIetfCode) {
+    static int32_t Callback() {
+        return static_cast<int32_t>(MessageEnumData::MsgLangId::USA);
     }
 };
 
@@ -41,4 +48,6 @@ void exl_patches_main() {
         { 0x0202c140, CmpImmediate(W19, ITEM_COUNT) },  // Make the battle check for if you own balls that go past 1822 items
     };
     p.WriteInst(inst);
+
+    GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns language as English
 }
