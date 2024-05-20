@@ -13,7 +13,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
-    struct MainModule : ILClass<MainModule> {
+    struct MainModule : ILClass<MainModule, 0x04c5a6d0> {
         struct Fields {
             Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* m_setupParam;
             void* m_viewCore;

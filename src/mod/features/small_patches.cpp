@@ -5,11 +5,15 @@
 #include "data/utils.h"
 #include "externals/FlagWork.h"
 #include "features/activated_features.h"
+#include "externals/Dpr/Battle/Logic/MainModule.h"
+#include "externals/Dpr/Battle/Logic/PokeID.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
 
-HOOK_DEFINE_REPLACE(FriendshipFlag) {
-    static bool Callback() {
-        return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION);
+using namespace Dpr::Battle::Logic;
+
+HOOK_DEFINE_TRAMPOLINE(FriendshipFlag) {
+    static bool Callback(MainModule::Object* _this, BTL_POKEPARAM::Object* bpp) {
+        return Orig(_this, bpp) && FlagWork::GetFlag(FlagWork_Flag::FLAG_AFFECTION_ENABLED);
     }
 };
 
