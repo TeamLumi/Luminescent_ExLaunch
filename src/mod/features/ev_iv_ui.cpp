@@ -20,7 +20,7 @@ System::String::Object* GetIVLabel(Pml::PokePara::CoreParam::Object* pokemonPara
 
     if (trainingDone)
     {
-        return System::String::Create("SS_box_590");
+        return System::String::Create("SS_box_577");
     }
     else
     {
