@@ -25,7 +25,7 @@ HOOK_DEFINE_REPLACE(ExpShareFlag) {
 
 HOOK_DEFINE_REPLACE(GetMessageLangIdFromIetfCode) {
     static int32_t Callback() {
-        return static_cast<int32_t>(MessageEnumData::MsgLangId::USA);
+        return static_cast<int32_t>(Dpr::Message::MessageEnumData::MsgLangId::USA);
     }
 };
 
