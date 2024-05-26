@@ -30,6 +30,7 @@ namespace UnityEngine {
     struct RectTransform;
     struct BoxCollider;
     struct GameObject;
+    struct XMenuTopItem;
 
     struct Component : ILClass<Component, 0x04c57e88> {
         struct Fields : public UnityEngine::_Object::Fields {
@@ -45,6 +46,7 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c67050, UnityEngine::BoxCollider> Method$$BoxCollider$$GetComponent {};
         static inline StaticILMethod<0x04c66d60, BattleCharacterEntity> Method$$BattleCharacterEntity$$GetComponent {};
         static inline StaticILMethod<0x04c66fc0, FieldCharacterEntity> Method$$FieldCharacterEntity$$GetComponent {};
+        static inline StaticILMethod<0x04c669c0, XMenuTopItem> Method$$XMenuTopItem$$GetComponent {};
 
         template <typename T>
         inline T::Object* GetComponent() {

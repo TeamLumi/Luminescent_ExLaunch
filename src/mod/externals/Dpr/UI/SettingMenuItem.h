@@ -9,6 +9,16 @@
 
 namespace Dpr::UI {
     struct SettingMenuItem : ILClass<SettingMenuItem> {
+        struct __DisplayClass32_0 : ILClass<__DisplayClass32_0, 0x04c623f8> {
+            struct Fields {
+                int32_t selectIndex;
+            };
+
+            inline void ctor() {
+                external<void>(0x01d3fec0, this);
+            }
+        };
+
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             int32_t _itemType;
             UnityEngine::RectTransform::Object* _contentRoot;
@@ -16,7 +26,7 @@ namespace Dpr::UI {
             void* _selectorParam;
             void* _windowSelectorParam;
             void* _gaugeSelectorParam;
-            void* _onValueChanged;
+            UnityEngine::Events::UnityAction::Object* _onValueChanged;
             int32_t _configId;
             System::String::Object* _descMessagelabel;
             UnityEngine::RectTransform::Object* _content;
@@ -26,11 +36,12 @@ namespace Dpr::UI {
             Dpr::UI::UIText::Object* _sliderText;
         };
 
+
         inline void ctor() {
             external<void>(0x01d3fed0, this);
         }
 
-        inline void Setup(int32_t configId, int32_t selectIndex, System::String* descMessageLabel, void* onValueChanged) {
+        inline void Setup(int32_t configId, int32_t selectIndex, System::String* descMessageLabel, UnityEngine::Events::UnityAction::Object* onValueChanged) {
             external<void>(0x01d3ee30, this, configId, selectIndex, descMessageLabel, onValueChanged);
         }
     };
