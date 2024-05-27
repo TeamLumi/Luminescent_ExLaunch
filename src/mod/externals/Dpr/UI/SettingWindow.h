@@ -26,7 +26,7 @@ namespace Dpr::UI {
             int32_t _selectIndex;
             System::Collections::Generic::List$$SettingMenuItem::Object* _activeItems;
             int32_t _scrollIndex;
-            DPData::CONFIG::Object _tempConfig;
+            DPData::CONFIG::Object* _tempConfig;
             void* _voiceInstance;
         };
     };
