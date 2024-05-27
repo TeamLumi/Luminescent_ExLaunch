@@ -95,8 +95,8 @@ void AddSetting(Dpr::UI::SettingWindow::_OpOpen_d__11::Object* __this, int confi
 
     auto titleComponent = titleChild->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
     titleComponent->SetupMessage(
-        System::String::Create("ss_option"),
-        System::String::Create(title)
+            System::String::Create("ss_option"),
+            System::String::Create(title)
     );
 
     if (isFrame) {
@@ -116,8 +116,8 @@ void AddSetting(Dpr::UI::SettingWindow::_OpOpen_d__11::Object* __this, int confi
         auto options = textRoot->GetChild({ 1, 2 });
         auto option = options->GetChild({ 1, 0 })->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
         option->SetupMessage(
-                    System::String::Create("ss_option"),
-                    System::String::Create(optionNames[currentMode]));
+                System::String::Create("ss_option"),
+                System::String::Create(optionNames[currentMode]));
 
     }
 

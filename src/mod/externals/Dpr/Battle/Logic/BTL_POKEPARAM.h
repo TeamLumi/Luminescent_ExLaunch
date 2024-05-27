@@ -82,5 +82,9 @@ namespace Dpr::Battle::Logic {
         inline Pml::PokePara::PokemonParam::Object* GetSrcData() {
             return external<Pml::PokePara::PokemonParam::Object*>(0x01fdd5b0, this);
         }
+
+        inline bool isGMode() {
+            return external<bool>(0x01fdb9a0, this);
+        }
     };
 }
