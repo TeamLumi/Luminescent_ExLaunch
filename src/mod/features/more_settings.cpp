@@ -204,9 +204,8 @@ HOOK_DEFINE_TRAMPOLINE(RevertSettings) {
         Orig(__this);
         bool settingIsEqual;
         auto Config = PlayerWork::get_config();
-        auto tempConfig = __this->fields._tempConfig;
         for (int i = 14; i < 20; i++) {
-            settingIsEqual = Config->IsEqualValue(i, tempConfig);
+            settingIsEqual = Config->IsEqualValue(i, &(__this->fields)._tempConfig);
             if (!settingIsEqual) {
                 switch (i) {
                     case 14: {

@@ -31,7 +31,7 @@ namespace DPData {
         }
 
         inline bool IsEqualValue(int32_t configId, DPData::CONFIG::Object* t) {
-            return external<bool>(0x022998a0, this, t);
+            return external<bool>(0x022998a0, this, configId, t);
         }
     };
 }

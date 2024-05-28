@@ -67,7 +67,7 @@ namespace UnityEngine {
 
         template <typename T>
         inline T::Object* GetComponentInChildren(bool includeInactive, ILMethod<T>& method) {
-            return external<typename T::Object*>(0x01f484e0, this, *method);
+            return external<typename T::Object*>(0x01f484e0, this, includeInactive, *method);
         }
 
         inline void GetComponents(System::Type* type, System::Collections::Generic::List$$Component* results) {
