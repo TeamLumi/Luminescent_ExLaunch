@@ -80,6 +80,8 @@ void CallFeatureHooks()
         exl_ug_forms_main();
     if (IsActivatedFeature(array_index(FEATURES, "Validity Checks")))
         exl_validity_checks_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Visible Shiny Eggs")))
+        exl_visible_shiny_egg_main();
     if (IsActivatedFeature(array_index(FEATURES, "Wild Forms")))
         exl_wild_forms_main();
     if (IsActivatedFeature(array_index(FEATURES, "Wild Held Item Rates")))
@@ -138,6 +140,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Turn Counter"));
     SetActivatedFeature(array_index(FEATURES, "Underground Forms"));
     SetActivatedFeature(array_index(FEATURES, "Validity Checks"));
+    SetActivatedFeature(array_index(FEATURES, "Visible Shiny Eggs"));
     SetActivatedFeature(array_index(FEATURES, "Wild Forms"));
     SetActivatedFeature(array_index(FEATURES, "Wild Held Item Rates"));
     SetActivatedFeature(array_index(FEATURES, "Contest NPC Forms"));
