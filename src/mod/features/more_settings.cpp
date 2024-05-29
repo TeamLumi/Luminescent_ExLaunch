@@ -146,16 +146,16 @@ HOOK_DEFINE_TRAMPOLINE(AddSettingsEntries) {
         }
 
         AddSetting(__this, 14,
-                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE) ? 0 : 1,
+                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE) ? 1 : 0,
                    "SS_option_110", "SS_option_113", ON_OFF_NAMES, 1, false);
         AddSetting(__this, 15,
-                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION) ? 0 : 1,
+                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION) ? 1 : 0,
                    "SS_option_109", "SS_option_112", ON_OFF_NAMES, 2, false);
         AddSetting(__this, 16,
-                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP) ? 0 : 1,
+                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP) ? 1 : 0,
                    "SS_option_111", "SS_option_114", ON_OFF_NAMES, 3, false);
         AddSetting(__this, 17,
-                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS) ? 0 : 1,
+                   FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS) ? 1 : 0,
                    "SS_option_125", "SS_option_126", ON_OFF_NAMES, 4, false);
         AddSetting(__this, 18, FlagWork::GetWork(FlagWork_Work::WK_GAME_MODE),
                    "SS_option_115", "SS_option_116", GAME_MODES, 5, true);
@@ -172,13 +172,13 @@ HOOK_DEFINE_TRAMPOLINE(GetSetting) {
     static int32_t Callback(DPData::CONFIG::Object* __this, int32_t id) {
         switch (id) {
             case 14:
-                return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE) ? 0 : 1;
+                return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE) ? 1 : 0;
             case 15:
-                return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION) ? 0 : 1;
+                return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION) ? 1 : 0;
             case 16:
-                return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP) ? 0 : 1;
+                return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP) ? 1 : 0;
             case 17:
-                return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS) ? 0 : 1;
+                return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS) ? 1 : 0;
             case 18:
                 return FlagWork::GetWork(FlagWork_Work::WK_GAME_MODE);
             case 19:
@@ -250,16 +250,16 @@ HOOK_DEFINE_TRAMPOLINE(SetSetting) {
         int32_t checkedValue;
         switch (id) {
             case 14:
-                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE, value == 0 ? 1 : 0);
+                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE, value == 0 ? 0 : 1);
                 break;
             case 15:
-                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION, value == 0 ? 1 : 0);
+                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION, value == 0 ? 0 : 1);
                 break;
             case 16:
-                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP, value == 0 ? 1 : 0);
+                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP, value == 0 ? 0 : 1);
                 break;
             case 17:
-                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS, value == 0 ? 1 : 0);
+                FlagWork::SetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS, value == 0 ? 0 : 1);
                 break;
             case 18:
                 checkedValue = ValueBoundsCheck(value, id);
