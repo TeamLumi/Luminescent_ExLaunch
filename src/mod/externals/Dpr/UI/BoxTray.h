@@ -1,10 +1,10 @@
+#pragma once
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/UI/BoxInfinityScrollItem.h"
 #include "externals/Dpr/UI/UIText.h"
 #include "externals/UnityEngine/UI/Image.h"
 #include "externals/UnityEngine/RectTransform.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
-#include "externals/Dpr/UI/BoxWindow.h"
 
 namespace Dpr::UI {
     struct BoxTray : ILClass<BoxTray> {

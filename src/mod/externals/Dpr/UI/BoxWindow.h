@@ -1,3 +1,4 @@
+#pragma once
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/UI/UIWindow.h"
 #include "BoxStatusPanel.h"
