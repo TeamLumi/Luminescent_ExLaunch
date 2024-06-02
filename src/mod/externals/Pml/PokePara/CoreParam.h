@@ -177,5 +177,9 @@ namespace Pml::PokePara {
         inline void RemoveItem() {
             external<void>(0x02049690, this);
         }
+
+        inline uint8_t GetRareType() {
+            return external<uint8_t>(0x0204a5a0, this);
+        }
     };
 }
