@@ -40,6 +40,7 @@ static constexpr const char* FEATURES[] = {
     "Wild Forms",
     "Wild Held Item Rates",
     "Validity Checks",
+    "Visible Shiny Eggs",
     "Contest NPC Forms",
 };
 
