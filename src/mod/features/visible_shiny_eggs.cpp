@@ -3,6 +3,8 @@
 #include "externals/GameData/DataManager.h"
 #include "externals/FlagWork.h"
 #include "externals/FlagWork_Enums.h"
+#include "data/utils.h"
+#include "data/species.h"
 
 HOOK_DEFINE_REPLACE(UniqueID) {
     static int32_t Callback(int32_t monsNo, int32_t formNo, uint8_t sex, uint8_t rareType, bool isEgg) {
@@ -12,7 +14,7 @@ HOOK_DEFINE_REPLACE(UniqueID) {
 
         if (isEgg) {
             bool shinyEggsEnabled = !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS);
-            if (monsNo == 490) {
+            if (monsNo == array_index(SPECIES, "Manaphy")) {
                 return rareType && shinyEggsEnabled ? 121 : 120;
 
             }
