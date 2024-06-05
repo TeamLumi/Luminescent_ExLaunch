@@ -37,6 +37,8 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             loadItems(isBackup);
             loadBerries(isBackup);
             loadColorVariations(isBackup);
+            loadBoxes(isBackup);
+
 
             // Perform migration loop
             migrate(playerWork);
@@ -50,9 +52,11 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             linkItems(playerWork);
             linkBerries(playerWork);
             linkColorVariations(playerWork);
+            linkBoxes(playerWork);
         }
 
         playerWork->fields._isBackupSave = false;
+
 
         return success;
     }
@@ -72,6 +76,7 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
         unlinkItems(playerWork);
         unlinkBerries(playerWork);
         unlinkColorVariations(playerWork);
+        unlinkBoxes(playerWork);
 
 #ifndef DEBUG_DISABLE_SAVE  // Allow disabling the saving to test the save migration code
         // Save version data to file
@@ -86,6 +91,7 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
         saveItems(isMain, isBackup);
         saveBerries(isMain, isBackup);
         saveColorVariations(isMain, isBackup);
+        saveBoxes(isMain, isBackup);
 #endif
 
         // Save base save file
@@ -100,6 +106,7 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
         relinkItems(playerWork);
         relinkBerries(playerWork);
         relinkColorVariations(playerWork);
+        relinkBoxes(playerWork);
     }
 };
 

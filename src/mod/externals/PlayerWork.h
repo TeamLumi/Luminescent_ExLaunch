@@ -48,6 +48,7 @@
 #include "externals/System/Nullable.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
+#include "externals/Dpr/Box/SaveBoxData.h"
 
 struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     struct SaveData : ILStruct<SaveData> {
@@ -293,5 +294,9 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline int32_t get_supportPokeType() {
         return external<int32_t>(0x02cf1910);
+    }
+
+    static inline Dpr::Box::SaveBoxData::Object* GetBoxData() {
+        return external<Dpr::Box::SaveBoxData::Object*>(0x02cf0180);
     }
 };

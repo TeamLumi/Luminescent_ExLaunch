@@ -160,6 +160,7 @@ void exl_features_main() {
     SetActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Incense Burner"));
     SetActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"));
 
+    SetActivatedSaveFeature(array_index(SAVE_FEATURES, "Box Expansion"));
     SetActivatedSaveFeature(array_index(SAVE_FEATURES, "Dex Expansion"));
 
     SetActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Affection Toggle"));

@@ -5,6 +5,8 @@
 #include "logger/logger.h"
 
 const uint64_t VANILLA_DEXSIZE = 493;
+const uint64_t VANILLA_BOXSIZE = 40;
+
 
 void migrateFromVanilla(PlayerWork::Object* playerWork) {
     Logger::log("Migrating from Vanilla...\n");
@@ -25,6 +27,27 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
         save->dex.elements[i].female_flag = zukan.female_flag->m_Items[i];
         save->dex.elements[i].female_flag = zukan.female_flag->m_Items[i];
     }
+
+    savedata.boxData.fields.trayName->copyInto(save->boxes.boxNames);
+    savedata.boxData.fields.wallPaper->copyInto(save->boxes.wallpapers);
+    savedata.boxTray->copyInto(save->boxes.pokemonParams);
+
+    auto spfCls = Pml::PokePara::SerializedPokemonFull_array_TypeInfo();
+
+    Logger::log("[Init] Begin for loop.\n");
+    for (uint64_t i=VANILLA_BOXSIZE; i < BoxCount; i++) {
+        save->boxes.boxNames[i].fields.str = System::String::Create(boxDefaultStrings[i]);
+        save->boxes.wallpapers[i] = save->boxes.wallpapers[0];
+        auto serializedPokemon = (Pml::PokePara::SerializedPokemonFull::Array*) system_array_new(spfCls, 30);
+        save->boxes.pokemonParams[i].fields.pokemonParam = serializedPokemon;
+        for (uint64_t j=0; j < serializedPokemon->max_length; j++) {
+            Logger::log("[Init] (Serialized) ByteArray, i: %d, j: %d.\n", i, j);
+            serializedPokemon->m_Items[j].CreateWorkIfNeed();
+        }
+    }
+
+    Logger::log("[Vanilla] Box migration complete.\n");
+
 
     savedata.intValues->copyInto(save->works.items);
     savedata.boolValues->copyInto(save->flags.items);
@@ -53,7 +76,7 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
     save->playerColorVariation.bHair =      { .fields = { set.battleHair.r, set.battleHair.g, set.battleHair.b, set.battleHair.a } };
 
     // Set amount of boxes unlocked to 40
-    playerWork->fields._saveData.fields.boxData.fields.trayMax = 40;
+    playerWork->fields._saveData.fields.boxData.fields.trayMax = 80;
 
     Logger::log("Migration from Vanilla done!\n");
 }
