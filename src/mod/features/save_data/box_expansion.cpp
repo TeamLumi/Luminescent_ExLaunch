@@ -8,59 +8,30 @@
 #include "externals/Dpr/UI/BoxWindow.h"
 #include "externals/Dpr/Box/BoxWork.h"
 #include "externals/Dpr/UI/BoxInfinityScroll.h"
-
+#include "externals/UnityEngine/UI/GridLayoutGroup.h"
+#include "externals/Dpr/UI/BoxListPanel.h"
+#include "externals/SmartPoint/Components/PlayerPrefsProvider_ViewerSettings_.h"
+#include "externals/ViewerSettings.h"
 
 const int32_t boxCount = 80;
 
 using namespace Dpr::UI;
 
-HOOK_DEFINE_TRAMPOLINE(BoxTray$$Setup) {
-    static void Callback(BoxTray::Object* __this, BoxInfinityScrollItem::BaseParam::Object* baseParam) {
-        Logger::log("[BoxTray$$Setup] Setting up Tray: %d.\n", baseParam->fields.paramIndex);
-        Orig(__this, baseParam);
-    }
-};
-
 HOOK_DEFINE_REPLACE(GetOpenTrayMax) {
     static int32_t Callback() {
-        return 80;
+        return boxCount;
     }
 };
 
 HOOK_DEFINE_REPLACE(UpdateTrayMax) {
     static int32_t Callback(Pml::PokePara::PokemonParam::Object* tmp_pp) {
-        return 80;
+        return boxCount;
     }
 };
 
 HOOK_DEFINE_REPLACE(GetTrayMax) {
     static int32_t Callback() {
-        return 80;
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(PlayerWork_Init) {
-    static void Callback(PlayerWork::Object* __this) {
-        Logger::log("[PlayerWork] PlayerWork Initialized.\n");
-        Orig(__this);
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(GetTrayName) {
-    static System::String::Object* Callback(int32_t tray) {
-        auto str = Orig(tray);
-        if (tray <= 39 && str != nullptr) {
-            Logger::log("[GetTrayName] String: %s\n", str->asCString().c_str());
-            return str;
-        }
-        else if (tray == 79) {
-            auto newStr = System::String::Create("Box 80");
-            Logger::log("[GetTrayName] String: %s\n", newStr->asCString().c_str());
-            return newStr;
-        }
-        auto testStr = System::String::Create("Box XX");
-        Logger::log("[GetTrayName] String: %s\n", testStr->asCString().c_str());
-        return testStr;
+        return boxCount;
     }
 };
 
@@ -72,49 +43,31 @@ HOOK_DEFINE_REPLACE(SetTrayMax) {
         auto boxData = PlayerWork::GetBoxData();
         boxData->fields.trayMax = (uint8_t) max;
     }
-
-};
-
-HOOK_DEFINE_TRAMPOLINE(ChangePokemon) {
-    static void Callback(int32_t tray1, int32_t pos1, int32_t tray2, int32_t pos2) {
-        Logger::log("[Change Pokemon] Tray1: %d, Pos1: %d, Tray2: %d, Pos2: %d.\n", tray1, pos1, tray2, pos2);
-        Orig(tray1, pos1, tray2, pos2);
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(GetBoxTray) {
-    static Dpr::Box::SaveBoxTrayData::Object* Callback(int32_t tray) {
-        Logger::log("[GetBoxTray] Tray: %d.\n", tray);
-        Dpr::Box::SaveBoxTrayData::Object* boxTray = Orig(tray);
-        Logger::log("[GetBoxTray] Function Completed.\n");
-        return boxTray;
-    }
 };
 
 HOOK_DEFINE_INLINE(SaveBoxData$$Clear) {
     static void Callback (exl::hook::nx64::InlineCtx* ctx) {
-        auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(Dpr::Box::SaveBoxData::_STR17_array_TypeInfo(), boxCount);
+        auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(
+                Dpr::Box::SaveBoxData::_STR17_array_TypeInfo(), boxCount);
         ctx->X[19] = (u64) newBoxNames;
     }
 };
 
-HOOK_DEFINE_INLINE(SaveBoxTrayData$$Clear) {
+HOOK_DEFINE_INLINE(BoxListPanel$$Initialize) {
     static void Callback (exl::hook::nx64::InlineCtx* ctx) {
-        u_long uVar23 = ctx->X[22];
-        Logger::log("[Clear] %d\n", uVar23);
-        ctx->X[22] = uVar23 + 1;
+        auto listPanel = (Dpr::UI::BoxListPanel::Object*) ctx->X[19];
+        auto gridLayout = listPanel->fields._grid;
+        auto cellVectorValues = (&gridLayout->fields)->m_Spacing;
+        //vectorValues.fields.x += 100.00;
+        //(&gridLayout->fields)->m_Constraint = 1;
+        //(&gridLayout->fields)->m_ConstraintCount = 8;
+        gridLayout->set_cellSize(cellVectorValues);
     }
 };
 
-HOOK_DEFINE_TRAMPOLINE(GetPokemon) {
-    static void Callback(Pml::PokePara::PokemonParam::Object* pp, int32_t tray, int32_t pos) {
-        Logger::log("[GetPokemon] Tray: %d.\n", tray);
-        Orig(pp, tray, pos);
-        Logger::log("[GetPokemon] Function Completed.\n");
-    }
+HOOK_DEFINE_TRAMPOLINE(BoxListNavigate$$Initialize) {
+    static void Callback()
 };
-
-
 
 /* Assembly Patches */
 
@@ -125,6 +78,14 @@ using namespace exl::armv8::reg;
 void PokeDupeChecker_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
             {0x01996cb4, CmpImmediate(W21, boxCount)}, // $$CheckDuplicate
+
+    };
+    p.WriteInst(inst);
+}
+
+void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
+    auto inst = nn::vector<exl::patch::Instruction> {
+            {0x01aaff64, CmpImmediate(W21, boxCount)}, // $$Initialize
 
     };
     p.WriteInst(inst);
@@ -149,8 +110,9 @@ void Dpr_Box_SaveBoxData_ASM(exl::patch::CodePatcher p) {
 
 void Dpr_Box_BoxWork_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            //{ 0x01d32370, CmpImmediate(W19, boxCount)}, // $$GetTrayName
-            //{ 0x01d33f20, CmpImmediate(W19, boxCount) }, // $$GetWallPaper
+            {0x01d32370, CmpImmediate(W19, boxCount)}, // $$GetTrayName
+            {0x01d33f20, CmpImmediate(W19, boxCount)}, // $$GetWallPaper
+            {0x01d33e78, CmpImmediate(W20, boxCount)}, // $$SetWallPaper
             {0x01d32438, CmpImmediate(W0, boxCount - 1)}, // $$ChangePokemon
             {0x01d32448, CmpImmediate(W2, boxCount)}, // $$ChangePokemon
 
@@ -168,6 +130,8 @@ void Dpr_Box_BoxPokemonWork_ASM(exl::patch::CodePatcher p) {
             {0x01d31460, CmpImmediate(W20, boxCount)}, // $$GetSpaceCountAll
             {0x01d31468, Movz(W8, boxCount * 30)}, // $$GetSpaceCountAll
             {0x01d2fd90, CmpImmediate(W21, boxCount - 1)}, //$$GetPokemon
+            {0x01d308f0, CmpImmediate(W22, boxCount - 1)}, //$$SwapPokemon
+            {0x01d30900, CmpImmediate(W21, boxCount)}, //$$SwapPokemon
     };
     p.WriteInst(inst);
 }
@@ -180,22 +144,18 @@ void exl_save_box_expansion_main() {
     Dpr_Box_BoxWork_ASM(p);
     Dpr_Box_SaveBoxData_ASM(p);
     PlayerWork_ASM(p);
+    Dpr_UI_BoxListPanel_ASM(p);
     //PokeDupeChecker_ASM(p);
 
     /* Install Hooks */
-    BoxTray$$Setup::InstallAtOffset(0x01cb3f90);
     UpdateTrayMax::InstallAtOffset(0x01d317f0);
     GetOpenTrayMax::InstallAtOffset(0x01d30190);
     GetTrayMax::InstallAtOffset(0x01d30610);
-    PlayerWork_Init::InstallAtOffset(0x02ceb000);
-    GetTrayName::InstallAtOffset(0x01d32360);
     SetTrayMax::InstallAtOffset(0x01d31a60);
-    ChangePokemon::InstallAtOffset(0x01d32410);
-    GetBoxTray::InstallAtOffset(0x02cf01d0);
-    SaveBoxData$$Clear::InstallAtOffset(0x01d34244);
-    //SaveBoxTrayData$$Clear::InstallAtOffset(0x02ceb1c0);
-    //GetPokemon::InstallAtOffset(0x01d2fd50);
 
+    //SaveBoxData$$Clear::InstallAtOffset(0x01d34244);
+    BoxListPanel$$Initialize::InstallAtOffset(0x01aaffc4);
+    //GetPokemon::InstallAtOffset(0x01d2fd50);
 
 
 

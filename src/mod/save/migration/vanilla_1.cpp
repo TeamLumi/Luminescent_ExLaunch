@@ -5,7 +5,6 @@
 #include "logger/logger.h"
 
 const uint64_t VANILLA_DEXSIZE = 493;
-const uint64_t VANILLA_BOXSIZE = 40;
 
 
 void migrateFromVanilla(PlayerWork::Object* playerWork) {
@@ -34,14 +33,12 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
 
     auto spfCls = Pml::PokePara::SerializedPokemonFull_array_TypeInfo();
 
-    Logger::log("[Init] Begin for loop.\n");
     for (uint64_t i=VANILLA_BOXSIZE; i < BoxCount; i++) {
         save->boxes.boxNames[i].fields.str = System::String::Create(boxDefaultStrings[i]);
-        save->boxes.wallpapers[i] = save->boxes.wallpapers[0];
+        save->boxes.wallpapers[i] = save->boxes.wallpapers[i-VANILLA_BOXSIZE]; // Follows exact pattern of Vanilla 1-40
         auto serializedPokemon = (Pml::PokePara::SerializedPokemonFull::Array*) system_array_new(spfCls, 30);
         save->boxes.pokemonParams[i].fields.pokemonParam = serializedPokemon;
         for (uint64_t j=0; j < serializedPokemon->max_length; j++) {
-            Logger::log("[Init] (Serialized) ByteArray, i: %d, j: %d.\n", i, j);
             serializedPokemon->m_Items[j].CreateWorkIfNeed();
         }
     }
@@ -75,8 +72,8 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
     save->playerColorVariation.bSkinBody =  { .fields = { set.battleSkinBody.r, set.battleSkinBody.g, set.battleSkinBody.b, set.battleSkinBody.a } };
     save->playerColorVariation.bHair =      { .fields = { set.battleHair.r, set.battleHair.g, set.battleHair.b, set.battleHair.a } };
 
-    // Set amount of boxes unlocked to 40
-    playerWork->fields._saveData.fields.boxData.fields.trayMax = 80;
+    // Set amount of boxes unlocked to 80
+    playerWork->fields._saveData.fields.boxData.fields.trayMax = BoxCount;
 
     Logger::log("Migration from Vanilla done!\n");
 }
