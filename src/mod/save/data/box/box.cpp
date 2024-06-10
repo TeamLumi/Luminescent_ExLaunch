@@ -53,8 +53,6 @@ void linkBoxes(PlayerWork::Object* playerWork)
     auto wallPapers = (System::Byte_array*) system_array_new(byteCls, BoxCount);
     auto newBoxData = (Dpr::Box::SaveBoxTrayData::Array*) system_array_new(saveBoxTrayCls, BoxCount);
 
-
-
     // Fill the new array with the custom save data
     for (uint64_t i=0; i<BoxCount; i++) {
         memcpy(&newBoxNames->m_Items[i], &getCustomSaveData()->boxes.boxNames[i], sizeof(Dpr::Box::SaveBoxData::_STR17::Object));
@@ -63,14 +61,11 @@ void linkBoxes(PlayerWork::Object* playerWork)
         memcpy(&newBoxData->m_Items[i], &getCustomSaveData()->boxes.pokemonParams[i], sizeof(Dpr::Box::SaveBoxTrayData::Object));
     }
 
-
-
     // Cache the data that is in the vanilla save
     auto& savedata = playerWork->fields._saveData.fields;
     cache_trayNames = savedata.boxData.fields.trayName;
     cache_wallPapers = savedata.boxData.fields.wallPaper;
     cache_boxTray = savedata.boxTray;
-
 
     // Set the data in PlayerWork to our custom save data
     savedata.boxData.fields.trayName = newBoxNames;

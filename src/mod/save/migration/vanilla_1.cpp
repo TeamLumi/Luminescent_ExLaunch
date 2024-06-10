@@ -33,6 +33,7 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
 
     auto spfCls = Pml::PokePara::SerializedPokemonFull_array_TypeInfo();
 
+    // Initializes boxes 41-80, 1-40 are copied directly from Vanilla.
     for (uint64_t i=VANILLA_BOXSIZE; i < BoxCount; i++) {
         save->boxes.boxNames[i].fields.str = System::String::Create(boxDefaultStrings[i]);
         save->boxes.wallpapers[i] = save->boxes.wallpapers[i-VANILLA_BOXSIZE+INIT_WALLPAPER_OFFSET]; // Follows exact pattern of Vanilla 1-40
@@ -42,9 +43,6 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
             serializedPokemon->m_Items[j].CreateWorkIfNeed();
         }
     }
-
-    Logger::log("[Vanilla] Box migration complete.\n");
-
 
     savedata.intValues->copyInto(save->works.items);
     savedata.boolValues->copyInto(save->flags.items);

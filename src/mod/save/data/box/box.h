@@ -8,7 +8,7 @@
 #include "externals/Pml/PokePara/SerializedPokemonFull.h"
 
 static const int64_t VANILLA_BOXSIZE = 40;
-const uint64_t INIT_WALLPAPER_OFFSET = 8;
+static const uint64_t INIT_WALLPAPER_OFFSET = 8;
 static const nn::vector<const char*> boxDefaultStrings {
         "Box 1", "Box 2", "Box 3", "Box 4", "Box 5", "Box 6", "Box 7", "Box 8", "Box 9", "Box 10",
         "Box 11", "Box 12", "Box 13", "Box 14", "Box 15", "Box 16", "Box 17", "Box 18", "Box 19", "Box 20",
@@ -117,4 +117,3 @@ void linkBoxes(PlayerWork::Object* playerWork);
 void unlinkBoxes(PlayerWork::Object* playerWork);
 void saveBoxes(bool isMain, bool isBackup);
 void relinkBoxes(PlayerWork::Object* playerWork);
-

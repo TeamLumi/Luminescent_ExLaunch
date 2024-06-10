@@ -27,7 +27,6 @@ HOOK_DEFINE_REPLACE(SetTrayMax) {
     static void Callback(int32_t max) {
         system_load_typeinfo(0x26d3);
         PlayerWork::getClass()->initIfNeeded();
-        Logger::log("[SetTrayMax] Setting max to %d.\n", max);
         auto boxData = PlayerWork::GetBoxData();
         boxData->fields.trayMax = (uint8_t) max;
     }

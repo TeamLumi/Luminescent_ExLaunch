@@ -7,8 +7,8 @@
 
 static CustomSaveData* gCustomSaveData = nullptr;
 static bool onLoadInjection; // Flag to ensure injection doesn't happen more than once.
-static bool isBackup;
-static bool migrationRequired;
+static bool isBackup; // Stores backup status during initialization to pass into post-load PlayerWork injection.
+static bool migrationRequired; // Controls where LoadBoxes() and LinkBoxes() are called.
 
 using namespace SmartPoint::Components;
 
@@ -33,9 +33,8 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             // Load version data
             loadMain(isBackup);
 
-            // Check if migration is required (Box Expansion related)
+            // Check if migration is required (Related to Box Expansion)
             migrationRequired = getCustomSaveData()->main.version < CURRENT_VERSION;
-            if (migrationRequired) Logger::log("[Migration] Migration Required.\n");
 
             /* Load all other data
              * (Lumi Boxes loaded in separate function where migration is not required) */
@@ -77,7 +76,7 @@ void injectPlayerWork() {
     auto playerWork = (PlayerWork::Object*) PlayerPrefsProvider_ViewerSettings_::get_Instance(method);
     loadBoxes(isBackup);
     linkBoxes(playerWork);
-    onLoadInjection = true;
+    onLoadInjection = true; // Safeguard to prevent further injection until game is relaunched.
 }
 
 HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
