@@ -5,12 +5,13 @@
 #include "save/save.h"
 #include "save/migration/save_migration.h"
 
+#include "externals/ViewerSettings.h"
+#include "externals/SmartPoint/Components/PlayerPrefsProvider.h"
+
 static CustomSaveData* gCustomSaveData = nullptr;
 static bool onLoadInjection; // Flag to ensure injection doesn't happen more than once.
 static bool isBackup; // Stores backup status during initialization to pass into post-load PlayerWork injection.
 static bool migrationRequired; // Controls where LoadBoxes() and LinkBoxes() are called.
-
-using namespace SmartPoint::Components;
 
 CustomSaveData* getCustomSaveData() {
     if (gCustomSaveData == nullptr)
@@ -71,9 +72,10 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
 };
 
 void injectPlayerWork() {
-    auto method = PlayerPrefsProvider_PlayerWork_::
-    Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
-    auto playerWork = (PlayerWork::Object*) PlayerPrefsProvider_ViewerSettings_::get_Instance(method);
+    auto method = SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
+            ::Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
+    auto playerWork = (PlayerWork::Object*) SmartPoint::Components::PlayerPrefsProvider<ViewerSettings>
+            ::get_Instance(method);
     loadBoxes(isBackup);
     linkBoxes(playerWork);
     onLoadInjection = true; // Safeguard to prevent further injection until game is relaunched.

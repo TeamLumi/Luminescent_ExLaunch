@@ -1,14 +1,12 @@
 #pragma once
 
 #include "il2cpp-api.h"
-#include "externals/SmartPoint/Components/PlayerPrefsProvider_ViewerSettings_.h"
 #include "UnityEngine/Color.h"
 #include "System/String.h"
-
-using namespace SmartPoint::Components;
+#include "externals/SmartPoint/Components/PlayerPrefsProvider.h"
 
 struct ViewerSettings : ILClass<ViewerSettings> {
-    struct Fields : PlayerPrefsProvider_ViewerSettings_::Fields {
+    struct Fields : SmartPoint::Components::PlayerPrefsProvider<ViewerSettings>::Fields {
         float _cameraFov;
         float _focalLength;
         float _farDepth;

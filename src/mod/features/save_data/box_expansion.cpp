@@ -1,7 +1,6 @@
 #include "exlaunch.hpp"
 #include "save/save.h"
 #include "logger/logger.h"
-#include "externals/SmartPoint/Components/PlayerPrefsProvider_ViewerSettings_.h"
 #include "externals/Dpr/UI/BoxListPanel.h"
 
 /* Hooks */
