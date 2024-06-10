@@ -4,6 +4,7 @@
 #include "BoxStatusPanel.h"
 #include "BoxTray.h"
 #include "externals/DG/Tweening/Tween.h"
+#include "externals/System/Action.h"
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
@@ -79,10 +80,10 @@ namespace Dpr::UI {
             UnityEngine::Transform::Object* _effectRoot; // 0x200
             int32_t _animStateIn; // 0x208
             int32_t _animStateOut; // 0x20C
-            void* _controlType; // 0x210
-            void* _operationType; // 0x214
-            void* _displayMode; // 0x218
-            void* _statusType; // 0x21C
+            int32_t _controlType; // 0x210
+            int32_t _operationType; // 0x214
+            int32_t _displayMode; // 0x218
+            int32_t _statusType; // 0x21C
             void* _battleTeam; // 0x220
             BoxTray::Object* _boxTray; // 0x228
             void* _navigator; // 0x230
@@ -110,17 +111,17 @@ namespace Dpr::UI {
             void* _fromNavigators; // 0x2C0
             void* _toNavigators; // 0x2C8
             void* _existSwapIndexes; // 0x2D0
-            void* _searchType; // 0x2D8
+            int32_t _searchType; // 0x2D8
             void* _searchData; // 0x2E0
             bool _isDuckOn; // 0x2E8
             void* _param; // 0x2F0
             void* _selected; // 0x2F8
-            UnityEngine::Events::UnityAction::Object* _onSelected; // 0x300
-            UnityEngine::Events::UnityAction::Object* _onDecide; // 0x308
-            UnityEngine::Events::UnityAction::Object* _onConfirm; // 0x310
-            UnityEngine::Events::UnityAction::Object* _onComplete; // 0x318
-            UnityEngine::Events::UnityAction::Object* _onCancelSelect; // 0x320
-            void* _targetLangId; // 0x328
+            System::Action::Object* _onSelected; // 0x300
+            System::Action::Object* _onDecide; // 0x308
+            System::Action::Object* _onConfirm; // 0x310
+            System::Action::Object* _onComplete; // 0x318
+            System::Action::Object* _onCancelSelect; // 0x320
+            int32_t _targetLangId; // 0x328
             UnityEngine::Coroutine::Object* _coOpen; // 0x330
             UnityEngine::Coroutine::Object* _coClose; // 0x338
             void* _modelView; // 0x340

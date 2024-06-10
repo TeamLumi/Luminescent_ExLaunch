@@ -10,8 +10,11 @@ namespace Dpr::UI {
             int32_t _arrayWidth;
             int32_t _arrayHeight;
             UnityEngine::UI::GridLayoutGroup::Object* _layout;
-
-
+            void* _leftTop;
+            void* _rightTop;
+            void* _leftBottom;
+            void* _rightBottom;
+            void* _NavigatorList_k__BackingField;
         };
     };
 }
