@@ -35,7 +35,7 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
 
     for (uint64_t i=VANILLA_BOXSIZE; i < BoxCount; i++) {
         save->boxes.boxNames[i].fields.str = System::String::Create(boxDefaultStrings[i]);
-        save->boxes.wallpapers[i] = save->boxes.wallpapers[i-VANILLA_BOXSIZE]; // Follows exact pattern of Vanilla 1-40
+        save->boxes.wallpapers[i] = save->boxes.wallpapers[i-VANILLA_BOXSIZE+INIT_WALLPAPER_OFFSET]; // Follows exact pattern of Vanilla 1-40
         auto serializedPokemon = (Pml::PokePara::SerializedPokemonFull::Array*) system_array_new(spfCls, 30);
         save->boxes.pokemonParams[i].fields.pokemonParam = serializedPokemon;
         for (uint64_t j=0; j < serializedPokemon->max_length; j++) {

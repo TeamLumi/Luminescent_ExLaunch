@@ -8,6 +8,7 @@
 #include "externals/Pml/PokePara/SerializedPokemonFull.h"
 
 static const int64_t VANILLA_BOXSIZE = 40;
+const uint64_t INIT_WALLPAPER_OFFSET = 8;
 static const nn::vector<const char*> boxDefaultStrings {
         "Box 1", "Box 2", "Box 3", "Box 4", "Box 5", "Box 6", "Box 7", "Box 8", "Box 9", "Box 10",
         "Box 11", "Box 12", "Box 13", "Box 14", "Box 15", "Box 16", "Box 17", "Box 18", "Box 19", "Box 20",
@@ -28,21 +29,6 @@ struct BoxSaveData {
     System::Byte wallpapers[size];
     Dpr::Box::SaveBoxTrayData::Object pokemonParams[size];
 
-    void Initialize() {
-        for (int32_t i=0; i<size; i++)
-        {
-            boxNames[i].fields = {
-                    .str = 0,
-            };
-
-            wallpapers[i] = 0;
-
-            pokemonParams[i].fields = {
-                    .pokemonParam = 0,
-            };
-        }
-    }
-
     long GetByteCount() {
         long count = 0;
         count += Dpr::Box::SaveBoxData::_STR17::GetByteCount()*size;
@@ -56,7 +42,6 @@ struct BoxSaveData {
         {
             void* strData = (void*)(buffer+index);
             System::String::Object* str = boxNames[i].fields.str->Truncate(16);
-            //System::String::Object* str = System::String::Create(boxDefaultStrings[i])->Truncate(16); //Todo Don't reset to default
             auto bytes = str->asUnicodeBytes();
             memcpy(strData, (void*)bytes->m_Items, Dpr::Box::SaveBoxData::_STR17::GetByteCount());
 
@@ -83,7 +68,6 @@ struct BoxSaveData {
     }
 
     long FromBytes(char* buffer, long buffer_size, long index) {
-        Logger::log("[FromBytes] Begin FromBytes()\n");
         if (buffer_size >= GetByteCount() + index)
         {
             auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(

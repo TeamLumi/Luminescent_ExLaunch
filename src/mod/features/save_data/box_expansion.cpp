@@ -1,37 +1,25 @@
 #include "exlaunch.hpp"
-
 #include "save/save.h"
-
 #include "logger/logger.h"
-
-#include "externals/Dpr/UI/BoxTray.h"
-#include "externals/Dpr/UI/BoxWindow.h"
-#include "externals/Dpr/Box/BoxWork.h"
-#include "externals/Dpr/UI/BoxInfinityScroll.h"
-#include "externals/UnityEngine/UI/GridLayoutGroup.h"
-#include "externals/Dpr/UI/BoxListPanel.h"
 #include "externals/SmartPoint/Components/PlayerPrefsProvider_ViewerSettings_.h"
-#include "externals/ViewerSettings.h"
+#include "externals/Dpr/UI/BoxListPanel.h"
 
-const int32_t boxCount = 80;
-
-using namespace Dpr::UI;
-
+/* Hooks */
 HOOK_DEFINE_REPLACE(GetOpenTrayMax) {
     static int32_t Callback() {
-        return boxCount;
+        return BoxCount;
     }
 };
 
 HOOK_DEFINE_REPLACE(UpdateTrayMax) {
     static int32_t Callback(Pml::PokePara::PokemonParam::Object* tmp_pp) {
-        return boxCount;
+        return BoxCount;
     }
 };
 
 HOOK_DEFINE_REPLACE(GetTrayMax) {
     static int32_t Callback() {
-        return boxCount;
+        return BoxCount;
     }
 };
 
@@ -45,64 +33,34 @@ HOOK_DEFINE_REPLACE(SetTrayMax) {
     }
 };
 
-HOOK_DEFINE_INLINE(SaveBoxData$$Clear) {
-    static void Callback (exl::hook::nx64::InlineCtx* ctx) {
-        auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(
-                Dpr::Box::SaveBoxData::_STR17_array_TypeInfo(), boxCount);
-        ctx->X[19] = (u64) newBoxNames;
+HOOK_DEFINE_TRAMPOLINE(BoxListPanel$$ctor) {
+    static void Callback(Dpr::UI::BoxListPanel::Object* __this) {
+        Orig(__this);
+        __this->fields._boxItemScales->m_Items[4] = 0.5f;
     }
-};
-
-HOOK_DEFINE_INLINE(BoxListPanel$$Initialize) {
-    static void Callback (exl::hook::nx64::InlineCtx* ctx) {
-        auto listPanel = (Dpr::UI::BoxListPanel::Object*) ctx->X[19];
-        auto gridLayout = listPanel->fields._grid;
-        auto cellVectorValues = (&gridLayout->fields)->m_Spacing;
-        //vectorValues.fields.x += 100.00;
-        //(&gridLayout->fields)->m_Constraint = 1;
-        //(&gridLayout->fields)->m_ConstraintCount = 8;
-        gridLayout->set_cellSize(cellVectorValues);
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(BoxListNavigate$$Initialize) {
-    static void Callback()
 };
 
 /* Assembly Patches */
-
 using namespace exl::armv8::inst;
 using namespace exl::armv8::reg;
 
-
-void PokeDupeChecker_ASM(exl::patch::CodePatcher p) {
+void Dpr_Box_BoxPokemonWork_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01996cb4, CmpImmediate(W21, boxCount)}, // $$CheckDuplicate
-
-    };
-    p.WriteInst(inst);
-}
-
-void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
-    auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01aaff64, CmpImmediate(W21, boxCount)}, // $$Initialize
-
-    };
-    p.WriteInst(inst);
-}
-
-void PlayerWork_ASM(exl::patch::CodePatcher p) {
-    auto inst = nn::vector<exl::patch::Instruction> {
-            {0x02ceb170, Movz(X1, boxCount)}, // $$Initialization
-
-    };
-    p.WriteInst(inst);
-}
-
-void Dpr_Box_SaveBoxData_ASM(exl::patch::CodePatcher p) {
-    auto inst = nn::vector<exl::patch::Instruction> {
-            { 0x01d34238, Movz(X1, boxCount)}, // $$Clear
-            { 0x01d3438c, Movz(X1, boxCount)}, // $$Clear
+            {0x01d30ba4, CmpImmediate(W24, BoxCount - 1)}, // $$MovePokemon
+            {0x01d30bac, CmpImmediate(W22, BoxCount - 1)}, // $$MovePokemon
+            {0x01d30da0, CmpImmediate(W21, BoxCount - 1)}, // $$UpdatePokemon
+            {0x01d309ec, CmpImmediate(W19, BoxCount - 1)}, // $$MovePokemon
+            {0x01d309f4, CmpImmediate(W20, BoxCount)}, // $$SwapTray
+            {0x01d31460, CmpImmediate(W20, BoxCount)}, // $$GetSpaceCountAll
+            {0x01d31468, Movz(W8, BoxCount * 30)}, // $$GetSpaceCountAll
+            {0x01d2fd90, CmpImmediate(W21, BoxCount - 1)}, // $$GetPokemon
+            {0x01d308f0, CmpImmediate(W22, BoxCount - 1)}, // $$SwapPokemon
+            {0x01d30900, CmpImmediate(W21, BoxCount)}, // $$SwapPokemon
+            {0x01d31754, CmpImmediate(W22, BoxCount)}, // $$GetSpacePos
+            {0x01d3170c, CmpImmediate(W22, BoxCount - 1)}, // $$GetSpacePos
+            {0x01d31058, CmpImmediate(W21, BoxCount)}, // $$GetPokemonCountAll
+            {0x01d3106c, CmpImmediate(W21, BoxCount)}, // $$GetPokemonCountAll
+            {0x01d30da0, CmpImmediate(W21, BoxCount - 1)}, // $$ClearPokemon
 
     };
     p.WriteInst(inst);
@@ -110,28 +68,46 @@ void Dpr_Box_SaveBoxData_ASM(exl::patch::CodePatcher p) {
 
 void Dpr_Box_BoxWork_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01d32370, CmpImmediate(W19, boxCount)}, // $$GetTrayName
-            {0x01d33f20, CmpImmediate(W19, boxCount)}, // $$GetWallPaper
-            {0x01d33e78, CmpImmediate(W20, boxCount)}, // $$SetWallPaper
-            {0x01d32438, CmpImmediate(W0, boxCount - 1)}, // $$ChangePokemon
-            {0x01d32448, CmpImmediate(W2, boxCount)}, // $$ChangePokemon
+            {0x01d32370, CmpImmediate(W19, BoxCount)}, // $$GetTrayName
+            {0x01d33f20, CmpImmediate(W19, BoxCount)}, // $$GetWallPaper
+            {0x01d33e78, CmpImmediate(W20, BoxCount)}, // $$SetWallPaper
+            {0x01d32438, CmpImmediate(W0, BoxCount - 1)}, // $$ChangePokemon
+            {0x01d32448, CmpImmediate(W2, BoxCount)}, // $$ChangePokemon
+            {0x01d322b0, CmpImmediate(W1, BoxCount)}, // $$SetTrayName
+            {0x01d320d0, CmpImmediate(W0, BoxCount - 1)}, // $$ChangeTeam
+            {0x01d320dc, CmpImmediate(W1, BoxCount - 1)}, // $$ChangeTeam
+            {0x01d33064, CmpImmediate(W0, BoxCount - 1)}, // $$DeleteTeam
+            {0x01d32c60, CmpImmediate(W0, BoxCount - 1)}, // $$GetPokeTeamPos
+            {0x01d32b00, CmpImmediate(W0, BoxCount - 1)}, // $$IsPokeTeam
+            {0x01d32988, CmpImmediate(W0, BoxCount - 1)}, // $$IsTeam
+            {0x01d32a10, CmpImmediate(W0, BoxCount - 1)}, // $$IsTeamPos
+            {0x01d33b20, CmpImmediate(W2, BoxCount - 1)}, // $$SetTeamPokePos
 
     };
     p.WriteInst(inst);
 }
 
-void Dpr_Box_BoxPokemonWork_ASM(exl::patch::CodePatcher p) {
+void Dpr_Box_SaveBoxData_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01d30ba4, CmpImmediate(W24, boxCount - 1)}, // $$MovePokemon
-            {0x01d30bac, CmpImmediate(W22, boxCount - 1)}, // $$MovePokemon
-            {0x01d30da0, CmpImmediate(W21, boxCount - 1)}, // $$UpdatePokemon
-            {0x01d309ec, CmpImmediate(W19, boxCount - 1)}, // $$MovePokemon
-            {0x01d309f4, CmpImmediate(W20, boxCount)}, // $$SwapTray
-            {0x01d31460, CmpImmediate(W20, boxCount)}, // $$GetSpaceCountAll
-            {0x01d31468, Movz(W8, boxCount * 30)}, // $$GetSpaceCountAll
-            {0x01d2fd90, CmpImmediate(W21, boxCount - 1)}, //$$GetPokemon
-            {0x01d308f0, CmpImmediate(W22, boxCount - 1)}, //$$SwapPokemon
-            {0x01d30900, CmpImmediate(W21, boxCount)}, //$$SwapPokemon
+            { 0x01d34238, Movz(X1, BoxCount)}, // $$Clear
+            { 0x01d3438c, Movz(X1, BoxCount)}, // $$Clear
+
+    };
+    p.WriteInst(inst);
+}
+
+void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
+    auto inst = nn::vector<exl::patch::Instruction> {
+            {0x01aaff64, CmpImmediate(W21, BoxCount)}, // $$Initialize
+
+    };
+    p.WriteInst(inst);
+}
+
+void PlayerWork_ASM(exl::patch::CodePatcher p) {
+    auto inst = nn::vector<exl::patch::Instruction> {
+            {0x02ceb170, Movz(X1, BoxCount)}, // $$Initialization
+
     };
     p.WriteInst(inst);
 }
@@ -143,83 +119,13 @@ void exl_save_box_expansion_main() {
     Dpr_Box_BoxPokemonWork_ASM(p);
     Dpr_Box_BoxWork_ASM(p);
     Dpr_Box_SaveBoxData_ASM(p);
-    PlayerWork_ASM(p);
     Dpr_UI_BoxListPanel_ASM(p);
-    //PokeDupeChecker_ASM(p);
+    PlayerWork_ASM(p);
 
     /* Install Hooks */
     UpdateTrayMax::InstallAtOffset(0x01d317f0);
     GetOpenTrayMax::InstallAtOffset(0x01d30190);
     GetTrayMax::InstallAtOffset(0x01d30610);
     SetTrayMax::InstallAtOffset(0x01d31a60);
-
-    //SaveBoxData$$Clear::InstallAtOffset(0x01d34244);
-    BoxListPanel$$Initialize::InstallAtOffset(0x01aaffc4);
-    //GetPokemon::InstallAtOffset(0x01d2fd50);
-
-
-
-    // Patch box limit checks
-    /*using namespace exl::armv8::inst;
-    using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
-    auto inst = nn::vector {
-        // Dpr.Box.BoxPokemonWork
-        std::make_pair<uint32_t, Instruction>(0x01d2fd90, CmpImmediate(W21, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d31058, CmpImmediate(W21, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d3106c, CmpImmediate(W21, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d31394, CmpImmediate(W21, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d3139c, Movz(W8, BoxCount * 30)),
-        std::make_pair<uint32_t, Instruction>(0x01d31460, CmpImmediate(W20, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d31468, Movz(W8, BoxCount * 30)),
-        std::make_pair<uint32_t, Instruction>(0x01d3170c, CmpImmediate(W22, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d31754, CmpImmediate(W22, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d30ba4, CmpImmediate(W24, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d30bac, CmpImmediate(W22, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d3010c, CmpImmediate(W23, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d30150, CmpImmediate(W23, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d31c30, CmpImmediate(W20, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d308f0, CmpImmediate(W22, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d30900, CmpImmediate(W21, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d309ec, CmpImmediate(W19, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d309f4, CmpImmediate(W20, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d30da0, CmpImmediate(W21, BoxCount - 1)),
-
-        // Dpr.Box.BoxWork
-        std::make_pair<uint32_t, Instruction>(0x01d32438, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d32448, CmpImmediate(W2, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d320d0, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d320dc, CmpImmediate(W1, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d33064, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d32c60, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d30610, Movz(X0, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d32370, CmpImmediate(W0, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d33f20, CmpImmediate(W0, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d32b00, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d32988, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d32a10, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d335c0, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d33600, CmpImmediate(W0, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d33b20, CmpImmediate(W2, BoxCount - 1)),
-        std::make_pair<uint32_t, Instruction>(0x01d31a6c, Nop()),
-        std::make_pair<uint32_t, Instruction>(0x01d31a70, Nop()),
-        std::make_pair<uint32_t, Instruction>(0x01d31a8c, Nop()),
-        std::make_pair<uint32_t, Instruction>(0x01d31a90, Nop()),
-        std::make_pair<uint32_t, Instruction>(0x01d322b0, CmpImmediate(W1, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01d33e78, CmpImmediate(W0, BoxCount)),
-
-        // Dpr.UI.BoxListPanel
-        std::make_pair<uint32_t, Instruction>(0x01aaff54, CmpImmediate(W21, BoxCount)),
-        std::make_pair<uint32_t, Instruction>(0x01aaff7c, Movz(W28, 4)),
-
-        std::make_pair<uint32_t, Instruction>(0x01ab1cec, Movz(W25, BoxCount)),
-    };
-    p.WriteInst(inst);
-
-    // Hardcode to always be considered to have "max" boxes (disables upgrades)
-    p.Seek(0x01d3185c);
-    p.WriteInst(CmpImmediate(W20, 0));*/
-
-    // Double-check lVar7 in Dpr.Box.BoxPokemonWork$$SwapTray, weird numbers?
-    // Double-check Dpr.Box.SaveBoxData$$Clear, see if I need to overwrite the array sizes
+    BoxListPanel$$ctor::InstallAtOffset(0x01ab0630);
 }

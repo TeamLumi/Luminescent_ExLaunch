@@ -6,7 +6,9 @@
 #include "save/migration/save_migration.h"
 
 static CustomSaveData* gCustomSaveData = nullptr;
-static bool onLoadInjection = false; // Flag to ensure injection doesn't happen more than once.
+static bool onLoadInjection; // Flag to ensure injection doesn't happen more than once.
+static bool isBackup;
+static bool migrationRequired;
 
 using namespace SmartPoint::Components;
 
@@ -17,21 +19,11 @@ CustomSaveData* getCustomSaveData() {
     return gCustomSaveData;
 }
 
-void injectPlayerWork() {
-    auto method = PlayerPrefsProvider_PlayerWork_::
-            Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
-    auto playerWork = (PlayerWork::Object*) PlayerPrefsProvider_ViewerSettings_::get_Instance(method);
-    bool isBackup = playerWork->fields._isBackupSave;
-    loadBoxes(isBackup);
-    linkBoxes(playerWork);
-    onLoadInjection = true;
-}
-
 HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
     static bool Callback(PlayerWork::Object* playerWork) {
         bool success = Orig(playerWork);
 
-        bool isBackup = playerWork->fields._isBackupSave;
+        isBackup = playerWork->fields._isBackupSave;
 
         if (success)
         {
@@ -41,7 +33,12 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             // Load version data
             loadMain(isBackup);
 
-            // Load all other data (Lumi Boxes loaded in separate function)
+            // Check if migration is required (Box Expansion related)
+            migrationRequired = getCustomSaveData()->main.version < CURRENT_VERSION;
+            if (migrationRequired) Logger::log("[Migration] Migration Required.\n");
+
+            /* Load all other data
+             * (Lumi Boxes loaded in separate function where migration is not required) */
             loadZukan(isBackup);
             loadWorks(isBackup);
             loadFlags(isBackup);
@@ -50,13 +47,13 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             loadItems(isBackup);
             loadBerries(isBackup);
             loadColorVariations(isBackup);
-
+            if (migrationRequired) loadBoxes(isBackup);
 
             // Perform migration loop
             migrate(playerWork);
 
             /* Put our custom-length data into PlayerWork for the game to access
-             * (Lumi Boxes linked in separate function) */
+             * (Lumi Boxes linked in separate function where migration is not required) */
             linkZukan(playerWork);
             linkWorks(playerWork);
             linkFlags(playerWork);
@@ -65,19 +62,28 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             linkItems(playerWork);
             linkBerries(playerWork);
             linkColorVariations(playerWork);
+            if (migrationRequired) linkBoxes(playerWork);
         }
 
         playerWork->fields._isBackupSave = false;
-
 
         return success;
     }
 };
 
+void injectPlayerWork() {
+    auto method = PlayerPrefsProvider_PlayerWork_::
+    Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
+    auto playerWork = (PlayerWork::Object*) PlayerPrefsProvider_ViewerSettings_::get_Instance(method);
+    loadBoxes(isBackup);
+    linkBoxes(playerWork);
+    onLoadInjection = true;
+}
+
 HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
     static void Callback(PlayerWork::Object* playerWork, void* param_2, void* param_3, void* param_4) {
         bool isMain = playerWork->fields._isMainSave;
-        bool isBackup = playerWork->fields._isBackupSave;
+        isBackup = playerWork->fields._isBackupSave;
 
         // Remove the custom-length PlayerWork data with the vanilla save's
         unlinkZukan(playerWork);
@@ -130,7 +136,7 @@ HOOK_DEFINE_REPLACE(PatchExistingSaveData__Verify) {
 
 HOOK_DEFINE_TRAMPOLINE(FieldCanvas$$Start) {
     static void Callback(void* __this) {
-        if (!onLoadInjection) {
+        if (!onLoadInjection && !migrationRequired) {
             injectPlayerWork();
         }
         Orig(__this);
