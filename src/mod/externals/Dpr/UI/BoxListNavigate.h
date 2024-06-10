@@ -10,7 +10,7 @@ namespace Dpr::UI {
             int32_t _arrayWidth;
             int32_t _arrayHeight;
             UnityEngine::UI::GridLayoutGroup::Object* _layout;
-            
+
 
         };
     };

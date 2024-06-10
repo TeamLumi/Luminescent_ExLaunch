@@ -2,6 +2,7 @@
 #include "externals/il2cpp-api.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/UI/GridLayoutGroup.h"
+#include "externals/System/Primitives.h"
 
 namespace Dpr::UI {
     struct BoxListPanel : ILClass<BoxListPanel> {
@@ -13,7 +14,7 @@ namespace Dpr::UI {
             int32_t _step;
             float _openPosX;
             float _closePosX;
-            void* _boxItemScales;
+            System::Single_array* _boxItemScales;
             int32_t _SelectedIndex_k__BackingField;
         };
     };

@@ -1,5 +1,6 @@
 #pragma once
 #include "externals/il2cpp-api.h"
+#include "LayoutGroup.h"
 
 namespace UnityEngine::UI {
     struct GridLayoutGroup : ILClass<GridLayoutGroup> {
