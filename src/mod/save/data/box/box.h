@@ -9,16 +9,6 @@
 
 static const int64_t VANILLA_BOXSIZE = 40;
 static const uint64_t INIT_WALLPAPER_OFFSET = 8;
-static const nn::vector<const char*> boxDefaultStrings {
-        "Box 1", "Box 2", "Box 3", "Box 4", "Box 5", "Box 6", "Box 7", "Box 8", "Box 9", "Box 10",
-        "Box 11", "Box 12", "Box 13", "Box 14", "Box 15", "Box 16", "Box 17", "Box 18", "Box 19", "Box 20",
-        "Box 21", "Box 22", "Box 23", "Box 24", "Box 25", "Box 26", "Box 27", "Box 28", "Box 29", "Box 30",
-        "Box 31", "Box 32", "Box 33", "Box 34", "Box 35", "Box 36", "Box 37", "Box 38", "Box 39", "Box 40",
-        "Box 41", "Box 42", "Box 43", "Box 44", "Box 45", "Box 46", "Box 47", "Box 48", "Box 49", "Box 50",
-        "Box 51", "Box 52", "Box 53", "Box 54", "Box 55", "Box 56", "Box 57", "Box 58", "Box 59", "Box 60",
-        "Box 61", "Box 62", "Box 63", "Box 64", "Box 65", "Box 66", "Box 67", "Box 68", "Box 69", "Box 70",
-        "Box 71", "Box 72", "Box 73", "Box 74", "Box 75", "Box 76", "Box 77", "Box 78", "Box 79", "Box 80"
-};
 
 template <int32_t size>
 struct BoxSaveData {
