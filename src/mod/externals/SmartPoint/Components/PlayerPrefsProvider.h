@@ -2,8 +2,9 @@
 
 #include "externals/il2cpp-api.h"
 
+
 // Forward declaration to avoid circular dependencies
-struct ViewerSettings;
+struct PlayerWork;
 
 namespace SmartPoint::Components {
     template <typename T>
@@ -12,7 +13,7 @@ namespace SmartPoint::Components {
             bool _loaded;
         };
 
-        static inline StaticILMethod<0x04c90330, ViewerSettings>
+        static inline StaticILMethod<0x04c90330, PlayerWork>
                 Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
 
         static inline typename T::Object* get_Instance(ILMethod<T>& method) {

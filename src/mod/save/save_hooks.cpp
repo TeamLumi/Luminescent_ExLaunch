@@ -74,7 +74,7 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
 void injectPlayerWork() {
     auto method = SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
             ::Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
-    auto playerWork = (PlayerWork::Object*) SmartPoint::Components::PlayerPrefsProvider<ViewerSettings>
+    auto playerWork = (PlayerWork::Object*) SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
             ::get_Instance(method);
     loadBoxes(isBackup);
     linkBoxes(playerWork);
