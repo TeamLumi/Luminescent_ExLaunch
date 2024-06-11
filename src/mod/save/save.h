@@ -24,11 +24,13 @@ constexpr int32_t SysFlagCount = 15000;
 constexpr int32_t TrainerCount = 10000;
 constexpr int32_t SaveItemCount = 10000;
 constexpr int32_t BerryCount = 1000;
+constexpr int32_t BoxCount = 80;
 
 struct CustomSaveData {
     MainSaveData main;
     // ONLY MAKE MODIFICATIONS TO THE SIZE/COUNT ARGUMENTS, OTHERWISE YOU WILL BREAK SAVE COMPATIBILITY
     DexSaveData<DexSize> dex;
+    BoxSaveData<BoxCount> boxes;
     WorkSaveData<WorkCount> works;
     FlagSaveData<FlagCount> flags;
     SysFlagSaveData<SysFlagCount> sysflags;
