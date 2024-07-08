@@ -33,8 +33,19 @@ namespace XLSXContent {
             };
         };
 
+        struct SheetUIWindow : ILClass<SheetUIWindow> {
+            struct Fields {
+                int32_t WindowAnimId;
+                System::String::Object* AssetBundleName;
+                System::String::Object* AssetName;
+                bool Resident;
+                int32_t UiCameraMode;
+                bool Firstload;
+            };
+        };
+
         struct Fields : UnityEngine::ScriptableObject::Fields {
-            void* UIWindow; // XLSXContent_UIDatabase_SheetUIWindow_array*
+            SheetUIWindow::Array* UIWindow;
             void* Transition; // XLSXContent_UIDatabase_SheetTransition_array*
             void* SpriteAtlas; // XLSXContent_UIDatabase_SheetSpriteAtlas_array*
             void* SharedSprite; // XLSXContent_UIDatabase_SheetSharedSprite_array*

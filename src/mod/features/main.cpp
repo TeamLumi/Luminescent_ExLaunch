@@ -88,6 +88,8 @@ void CallFeatureHooks()
         exl_wild_held_items_main();
     if (IsActivatedFeature(array_index(FEATURES, "Contest NPC Forms")))
         exl_contest_npc_forms_main();
+    if (IsActivatedFeature(array_index(FEATURES, "More UI")))
+        exl_more_ui_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
@@ -144,6 +146,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Wild Forms"));
     SetActivatedFeature(array_index(FEATURES, "Wild Held Item Rates"));
     SetActivatedFeature(array_index(FEATURES, "Contest NPC Forms"));
+    SetActivatedFeature(array_index(FEATURES, "More UI"));
 
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Battle Bundles in UI"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Boutique Models"));

@@ -3,27 +3,70 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/UI/UIModelViewController.h"
-#include "externals/Dpr/UI/UIWazaManage.h"
+
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/System/Action.h"
 #include "externals/System/Func.h"
-#include "externals/UIWindowID.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "externals/UnityEngine/Transform.h"
 #include "externals/XLSXContent/UIDatabase.h"
+#include "externals/UIWindowID.h"
+#include "externals/System/Collections/IEnumerator.h"
 
 namespace Dpr::UI {
+    struct UIWindow;
+
     struct ShopBoutiqueChange;
+    struct UIWazaManage;
+    struct BattleTowerRecordWindow;
+    struct BoxWindow;
 }
 
 namespace Dpr::UI {
     struct UIManager : ILClass<UIManager, 0x04c5cc28> {
+        struct UIInstance : ILClass<UIInstance> {
+            struct Fields {
+                UIWindow* _uiWindow;
+                UIWindowID _windowId;
+            };
+        };
+
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             UnityEngine::Transform::Object* _activeRoot;
             Dpr::UI::UIModelViewController::Object* _modelView;
             UnityEngine::Transform::Object* _blurBgRoot;
             XLSXContent::UIDatabase::Object* _mdUis;
-            char todo[240];
+            void* _mdTownmapGuide;
+            void* _mdTownmap;
+            void* _mdDistribution;
+            void* _mdPlaceName;
+            void* _mdInputLimit;
+            void* _inputLimitHashSets;
+            void* _mdSearchIndexData;
+            void* _spriteMonsterBallDict;
+            void* _spriteMonsterBallStrange;
+            void* _spriteMonsterBallIllegal;
+            void* _spriteAtlasParams;
+            void* _keyguide;
+            int32_t _InitializeStateBits;
+            UnityEngine::Events::UnityAction::Object* onXMenuClosed;
+            bool _fureaiLimit;
+            void* _objectPool;
+            void* _objectPoolTransition;
+            void* _transitionInstances;
+            int32_t _transitionId;
+            bool _isFadeTransition;
+            void* _cacheSpritePokemons;
+            void* _blurBg;
+            void* _blurBgParam;
+            float _debugInstrument;
+            System::String::Array* _databaseAssetBundleNames;
+            bool _isLoadedDatabase;
+            void* _atlasSpriteDict;
+            System::String::Object* _assetPathIndexdata;
+            void* _transitionWindowIds;
+            void* _xMenu;
+            void* _nowLoadingController;
         };
 
         struct StaticFields {
@@ -59,7 +102,12 @@ namespace Dpr::UI {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$UIManager$$get_Instance);
         }
 
+        static inline StaticILMethod<0x04c8ff28, Dpr::UI::BattleTowerRecordWindow> Method$$CreateUIWindow_BattleTowerRecordWindow_ {};
+
+        static inline StaticILMethod<0x04c8ff30, Dpr::UI::BoxWindow> Method$$CreateUIWindow_BoxWindow_ {};
+
         static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow_ShopBoutiqueChange_ {};
+
         static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow_UIWazaManage_ {};
 
         static inline StaticILMethod<0x04c90130, Dpr::UI::UIWindow> Method$$GetCurrentUIWindow_UIWindow_ {};
@@ -80,6 +128,11 @@ namespace Dpr::UI {
 
         inline void LoadSpritePokemon(int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
             return external<void>(0x017c3ef0, this, monsNo, formNo, sex, rareType, isEgg, onComplete);
+        }
+
+        inline System::Collections::IEnumerator::Object* OpLoadWindows(
+                System::Collections::Generic::List$$int32_t::Object* windowIDs, bool isVariant) {
+            return external<System::Collections::IEnumerator::Object*>(0x017b0380, this, windowIDs, isVariant);
         }
     };
 }

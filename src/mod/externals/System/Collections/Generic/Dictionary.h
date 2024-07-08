@@ -2,11 +2,12 @@
 
 #include "externals/il2cpp-api.h"
 #include "externals/System/Primitives.h"
+#include "externals/System/String.h"
 
 namespace System::Collections::Generic {
     template <typename T, typename K, typename V>
-    struct Dictionary : IlClass<T> {
-        struct Entry : IlStruct<Entry> {
+    struct Dictionary : ILClass<T> {
+        struct Entry : ILStruct<Entry> {
             struct Fields {
                 int32_t hashCode;
                 int32_t next;

@@ -77,4 +77,6 @@ enum class UIWindowID : int32_t {
     TVRANKING = 71,
     YUNION = 72,
     UNION_RECODE_MATCHING = 73,
+    BATTLEHALL_RECORD = 74,
+    BATTLEHALL_TYPE_SELECT = 75,
 };

@@ -15,7 +15,7 @@ namespace ui {
                     _.label = "Flag";
                     _.min = 0;
                     _.max = FlagCount;
-                    _.value = 0;
+                    _.value = 2999;
                 });
 
                 auto *flagValue = _.Checkbox([](Checkbox &_) {

@@ -4,6 +4,10 @@
 #include "externals/il2cpp-api.h"
 #include "externals/System/MulticastDelegate.h"
 
+namespace Dpr::UI {
+    struct UIWindow;
+}
+
 namespace UnityEngine::Events {
     struct UnityAction : ILClass<UnityAction> {
         struct Fields : System::MulticastDelegate::Fields {
@@ -12,6 +16,9 @@ namespace UnityEngine::Events {
 
         static const inline long bool_String_TypeInfo = 0x04c5ee10;
         static const inline long void_TypeInfo = 0x04c57230;
+        static const inline long UIWindow_TypeInfo = 0x04c59e60;
+
+        static inline StaticILMethod<0x04c7d008> Method$$Dpr_EvScript_EvDataManager__EvCmdBTowerAppSetProc__b__1143_0 {};
 
 
         template <typename T, typename... Args>

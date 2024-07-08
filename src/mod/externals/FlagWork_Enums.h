@@ -1787,6 +1787,8 @@ enum class FlagWork_Flag : int32_t {
 
     FLAG_CYRUS_SPEAR_PILLAR = 2770,
 
+    FLAG_UI_WINDOW_SWITCH = 2999,
+
     FLAG_END_SAVE_SIZE = 4000,
 };
 

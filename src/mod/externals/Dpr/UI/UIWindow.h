@@ -4,6 +4,7 @@
 
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
+#include "externals/Dpr/UI/UIManager.h"
 
 namespace Dpr::UI {
     struct UIWindow : ILClass<UIWindow> {
@@ -15,7 +16,7 @@ namespace Dpr::UI {
             int32_t _transitionFadeType;
             int32_t _prevWindowId;
             void* _messageWindow;
-            void* instance;
+            UIManager::UIInstance::Object* instance;
             UnityEngine::Events::UnityAction::Object* onClosed;
             UnityEngine::Events::UnityAction::Object* onPreClose;
             bool _IsClosing_k__BackingField;

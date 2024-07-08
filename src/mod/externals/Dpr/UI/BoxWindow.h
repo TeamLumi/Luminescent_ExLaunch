@@ -7,7 +7,7 @@
 #include "externals/System/Action.h"
 
 namespace Dpr::UI {
-    struct BoxWindow : ILClass<BoxWindow> {
+    struct BoxWindow : ILClass<BoxWindow, 0x04c5ca38> {
         struct __c__DisplayClass200_0 : ILClass<__c__DisplayClass200_0> {
             struct Fields {
                 BoxWindow::Object* __4__this;

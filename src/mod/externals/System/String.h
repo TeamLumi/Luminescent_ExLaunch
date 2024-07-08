@@ -4,8 +4,16 @@
 
 #include "memory/string.h"
 #include "externals/System/Collections/Generic/List.h"
+#include "externals/System/Collections/Generic/Dictionary.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/Text/Encoding.h"
+
+
+namespace SmartPoint::AssetAssistant {
+    struct AssetBundleDownloadManifest;
+
+    struct AssetBundleRecord;
+}
 
 namespace System {
     struct String : ILClass<String> {
@@ -95,5 +103,21 @@ namespace System::Collections::Generic {
     struct List$$String : List<List$$String, System::String> {
         static inline StaticILMethod<0x04c8a528> Method$$Add {};
         static inline StaticILMethod<0x04c8a538> Method$$Clear {};
+    };
+
+    struct Dictionary$$String__AssetBundleDownloadManifest : Dictionary<Dictionary$$String__AssetBundleDownloadManifest, System::String, SmartPoint::AssetAssistant::AssetBundleDownloadManifest> {
+
+        static inline StaticILMethod<0x04bf1eb0> Method$$get_Values {};
+
+        inline long get_Values() {
+            return external<long>(0x02880ea0, this, Method$$get_Values);
+        }
+
+    };
+
+    struct Dictionary$$String__AssetBundleRecord : Dictionary<Dictionary$$String__AssetBundleRecord, System::String, SmartPoint::AssetAssistant::AssetBundleRecord> {
+
+        static inline StaticILMethod<0x04c6ee18> Method$$TryGetValue {};
+
     };
 }
