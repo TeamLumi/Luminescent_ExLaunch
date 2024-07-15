@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 
 struct ZukanWork : ILClass<ZukanWork> {
@@ -17,7 +18,7 @@ struct ZukanWork : ILClass<ZukanWork> {
         return external<void>(0x017dc560, mons, get);
     }
 
-    static inline void AddLangFlag(uint32_t monsno,int32_t msglang) {
+    static inline void AddLangFlag(uint32_t monsno, Dpr::Message::MessageEnumData::MsgLangId msglang) {
         return external<void>(0x017dc870, monsno, msglang);
     }
 };

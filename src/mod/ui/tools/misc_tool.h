@@ -1,8 +1,9 @@
 #pragma once
 
 #include "data/species.h"
-#include "externals/ZukanWork.h"
 #include "externals/DPData/Form_Enums.h"
+#include "externals/Dpr/Message/MessageEnumData.h"
+#include "externals/ZukanWork.h"
 #include "ui/base/collapsing_header.h"
 #include "ui/base/element.h"
 #include "ui/ui.h"
@@ -43,9 +44,16 @@ namespace ui {
                             ZukanWork::SetPoke(i, 3, 1, 0, true);
                             ZukanWork::SetPoke(i, 3, 0, 0, false);
                             ZukanWork::SetPoke(i, 3, 1, 0, false);
-                            ZukanWork::AddLangFlag(i, 4);
-                            ZukanWork::AddLangFlag(i, 3);
-                            ZukanWork::AddLangFlag(i, 2);
+
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::JPN);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::USA);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::FRA);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::ITA);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::DEU);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::ESP);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::KOR);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::SCH);
+                            ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::TCH);
 
                             if (i == array_index(SPECIES, "Unown")) {
                                 for (int j=1; j<=(int)UnownForm::MAX; j++) {
