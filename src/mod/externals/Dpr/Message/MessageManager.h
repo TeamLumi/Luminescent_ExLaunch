@@ -6,7 +6,7 @@
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 
 namespace Dpr::Message {
-    struct MessageManager : ILClass<MessageManager> {
+    struct MessageManager : ILClass<MessageManager, 0x04c5fe18> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields{
             void* msbtLoader; //Dpr_Message_MsgDataFileLoader_o*
             void* dataModel; //Dpr_Message_MessageDataModel_o*
@@ -24,6 +24,10 @@ namespace Dpr::Message {
 
         inline Dpr::Message::MessageGlossaryParseDataModel::Object* GetNameMessageDataModel(System::String::Object* fileName, int32_t labelIndex) {
             return external<Dpr::Message::MessageGlossaryParseDataModel::Object*>(0x02109230, this, fileName, labelIndex);
+        }
+
+        inline int32_t get_UserLanguageID() {
+            return external<int32_t>(0x0210a0a0, this);
         }
     };
 }

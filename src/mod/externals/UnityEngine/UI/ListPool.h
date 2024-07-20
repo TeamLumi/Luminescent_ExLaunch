@@ -22,7 +22,7 @@ namespace UnityEngine::UI {
 
         template <typename L>
         static void Release(L* obj, ILMethod<L>& method) {
-            return external<void>(0x0254afa0, obj, *method);
+            external<void>(0x0254afa0, obj, *method);
         }
     };
 }
