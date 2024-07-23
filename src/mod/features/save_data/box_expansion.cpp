@@ -22,15 +22,6 @@ HOOK_DEFINE_REPLACE(GetTrayMax) {
     }
 };
 
-HOOK_DEFINE_REPLACE(SetTrayMax) {
-    static void Callback(int32_t max) {
-        system_load_typeinfo(0x26d3);
-        PlayerWork::getClass()->initIfNeeded();
-        auto boxData = PlayerWork::GetBoxData();
-        boxData->fields.trayMax = (uint8_t) max;
-    }
-};
-
 HOOK_DEFINE_TRAMPOLINE(BoxListPanel$$ctor) {
     static void Callback(Dpr::UI::BoxListPanel::Object* __this) {
         Orig(__this);
@@ -102,14 +93,6 @@ void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
     p.WriteInst(inst);
 }
 
-void PlayerWork_ASM(exl::patch::CodePatcher p) {
-    auto inst = nn::vector<exl::patch::Instruction> {
-            {0x02ceb170, Movz(X1, BoxCount)}, // $$Initialization
-
-    };
-    p.WriteInst(inst);
-}
-
 void exl_save_box_expansion_main() {
     exl::patch::CodePatcher p(0);
 
@@ -118,12 +101,10 @@ void exl_save_box_expansion_main() {
     Dpr_Box_BoxWork_ASM(p);
     Dpr_Box_SaveBoxData_ASM(p);
     Dpr_UI_BoxListPanel_ASM(p);
-    PlayerWork_ASM(p);
 
     /* Install Hooks */
     UpdateTrayMax::InstallAtOffset(0x01d317f0);
     GetOpenTrayMax::InstallAtOffset(0x01d30190);
     GetTrayMax::InstallAtOffset(0x01d30610);
-    SetTrayMax::InstallAtOffset(0x01d31a60);
     BoxListPanel$$ctor::InstallAtOffset(0x01ab0630);
 }
