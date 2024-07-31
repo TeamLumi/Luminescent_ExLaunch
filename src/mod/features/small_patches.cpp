@@ -19,7 +19,7 @@ HOOK_DEFINE_TRAMPOLINE(FriendshipFlag) {
 
 HOOK_DEFINE_REPLACE(ExpShareFlag) {
     static bool Callback() {
-        return FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE);
+        return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE);
     }
 };
 
