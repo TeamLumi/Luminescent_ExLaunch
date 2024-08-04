@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/Battle/View/UI/BattleViewUICanvasBase.h"
 #include "externals/UnityEngine/GameObject.h"
+#include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
 
 namespace Dpr::Battle::View::UI {
     struct BUIActionList : ILClass<BUIActionList> {
@@ -12,7 +13,7 @@ namespace Dpr::Battle::View::UI {
             void* _pokeBallButton;
             void* _situationButton;
             void* _buttonLayout;
-            void* _actionButtons;
+            System::Collections::Generic::List$$BUIActionSelectButton::Object* _actionButtons;
             bool _isBallEnable;
             bool _needOpenBallWindow;
             bool _isSafari;
@@ -22,5 +23,9 @@ namespace Dpr::Battle::View::UI {
             bool _IsReturnable_k__BackingField;
             int32_t _Result_k__BackingField;
         };
+
+        inline void PreparaNext(bool isForward) {
+            external<void>(0x01e8c380, this, isForward);
+        }
     };
 }

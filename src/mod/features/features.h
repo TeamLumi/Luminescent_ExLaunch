@@ -83,6 +83,9 @@ void exl_language_select_main();
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
 
+//
+void exl_madrid_ui_main();
+
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
 
