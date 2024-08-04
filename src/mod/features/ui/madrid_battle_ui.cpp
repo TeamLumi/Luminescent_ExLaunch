@@ -7,6 +7,7 @@
 #include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
 #include "externals/Dpr/UI/Cursor.h"
 #include "externals/Dpr/MsgWindow/MsgWindowManager.h"
+#include "helpers/InputHelper.h"
 
 #include "logger/logger.h"
 
@@ -35,22 +36,22 @@ HOOK_DEFINE_REPLACE(OnUpdate) {
 
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
+        if (InputHelper::isPressPadUp()) {
             Logger::log("[OnUpdate] Moves\n");
             ArrowMovement(__this, 0);
         }
 
-        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true)) {
+        else if (InputHelper::isPressPadLeft()) {
             Logger::log("[OnUpdate] Pokemon\n");
             ArrowMovement(__this, 1);
         }
 
-        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true)) {
+        else if (InputHelper::isPressPadRight()) {
             Logger::log("[OnUpdate] Bag\n");
             ArrowMovement(__this, 2);
         }
 
-        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true)) {
+        else if (InputHelper::isPressPadDown()) {
             Logger::log("[OnUpdate] Run\n");
             ArrowMovement(__this, 3);
         }
