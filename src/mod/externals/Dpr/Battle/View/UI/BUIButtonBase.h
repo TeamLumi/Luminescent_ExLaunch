@@ -8,7 +8,6 @@
 
 
 namespace Dpr::Battle::View::UI {
-    struct BUIActionSelectButton;
 
     template <typename T>
     struct BUIButtonBase : ILClass<T> {
@@ -16,11 +15,11 @@ namespace Dpr::Battle::View::UI {
             UnityEngine::UI::Image::Object* _backgroundImage;
             UnityEngine::UI::Image::Object* _foregroundImage;
             TMPro::TextMeshProUGUI::Object* _text;
-            int32_t index;
-            int32_t transition;
+            int32_t _index;
+            int32_t _transition;
             int32_t _state;
             bool _isSelected;
-            bool isEnabele;
+            bool _isEnabele;
             UnityEngine::RectTransform::Object* _cachedRectTransform;
             System::Action::Object* _onSelected;
             System::Action::Object* _onSubmit;

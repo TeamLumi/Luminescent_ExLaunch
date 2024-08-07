@@ -8,6 +8,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SwapItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 
 namespace Dpr::Battle::Logic {
     struct Common : ILClass<Common, 0x04c5ad48> {
@@ -45,6 +46,10 @@ namespace Dpr::Battle::Logic {
 
         static inline void SetWazaEffectIndex(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_SetWazaEffectIndex::Description::Object** desc) {
             external<void>(0x01d0cb40, args, desc);
+        }
+
+        static inline void FormChange(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FormChange::Description::Object** desc) {
+            external<void>(0x01d0cab0, args, desc);
         }
     };
 }

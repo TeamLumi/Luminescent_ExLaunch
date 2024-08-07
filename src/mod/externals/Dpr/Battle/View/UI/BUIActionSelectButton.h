@@ -6,7 +6,7 @@
 
 namespace Dpr::Battle::View::UI {
     struct BUIActionSelectButton : ILClass<BUIActionSelectButton> {
-        struct Fields : BUIButtonBase<BUIActionSelectButton> {
+        struct Fields : BUIButtonBase<BUIActionSelectButton>::Fields {
             void* _buttonMsgLabels;
             UnityEngine::UI::Image::Object* _lightFrame;
             UnityEngine::UI::Image::Object* _iconImage;

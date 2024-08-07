@@ -4,6 +4,7 @@
 #include "externals/Dpr/Battle/View/UI/BattleViewUICanvasBase.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "externals/Dpr/Battle/Logic/BTL_ACTION.h"
 
 namespace Dpr::Battle::View::UI {
     struct BUIWazaList : ILClass<BUIWazaList> {
@@ -21,7 +22,7 @@ namespace Dpr::Battle::View::UI {
             UnityEngine::Color::Object _ppColorWarning;
             UnityEngine::Color::Object _ppColorDanger;
             UnityEngine::Color::Object _ppColorEmpty;
-            void* _destActionParam;
+            Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* _destActionParam;
             void* _btlvWazaInfos;
             Dpr::Battle::Logic::BTL_POKEPARAM::Object* _btlPokeParam;
             int32_t _wazaCount;
