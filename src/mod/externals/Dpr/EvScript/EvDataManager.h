@@ -5,7 +5,7 @@
 #include "externals/Dpr/EvScript/EvScriptData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/Effect/EffectInstance.h"
-#include "externals/EvData/Aregment.h"
+#include "externals/EvData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/MulticastDelegate.h"
 #include "externals/System/Primitives.h"
@@ -135,7 +135,7 @@ namespace Dpr::EvScript {
         struct Fields {
             void * OnTalkStartCallBack;
             bool _isScriptLoad;
-            void * _eventList;
+            EvScriptData::Array* _eventList;
             int32_t _eventListIndex;
             void * _callQueue;
             void * _findAllLabel;
