@@ -6,7 +6,6 @@
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
 #include "externals/Dpr/UI/Cursor.h"
-#include "externals/Dpr/MsgWindow/MsgWindowManager.h"
 #include "helpers/InputHelper.h"
 
 #include "logger/logger.h"
@@ -75,8 +74,19 @@ HOOK_DEFINE_INLINE(OnShow2) {
     }
 };
 
+HOOK_DEFINE_INLINE(SwitchCoroutine) {
+        static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+            // Nothing teehee
+        }
+};
+
+
+
+
+
 void exl_madrid_ui_main() {
     OnShow::InstallAtOffset(0x01e8c568);
     OnShow2::InstallAtOffset(0x01e8c560);
     OnUpdate::InstallAtOffset(0x01e8bdb0);
+    //SwitchCoroutine::InstallAtOffset(0x01e7f118);
 }

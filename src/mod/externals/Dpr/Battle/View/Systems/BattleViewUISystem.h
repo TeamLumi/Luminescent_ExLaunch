@@ -8,5 +8,9 @@ namespace Dpr::Battle::View::Systems {
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             // TODO
         };
+
+        inline void PlaySe(int32_t eventId, MethodInfo* methodInfo) {
+            external<void>(0x01e7c5f0, this, eventId, methodInfo);
+        }
     };
 }
