@@ -3,11 +3,14 @@
 #include "data/features.h"
 #include "data/items.h"
 #include "data/utils.h"
-#include "externals/FlagWork.h"
-#include "features/activated_features.h"
+
 #include "externals/Dpr/Battle/Logic/MainModule.h"
-#include "externals/Dpr/Battle/Logic/PokeID.h"
+#include "externals/Dpr/Demo/Demo_Evolve.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
+#include "externals/FlagWork.h"
+
+#include "features/activated_features.h"
+#include "logger/logger.h"
 
 using namespace Dpr::Battle::Logic;
 
@@ -26,6 +29,13 @@ HOOK_DEFINE_REPLACE(ExpShareFlag) {
 HOOK_DEFINE_REPLACE(GetMessageLangIdFromIetfCode) {
     static int32_t Callback() {
         return static_cast<int32_t>(Dpr::Message::MessageEnumData::MsgLangId::USA);
+    }
+};
+
+HOOK_DEFINE_INLINE(DoEvolve_ItemCancelCheck) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto param = (Dpr::Demo::Demo_Evolve::Param::Object*)ctx->X[23];
+        param->fields.useCancel = ((uint16_t)ctx->W[22]) == 0;
     }
 };
 
@@ -53,5 +63,6 @@ void exl_patches_main() {
     };
     p.WriteInst(inst);
 
-    GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns language as English
+    GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns first boot language as English
+    DoEvolve_ItemCancelCheck::InstallAtOffset(0x0177f16c); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
 }
