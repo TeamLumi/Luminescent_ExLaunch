@@ -71,6 +71,7 @@ namespace ui {
                 }
 
                 ImGui::TreePop();
+                UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
             }
         }
     };

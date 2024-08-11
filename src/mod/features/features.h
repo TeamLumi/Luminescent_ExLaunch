@@ -93,7 +93,7 @@ void exl_pla_context_menu_main();
 void exl_poke_radar_fixes_main();
 
 // Adds support for two-button Pokétch.
-// Requires an edited uiresidentwindow bundle with a second Pokétch button.
+// Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
 
 // Replaces pickup ranges with new ranges abiding by Lumi level caps
@@ -101,6 +101,10 @@ void exl_pickup_main();
 
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
+
+// Adds support for Egg Groups, Abilities, Held Items, etc. to be shown in the Pokédex.
+// Requires an edited Zukan prefab with the required components.
+void exl_relumi_dex_ui();
 
 // Remaps the controls.
 void exl_remap_main();

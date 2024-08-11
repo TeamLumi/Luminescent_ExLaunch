@@ -2,7 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
-#include "externals/EvData/Aregment.h"
+#include "externals/EvData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 
 // Converts the IEEE-754 formatted int32 into its proper float value.

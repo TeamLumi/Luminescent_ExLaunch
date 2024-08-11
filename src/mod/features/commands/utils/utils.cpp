@@ -1,7 +1,6 @@
 #include "externals/il2cpp-api.h"
 
-#include "externals/EvData/Aregment.h"
-#include "externals/EvData/ArgType.h"
+#include "externals/EvData.h"
 #include "externals/FieldPoketch.h"
 #include "externals/PlayerWork.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
