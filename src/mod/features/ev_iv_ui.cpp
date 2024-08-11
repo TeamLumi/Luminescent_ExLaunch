@@ -197,5 +197,5 @@ void exl_ev_iv_ui_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0x01cba4f4);
-    p.WriteInst(Movz(X0, 1));
+    p.WriteInst(Movz(X0, 1)); // IV Judge always on
 };
