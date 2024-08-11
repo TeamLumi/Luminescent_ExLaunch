@@ -13,5 +13,9 @@ namespace UnityEngine {
         inline void set_enabled(bool value) {
             external<void>(0x026a3450, this, value);
         }
+
+        inline bool get_enabled() {
+            return external<bool>(0x026a3400, this);
+        }
     };
 }

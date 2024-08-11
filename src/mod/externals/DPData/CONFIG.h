@@ -29,5 +29,9 @@ namespace DPData {
         inline int32_t GetValue(int32_t key) {
             return external<int32_t>(0x02299720, this, key);
         }
+
+        inline bool IsEqualValue(int32_t configId, DPData::CONFIG::Object* t) {
+            return external<bool>(0x022998a0, this, configId, t);
+        }
     };
 }

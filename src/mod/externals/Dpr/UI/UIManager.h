@@ -79,7 +79,15 @@ namespace Dpr::UI {
         }
 
         inline void LoadSpritePokemon(int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
-            return external<void>(0x017c3ef0, this, monsNo, formNo, sex, rareType, isEgg, onComplete);
+            external<void>(0x017c3ef0, this, monsNo, formNo, sex, rareType, isEgg, onComplete);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpritePokemonTypeZukan(int32_t typeNo, int32_t langId) {
+            return external<UnityEngine::Sprite::Object*>(0x017c2650, this, typeNo, langId);
+        }
+
+        inline UnityEngine::Sprite::Object* GetAtlasSprite(int32_t spriteAtlasId, System::String::Object* name) {
+            return external<UnityEngine::Sprite::Object*>(0x017a9080, this, spriteAtlasId, name);
         }
     };
 }

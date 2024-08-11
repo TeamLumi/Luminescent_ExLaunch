@@ -212,5 +212,9 @@ namespace Dpr::Battle::Logic {
         inline PokeTypePair::Object GetPokeType() {
             return external<PokeTypePair::Object>(0x01fdfa80, this);
         }
+
+        inline bool isGMode() {
+            return external<bool>(0x01fdb9a0, this);
+        }
     };
 }

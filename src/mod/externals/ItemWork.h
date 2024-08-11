@@ -25,4 +25,8 @@ struct ItemWork : ILClass<ItemWork> {
     static inline bool IsWazaMachine(int32_t itemno) {
         return external<bool>(0x01aeb380, itemno);
     }
+
+    static inline bool IsAddItem(int32_t itemno, int32_t num) {
+        return external<bool>(0x01aea500, itemno, num);
+    }
 };

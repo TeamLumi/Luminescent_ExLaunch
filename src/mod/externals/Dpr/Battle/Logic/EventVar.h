@@ -4,6 +4,15 @@
 
 namespace Dpr::Battle::Logic {
     struct EventVar : ILClass<EventVar> {
+        struct Fields {
+            uint16_t m_label;
+            uint8_t m_rewriteState;
+            int32_t m_value;
+            int32_t m_mulMin;
+            int32_t m_mulMax;
+            Il2CppObject* m_address;
+        };
+
         enum class Label : uint16_t {
             INVALID = 0,
             SYS_SEPARATE = 1,

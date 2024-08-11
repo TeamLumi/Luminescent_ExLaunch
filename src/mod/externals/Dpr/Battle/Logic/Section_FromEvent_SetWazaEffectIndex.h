@@ -3,6 +3,8 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/Section.h"
+#include "externals/Dpr/Battle/Logic/StrParam.h"
+#include "externals/Dpr/Battle/Logic/CommonParam.h"
 
 namespace Dpr::Battle::Logic {
     struct Section_FromEvent_SetWazaEffectIndex : ILClass<Section_FromEvent_SetWazaEffectIndex, 0x04c5ba48> {

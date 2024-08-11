@@ -17,4 +17,6 @@ void exl_debug_features_main() {
         exl_unity_log_main();
     if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging")))
         exl_feature_log_main();
+    if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Pickup 100%")))
+        exl_pickup_debug_main();
 }

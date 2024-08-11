@@ -18,5 +18,9 @@ namespace Dpr::Battle::Logic {
         inline BTL_PARTY::Object* GetPartyData(uint32_t clientID) {
             return external<BTL_PARTY::Object*>(0x02038600, this, clientID);
         }
+
+        inline Dpr::Battle::Logic::BTL_POKEPARAM::Object* GetPokeParamConst(uint8_t pokeID) {
+            return external<Dpr::Battle::Logic::BTL_POKEPARAM::Object*>(0x02037250, this, pokeID);
+        }
     };
 }

@@ -13,6 +13,7 @@ namespace UnityEngine::Events {
         static const inline long bool_String_TypeInfo = 0x04c5ee10;
         static const inline long void_TypeInfo = 0x04c57230;
 
+
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {
             ctor(owner, *mi);

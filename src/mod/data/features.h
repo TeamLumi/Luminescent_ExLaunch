@@ -23,19 +23,26 @@ static constexpr const char* FEATURES[] = {
     "NPC Collision Audio",
     "Uniform UI",
     "Party Context Menu",
+    "Pickup Changes",
     "Poké Radar Fixes",
+    "Thief Deposits to Bag",
     "Two-Button Pokétch",
     "Relearn TMs",
     "Controls Remap",
     "New Settings",
     "Shiny Rates",
+    "Static Held Items",
     "Sound Encounters",
     "Swarm Forms",
+    "Trainer Double Battle",
     "Turn Counter",
     "Underground Forms",
     "Wild Forms",
     "Wild Held Item Rates",
+    "Validity Checks",
+    "Visible Shiny Eggs",
     "Contest NPC Forms",
+    "Re:Lumi Pokédex UI",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
@@ -47,6 +54,7 @@ static constexpr const char* DEBUG_FEATURES[] = {
     "PokemonInfo Logging",
     "Unity Logging",
     "Feature Logging",
+    "Pickup 100%",
 };
 
 constexpr int DEBUG_FEATURE_COUNT = sizeof(DEBUG_FEATURES) / sizeof(DEBUG_FEATURES[0]);

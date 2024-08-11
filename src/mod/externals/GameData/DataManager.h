@@ -6,6 +6,7 @@
 #include "externals/XLSXContent/CharacterDressData.h"
 #include "externals/XLSXContent/PokemonInfo.h"
 #include "externals/XLSXContent/ShopTable.h"
+#include "externals/XLSXContent/MonohiroiTable.h"
 
 namespace GameData {
     struct DataManager : ILClass<DataManager, 0x04c59d70> {
@@ -23,7 +24,7 @@ namespace GameData {
             void* KinomiData;
             void* KinomiPlaceData;
             void* HoneyTree;
-            void* MonohiroiTable;
+            XLSXContent::MonohiroiTable::Object* MonohiroiTable;
             void* UgJumpPos;
             void* TowerTrainerTable;
             void* TowerMatchingTable;

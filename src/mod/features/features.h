@@ -96,11 +96,18 @@ void exl_pla_context_menu_main();
 void exl_poke_radar_fixes_main();
 
 // Adds support for two-button Pokétch.
-// Requires an edited uiresidentwindow bundle with a second Pokétch button.
+// Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
+
+// Replaces pickup ranges with new ranges abiding by Lumi level caps
+void exl_pickup_main();
 
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
+
+// Adds support for Egg Groups, Abilities, Held Items, etc. to be shown in the Pokédex.
+// Requires an edited Zukan prefab with the required components.
+void exl_relumi_dex_ui();
 
 // Remaps the controls.
 void exl_remap_main();
@@ -111,11 +118,20 @@ void exl_settings_main();
 // Reworks the shiny rates.
 void exl_shiny_rates_main();
 
+// Allows static encounters such as Rotom/Legendary Encounters/Honey Trees to have held items.
+void exl_static_held_items_main();
+
 // Adds support for Sigma Platinum-style Sound encounters.
 void exl_sounds_main();
 
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
+
+// Deposits items obtained by thief directly into the player's bag.
+void exl_thief_patches_main();
+
+// Allows double battles on trainers.
+void exl_trainer_double_battles_main();
 
 // Assigns a work value to be used as a total turn counter for the last battle. By default, this is work value 449.
 void exl_turn_counter_main();
@@ -127,6 +143,12 @@ void exl_ug_forms_main();
 // Changes all UI elements that are outfit and ColorVariation dependent to the default ones.
 // Repoints Large and DP/Pixel Pokémon sprites to the base ones.
 void exl_uniform_ui_main();
+
+// Removes validity checks.
+void exl_validity_checks_main();
+
+// Allows eggs to show as shiny in the UI before they are hatched.
+void exl_visible_shiny_egg_main();
 
 // Adds support for wild Pokémon of any form number.
 void exl_wild_forms_main();

@@ -107,5 +107,10 @@ namespace UnityEngine {
         inline T::Object* GetComponent(T::Class* klass) {
             return this->cast<UnityEngine::Component>()->GetComponent<T>(klass);
         }
+
+        template <typename T>
+        inline void GetComponents(System::Collections::Generic::List$$Component* results, ILMethod<T>& method) {
+            this->cast<UnityEngine::Component>()->GetComponents<T>(results, method);
+        }
     };
 }

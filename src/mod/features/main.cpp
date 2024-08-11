@@ -52,6 +52,12 @@ void CallFeatureHooks()
         exl_pla_context_menu_main();
     if (IsActivatedFeature(array_index(FEATURES, "Poké Radar Fixes")))
         exl_poke_radar_fixes_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Pickup Changes")))
+        exl_pickup_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag")))
+        exl_thief_patches_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Trainer Double Battle")))
+        exl_trainer_double_battles_main();
     if (IsActivatedFeature(array_index(FEATURES, "Two-Button Pokétch")))
         exl_poketch_main();
     if (IsActivatedFeature(array_index(FEATURES, "Relearn TMs")))
@@ -62,6 +68,8 @@ void CallFeatureHooks()
         exl_settings_main();
     if (IsActivatedFeature(array_index(FEATURES, "Shiny Rates")))
         exl_shiny_rates_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Static Held Items")))
+        exl_static_held_items_main();
     if (IsActivatedFeature(array_index(FEATURES, "Sound Encounters")))
         exl_sounds_main();
     if (IsActivatedFeature(array_index(FEATURES, "Swarm Forms")))
@@ -70,12 +78,18 @@ void CallFeatureHooks()
         exl_turn_counter_main();
     if (IsActivatedFeature(array_index(FEATURES, "Underground Forms")))
         exl_ug_forms_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Validity Checks")))
+        exl_validity_checks_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Visible Shiny Eggs")))
+        exl_visible_shiny_egg_main();
     if (IsActivatedFeature(array_index(FEATURES, "Wild Forms")))
         exl_wild_forms_main();
     if (IsActivatedFeature(array_index(FEATURES, "Wild Held Item Rates")))
         exl_wild_held_items_main();
     if (IsActivatedFeature(array_index(FEATURES, "Contest NPC Forms")))
         exl_contest_npc_forms_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Re:Lumi Pokédex UI")))
+        exl_relumi_dex_ui();
 
     exl_debug_features_main();
     exl_items_changes_main();
@@ -117,17 +131,24 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "NPC Collision Audio"));
     SetActivatedFeature(array_index(FEATURES, "Uniform UI"));
     SetActivatedFeature(array_index(FEATURES, "Party Context Menu"));
+    SetActivatedFeature(array_index(FEATURES, "Pickup Changes"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
+    SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
+    SetActivatedFeature(array_index(FEATURES, "Trainer Double Battle"));
     SetActivatedFeature(array_index(FEATURES, "Two-Button Pokétch"));
     SetActivatedFeature(array_index(FEATURES, "Relearn TMs"));
     SetActivatedFeature(array_index(FEATURES, "New Settings"));
     SetActivatedFeature(array_index(FEATURES, "Shiny Rates"));
+    SetActivatedFeature(array_index(FEATURES, "Static Held Items"));
     SetActivatedFeature(array_index(FEATURES, "Swarm Forms"));
     SetActivatedFeature(array_index(FEATURES, "Turn Counter"));
     SetActivatedFeature(array_index(FEATURES, "Underground Forms"));
+    SetActivatedFeature(array_index(FEATURES, "Validity Checks"));
+    SetActivatedFeature(array_index(FEATURES, "Visible Shiny Eggs"));
     SetActivatedFeature(array_index(FEATURES, "Wild Forms"));
     SetActivatedFeature(array_index(FEATURES, "Wild Held Item Rates"));
     SetActivatedFeature(array_index(FEATURES, "Contest NPC Forms"));
+    SetActivatedFeature(array_index(FEATURES, "Re:Lumi Pokédex UI"));
 
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Battle Bundles in UI"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Boutique Models"));
@@ -135,6 +156,7 @@ void exl_features_main() {
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "PokemonInfo Logging"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Unity Logging"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging"));
+    SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Pickup 100%"));
 
     SetActivatedItemFeature(array_index(ITEM_FEATURES, "Ability Patch"));
     SetActivatedItemFeature(array_index(ITEM_FEATURES, "Everlasting Candies"));
@@ -146,6 +168,7 @@ void exl_features_main() {
     SetActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Incense Burner"));
     SetActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"));
 
+    SetActivatedSaveFeature(array_index(SAVE_FEATURES, "Box Expansion"));
     SetActivatedSaveFeature(array_index(SAVE_FEATURES, "Dex Expansion"));
 
     SetActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Affection Toggle"));
