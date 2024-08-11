@@ -14,6 +14,7 @@ void SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME command)
 
 bool HandleCmdStepper(bool result)
 {
+    // Set the script as frozen if the Debug Stepper is on
     if (FlagWork::GetSysFlag(FlagWork_SysFlag::SYSFLAG_996) && result)
         FlagWork::SetSysFlag(FlagWork_SysFlag::SYSFLAG_997, true);
     return result;
@@ -22,6 +23,7 @@ bool HandleCmdStepper(bool result)
 // Handles overriden and new script commands, then calls the original method to handle the rest normally.
 HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
     static bool Callback(Dpr::EvScript::EvDataManager::Object* __this, int32_t index) {
+        // If Debug Stepper is on, and we're frozen
         if (FlagWork::GetSysFlag(FlagWork_SysFlag::SYSFLAG_996) && FlagWork::GetSysFlag(FlagWork_SysFlag::SYSFLAG_997))
             return false;
 

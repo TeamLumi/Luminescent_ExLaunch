@@ -94,7 +94,7 @@ void SetEggGroupIconsFromZukanInfo(Dpr::UI::ZukanInfo::Object* zukanInfo, XLSXCo
     int32_t eggID1 = personalData->fields.egg_group1;
     int32_t eggID2 = personalData->fields.egg_group2 == eggID1 ? -1 : personalData->fields.egg_group2;
 
-    SetEggGroupIcons(eggGroup1, eggGroup2, eggID1, eggID2, zukanInfo->fields._GetStatus_k__BackingField, 11);
+    SetEggGroupIcons(eggGroup1, eggGroup2, eggID1, eggID2, zukanInfo->fields._GetStatus_k__BackingField, langId);
 
     UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
 }
@@ -114,14 +114,12 @@ void SetMessageInUIText(UnityEngine::Transform::Object* root, System::String::Ob
 
 void SetNumberInUIText(UnityEngine::Transform::Object* root, System::String::Object* uiTextName, int32_t number, int32_t getStatus)
 {
-    Logger::log("[SetNumberInUIText] Setting %s to %d\n", uiTextName->asCString().c_str(), number);
     auto uiText = root->Find(uiTextName)->Find(System::String::Create("ValueText"))
             ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
     if (uiText != nullptr)
     {
         if (getStatus == 3)
         {
-            Logger::log("[SetNumberInUIText] getStatus is 3\n");
             Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
             Dpr::Message::MessageWordSetHelper::SetDigitWord(0, number);
             uiText->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_206"));
@@ -130,6 +128,18 @@ void SetNumberInUIText(UnityEngine::Transform::Object* root, System::String::Obj
         {
             uiText->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
         }
+    }
+}
+
+void ChangeLanguageNumberInUIText(UnityEngine::Transform::Object* root, System::String::Object* uiTextName, int32_t number, int32_t langId)
+{
+    auto uiText = root->Find(uiTextName)->Find(System::String::Create("ValueText"))
+            ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
+    if (uiText != nullptr)
+    {
+        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+        Dpr::Message::MessageWordSetHelper::SetDigitWord(0, number);
+        uiText->ChangeLanguage(langId);
     }
 }
 
@@ -205,6 +215,20 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$OnSelectLanguageButton) {
         Pml::Personal::PersonalSystem::getClass()->initIfNeeded();
         auto data = Pml::Personal::PersonalSystem::GetPersonalData(monsno, formno);
         auto statusTransform = ((UnityEngine::Component::Object*)__this->fields.classText)->get_transform()->GetParent();
+
+        // Update the language for Base Stat UITexts
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatHP"),
+                                     data->fields.basic_hp, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatATK"),
+                                     data->fields.basic_atk, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatDEF"),
+                                     data->fields.basic_def, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatSPATK"),
+                                     data->fields.basic_spatk, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatSPDEF"),
+                                     data->fields.basic_spdef, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatSPE"),
+                                     data->fields.basic_agi, button->fields._LangId_k__BackingField);
 
         SetEggGroupIconsFromZukanInfo(__this->fields._CurrentZukanInfo_k__BackingField, data, statusTransform, button->fields._LangId_k__BackingField);
     }
