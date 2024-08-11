@@ -86,6 +86,9 @@ void exl_level_cap_main();
 //
 void exl_madrid_ui_main();
 
+//
+void exl_mega_evolution_main();
+
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
 

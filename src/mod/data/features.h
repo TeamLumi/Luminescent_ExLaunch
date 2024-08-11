@@ -44,6 +44,7 @@ static constexpr const char* FEATURES[] = {
     "Contest NPC Forms",
     "Re:Lumi Pokédex UI",
     "Madrid UI",
+    "Mega Evolution",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

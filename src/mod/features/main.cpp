@@ -92,6 +92,8 @@ void CallFeatureHooks()
         exl_relumi_dex_ui();
     if (IsActivatedFeature(array_index(FEATURES, "Madrid UI")))
         exl_madrid_ui_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Mega Evolution")))
+        exl_mega_evolution_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
@@ -150,6 +152,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Contest NPC Forms"));
     SetActivatedFeature(array_index(FEATURES, "Re:Lumi Pokédex UI"));
     SetActivatedFeature(array_index(FEATURES, "Madrid UI"));
+    SetActivatedFeature(array_index(FEATURES, "Mega Evolution"));
 
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Battle Bundles in UI"));
     SetActivatedDebugFeature(array_index(DEBUG_FEATURES, "Boutique Models"));

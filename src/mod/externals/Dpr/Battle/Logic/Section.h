@@ -5,12 +5,13 @@
 #include "externals/Dpr/Battle/Logic/BtlCompetitor.h"
 #include "externals/Dpr/Battle/Logic/BtlRule.h"
 #include "externals/Dpr/Battle/Logic/MainModule.h"
+#include "externals/Dpr/Battle/Logic/BattleEnv.h"
 
 namespace Dpr::Battle::Logic {
     struct Section : ILClass<Section> {
         struct Fields {
             Dpr::Battle::Logic::MainModule::Object* m_pMainModule;
-            void* m_pBattleEnv; // Dpr::Battle::Logic::BattleEnv::Object*
+            Dpr::Battle::Logic::BattleEnv::Object* m_pBattleEnv; // Dpr::Battle::Logic::BattleEnv::Object*
             void* m_pServerCmdQueue; // Dpr::Battle::Logic::ServerCommandQueue::Object*
             void* m_pServerCmdPutter; // Dpr::Battle::Logic::ServerCommandPutter::Object*
             void* m_pWazaCmdPutter; // Dpr::Battle::Logic::WazaCommandPutter::Object*
