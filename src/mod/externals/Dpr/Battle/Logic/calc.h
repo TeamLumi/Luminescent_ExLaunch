@@ -34,5 +34,9 @@ namespace Dpr::Battle::Logic {
         static inline uint32_t QuotMaxHP(BTL_POKEPARAM::Object* bpp, uint32_t denom, bool useBeforeGParam) {
             return external<uint32_t>(0x01f74fe0, bpp, denom, useBeforeGParam);
         }
+
+        static inline bool ITEM_IsMail(uint16_t item) {
+            return external<bool>(0x01f75490, item);
+        }
     };
 }

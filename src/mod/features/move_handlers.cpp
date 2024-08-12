@@ -97,6 +97,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Synchronoise")]) Handlers_Move_Synchronoise(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Chip Away")]) Handlers_Move_ChipAway(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sky Drop")]) Handlers_Move_SkyDrop(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bestow")]) Handlers_Move_Bestow(array);
 
         ctx->X[0] = (uint64_t)array;
     }

@@ -135,3 +135,6 @@ void Handlers_Move_SkyDrop(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTab
 
 // Installs hooks for Sky Drop.
 void InstallHooks_Move_SkyDrop();
+
+// Adds move handlers for Bestow.
+void Handlers_Move_Bestow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

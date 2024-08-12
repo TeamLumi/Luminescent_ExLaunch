@@ -192,5 +192,9 @@ namespace Dpr::Battle::Logic {
         static inline void FreeFallRelease(EventFactor::EventHandlerArgs::Object** args, Section_FreeFall_Release::Description::Object** desc) {
             external<void>(0x01d0cde0, args, desc);
         }
+
+        static inline bool CheckUnbreakablePokeItem(uint16_t monsno, uint16_t itemID) {
+            return external<bool>(0x01d0d780, monsno, itemID);
+        }
     };
 }
