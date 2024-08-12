@@ -141,3 +141,6 @@ void Handlers_Move_Bestow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTabl
 
 // Adds move handlers for Rototiller.
 void Handlers_Move_Rototiller(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Ion Deluge.
+void Handlers_Move_IonDeluge(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

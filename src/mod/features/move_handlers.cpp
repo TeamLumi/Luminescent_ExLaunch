@@ -99,6 +99,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sky Drop")]) Handlers_Move_SkyDrop(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Bestow")]) Handlers_Move_Bestow(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Rototiller")]) Handlers_Move_Rototiller(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Ion Deluge")]) Handlers_Move_IonDeluge(array);
 
         ctx->X[0] = (uint64_t)array;
     }
