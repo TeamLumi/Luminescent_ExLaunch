@@ -53,5 +53,9 @@ namespace Dpr::Battle::Logic::Handler {
         static inline StaticILMethod<0x04c69068, uint8_t> PTR_Method$$ADD_Fld_Ground {};
 
         static inline StaticILMethod<0x04c78828, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_elec_checkFail {};
+
+        static inline bool common_isGroundEffective(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            return external<bool>(0x01903250, args, pokeID);
+        }
     };
 }
