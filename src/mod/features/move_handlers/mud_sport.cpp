@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "externals/BTL_STRID_STD.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
@@ -15,7 +16,7 @@ void HandlerMudSportFieldEffectCall(EventFactor::EventHandlerArgs::Object** args
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    if (!HandlerAddFieldEffect(args, pokeID, array_index(FIELD_EFFECTS, "Mud Sport"), 5, BtlStrType::BTL_STRTYPE_STD, 131))
+    if (!HandlerAddFieldEffect(args, pokeID, array_index(FIELD_EFFECTS, "Mud Sport"), 5, BtlStrType::BTL_STRTYPE_STD, BTL_STRID_STD::Doroasobi))
         return;
 
     Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, 1);

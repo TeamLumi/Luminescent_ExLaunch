@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "externals/BTL_STRID_STD.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/FX32.h"
@@ -38,5 +39,5 @@ void Handlers_FieldEffect_MudSport(Handler::Field::GET_FUNC_TABLE_ELEM::Array* g
 
 void FieldEffect_End_MudSport(Section_FieldEffect_End::Object* __this, Section_FieldEffect_End::Result::Object* pResult, Section_FieldEffect_End::Description::Object** description) {
     ServerCommandPutter::Object* serverCommandPutter = __this->fields.m_pServerCmdPutter->instance();
-    serverCommandPutter->Message_Std(132);
+    serverCommandPutter->Message_Std(BTL_STRID_STD::DoroasobiOff);
 }

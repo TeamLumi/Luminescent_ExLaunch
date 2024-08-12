@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "externals/BTL_STRID_STD.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
@@ -17,7 +18,7 @@ void HandlerWaterSportFieldEffectCall(EventFactor::EventHandlerArgs::Object** ar
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    if (!HandlerAddFieldEffect(args, pokeID, array_index(FIELD_EFFECTS, "Water Sport"), 5, BtlStrType::BTL_STRTYPE_STD, 129))
+    if (!HandlerAddFieldEffect(args, pokeID, array_index(FIELD_EFFECTS, "Water Sport"), 5, BtlStrType::BTL_STRTYPE_STD, BTL_STRID_STD::Mizuasobi))
         return;
 
     Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, 1);

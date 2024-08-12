@@ -127,9 +127,6 @@ void exl_sounds_main();
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 
-// Deposits items obtained by thief directly into the player's bag.
-void exl_thief_patches_main();
-
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();
 

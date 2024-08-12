@@ -1,29 +1,18 @@
 #include "exlaunch.hpp"
-#include "externals/il2cpp.h"
-#include "externals/il2cpp-api.h"
-#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+
+#include "externals/BTL_STRID_SET.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
-#include "externals/Dpr/Battle/Logic/calc.h"
-#include "externals/Dpr/Battle/Logic/EventFactor.h"
-#include "externals/Dpr/Battle/Logic/EventID.h"
-#include "externals/Dpr/Battle/Logic/EventSystem.h"
-#include "externals/Dpr/Battle/Logic/EventVarSet.h"
-#include "externals/Dpr/Battle/Logic/Section_FromEvent_SetItem.h"
-#include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
-#include "externals/Dpr/Battle/Logic/Section_FromEvent_SwapItem.h"
+#include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/ItemWork.h"
-#include "externals/Dpr/Battle/Logic/BattleCounter.h"
-#include "logger/logger.h"
-#include "util.h"
+
+#include "move_handlers.h"
 
 using namespace Dpr::Battle::Logic;
 
 // Changes the handler for Thief to put the item into the player's bag.
-
 HOOK_DEFINE_REPLACE(Handler_Dorobou) {
     static void Callback(EventFactor::EventHandlerArgs::Object **args, uint8_t pokeID)
     {
-
         system_load_typeinfo(0xa92f);
         system_load_typeinfo(0xa965);
         system_load_typeinfo(0x43b9);
@@ -58,7 +47,7 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
                                 swapItemDesc->fields.targetPokeID = (uint8_t)targetPoke;
                                 swapItemDesc->fields.isIncRecordCount_StealItemFromWildPoke = true;
 
-                                swapItemDesc->fields.successMessage1->Setup(BtlStrType::BTL_STRTYPE_SET, 0x598);
+                                swapItemDesc->fields.successMessage1->Setup(BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::Dorobou);
                                 swapItemDesc->fields.successMessage1->AddArg((int32_t)attackingPoke);
                                 swapItemDesc->fields.successMessage1->AddArg((int32_t)targetPoke & 0xff);
                                 swapItemDesc->fields.successMessage1->AddArg(item);
@@ -78,7 +67,7 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
                                 setItemDesc->fields.targetPokeID = (uint8_t)targetPoke;
                                 setItemDesc->fields.itemID = 0;
 
-                                setItemDesc->fields.successMessage->Setup(BtlStrType::BTL_STRTYPE_SET, 0x598);
+                                setItemDesc->fields.successMessage->Setup(BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::Dorobou);
                                 setItemDesc->fields.successMessage->AddArg((int32_t)attackingPoke);
                                 setItemDesc->fields.successMessage->AddArg((int32_t)targetPoke & 0xff);
                                 setItemDesc->fields.successMessage->AddArg(item);
@@ -101,7 +90,6 @@ HOOK_DEFINE_REPLACE(Handler_Dorobou) {
 };
 
 // Remove the check for if the attacking Pokémon is holding an item (for wilds)
-
 HOOK_DEFINE_REPLACE(Dorobou_CheckEnable) {
     static bool Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID)
     {
@@ -120,7 +108,6 @@ HOOK_DEFINE_REPLACE(Dorobou_CheckEnable) {
                 }
             }
 
-
             return item == 0;
         }
         else // Is wild
@@ -131,7 +118,7 @@ HOOK_DEFINE_REPLACE(Dorobou_CheckEnable) {
     }
 };
 
-void exl_thief_patches_main() {
+void InstallHooks_Move_Thief() {
     Handler_Dorobou::InstallAtOffset(0x01807cb0);
     Dorobou_CheckEnable::InstallAtOffset(0x01d0e720);
 }

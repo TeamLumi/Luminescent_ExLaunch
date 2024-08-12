@@ -25,7 +25,6 @@ static constexpr const char* FEATURES[] = {
     "Party Context Menu",
     "Pickup Changes",
     "Poké Radar Fixes",
-    "Thief Deposits to Bag",
     "Two-Button Pokétch",
     "Relearn TMs",
     "Controls Remap",

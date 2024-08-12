@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "externals/BTL_STRID_STD.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/Handler/Waza.h"
@@ -16,7 +17,7 @@ void HandlerLuckyChantUncategorizeWazaNoTarget(EventFactor::EventHandlerArgs::Ob
         return;
 
     auto cont = SICKCONT::MakeTurn(pokeID, 5);
-    if (!Handler::Waza::common_SideEffectStdMsg(args, &pokeID, Common::PokeIDtoSide(args, &pokeID), (BtlSideEffect)array_index(SIDE_EFFECTS, "Lucky Chant"), &cont, 165))
+    if (!Handler::Waza::common_SideEffectStdMsg(args, &pokeID, Common::PokeIDtoSide(args, &pokeID), (BtlSideEffect)array_index(SIDE_EFFECTS, "Lucky Chant"), &cont, BTL_STRID_STD::Omajinai))
         return;
 
     Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, 1);

@@ -37,6 +37,9 @@ void Handlers_Move_MirrorMove(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 // Adds move handlers for Psywave.
 void Handlers_Move_Psywave(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
+// Installs hooks for Thief.
+void InstallHooks_Move_Thief();
+
 // Adds move handlers for Spider Web.
 void Handlers_Move_SpiderWeb(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
@@ -129,3 +132,6 @@ void Handlers_Move_ChipAway(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTa
 
 // Adds move handlers for Sky Drop.
 void Handlers_Move_SkyDrop(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Installs hooks for Sky Drop.
+void InstallHooks_Move_SkyDrop();

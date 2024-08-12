@@ -10,6 +10,7 @@
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_Add.h"
+#include "externals/Dpr/Battle/Logic/Section_FreeFall_Release.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
@@ -186,6 +187,10 @@ namespace Dpr::Battle::Logic {
 
         static inline bool FreeFallStart(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FreeFallStart::Description::Object** desc) {
             return external<bool>(0x01d0cd50, args, desc);
+        }
+
+        static inline void FreeFallRelease(EventFactor::EventHandlerArgs::Object** args, Section_FreeFall_Release::Description::Object** desc) {
+            external<void>(0x01d0cde0, args, desc);
         }
     };
 }

@@ -31,5 +31,17 @@ namespace Dpr::Battle::Logic {
         };
 
         struct Fields : Section::Fields {};
+
+        inline uint32_t getWeight(BTL_POKEPARAM::Object* poke) {
+            return external<uint32_t>(0x01fb4860, this, poke);
+        }
+
+        inline void onMamoruSuccess(BTL_POKEPARAM::Object* attacker, BTL_POKEPARAM::Object* target, WazaParam::Object* wazaParam) {
+            external<void>(0x01fb4990, this, attacker, target, wazaParam);
+        }
+
+        inline void setFreeFallSick(BTL_POKEPARAM::Object* attacker, BTL_POKEPARAM::Object* target) {
+            external<void>(0x01fb4b30, this, attacker, target);
+        }
     };
 }

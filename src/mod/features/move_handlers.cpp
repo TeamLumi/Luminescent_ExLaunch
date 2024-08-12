@@ -104,7 +104,9 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
 
 void InstallActivatedMoveHooks() {
     // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!
+    if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Thief")]) InstallHooks_Move_Thief();
     if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Move_Pursuit();
+    if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sky Drop")]) InstallHooks_Move_SkyDrop();
 }
 
 void exl_move_handlers_main() {
@@ -117,10 +119,11 @@ void exl_move_handlers_main() {
     //SetActivatedMoveHandlers(array_index(MOVES, "Bide"));
     SetActivatedMoveHandlers(array_index(MOVES, "Mirror Move"));
     SetActivatedMoveHandlers(array_index(MOVES, "Psywave"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Thief"));
     SetActivatedMoveHandlers(array_index(MOVES, "Spider Web"));
     SetActivatedMoveHandlers(array_index(MOVES, "Nightmare"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Return"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Return"));
     SetActivatedMoveHandlers(array_index(MOVES, "Frustration"));
     SetActivatedMoveHandlers(array_index(MOVES, "Magnitude"));
     SetActivatedMoveHandlers(array_index(MOVES, "Pursuit"));
@@ -130,8 +133,8 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Snatch"));
     SetActivatedMoveHandlers(array_index(MOVES, "Secret Power"));
     SetActivatedMoveHandlers(array_index(MOVES, "Camouflage"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Mud Sport"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Mud Sport"));
     SetActivatedMoveHandlers(array_index(MOVES, "Ice Ball"));
     SetActivatedMoveHandlers(array_index(MOVES, "Silver Wind"));
     SetActivatedMoveHandlers(array_index(MOVES, "Sky Uppercut"));
@@ -141,8 +144,8 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Trump Card"));
     SetActivatedMoveHandlers(array_index(MOVES, "Wring Out"));
     SetActivatedMoveHandlers(array_index(MOVES, "Lucky Chant"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Me First"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Me First"));
     SetActivatedMoveHandlers(array_index(MOVES, "Punishment"));
     SetActivatedMoveHandlers(array_index(MOVES, "Captivate"));
     SetActivatedMoveHandlers(array_index(MOVES, "Ominous Wind"));
@@ -152,8 +155,8 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Sky Drop"));
     SetActivatedMoveHandlers(array_index(MOVES, "Bestow"));
     SetActivatedMoveHandlers(array_index(MOVES, "Rototiller"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Ion Deluge"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Ion Deluge"));
     SetActivatedMoveHandlers(array_index(MOVES, "Spotlight"));
     SetActivatedMoveHandlers(array_index(MOVES, "Guardian of Alola"));
     SetActivatedMoveHandlers(array_index(MOVES, "Genesis Supernova"));
@@ -163,8 +166,8 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Splintered Stormshards"));
     SetActivatedMoveHandlers(array_index(MOVES, "Pika Papow"));
     SetActivatedMoveHandlers(array_index(MOVES, "Glitzy Glow"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Baddy Bad"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Baddy Bad"));
     SetActivatedMoveHandlers(array_index(MOVES, "Freezy Frost"));
     SetActivatedMoveHandlers(array_index(MOVES, "Sparkly Swirl"));
     SetActivatedMoveHandlers(array_index(MOVES, "Veevee Volley"));

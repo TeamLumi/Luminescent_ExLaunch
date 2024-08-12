@@ -18,7 +18,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void SetBppCounter(BTL_POKEPARAM::Object* poke, BTL_POKEPARAM::Counter counterID, uint8_t value) {
-            external<void>(0x01f2ab90, this, counterID, value);
+            external<void>(0x01f2ab90, this, poke, counterID, value);
         }
 
         inline void InsertWazaInfo(uint8_t pokeID, bool isTokuseiWindowDisplay, StrParam::Object** message) {
@@ -43,6 +43,14 @@ namespace Dpr::Battle::Logic {
 
         inline void Message_Std(uint16_t strID) {
             external<void>(0x01f289e0, this, strID);
+        }
+
+        inline void Message_Set(BTL_POKEPARAM::Object* poke, uint16_t strID) {
+            external<void>(0x01f17ab0, this, poke, strID);
+        }
+
+        inline bool Message(StrParam::Object** strParam) {
+            return external<bool>(0x01f27ec0, this, strParam);
         }
     };
 }

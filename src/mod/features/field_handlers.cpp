@@ -1,5 +1,6 @@
 #include "features/field_handlers/field_handlers.h"
 
+#include "externals/BTL_STRID_STD.h"
 #include "externals/Dpr/Battle/Logic/BtlGround.h"
 #include "externals/Dpr/Battle/Logic/FieldStatus.h"
 #include "externals/Dpr/Battle/Logic/Section_FieldEffect_End.h"
@@ -92,19 +93,19 @@ HOOK_DEFINE_REPLACE(Section_FieldEffect_End_Execute) {
         switch(effectID)
         {
             case array_index(FIELD_EFFECTS, "Trick Room"):
-                serverCommandPutter->Message_Std(133);
+                serverCommandPutter->Message_Std(BTL_STRID_STD::TrickRoomOff);
                 break;
 
             case array_index(FIELD_EFFECTS, "Gravity"):
-                serverCommandPutter->Message_Std(135);
+                serverCommandPutter->Message_Std(BTL_STRID_STD::JyuryokuOff);
                 break;
 
             case array_index(FIELD_EFFECTS, "Wonder Room"):
-                serverCommandPutter->Message_Std(200);
+                serverCommandPutter->Message_Std(BTL_STRID_STD::WonderRoom_End);
                 break;
 
             case array_index(FIELD_EFFECTS, "Magic Room"):
-                serverCommandPutter->Message_Std(202);
+                serverCommandPutter->Message_Std(BTL_STRID_STD::MagicRoom_End);
                 __this->checkItemReaction_All();
                 break;
 
@@ -112,19 +113,19 @@ HOOK_DEFINE_REPLACE(Section_FieldEffect_End_Execute) {
                 switch (__this->fields.m_pBattleEnv->instance()->fields.m_fieldStatus->GetGround())
                 {
                     case BtlGround::BTL_GROUND_GRASS:
-                        serverCommandPutter->Message_Std(223);
+                        serverCommandPutter->Message_Std(BTL_STRID_STD::GrassGround_End);
                         break;
 
                     case BtlGround::BTL_GROUND_MIST:
-                        serverCommandPutter->Message_Std(225);
+                        serverCommandPutter->Message_Std(BTL_STRID_STD::MistGround_End);
                         break;
 
                     case BtlGround::BTL_GROUND_ELEKI:
-                        serverCommandPutter->Message_Std(227);
+                        serverCommandPutter->Message_Std(BTL_STRID_STD::ElecField_End);
                         break;
 
                     case BtlGround::BTL_GROUND_PHYCHO:
-                        serverCommandPutter->Message_Std(347);
+                        serverCommandPutter->Message_Std(BTL_STRID_STD::PhychoField_End);
                         break;
 
                     default:
@@ -134,7 +135,7 @@ HOOK_DEFINE_REPLACE(Section_FieldEffect_End_Execute) {
                 break;
 
             case array_index(FIELD_EFFECTS, "Neutralizing Gas"):
-                serverCommandPutter->Message_Std(408);
+                serverCommandPutter->Message_Std(BTL_STRID_STD::KagakuHenkaGas_End);
                 __this->resetKagakuhenkaGas();
                 break;
 

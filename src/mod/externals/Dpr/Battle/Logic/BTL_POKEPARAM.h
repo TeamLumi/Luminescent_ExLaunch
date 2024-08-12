@@ -216,5 +216,17 @@ namespace Dpr::Battle::Logic {
         inline bool isGMode() {
             return external<bool>(0x01fdb9a0, this);
         }
+
+        inline bool MIGAWARI_IsExist() {
+            return external<bool>(0x01fe38a0, this);
+        }
+
+        inline bool IsWazaHide() {
+            return external<bool>(0x01fe0060, this);
+        }
+
+        inline static uint8_t PokeIDtoFreeFallCounter(uint8_t pokeID) {
+            return external<uint8_t>(0x01fda190, pokeID);
+        }
     };
 }

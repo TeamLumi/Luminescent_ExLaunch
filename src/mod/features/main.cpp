@@ -54,8 +54,6 @@ void CallFeatureHooks()
         exl_poke_radar_fixes_main();
     if (IsActivatedFeature(array_index(FEATURES, "Pickup Changes")))
         exl_pickup_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag")))
-        exl_thief_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Trainer Double Battle")))
         exl_trainer_double_battles_main();
     if (IsActivatedFeature(array_index(FEATURES, "Two-Button Pokétch")))
@@ -133,7 +131,6 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Party Context Menu"));
     SetActivatedFeature(array_index(FEATURES, "Pickup Changes"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
-    SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
     SetActivatedFeature(array_index(FEATURES, "Trainer Double Battle"));
     SetActivatedFeature(array_index(FEATURES, "Two-Button Pokétch"));
     SetActivatedFeature(array_index(FEATURES, "Relearn TMs"));

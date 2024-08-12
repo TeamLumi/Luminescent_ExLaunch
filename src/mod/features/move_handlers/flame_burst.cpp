@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "externals/BTL_STRID_SET.h"
 #include "externals/Dpr/Battle/Logic/calc.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
@@ -30,7 +31,7 @@ void HandlerFlameBurstDamageprocEndHitReal(EventFactor::EventHandlerArgs::Object
             if (targetPokeID != opponentPokeID && Common::IsFriendPokeID(args, targetPokeID, opponentPokeID))
             {
                 auto damage = calc::QuotMaxHP(Common::GetPokeParam(args, opponentPokeID), 16, true);
-                HandlerDamage(args, pokeID, opponentPokeID, damage, false, false, BtlStrType::BTL_STRTYPE_SET, 1498);
+                HandlerDamage(args, pokeID, opponentPokeID, damage, false, false, BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::HajikeruHonoo_Side);
             }
         }
     }
