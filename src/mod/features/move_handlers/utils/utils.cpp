@@ -1,5 +1,6 @@
 #include "utils.h"
 
+#include "externals/BTL_STRID_SET.h"
 #include "externals/Dpr/Battle/Logic/FrontPokeAccessor.h"
 #include "externals/Dpr/Battle/Logic/Section_AddSick.h"
 #include "externals/Dpr/Battle/Logic/Section_CureSick.h"
@@ -7,6 +8,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
@@ -95,6 +97,25 @@ bool HandlerDamage(EventFactor::EventHandlerArgs::Object** args, uint8_t causePo
     return Common::Damage(args, &damageDesc);
 }
 
+void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t nextForm, bool persistOnSwitch, bool displayAbility, bool animationEnabled)
+{
+    system_load_typeinfo(0x88fe);
+    BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
+
+    if (bpp->fields.m_formNo == nextForm)
+        return;
+
+    auto formChangeDesc = Section_FromEvent_FormChange::Description::newInstance();
+    formChangeDesc->fields.pokeID = pokeID;
+    formChangeDesc->fields.formNo = nextForm;
+    formChangeDesc->fields.isDontResetFormByOut = persistOnSwitch;
+    formChangeDesc->fields.isDisplayTokuseiWindow = displayAbility;
+    formChangeDesc->fields.isDisplayChangeEffect = animationEnabled;
+    formChangeDesc->fields.successMessage->Setup(BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::ChangeForm);
+    formChangeDesc->fields.successMessage->AddArg(pokeID);
+    Common::FormChange(args, &formChangeDesc);
+}
+
 void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType)
 {
     system_load_typeinfo(0xa922);
@@ -170,4 +191,9 @@ uint8_t GetAllOtherOutPokeID(EventFactor::EventHandlerArgs::Object** args, uint8
     }
 
     return count;
+}
+
+uint8_t HighestMultiple(uint8_t max, uint8_t factor) {
+    uint8_t factor2 = max / factor;
+    return factor * factor2;
 }

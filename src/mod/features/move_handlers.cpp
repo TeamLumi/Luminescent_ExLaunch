@@ -110,6 +110,7 @@ void InstallActivatedMoveHooks() {
     if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Thief")]) InstallHooks_Move_Thief();
     if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pursuit")]) InstallHooks_Move_Pursuit();
     if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Sky Drop")]) InstallHooks_Move_SkyDrop();
+    if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Relic Song")]) InstallHooks_Move_RelicSong();
 }
 
 void exl_move_handlers_main() {
@@ -157,8 +158,9 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Chip Away"));
     SetActivatedMoveHandlers(array_index(MOVES, "Sky Drop"));
     SetActivatedMoveHandlers(array_index(MOVES, "Bestow"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Rototiller"));
+    SetActivatedMoveHandlers(array_index(MOVES, "Relic Song"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Rototiller"));
     SetActivatedMoveHandlers(array_index(MOVES, "Ion Deluge"));
     SetActivatedMoveHandlers(array_index(MOVES, "Spotlight"));
     SetActivatedMoveHandlers(array_index(MOVES, "Guardian of Alola"));
@@ -168,8 +170,8 @@ void exl_move_handlers_main() {
     SetActivatedMoveHandlers(array_index(MOVES, "Menacing Moonraze Maelstrom"));
     SetActivatedMoveHandlers(array_index(MOVES, "Splintered Stormshards"));
     SetActivatedMoveHandlers(array_index(MOVES, "Pika Papow"));
-    SetActivatedMoveHandlers(array_index(MOVES, "Glitzy Glow"));
 
+    SetActivatedMoveHandlers(array_index(MOVES, "Glitzy Glow"));
     SetActivatedMoveHandlers(array_index(MOVES, "Baddy Bad"));
     SetActivatedMoveHandlers(array_index(MOVES, "Freezy Frost"));
     SetActivatedMoveHandlers(array_index(MOVES, "Sparkly Swirl"));

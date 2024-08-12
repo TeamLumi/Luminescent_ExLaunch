@@ -139,6 +139,9 @@ void InstallHooks_Move_SkyDrop();
 // Adds move handlers for Bestow.
 void Handlers_Move_Bestow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
+// Installs hooks for Relic Song.
+void InstallHooks_Move_RelicSong();
+
 // Adds move handlers for Rototiller.
 void Handlers_Move_Rototiller(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
