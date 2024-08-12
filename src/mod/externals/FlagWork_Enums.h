@@ -2787,10 +2787,10 @@ enum class FlagWork_SysFlag : int32_t {
     SYSFLAG_993 = 993,
     SYSFLAG_994 = 994,
     SYSFLAG_995 = 995,
-    SYSFLAG_996 = 996,
-    SYSFLAG_997 = 997,
-    SYSFLAG_998 = 998,
-    SYSFLAG_999 = 999,
+    SYSFLAG_996 = 996, // Debug RunEvCmd Stepper enabled
+    SYSFLAG_997 = 997, // Debug RunEvCmd is currently frozen
+    SYSFLAG_998 = 998, // Debug Force Model in Boutique UI
+    SYSFLAG_999 = 999, // Debug Battle Pokémon bundles in UI
     FLAG_ARRIVE_EXTRA_000 = 1000,
     FLAG_ARRIVE_EXTRA_001 = 1001,
     FLAG_ARRIVE_EXTRA_002 = 1002,
