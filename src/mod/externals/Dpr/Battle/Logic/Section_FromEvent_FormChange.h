@@ -3,7 +3,6 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/Section.h"
-#include "externals/Dpr/Battle/Logic/PokeAction.h"
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
@@ -24,14 +23,18 @@ namespace Dpr::Battle::Logic {
             }
         };
 
-        struct Result : ILClass<Result> {
+        struct Result : ILClass<Result, 0x04c5af68> {
             struct Fields {
                 bool isChanged;
             };
+
+            inline void ctor() {
+                external<void>(0x01fb4600, this);
+            }
         };
 
-        struct Fields : Dpr::Battle::Logic::Section::Fields {
-
-        };
+        inline void Execute(Result::Object* result, Description::Object** description) {
+            external<void>(0x01fb43f0, this, result, description);
+        }
     };
 }
