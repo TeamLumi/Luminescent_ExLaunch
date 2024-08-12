@@ -2,6 +2,7 @@
 
 #include "externals/Dpr/Message/MessageHelper.h"
 #include "externals/Dpr/Message/MessageManager.h"
+#include "externals/Dpr/Message/MessageWordSetHelper.h"
 #include "externals/Dpr/UI/TypePanel.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/UIText.h"
@@ -93,9 +94,53 @@ void SetEggGroupIconsFromZukanInfo(Dpr::UI::ZukanInfo::Object* zukanInfo, XLSXCo
     int32_t eggID1 = personalData->fields.egg_group1;
     int32_t eggID2 = personalData->fields.egg_group2 == eggID1 ? -1 : personalData->fields.egg_group2;
 
-    SetEggGroupIcons(eggGroup1, eggGroup2, eggID1, eggID2, zukanInfo->fields._GetStatus_k__BackingField, 11);
+    SetEggGroupIcons(eggGroup1, eggGroup2, eggID1, eggID2, zukanInfo->fields._GetStatus_k__BackingField, langId);
 
     UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
+}
+
+void SetMessageInUIText(UnityEngine::Transform::Object* root, System::String::Object* uiTextName, System::String::Object* msbtName, int32_t messageIndex, int32_t getStatus)
+{
+    auto uiText = root->Find(uiTextName)->Find(System::String::Create("ValueText"))
+            ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
+    if (uiText != nullptr)
+    {
+        if (getStatus == 3)
+            uiText->SetupMessage(msbtName, messageIndex);
+        else
+            uiText->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
+    }
+}
+
+void SetNumberInUIText(UnityEngine::Transform::Object* root, System::String::Object* uiTextName, int32_t number, int32_t getStatus)
+{
+    auto uiText = root->Find(uiTextName)->Find(System::String::Create("ValueText"))
+            ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
+    if (uiText != nullptr)
+    {
+        if (getStatus == 3)
+        {
+            Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+            Dpr::Message::MessageWordSetHelper::SetDigitWord(0, number);
+            uiText->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_206"));
+        }
+        else
+        {
+            uiText->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
+        }
+    }
+}
+
+void ChangeLanguageNumberInUIText(UnityEngine::Transform::Object* root, System::String::Object* uiTextName, int32_t number, int32_t langId)
+{
+    auto uiText = root->Find(uiTextName)->Find(System::String::Create("ValueText"))
+            ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
+    if (uiText != nullptr)
+    {
+        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+        Dpr::Message::MessageWordSetHelper::SetDigitWord(0, number);
+        uiText->ChangeLanguage(langId);
+    }
 }
 
 HOOK_DEFINE_TRAMPOLINE(ZukanInfo$$SetupUITexts) {
@@ -120,72 +165,39 @@ HOOK_DEFINE_TRAMPOLINE(ZukanInfo$$SetupUITexts) {
 
         auto statusTransform = ((UnityEngine::Component::Object*)classText)->get_transform()->GetParent();
 
-        auto ability1Text = statusTransform->Find(System::String::Create("Ability1"))->Find(System::String::Create("ValueText"))
-                ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
-        if (ability1Text != nullptr)
-        {
-            if (__this->fields._GetStatus_k__BackingField == 3)
-                ability1Text->SetupMessage(System::String::Create("ss_tokusei"), data->fields.tokusei1);
-            else
-                ability1Text->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
-        }
+        SetMessageInUIText(statusTransform, System::String::Create("Ability1"), System::String::Create("ss_tokusei"),
+                           data->fields.tokusei1, __this->fields._GetStatus_k__BackingField);
+        SetMessageInUIText(statusTransform, System::String::Create("Ability2"), System::String::Create("ss_tokusei"),
+                           data->fields.tokusei2, __this->fields._GetStatus_k__BackingField);
+        SetMessageInUIText(statusTransform, System::String::Create("Ability3"), System::String::Create("ss_tokusei"),
+                           data->fields.tokusei3, __this->fields._GetStatus_k__BackingField);
 
-        auto ability2Text = statusTransform->Find(System::String::Create("Ability2"))->Find(System::String::Create("ValueText"))
-                ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
-        if (ability2Text != nullptr)
-        {
-            if (__this->fields._GetStatus_k__BackingField == 3)
-                ability2Text->SetupMessage(System::String::Create("ss_tokusei"), data->fields.tokusei2);
-            else
-                ability2Text->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
-        }
+        SetMessageInUIText(statusTransform, System::String::Create("Item1"), System::String::Create("ss_itemname"),
+                           data->fields.item1, __this->fields._GetStatus_k__BackingField);
+        SetMessageInUIText(statusTransform, System::String::Create("Item2"), System::String::Create("ss_itemname"),
+                           data->fields.item2, __this->fields._GetStatus_k__BackingField);
+        SetMessageInUIText(statusTransform, System::String::Create("Item3"), System::String::Create("ss_itemname"),
+                           data->fields.item3, __this->fields._GetStatus_k__BackingField);
 
-        auto ability3Text = statusTransform->Find(System::String::Create("Ability3"))->Find(System::String::Create("ValueText"))
-                ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
-        if (ability3Text != nullptr)
-        {
-            if (__this->fields._GetStatus_k__BackingField == 3)
-                ability3Text->SetupMessage(System::String::Create("ss_tokusei"), data->fields.tokusei3);
-            else
-                ability3Text->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
-        }
-
-        auto item1Text = statusTransform->Find(System::String::Create("Item1"))->Find(System::String::Create("ValueText"))
-                ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
-        if (item1Text != nullptr)
-        {
-            if (__this->fields._GetStatus_k__BackingField == 3)
-                item1Text->SetupMessage(System::String::Create("ss_itemname"), data->fields.item1);
-            else
-                item1Text->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
-        }
-
-        auto item2Text = statusTransform->Find(System::String::Create("Item2"))->Find(System::String::Create("ValueText"))
-                ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
-        if (item2Text != nullptr)
-        {
-            if (__this->fields._GetStatus_k__BackingField == 3)
-                item2Text->SetupMessage(System::String::Create("ss_itemname"), data->fields.item2);
-            else
-                item2Text->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
-        }
-
-        auto item3Text = statusTransform->Find(System::String::Create("Item3"))->Find(System::String::Create("ValueText"))
-                ->GetComponent(UnityEngine::Component::Method$$UIText$$GetComponent);
-        if (item3Text != nullptr)
-        {
-            if (__this->fields._GetStatus_k__BackingField == 3)
-                item3Text->SetupMessage(System::String::Create("ss_itemname"), data->fields.item3);
-            else
-                item3Text->SetupMessage(System::String::Create("ss_pokedex"), System::String::Create("SS_pokedex_029"));
-        }
+        SetNumberInUIText(statusTransform, System::String::Create("StatHP"),
+                          data->fields.basic_hp, __this->fields._GetStatus_k__BackingField);
+        SetNumberInUIText(statusTransform, System::String::Create("StatATK"),
+                          data->fields.basic_atk, __this->fields._GetStatus_k__BackingField);
+        SetNumberInUIText(statusTransform, System::String::Create("StatDEF"),
+                          data->fields.basic_def, __this->fields._GetStatus_k__BackingField);
+        SetNumberInUIText(statusTransform, System::String::Create("StatSPATK"),
+                          data->fields.basic_spatk, __this->fields._GetStatus_k__BackingField);
+        SetNumberInUIText(statusTransform, System::String::Create("StatSPDEF"),
+                          data->fields.basic_spdef, __this->fields._GetStatus_k__BackingField);
+        SetNumberInUIText(statusTransform, System::String::Create("StatSPE"),
+                          data->fields.basic_agi, __this->fields._GetStatus_k__BackingField);
 
         SetEggGroupIconsFromZukanInfo(__this, data, statusTransform, 11);
     }
 };
 
 HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$OnSelectLanguageButton) {
-    // Second parameter is Dpr::UI::IUIButton, but that's an interface. It gets casted to this type anyways.
+    // Second parameter is Dpr::UI::IUIButton, but that's an interface. It gets cast to this type anyways.
     static void Callback(Dpr::UI::ZukanDescriptionPanel::Object* __this, Dpr::UI::ZukanLanguageButton::Object* button) {
         Orig(__this, button);
 
@@ -203,6 +215,20 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$OnSelectLanguageButton) {
         Pml::Personal::PersonalSystem::getClass()->initIfNeeded();
         auto data = Pml::Personal::PersonalSystem::GetPersonalData(monsno, formno);
         auto statusTransform = ((UnityEngine::Component::Object*)__this->fields.classText)->get_transform()->GetParent();
+
+        // Update the language for Base Stat UITexts
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatHP"),
+                                     data->fields.basic_hp, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatATK"),
+                                     data->fields.basic_atk, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatDEF"),
+                                     data->fields.basic_def, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatSPATK"),
+                                     data->fields.basic_spatk, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatSPDEF"),
+                                     data->fields.basic_spdef, button->fields._LangId_k__BackingField);
+        ChangeLanguageNumberInUIText(statusTransform, System::String::Create("StatSPE"),
+                                     data->fields.basic_agi, button->fields._LangId_k__BackingField);
 
         SetEggGroupIconsFromZukanInfo(__this->fields._CurrentZukanInfo_k__BackingField, data, statusTransform, button->fields._LangId_k__BackingField);
     }

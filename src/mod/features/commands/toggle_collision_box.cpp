@@ -1,5 +1,5 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/EvData/ArgType.h"
+#include "externals/EvData.h"
 #include "externals/UnityEngine/BoxCollider.h"
 #include "externals/UnityEngine/GameObject.h"
 
@@ -18,7 +18,7 @@ bool ToggleCollisionBox(Dpr::EvScript::EvDataManager::Object* manager)
     {
         if ((EvData::ArgType)args->m_Items[1].fields.argType == EvData::ArgType::String)
         {
-            System::String::Object * objectName = evData->fields.EvData->GetString(args->m_Items[1].fields.data);
+            System::String::Object * objectName = evData->fields._EvData->GetString(args->m_Items[1].fields.data);
             UnityEngine::GameObject::Object* object = UnityEngine::GameObject::Object::Find(objectName);
 
             if (object != nullptr)

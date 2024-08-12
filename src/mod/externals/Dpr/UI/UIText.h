@@ -9,7 +9,7 @@
 namespace Dpr::UI {
     struct UIText : ILClass<UIText> {
         struct Fields : TMPro::TextMeshProUGUI::Fields {
-            // TODO: The class this inherits from has misaligned fields because of missing classes/structs.
+            // TODO: The class this inherits from has misaligned fields because of missing classes/structs. Do not use the below fields until this is fixed.
             int32_t _sizeId;
             bool _useMessage;
             System::String::Object* _messageFile;
@@ -28,6 +28,10 @@ namespace Dpr::UI {
 
         inline void SetupMessage(System::String::Object* messageFile, int32_t messageIndex) {
             external<void>(0x01dd1940, this, messageFile, messageIndex);
+        }
+
+        inline void ChangeLanguage(int32_t langId) {
+            external<void>(0x01dd19b0, this, langId);
         }
     };
 }
