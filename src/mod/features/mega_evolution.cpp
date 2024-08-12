@@ -3,7 +3,6 @@
 #include "externals/Dpr/Battle/Logic/PokeAction.h"
 #include "externals/Dpr/Battle/Logic/PokeActionContainer.h"
 #include "externals/Dpr/Battle/Logic/BTL_ACTION.h"
-#include "externals/Dpr/Battle/Logic/BTL_PARTY.h"
 #include "externals/Dpr/Battle/Logic/Section_CalcActionPriority.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_StoreActions.h"
@@ -12,17 +11,365 @@
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaButton.h"
+#include "externals/FlagWork_Enums.h"
+#include "externals/FlagWork.h"
+#include "externals/PlayerWork.h"
 #include "data/utils.h"
 #include "data/species.h"
+#include "data/items.h"
+#include "data/moves.h"
 #include "logger/logger.h"
 
-const int32_t mega_flag_sz = 1;
 const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
 const long mega_flag_mask = 1L << mega_flag_loc;
 
-
 uint8_t get_mega_flag(Dpr::Battle::Logic::BTL_ACTION::PARAM::Object __this) {
     return (*(uint64_t*)&__this.fields.raw >> 34) & 1;
+}
+
+bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+
+    auto pokeParam = __this->fields._btlPokeParam;
+    PlayerWork::getClass()->initIfNeeded();
+
+    if (PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count == 0) {
+        return false;
+    }
+
+    //ToDo Consider other side trainer functionality
+    if (FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE)) {
+        return false;
+    }
+
+    switch(pokeParam->GetMonsNo()) {
+
+        case array_index(SPECIES, "Venusaur"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Venusaurite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Charizard"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Charizardite X") ||
+                pokeParam->GetItem() == array_index(ITEMS, "Charizardite Y")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Blastoise"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Blastoisite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Beedrill"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Beedrillite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Pidgeot"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Pidgeotite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Alakazam"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Alakazite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Slowbro"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Slowbroite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Gengar"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Gengarite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Kangaskhan"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Kangaskhanite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Pinsir"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Pinsirite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Gyarados"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Gyaradosite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Aerodactyl"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Aerodactylite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Mewtwo"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Mewtwonite X") ||
+                pokeParam->GetItem() == array_index(ITEMS, "Mewtwonite Y")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Ampharos"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Ampharosite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Steelix"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Steelixite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Scizor"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Scizorite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Heracross"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Heracrossite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Houndoom"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Houndoomite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Tyranitar"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Tyranitarite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Sceptile"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Sceptilite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Blaziken"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Blazikenite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Swampert"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Swampertite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Gardevoir"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Gardevoirite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Sableye"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Sablenite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Mawile"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Mawilite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Aggron"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Aggronite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Medicham"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Medichamite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Sharpedo"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Sharpedonite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Camerupt"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Cameruptite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Altaria"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Altarianite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Banette"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Banettite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Absol"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Absolite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Glalie"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Glalitite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Salamence"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Salamencite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Metagross"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Metagrossite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Latias"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Latiasite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Latios"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Latiosite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Rayquaza"): {
+            for (uint8_t i = 0; i < pokeParam->WAZA_GetCount(); i++) {
+                if (pokeParam->WAZA_GetID(i) == array_index(MOVES, "Dragon Ascent")) {
+                    return true;
+                }
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Lopunny"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Loppunite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Garchomp"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Garchompite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Lucario"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Lucarionite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Abomasnow"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Abomasite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Gallade"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Galladite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Audino"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Audinite")) {
+                return true;
+            }
+            break;
+        }
+
+        case array_index(SPECIES, "Diancie"): {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Diancite")) {
+                return true;
+            }
+            break;
+        }
+
+
+        default: {
+            return false;
+        }
+
+    }
+
+    return false;
 }
 
 void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
@@ -34,12 +381,19 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
             Dpr::Battle::Logic::Section_FromEvent_FormChange::Description::newInstance();
 
     switch (param->GetMonsNo()) {
-        case array_index(SPECIES, "Lucario"): {
-            description->fields.formNo = 1;
+
+        case array_index(SPECIES, "Charizard"): {
+            description->fields.formNo = param->GetItem() == array_index(ITEMS, "Charizardite X") ? 1 : 2;
+            break;
+        }
+
+        case array_index(SPECIES, "Mewtwo"): {
+            description->fields.formNo = param->GetItem() == array_index(ITEMS, "Mewtwonite X") ? 1 : 2;
             break;
         }
 
         default: {
+            description->fields.formNo = 1;
             break;
         }
 
@@ -90,21 +444,6 @@ HOOK_DEFINE_TRAMPOLINE(ProcessActionCore$$action) {
         }
     }
 };
-
-//HOOK_DEFINE_INLINE(createPokeAction_FromClientInstruction) {
-//    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-//        auto instructions = reinterpret_cast<Dpr::Battle::Logic::SVCL_ACTION::Object*>(ctx->X[0]);
-//        auto clientID = static_cast<uint8_t>(ctx->X[1]);
-//        auto posIdx = static_cast<uint8_t>(ctx->X[2]);
-//
-//        Dpr::Battle::Logic::BTL_ACTION::PARAM::Object* action = instructions->Get(clientID, posIdx);
-//        action->fields.raw
-//
-//        ctx->X[0] = reinterpret_cast<u64>(instructions->Get(clientID, posIdx));
-//
-//
-//    }
-//};
 
 HOOK_DEFINE_TRAMPOLINE(createPokeAction_FromClientInstruction) {
     static void Callback(Dpr::Battle::Logic::Section_StoreActions::Object* __this,
