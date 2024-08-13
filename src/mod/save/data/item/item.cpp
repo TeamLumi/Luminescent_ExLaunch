@@ -39,10 +39,8 @@ void loadItems(bool isBackup)
 
 void linkItems(PlayerWork::Object* playerWork)
 {
-    auto saveItemCls = Dpr::Item::SaveItem_array_TypeInfo();
-
     // Create new array
-    auto newItems = (Dpr::Item::SaveItem::Array*) system_array_new(saveItemCls, SaveItemCount);
+    auto newItems = Dpr::Item::SaveItem::newArray(SaveItemCount);
 
     // Fill the new array with the custom save data
     memcpy(newItems->m_Items, getCustomSaveData()->items.items, sizeof(getCustomSaveData()->items.items));

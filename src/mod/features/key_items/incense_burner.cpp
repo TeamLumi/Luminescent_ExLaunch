@@ -122,7 +122,7 @@ void UseIncenseBurner(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Display
         };
         
         // There's probably a way to generalize converting a vector to our IL Arrays and then add the method to il2cpp-api.h, but I'm not smart enough to figure it out
-        System::Int32_array* contextMenuIDArray = (System::Int32_array*)system_array_new(System::Int32_array_TypeInfo(), contextMenuIDVector.size());
+        auto contextMenuIDArray = System::Int32_array::newArray(contextMenuIDVector.size());
         std::memcpy(contextMenuIDArray->m_Items, &contextMenuIDVector[0], sizeof(int32_t) * contextMenuIDVector.size());
         
         uiBag->OpenContextMenu(contextMenuIDArray, onSelected, pivot, pos, nullptr, false, false);

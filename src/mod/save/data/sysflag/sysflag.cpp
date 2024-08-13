@@ -39,10 +39,8 @@ void loadSysFlags(bool isBackup)
 
 void linkSysFlags(PlayerWork::Object* playerWork)
 {
-    auto boolCls = System::Boolean_array_TypeInfo();
-
     // Create new array
-    auto newSysFlags = (System::Boolean_array*) system_array_new(boolCls, SysFlagCount);
+    auto newSysFlags = System::Boolean_array::newArray(SysFlagCount);
 
     // Fill the new array with the custom save data
     memcpy(newSysFlags->m_Items, getCustomSaveData()->sysflags.items, sizeof(getCustomSaveData()->sysflags.items));

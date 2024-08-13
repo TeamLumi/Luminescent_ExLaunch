@@ -6,7 +6,7 @@
 
 namespace Dpr::Box {
     struct SaveBoxData : ILStruct<SaveBoxData> {
-        struct _STR17 : ILStruct<_STR17> {
+        struct _STR17 : ILStruct<_STR17, 0x04c5ddb0> {
             struct Fields {
                 System::String::Object* str;
             };
@@ -15,10 +15,6 @@ namespace Dpr::Box {
                 return 17*2;
             }
         };
-
-        static Il2CppClass* _STR17_array_TypeInfo() {
-            return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c5ddb0));
-        }
 
         struct _STR11 : ILStruct<_STR11> {
             struct Fields {

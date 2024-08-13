@@ -49,15 +49,13 @@ void loadZukan(bool isBackup)
 
 void linkZukan(PlayerWork::Object* playerWork)
 {
-    auto boolCls = System::Boolean_array_TypeInfo();
-
     // Create new arrays
-    auto newStatus = (DPData::GET_STATUS_array*)system_array_new(DPData::GET_STATUS_array_TypeInfo(), DexSize);
-    auto newMaleColorFlag = (System::Boolean_array*)system_array_new(boolCls, DexSize);
-    auto newFemaleColorFlag = (System::Boolean_array*)system_array_new(boolCls, DexSize);
-    auto newMaleFlag = (System::Boolean_array*)system_array_new(boolCls, DexSize);
-    auto newFemaleFlag = (System::Boolean_array*)system_array_new(boolCls, DexSize);
-    auto newLanguageFlags = (System::Int32_array*)system_array_new(System::Int32_array_TypeInfo(), DexSize);
+    auto newStatus = DPData::GET_STATUS_array::newArray(DexSize);
+    auto newMaleColorFlag = System::Boolean_array::newArray(DexSize);
+    auto newFemaleColorFlag = System::Boolean_array::newArray(DexSize);
+    auto newMaleFlag = System::Boolean_array::newArray(DexSize);
+    auto newFemaleFlag = System::Boolean_array::newArray(DexSize);
+    auto newLanguageFlags = System::Int32_array::newArray(DexSize);
 
     // Fill the new arrays with the custom save data
     for (uint64_t i=0; i<DexSize; i++)

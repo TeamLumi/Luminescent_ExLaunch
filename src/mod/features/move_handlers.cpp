@@ -50,10 +50,9 @@ void SetMoveFunctionTable(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTabl
 
 HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto typeInfo = (Il2CppClass*)ctx->X[0];
         uint64_t size = ctx->X[1];
 
-        auto array = (Handler::Waza::GET_FUNC_TABLE_ELEM::Array*)system_array_new(typeInfo, size + getExtraMoveHandlers()->count);
+        auto array = Handler::Waza::GET_FUNC_TABLE_ELEM::newArray(size + getExtraMoveHandlers()->count);
         getExtraMoveHandlers()->currentIndex = size;
 
         // DO NOT REMOVE ANY OF THESE! Disable the moves in exl_move_handlers_main() below instead!

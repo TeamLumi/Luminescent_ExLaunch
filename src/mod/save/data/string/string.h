@@ -30,7 +30,7 @@ struct StringSaveData {
     long FromBytes(char* buffer, long buffer_size, long index) {
         if (buffer_size >= GetByteCount() + index)
         {
-            auto newStrings = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(Dpr::Box::SaveBoxData::_STR17_array_TypeInfo(), size);
+            auto newStrings = Dpr::Box::SaveBoxData::_STR17::newArray(size);
             for (uint64_t i=0; i<newStrings->max_length; i++)
             {
                 void* strData = (void*)(buffer+index);
