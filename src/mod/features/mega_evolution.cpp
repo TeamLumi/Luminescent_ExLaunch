@@ -41,6 +41,7 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
         return false;
     }
 
+    //ToDo JSON-ize this switch
     switch(pokeParam->GetMonsNo()) {
 
         case array_index(SPECIES, "Venusaur"): {
@@ -81,6 +82,7 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
 
         case array_index(SPECIES, "Alakazam"): {
             if (pokeParam->GetItem() == array_index(ITEMS, "Alakazite")) {
+                Logger::log("[CanShowMegaUI] Alakazam is holding Alakazite\n");
                 return true;
             }
             break;
@@ -419,8 +421,11 @@ HOOK_DEFINE_INLINE(OnSubmitWazaButton) {
         auto __this = reinterpret_cast<Dpr::Battle::View::UI::BUIWazaList::Object*>(ctx->X[19]);
         auto destActionParam = __this->fields._destActionParam;
         ctx->X[8] = reinterpret_cast<u64>(destActionParam);
-        destActionParam->fields.value.fields.raw |= mega_flag_mask;
-        Logger::log("[OnSubmitWazaButton] Set Mega Flag\n");
+        auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+        auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+        if (megaState->get_activeSelf()) {
+            destActionParam->fields.value.fields.raw |= mega_flag_mask;
+        }
     }
 };
 
@@ -430,10 +435,7 @@ HOOK_DEFINE_TRAMPOLINE(ProcessActionCore$$action) {
 
         switch(pokeAction->fields.actionCategory) {
             case Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution: {
-                //ToDo
-                Logger::log("[ProcessActionCore$$action] Mega_Evolution\n");
                 MegaEvolutionFormHandler(__this->fields.m_pSectionContainer, pokeAction);
-                Logger::log("[ProcessActionCore$$action] Mega Evolved.\n");
                 break;
             }
 
@@ -489,7 +491,6 @@ HOOK_DEFINE_TRAMPOLINE(setupPokeAction_FromClientInstruction) {
         instruction.fields.raw = clientInstruction->fields.raw;
 
         if (get_mega_flag(instruction)) {
-            Logger::log("[setupPokeAction_FromClientInstruction] Mega_Evolution\n");
             (pokeAction->fields).actionCategory = Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution;
 
             pokeAction->fields.bpp = __this->getActionPoke(clientInstruction, clientID);
@@ -535,10 +536,20 @@ HOOK_DEFINE_TRAMPOLINE(CalcActionPriority$$Execute) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnShow) {
+    static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+        bool isShowMegaUI = CanShowMegaUI(__this);
+        auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+        megaButton->cast<UnityEngine::Component>()->get_gameObject()->SetActive(isShowMegaUI);
+        Orig(__this);
+    }
+};
+
 void exl_mega_evolution_main() {
     OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
     CalcActionPriority$$Execute::InstallAtOffset(0x021ad570);
     ProcessActionCore$$action::InstallAtOffset(0x021c0de0);
     setupPokeAction_FromClientInstruction::InstallAtOffset(0x021cdbf0);
     createPokeAction_FromClientInstruction::InstallAtOffset(0x021cdad0);
+    BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
 }

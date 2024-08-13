@@ -6,9 +6,15 @@
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
 #include "externals/Dpr/UI/Cursor.h"
+#include "externals/Dpr/MsgWindow/MsgWindowManager.h"
 #include "helpers/InputHelper.h"
+#include "externals/FlagWork.h"
+#include "externals/FlagWork_Enums.h"
+#include "externals/Audio/AudioManager.h"
 
 #include "logger/logger.h"
+
+const uint32_t AK_EVENTS_UI_COMMON_SELECT = 0xb7533038;
 
 void ArrowMovement(Dpr::Battle::View::UI::BUIActionList::Object* __this, int32_t index) {
     system_load_typeinfo(0x1f10);
@@ -57,6 +63,34 @@ HOOK_DEFINE_REPLACE(OnUpdate) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnUpdate) {
+    static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this, float deltatime) {
+
+        if (!__this->fields._IsFocus_k__BackingField) {
+            return;
+        }
+
+        if (Dpr::MsgWindow::MsgWindowManager::get_IsOpen()) {
+            return;
+        }
+
+        if (InputHelper::isPressR()) {
+            Logger::log("[OnUpdate] Toggle Mega\n");
+
+            auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+            auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+
+            megaState->SetActive(!megaState->get_activeSelf());
+
+            Logger::log("[OnUpdate] Mega Evolution: %s.\n", megaState->get_activeSelf() ? "Primed" : "Inactive");
+
+            Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+        }
+
+        Orig(__this, deltatime);
+    }
+};
+
 HOOK_DEFINE_INLINE(OnShow) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto actionList = reinterpret_cast<Dpr::Battle::View::UI::BUIActionList::Object*>(ctx->X[19]);
@@ -88,5 +122,6 @@ void exl_madrid_ui_main() {
     OnShow::InstallAtOffset(0x01e8c568);
     OnShow2::InstallAtOffset(0x01e8c560);
     OnUpdate::InstallAtOffset(0x01e8bdb0);
+    BUIWazaList$$OnUpdate::InstallAtOffset(0x01d2c490);
     //SwitchCoroutine::InstallAtOffset(0x01e7f118);
 }
