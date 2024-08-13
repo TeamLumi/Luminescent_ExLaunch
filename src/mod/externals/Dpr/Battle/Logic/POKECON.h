@@ -9,14 +9,14 @@ namespace Dpr::Battle::Logic {
 
     struct POKECON : ILClass<POKECON> {
         struct Fields {
-            Dpr::Battle::Logic::MainModule* m_mainModule;
-            Dpr::Battle::Logic::BTL_PARTY::Array* m_party;
-            Dpr::Battle::Logic::BTL_POKEPARAM::Array* m_activePokeParam;
-            Dpr::Battle::Logic::BTL_POKEPARAM::Array* m_storedPokeParam;
+            MainModule* m_mainModule;
+            BTL_PARTY::Array* m_party;
+            BTL_POKEPARAM::Array* m_activePokeParam;
+            BTL_POKEPARAM::Array* m_storedPokeParam;
         };
 
-        inline Dpr::Battle::Logic::BTL_PARTY::Object* GetPartyData(uint32_t clientID) {
-            return external<Dpr::Battle::Logic::BTL_PARTY::Object*>(0x02038600, this, clientID);
+        inline BTL_PARTY::Object* GetPartyData(uint32_t clientID) {
+            return external<BTL_PARTY::Object*>(0x02038600, this, clientID);
         }
 
         inline Dpr::Battle::Logic::BTL_POKEPARAM::Object* GetPokeParamConst(uint8_t pokeID) {

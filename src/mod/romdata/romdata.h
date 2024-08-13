@@ -1,9 +1,10 @@
 #pragma once
 
-#include "romdata/data/IntroData.h"
+#include "romdata/data/Arena.h"
 #include "romdata/data/ColorSet.h"
 #include "romdata/data/FormHeldItemMon.h"
 #include "romdata/data/HoneyTreeEncounters.h"
+#include "romdata/data/IntroData.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
@@ -53,3 +54,6 @@ bool IsLanguageActivated(int32_t langID);
 
 // Returns the available Color Variation presets in the intro.
 nn::vector<int32_t> GetIntroColorVariationPresets();
+
+// Returns the extra arena data.
+RomData::Arena GetExtraArenaData(int32_t arena);

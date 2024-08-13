@@ -48,6 +48,12 @@ void logFeatures() {
         if (IsActivatedSaveFeature(i))
             Logger::log(" %s\n", SAVE_FEATURES[i]);
     Logger::log("\n");
+
+    Logger::log("Battle Features:\n");
+    for (int i=0; i<BATTLE_FEATURE_COUNT; i++)
+        if (IsActivatedBattleFeature(i))
+            Logger::log(" %s\n", BATTLE_FEATURES[i]);
+    Logger::log("\n");
 }
 
 static Socket gSocket {};

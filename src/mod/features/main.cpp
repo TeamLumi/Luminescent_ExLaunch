@@ -54,8 +54,6 @@ void CallFeatureHooks()
         exl_poke_radar_fixes_main();
     if (IsActivatedFeature(array_index(FEATURES, "Pickup Changes")))
         exl_pickup_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag")))
-        exl_thief_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Trainer Double Battle")))
         exl_trainer_double_battles_main();
     if (IsActivatedFeature(array_index(FEATURES, "Two-Button Pokétch")))
@@ -96,6 +94,7 @@ void CallFeatureHooks()
     exl_key_items_main();
     exl_save_data_expansion_main();
     exl_patches_main();
+    exl_battle_features_main();
 }
 
 void exl_features_main() {
@@ -106,6 +105,7 @@ void exl_features_main() {
     DisableKeyItemFeatures();
     DisableSaveFeatures();
     DisableSmallPatchFeatures();
+    DisableBattleFeatures();
 
     // Select which new features are activated
     SetActivatedFeature(array_index(FEATURES, "Ability Changes"));
@@ -131,7 +131,6 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Party Context Menu"));
     SetActivatedFeature(array_index(FEATURES, "Pickup Changes"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
-    SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
     SetActivatedFeature(array_index(FEATURES, "Trainer Double Battle"));
     SetActivatedFeature(array_index(FEATURES, "Two-Button Pokétch"));
     SetActivatedFeature(array_index(FEATURES, "Relearn TMs"));
@@ -172,6 +171,10 @@ void exl_features_main() {
     SetActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Affection Toggle"));
     SetActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Global Exp. Share Toggle"));
     SetActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Catch Rate Fix"));
+
+    SetActivatedBattleFeature(array_index(BATTLE_FEATURES, "Move Handlers"));
+    SetActivatedBattleFeature(array_index(BATTLE_FEATURES, "Field Handlers"));
+    SetActivatedBattleFeature(array_index(BATTLE_FEATURES, "Side Handlers"));
 
     // Install all activated hooks
     CallFeatureHooks();
