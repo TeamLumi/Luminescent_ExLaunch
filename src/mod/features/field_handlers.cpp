@@ -159,10 +159,9 @@ HOOK_DEFINE_REPLACE(Section_FieldEffect_End_Execute) {
 
 HOOK_DEFINE_INLINE(Field_system_array_new) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto typeInfo = (Il2CppClass*)ctx->X[0];
         uint64_t size = ctx->X[1];
 
-        auto array = (Handler::Field::GET_FUNC_TABLE_ELEM::Array*)system_array_new(typeInfo, size + getExtraFieldEffectHandlers()->count);
+        auto array = Handler::Field::GET_FUNC_TABLE_ELEM::newArray(size + getExtraFieldEffectHandlers()->count);
         getExtraFieldEffectHandlers()->currentIndex = size;
 
         // DO NOT REMOVE ANY OF THESE! Disable the field effects in exl_field_handlers_main() below instead!

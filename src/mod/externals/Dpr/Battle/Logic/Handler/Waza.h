@@ -18,7 +18,7 @@ namespace Dpr::Battle::Logic::Handler {
             }
         };
 
-        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM> {
+        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, 0x04c5b440> {
             struct Fields {
                 int32_t waza;
                 HandlerGetFunc::Object* func;

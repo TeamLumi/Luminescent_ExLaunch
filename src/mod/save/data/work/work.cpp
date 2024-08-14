@@ -39,10 +39,8 @@ void loadWorks(bool isBackup)
 
 void linkWorks(PlayerWork::Object* playerWork)
 {
-    auto int32Cls = System::Int32_array_TypeInfo();
-
     // Create new array
-    auto newWorks = (System::Int32_array*) system_array_new(int32Cls, WorkCount);
+    auto newWorks = System::Int32_array::newArray(WorkCount);
 
     // Fill the new array with the custom save data
     memcpy(newWorks->m_Items, getCustomSaveData()->works.items, sizeof(getCustomSaveData()->works.items));

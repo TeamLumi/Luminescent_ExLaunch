@@ -23,7 +23,7 @@ void HandlerFlameBurstDamageprocEndHitReal(EventFactor::EventHandlerArgs::Object
         auto target = (EventVar::Label)(i + (uint16_t)EventVar::Label::POKEID_TARGET1);
         uint8_t targetPokeID = Common::GetEventVar(args, target);
 
-        auto opponents = (System::Byte_array*)system_array_new(System::Byte_array_TypeInfo(), 5);
+        auto opponents = System::Byte_array::newArray(5);
         uint8_t opponentCount = GetAllOtherOutPokeID(args, targetPokeID, opponents);
         for (int32_t j=0; j<opponentCount; j++)
         {

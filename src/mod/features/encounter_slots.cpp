@@ -680,7 +680,7 @@ HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
         }
 
         Dpr::Field::EncountResult::Object *encounterHolder = Dpr::Field::EncountResult::newInstance();
-        auto slots = (MonsLv::Array*)system_array_new(MonsLv::Array_TypeInfo(), 12); // local_100 = 0x0
+        auto slots = MonsLv::newArray(12); // local_100 = 0x0
         bool isSafariFlag = false;
 
         // Handle Roaming and water encounters
@@ -750,7 +750,7 @@ HOOK_DEFINE_REPLACE(GetSafariScopeMonsterEncounterSlots) {
     static int32_t Callback(int32_t zoneId) {
         system_load_typeinfo(0x48c3);
 
-        auto slots = (MonsLv::Array*)system_array_new(MonsLv::Array_TypeInfo(), 12);
+        auto slots = MonsLv::newArray(12);
         XLSXContent::FieldEncountTable::Sheettable::Object *fieldEnc = GameManager::GetFieldEncountData(zoneId);
 
         if (slots->max_length > 0)
@@ -806,7 +806,7 @@ HOOK_DEFINE_REPLACE(SetFishingEncountEncounterSlots) {
         }
 
         Dpr::Field::EncountResult::Object *encounterHolder = Dpr::Field::EncountResult::newInstance();
-        auto slots = (MonsLv::Array*)system_array_new(MonsLv::Array_TypeInfo(), 5);
+        auto slots = MonsLv::newArray(5);
 
         // Set slots
         SetBaseFishingSlots(&encounterHolder, slots, inRodType);
@@ -871,7 +871,7 @@ HOOK_DEFINE_REPLACE(SetSweetEncountEncounterSlots) {
         Dpr::Field::FieldEncount::SetSpaStruct((Pml::PokePara::PokemonParam::Object *)firstPokemon, fieldEnc, &spaStruct);
 
         Dpr::Field::EncountResult::Object *encounterHolder = Dpr::Field::EncountResult::newInstance();
-        auto slots = (MonsLv::Array*)system_array_new(MonsLv::Array_TypeInfo(), 12); // local_100 = 0x0
+        auto slots = MonsLv::newArray(12); // local_100 = 0x0
         bool isSafariFlag = false;
 
         // Handle Roaming and water encounters

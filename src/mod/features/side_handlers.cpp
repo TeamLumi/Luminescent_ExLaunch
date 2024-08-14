@@ -52,10 +52,9 @@ void SetSideEffectFunctionTable(Handler::Side::GET_FUNC_TABLE_ELEM::Array* getFu
 
 HOOK_DEFINE_INLINE(Side_system_array_new) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto typeInfo = (Il2CppClass*)ctx->X[0];
         uint64_t size = ctx->X[1];
 
-        auto array = (Handler::Side::GET_FUNC_TABLE_ELEM::Array*)system_array_new(typeInfo, size + getExtraSideEffectHandlers()->count);
+        auto array = Handler::Side::GET_FUNC_TABLE_ELEM::newArray(size + getExtraSideEffectHandlers()->count);
         getExtraSideEffectHandlers()->currentIndex = size;
 
         // DO NOT REMOVE ANY OF THESE! Disable the side effects in exl_side_handlers_main() below instead!
