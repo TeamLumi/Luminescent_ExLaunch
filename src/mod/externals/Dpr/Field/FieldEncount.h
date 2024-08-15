@@ -59,5 +59,9 @@ namespace Dpr::Field {
         static inline bool WildEncSingle(Pml::PokePara::PokemonParam::Object *poke_param, Dpr::Field::EncountResult::Object **param, XLSXContent::FieldEncountTable::Sheettable::Object *data, MonsLv::Array *enc_data, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object inSwayEncInfo) {
             return external<bool>(0x019b4c00, poke_param, param, data, enc_data, inFldSpa, inSwayEncInfo);
         }
+
+        static inline bool WildEncDouble(Pml::PokePara::PokemonParam::Object *poke_param, Dpr::Field::EncountResult::Object **param, MonsLv::Array *enc_data, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object* inFldSpa) {
+            return external<bool>(0x019b4e80, poke_param, param, enc_data, inFldSpa);
+        }
     };
 }

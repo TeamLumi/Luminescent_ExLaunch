@@ -6,6 +6,7 @@
 #include "externals/Dpr/Battle/Logic/BtlCompetitor.h"
 #include "externals/Dpr/Battle/Logic/BtlRule.h"
 #include "externals/Dpr/Battle/Logic/PokeAction.h"
+#include "externals/Dpr/Battle/Logic/BTL_PARTY.h"
 
 namespace Dpr::Battle::Logic {
     // To avoid cyclical definitions. Make sure to use ->instance() on these fields.
@@ -55,6 +56,10 @@ namespace Dpr::Battle::Logic {
 
         inline BTL_POKEPARAM::Object* GetPokeParam(uint8_t pokeID) {
             return external<BTL_POKEPARAM::Object*>(0x020d64a0, this, pokeID);
+        }
+
+        inline BTL_PARTY::Object* GetPokeParty(uint8_t clientID) {
+            return external<BTL_PARTY::Object*>(0x020d6670, this, clientID);
         }
     };
 }

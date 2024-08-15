@@ -6,6 +6,7 @@
 #include "externals/Dpr/Battle/Logic/FieldStatus.h"
 #include "externals/Dpr/Battle/Logic/POKECON.h"
 #include "externals/Dpr/Battle/Logic/PosPoke.h"
+#include "externals/Dpr/Battle/Logic/ActionSerialNoManager.h"
 
 namespace Dpr::Battle::Logic {
     struct BattleEnv : ILClass<BattleEnv> {
@@ -20,7 +21,7 @@ namespace Dpr::Battle::Logic {
             void* m_wazaRec; // Dpr_Battle_Logic_WazaRec_o
             void* m_affCounter; // Dpr_Battle_Logic_AffCounter_o
             void* m_actionRecorder; // Dpr_Battle_Logic_ActionRecorder_o
-            void* m_actionSerialNoManager; // Dpr_Battle_Logic_ActionSerialNoManager_o
+            ActionSerialNoManager::Object* m_actionSerialNoManager; // Dpr_Battle_Logic_ActionSerialNoManager_o
             void* m_timeLimit; // Dpr_Battle_Logic_TimeLimit_o
             void* m_gRightsManager; // Dpr_Battle_Logic_GRightsManager_o
             void* m_gGauge; // Dpr_Battle_Logic_GGauge_array

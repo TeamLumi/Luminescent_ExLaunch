@@ -15,5 +15,6 @@ namespace Dpr::Battle::Logic {
         RaidBossExtraAction = 8,
         RecPlay_TimeOver = 9,
         RecPlay_Error = 10,
+        Mega_Evolution = 11,
     };
 }

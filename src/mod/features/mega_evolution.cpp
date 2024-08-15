@@ -6,6 +6,7 @@
 #include "externals/Dpr/Battle/Logic/Section_CalcActionPriority.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_StoreActions.h"
+#include "externals/Dpr/Battle/Logic/SectionContainer.h"
 #include "externals/Dpr/Battle/Logic/SVCL_ACTION.h"
 #include "externals/Dpr/Battle/Logic/ActPri.h"
 #include "externals/Dpr/Battle/Logic/Common.h"
@@ -14,6 +15,7 @@
 #include "externals/Dpr/Battle/View/Systems/BattleViewSystem.h"
 #include "externals/Dpr/Battle/View/BattleViewCore.h"
 #include "externals/BTL_STRID_SET.h"
+#include "externals/Dpr/Battle/Logic/BtlStrType.h"
 #include "externals/FlagWork_Enums.h"
 #include "externals/FlagWork.h"
 #include "externals/PlayerWork.h"
@@ -63,7 +65,7 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
         }
 
         case array_index(SPECIES, "Blastoise"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Blastoisite")) {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Blastoisinite")) {
                 return true;
             }
             break;
@@ -92,7 +94,7 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
         }
 
         case array_index(SPECIES, "Slowbro"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Slowbroite")) {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Slowbronite")) {
                 return true;
             }
             break;
@@ -163,14 +165,14 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
         }
 
         case array_index(SPECIES, "Heracross"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Heracrossite")) {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Heracronite")) {
                 return true;
             }
             break;
         }
 
         case array_index(SPECIES, "Houndoom"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Houndoomite")) {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Houndoominite")) {
                 return true;
             }
             break;
@@ -319,7 +321,7 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
         }
 
         case array_index(SPECIES, "Lopunny"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Loppunite")) {
+            if (pokeParam->GetItem() == array_index(ITEMS, "Lopunnite")) {
                 return true;
             }
             break;
@@ -406,7 +408,7 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
 
     description->fields.pokeID = param->GetID();
 
-    description->fields.successMessage->Setup(2, 0x130); // Placeholder need to change
+    description->fields.successMessage->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, 1576);
     description->fields.successMessage->AddArg(param->GetID());
 
     system_load_typeinfo(0x2c56);
@@ -439,15 +441,6 @@ HOOK_DEFINE_TRAMPOLINE(CMD_ACT_PokeChangeEffect_WaitCore) {
         }
     }
 };
-
-HOOK_DEFINE_TRAMPOLINE(CheckTagSet) {
-    static void Callback() {
-        BTL_STRID_SET::getClass()->initIfNeeded();
-        auto labelArray = BTL_STRID_SET::getClass()->static_fields->LABEL;
-
-    }
-};
-
 HOOK_DEFINE_INLINE(OnSubmitWazaButton) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto __this = reinterpret_cast<Dpr::Battle::View::UI::BUIWazaList::Object*>(ctx->X[19]);
@@ -467,7 +460,8 @@ HOOK_DEFINE_TRAMPOLINE(ProcessActionCore$$action) {
 
         switch(pokeAction->fields.actionCategory) {
             case Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution: {
-                MegaEvolutionFormHandler(__this->fields.m_pSectionContainer, pokeAction);
+                MegaEvolutionFormHandler(reinterpret_cast<Dpr::Battle::Logic::SectionContainer::Object*>(
+                        __this->fields.m_pSectionContainer), pokeAction);
                 break;
             }
 
@@ -531,7 +525,8 @@ HOOK_DEFINE_TRAMPOLINE(setupPokeAction_FromClientInstruction) {
             pokeAction->fields.fDone = false;
             pokeAction->fields.fIntrCheck = false;
             pokeAction->fields.fRecalcPriority = false;
-            __this->fields.m_pBattleEnv->fields.m_actionSerialNoManager->AssignSerialNo(pokeAction->fields.actionDesc);
+            reinterpret_cast<Dpr::Battle::Logic::BattleEnv::Object*>(__this->fields.m_pBattleEnv)->
+            fields.m_actionSerialNoManager->AssignSerialNo(pokeAction->fields.actionDesc);
 
             return true;
         }

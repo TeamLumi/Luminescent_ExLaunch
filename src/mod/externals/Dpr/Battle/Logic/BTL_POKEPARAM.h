@@ -217,10 +217,6 @@ namespace Dpr::Battle::Logic {
             return external<bool>(0x01fdb9a0, this);
         }
 
-        inline int32_t WAZA_GetID(uint8_t idx) {
-            return external<int32_t>(0x01fdeb70, this, idx);
-        }
-
         inline uint8_t WAZA_GetCount() {
             return external<int32_t>(0x01fde9c0, this);
         }
