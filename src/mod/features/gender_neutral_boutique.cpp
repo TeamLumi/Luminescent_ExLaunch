@@ -1,6 +1,7 @@
 #include "exlaunch.hpp"
 #include "externals/il2cpp-api.h"
 
+#include "memory/vector.h"
 #include "data/outfits.h"
 #include "data/utils.h"
 #include "externals/Dpr/UI/ShopBoutiqueItemItem.h"

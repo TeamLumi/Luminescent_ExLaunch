@@ -27,9 +27,6 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
         save->dex.elements[i].female_flag = zukan.female_flag->m_Items[i];
     }
 
-    auto spfCls = Pml::PokePara::SerializedPokemonFull_array_TypeInfo();
-
-
     savedata.boxData.fields.trayName->copyInto(save->boxes.boxNames);
     savedata.boxData.fields.wallPaper->copyInto(save->boxes.wallpapers);
     savedata.boxTray->copyInto(save->boxes.pokemonParams);
@@ -45,7 +42,7 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
     // Initializes boxes 41-80, 1-40 are copied directly from Vanilla.
     for (uint64_t i=VANILLA_BOXSIZE; i < BoxCount; i++) {
         save->boxes.wallpapers[i] = save->boxes.wallpapers[i-VANILLA_BOXSIZE+INIT_WALLPAPER_OFFSET]; // Follows exact pattern of Vanilla 1-40
-        auto serializedPokemon = (Pml::PokePara::SerializedPokemonFull::Array*) system_array_new(spfCls, 30);
+        auto serializedPokemon = Pml::PokePara::SerializedPokemonFull::newArray(30);
         save->boxes.pokemonParams[i].fields.pokemonParam = serializedPokemon;
         for (uint64_t j=0; j < serializedPokemon->max_length; j++) {
             serializedPokemon->m_Items[j].CreateWorkIfNeed();

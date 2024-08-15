@@ -5,7 +5,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Pml::PokePara {
-    struct SerializedPokemonFull : ILStruct<SerializedPokemonFull> {
+    struct SerializedPokemonFull : ILStruct<SerializedPokemonFull, 0x04c59c08> {
         struct Fields {
             System::Byte_array* buffer;
         };
@@ -18,9 +18,4 @@ namespace Pml::PokePara {
             external<void>(0x020558c0, this);
         }
     };
-
-    static Il2CppClass* SerializedPokemonFull_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c59c08));
-    }
-
 }

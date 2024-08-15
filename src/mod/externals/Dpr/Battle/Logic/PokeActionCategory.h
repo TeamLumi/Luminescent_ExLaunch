@@ -1,4 +1,5 @@
 #pragma once
+
 #include "externals/il2cpp-api.h"
 
 namespace Dpr::Battle::Logic {
@@ -14,9 +15,5 @@ namespace Dpr::Battle::Logic {
         RaidBossExtraAction = 8,
         RecPlay_TimeOver = 9,
         RecPlay_Error = 10,
-
-        // Custom Actions
-        Mega_Evolution = 11,
-
     };
 }

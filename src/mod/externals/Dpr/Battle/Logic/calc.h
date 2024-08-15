@@ -1,6 +1,9 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "externals/Dpr/Battle/Logic/BTL_SICKCONT.h"
+#include "externals/Pml/WazaData/WazaSick.h"
 
 namespace Dpr::Battle::Logic {
     struct calc : ILClass<calc, 0x04c5a768> {
@@ -10,6 +13,30 @@ namespace Dpr::Battle::Logic {
 
         static inline bool PERSONAL_IsEvoCancelPokemon(int32_t monsno, int32_t formno, uint8_t level) {
             return external<bool>(0x01f75630, monsno, formno, level);
+        }
+
+        static inline uint32_t RandRange(uint32_t min, uint32_t max) {
+            return external<uint32_t>(0x01f74a10, min, max);
+        }
+
+        static inline uint32_t GetRand(uint32_t range) {
+            return external<uint32_t>(0x01f74990, range);
+        }
+
+        static inline BTL_SICKCONT::Object MakeDefaultPokeSickCont(Pml::WazaData::WazaSick sick, uint8_t causePokeID, bool isCantUseRand) {
+            return external<BTL_SICKCONT::Object>(0x01f74d20, sick, causePokeID, isCantUseRand);
+        }
+
+        static inline bool IsOccurPer(uint32_t per) {
+            return external<bool>(0x01f75e20, per);
+        }
+
+        static inline uint32_t QuotMaxHP(BTL_POKEPARAM::Object* bpp, uint32_t denom, bool useBeforeGParam) {
+            return external<uint32_t>(0x01f74fe0, bpp, denom, useBeforeGParam);
+        }
+
+        static inline bool ITEM_IsMail(uint16_t item) {
+            return external<bool>(0x01f75490, item);
         }
     };
 }

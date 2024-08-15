@@ -3,7 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace DPData {
-    struct KinomiGrow : ILStruct<KinomiGrow> {
+    struct KinomiGrow : ILStruct<KinomiGrow, 0x04c5a4b0> {
         struct Fields {
             int32_t tagNo;
             int32_t harvestCount;
@@ -14,8 +14,4 @@ namespace DPData {
             uint8_t _padding1;
         };
     };
-
-    static Il2CppClass* KinomiGrow_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c5a4b0));
-    }
 }

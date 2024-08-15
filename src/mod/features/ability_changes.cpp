@@ -11,7 +11,7 @@ using namespace Dpr::Battle::Logic;
 HOOK_DEFINE_TRAMPOLINE(CheckForbidChangeEscapeCommon) {
     static Dpr::Battle::Logic::CantEscapeCode Callback(BTL_CLIENT *__this, BTL_POKEPARAM *procPoke, uint8_t *pokeID, uint16_t *tokuseiID) {
         // Nigeashi (Run Away) allows switch outs
-        if (procPoke->GetValue(0x12) == array_index(ABILITIES, "Run Away"))
+        if (procPoke->GetValue(BTL_POKEPARAM::ValueID::BPP_TOKUSEI) == array_index(ABILITIES, "Run Away"))
         {
             return Dpr::Battle::Logic::CantEscapeCode::CANTESC_NULL;
         }

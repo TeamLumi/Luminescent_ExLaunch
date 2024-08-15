@@ -5,4 +5,4 @@
 
 typedef int32_t Pml_MonsNo;
 
-PRIMITIVE_ARRAY(Pml_MonsNo);
+PRIMITIVE_ARRAY(Pml_MonsNo, 0x04c5e6e8)

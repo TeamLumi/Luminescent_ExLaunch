@@ -60,8 +60,7 @@ struct BoxSaveData {
     long FromBytes(char* buffer, long buffer_size, long index) {
         if (buffer_size >= GetByteCount() + index)
         {
-            auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(
-                    Dpr::Box::SaveBoxData::_STR17_array_TypeInfo(), size);
+            auto newBoxNames = Dpr::Box::SaveBoxData::_STR17::newArray(size);
 
             for (uint64_t i=0; i<size; i++)
             {
@@ -75,19 +74,15 @@ struct BoxSaveData {
             memcpy(&wallpapers, (void*)(buffer+index), sizeof(System::Byte)*size);
             index += sizeof(System::Byte)*size;
 
-            auto newBoxData = (Dpr::Box::SaveBoxTrayData::Array*)system_array_new(
-                    Dpr::Box::SaveBoxTrayData_array_TypeInfo(), size);
+            auto newBoxData = Dpr::Box::SaveBoxTrayData::newArray(size);
             for (uint64_t i=0; i<newBoxData->max_length; i++)
             {
-                auto newPokeParams = (Pml::PokePara::SerializedPokemonFull::Array*)system_array_new(
-                        Pml::PokePara::SerializedPokemonFull_array_TypeInfo(), 30);
+                auto newPokeParams = Pml::PokePara::SerializedPokemonFull::newArray(30);
                 newBoxData->m_Items[i].fields.pokemonParam = newPokeParams;
                 for (uint64_t j=0; j<newPokeParams->max_length; j++)
                 {
                     void* pokeData = (void*)(buffer+index);
-                    auto pokeByteArray = (System::Byte_array*)system_array_new(
-                            System::Byte_array_TypeInfo(),
-                            Pml::PokePara::SerializedPokemonFull::GetByteCount());
+                    auto pokeByteArray = System::Byte_array::newArray(Pml::PokePara::SerializedPokemonFull::GetByteCount());
                     memcpy(pokeByteArray->m_Items, pokeData, Pml::PokePara::SerializedPokemonFull::GetByteCount());
                     newPokeParams->m_Items[j].fields.buffer = pokeByteArray;
                     newPokeParams->m_Items[j].CreateWorkIfNeed();

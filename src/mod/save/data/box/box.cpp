@@ -1,7 +1,6 @@
 #include "helpers/fsHelper.h"
 #include "save/save.h"
 
-
 static Dpr::Box::SaveBoxTrayData::Array* cache_boxTray;
 static Dpr::Box::SaveBoxData::_STR17::Array* cache_trayNames;
 static System::Byte_array* cache_wallPapers;
@@ -44,14 +43,10 @@ void loadBoxes(bool isBackup)
 
 void linkBoxes(PlayerWork::Object* playerWork)
 {
-    auto str17Cls = Dpr::Box::SaveBoxData::_STR17_array_TypeInfo();
-    auto saveBoxTrayCls = Dpr::Box::SaveBoxTrayData_array_TypeInfo();
-    auto byteCls = System::Byte_array_TypeInfo();
-
     // Create new array
-    auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*) system_array_new(str17Cls, BoxCount);
-    auto wallPapers = (System::Byte_array*) system_array_new(byteCls, BoxCount);
-    auto newBoxData = (Dpr::Box::SaveBoxTrayData::Array*) system_array_new(saveBoxTrayCls, BoxCount);
+    auto newBoxNames = Dpr::Box::SaveBoxData::_STR17::newArray(BoxCount);
+    auto wallPapers = System::Byte_array::newArray(BoxCount);
+    auto newBoxData = Dpr::Box::SaveBoxTrayData::newArray(BoxCount);
 
     // Fill the new array with the custom save data
     for (uint64_t i=0; i<BoxCount; i++) {
@@ -71,7 +66,6 @@ void linkBoxes(PlayerWork::Object* playerWork)
     savedata.boxData.fields.trayName = newBoxNames;
     savedata.boxData.fields.wallPaper = wallPapers;
     savedata.boxTray = newBoxData;
-
 }
 
 void unlinkBoxes(PlayerWork::Object* playerWork)

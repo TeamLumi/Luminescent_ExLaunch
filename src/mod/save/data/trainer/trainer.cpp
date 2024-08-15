@@ -39,10 +39,8 @@ void loadTrainers(bool isBackup)
 
 void linkTrainers(PlayerWork::Object* playerWork)
 {
-    auto trainerCls = DPData::TR_BATTLE_DATA_array_TypeInfo();
-
     // Create new array
-    auto newTrainers = (DPData::TR_BATTLE_DATA::Array*) system_array_new(trainerCls, TrainerCount);
+    auto newTrainers = DPData::TR_BATTLE_DATA::newArray(TrainerCount);
 
     // Fill the new array with the custom save data
     memcpy(newTrainers->m_Items, getCustomSaveData()->trainers.items, sizeof(getCustomSaveData()->trainers.items));

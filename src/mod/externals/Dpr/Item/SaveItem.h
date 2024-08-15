@@ -3,7 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace Dpr::Item {
-    struct SaveItem : ILStruct<SaveItem> {
+    struct SaveItem : ILStruct<SaveItem, 0x04c64d90> {
         struct Fields {
             int32_t Count;
             bool VanishNew;
@@ -14,8 +14,4 @@ namespace Dpr::Item {
             uint16_t SortNumber;
         };
     };
-
-    static Il2CppClass* SaveItem_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c64d90));
-    }
 }
