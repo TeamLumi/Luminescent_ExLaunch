@@ -14,6 +14,7 @@ namespace Dpr::Battle::View::UI {
             void* _situationButton;
             void* _buttonLayout;
             System::Collections::Generic::List$$BUIActionSelectButton::Object* _actionButtons;
+            UnityEngine::UI::Image::Object* _xyMenuBallIcon;
             bool _isBallEnable;
             bool _needOpenBallWindow;
             bool _isSafari;
@@ -23,6 +24,8 @@ namespace Dpr::Battle::View::UI {
             bool _IsReturnable_k__BackingField;
             int32_t _Result_k__BackingField;
         };
+
+        static_assert(offsetof(Fields, _Result_k__BackingField) == 0xA0);
 
         inline void PreparaNext(bool isForward) {
             external<void>(0x01e8c380, this, isForward);
