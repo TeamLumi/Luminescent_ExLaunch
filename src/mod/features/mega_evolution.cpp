@@ -11,6 +11,9 @@
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaButton.h"
+#include "externals/Dpr/Battle/View/Systems/BattleViewSystem.h"
+#include "externals/Dpr/Battle/View/BattleViewCore.h"
+#include "externals/BTL_STRID_SET.h"
 #include "externals/FlagWork_Enums.h"
 #include "externals/FlagWork.h"
 #include "externals/PlayerWork.h"
@@ -416,6 +419,35 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
 
 }
 
+HOOK_DEFINE_INLINE(CMD_ChangeForm_Start) {
+    static void Callback(exl::hook::nx64::InlineCtx *ctx) {
+//        Dpr::Battle::View::BattleViewCore::instance()->fields._UISystem_k__BackingField->fields.
+        reinterpret_cast<Dpr::Battle::View::Systems::BattleViewSystem::Object*>(ctx->X[19])->fields.m_subSequence = 20;
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(CMD_ACT_PokeChangeEffect_WaitCore) {
+    static bool Callback(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, bool isGChange) {
+        if (__this->fields.m_subSequence == 20) {
+            __this->PlaySequenceEffect(0, false);
+            __this->fields.m_subSequence = 7;
+            return false;
+        }
+
+        else {
+            return Orig(__this, isGChange);
+        }
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(CheckTagSet) {
+    static void Callback() {
+        BTL_STRID_SET::getClass()->initIfNeeded();
+        auto labelArray = BTL_STRID_SET::getClass()->static_fields->LABEL;
+
+    }
+};
+
 HOOK_DEFINE_INLINE(OnSubmitWazaButton) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto __this = reinterpret_cast<Dpr::Battle::View::UI::BUIWazaList::Object*>(ctx->X[19]);
@@ -545,6 +577,14 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnShow) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(PlaySequenceCore) {
+    static void Callback(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, System::String::Object* path,
+                         bool keepResource) {
+        Logger::log("[PlaySequenceCore] Path: %s\n", path->asCString().c_str());
+        Orig(__this, path, keepResource);
+    }
+};
+
 void exl_mega_evolution_main() {
     OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
     CalcActionPriority$$Execute::InstallAtOffset(0x021ad570);
@@ -552,4 +592,7 @@ void exl_mega_evolution_main() {
     setupPokeAction_FromClientInstruction::InstallAtOffset(0x021cdbf0);
     createPokeAction_FromClientInstruction::InstallAtOffset(0x021cdad0);
     BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
+    CMD_ACT_PokeChangeEffect_WaitCore::InstallAtOffset(0x01c86aa0);
+    CMD_ChangeForm_Start::InstallAtOffset(0x01c86d9c);
+    PlaySequenceCore::InstallAtOffset(0x01c85970);
 }

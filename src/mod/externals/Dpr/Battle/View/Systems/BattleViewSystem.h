@@ -92,6 +92,14 @@ namespace Dpr::Battle::View::Systems {
         };
 
         static_assert(offsetof(Fields, m_effectBallInfo) == 0xE0);
+
+        inline void PlaySequenceEffect(int32_t no, bool isKeepResource) {
+            external<void>(0x01c7ea40, this, no, isKeepResource);
+        }
+
+        inline void PlaySequenceCore(System::String::Object* path, bool keepResource) {
+            external<void>(0x01c85970, this, path, keepResource);
+        }
     };
 }
 
