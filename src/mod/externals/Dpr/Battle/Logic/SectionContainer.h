@@ -2,10 +2,11 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Message.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_InterruptAction.h"
-#include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 
 namespace Dpr::Battle::Logic {
     struct SectionContainer : ILClass<SectionContainer, 0x04c5ab10> {
@@ -120,7 +121,7 @@ namespace Dpr::Battle::Logic {
             void* m_section_FromEvent_InterruptAction_ByWaza; // Dpr_Battle_Logic_Section_FromEvent_InterruptAction_ByWaza_o*
             void* m_section_FromEvent_Kill; // Dpr_Battle_Logic_Section_FromEvent_Kill_o*
             void* m_section_FromEvent_MemberChange; // Dpr_Battle_Logic_Section_FromEvent_MemberChange_o*
-            void* m_section_FromEvent_Message; // Dpr_Battle_Logic_Section_FromEvent_Message_o*
+            Section_FromEvent_Message::Object* m_section_FromEvent_Message;
             void* m_section_FromEvent_PlayWazaEffect; // Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_o*
             void* m_section_FromEvent_PosEffect_Add; // Dpr_Battle_Logic_Section_FromEvent_PosEffect_Add_o*
             void* m_section_FromEvent_PostponeAction; // Dpr_Battle_Logic_Section_FromEvent_PostponeAction_o*

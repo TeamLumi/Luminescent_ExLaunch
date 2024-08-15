@@ -5,6 +5,7 @@
 #include "externals/Dpr/Battle/Logic/BTL_ACTION.h"
 #include "externals/Dpr/Battle/Logic/Section_CalcActionPriority.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Message.h"
 #include "externals/Dpr/Battle/Logic/Section_StoreActions.h"
 #include "externals/Dpr/Battle/Logic/SectionContainer.h"
 #include "externals/Dpr/Battle/Logic/SVCL_ACTION.h"
@@ -381,8 +382,21 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
 
 void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
     system_load_typeinfo(0x8910);
+    system_load_typeinfo(0x2c99);
+    system_load_typeinfo(0xa963);
     Dpr::Battle::Logic::Common::getClass()->initIfNeeded();
     Dpr::Battle::Logic::BTL_POKEPARAM::Object* param = pokeAction->fields.bpp;
+
+    auto sectionMessageDesc = Dpr::Battle::Logic::Section_FromEvent_Message::Description::newInstance();
+    sectionMessageDesc->fields.pokeID = param->GetID();
+    sectionMessageDesc->fields.message->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::MegaEvoStart);
+    sectionMessageDesc->fields.message->AddArg(param->GetID());
+    sectionMessageDesc->fields.message->AddArg(pokeAction->fields.clientID);
+    sectionMessageDesc->fields.message->AddArg(param->GetItem());
+    sectionMessageDesc->fields.message->AddArg(array_index(ITEMS, "Key Stone"));
+
+    auto sectionMessageResult = Dpr::Battle::Logic::Section_FromEvent_Message::Result::newInstance();
+    __this->fields.m_section_FromEvent_Message->Execute(sectionMessageResult, &sectionMessageDesc);
 
     Dpr::Battle::Logic::Section_FromEvent_FormChange::Description::Object* description =
             Dpr::Battle::Logic::Section_FromEvent_FormChange::Description::newInstance();
