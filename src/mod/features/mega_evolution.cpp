@@ -88,7 +88,6 @@ bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
 
         case array_index(SPECIES, "Alakazam"): {
             if (pokeParam->GetItem() == array_index(ITEMS, "Alakazite")) {
-                Logger::log("[CanShowMegaUI] Alakazam is holding Alakazite\n");
                 return true;
             }
             break;
@@ -388,12 +387,22 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
     Dpr::Battle::Logic::BTL_POKEPARAM::Object* param = pokeAction->fields.bpp;
 
     auto sectionMessageDesc = Dpr::Battle::Logic::Section_FromEvent_Message::Description::newInstance();
-    sectionMessageDesc->fields.pokeID = param->GetID();
-    sectionMessageDesc->fields.message->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::MegaEvoStart);
-    sectionMessageDesc->fields.message->AddArg(param->GetID());
-    sectionMessageDesc->fields.message->AddArg(pokeAction->fields.clientID);
-    sectionMessageDesc->fields.message->AddArg(param->GetItem());
-    sectionMessageDesc->fields.message->AddArg(array_index(ITEMS, "Key Stone"));
+
+    if (param->GetMonsNo() == array_index(SPECIES, "Rayquaza")) {
+        sectionMessageDesc->fields.pokeID = param->GetID();
+        sectionMessageDesc->fields.message->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::MegaRayquazaEvoStart);
+        sectionMessageDesc->fields.message->AddArg(pokeAction->fields.clientID);
+        sectionMessageDesc->fields.message->AddArg(param->GetID());
+    }
+
+    else {
+        sectionMessageDesc->fields.pokeID = param->GetID();
+        sectionMessageDesc->fields.message->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::MegaEvoStart);
+        sectionMessageDesc->fields.message->AddArg(param->GetID());
+        sectionMessageDesc->fields.message->AddArg(pokeAction->fields.clientID);
+        sectionMessageDesc->fields.message->AddArg(param->GetItem());
+        sectionMessageDesc->fields.message->AddArg(array_index(ITEMS, "Key Stone"));
+    }
 
     auto sectionMessageResult = Dpr::Battle::Logic::Section_FromEvent_Message::Result::newInstance();
     __this->fields.m_section_FromEvent_Message->Execute(sectionMessageResult, &sectionMessageDesc);
@@ -421,8 +430,8 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
     }
 
     description->fields.pokeID = param->GetID();
-
-    description->fields.successMessage->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, 1576);
+    description->fields.successMessage->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, param->GetMonsNo() ==
+            array_index(SPECIES, "Rayquaza") ? BTL_STRID_SET::MegaRayquazaEvo : BTL_STRID_SET::MegaEvo);
     description->fields.successMessage->AddArg(param->GetID());
 
     system_load_typeinfo(0x2c56);
