@@ -5,6 +5,7 @@
 #include "romdata/data/FormHeldItemMon.h"
 #include "romdata/data/HoneyTreeEncounters.h"
 #include "romdata/data/IntroData.h"
+#include "romdata/data/LocalTrade.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
@@ -57,3 +58,6 @@ nn::vector<int32_t> GetIntroColorVariationPresets();
 
 // Returns the extra arena data.
 RomData::Arena GetExtraArenaData(int32_t arena);
+
+// Returns the extra local trade data.
+RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId);

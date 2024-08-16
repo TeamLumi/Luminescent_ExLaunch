@@ -3,7 +3,10 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Pml/PokePara/Accessor.h"
+#include "externals/Pml/PokePara/Condition.h"
 #include "externals/Pml/PokePara/EggCheckType.h"
+#include "externals/Pml/PokePara/OwnerInfo.h"
+#include "externals/Pml/PokePara/PowerID.h"
 #include "externals/Pml/WazaNo.h"
 
 namespace Pml::PokePara {
@@ -180,6 +183,34 @@ namespace Pml::PokePara {
 
         inline uint8_t GetRareType() {
             return external<uint8_t>(0x0204a5a0, this);
+        }
+
+        inline void ChangeEffortPower(Pml::PokePara::PowerID powerId, uint32_t value) {
+            external<void>(0x02044da0, this, powerId, value);
+        }
+
+        inline void SetParentName(System::String::Object* name) {
+            external<void>(0x0204ac00, this, name);
+        }
+
+        inline void SetLangId(uint32_t langId) {
+            external<void>(0x02049650, this, langId);
+        }
+
+        inline void SetCondition(Pml::PokePara::Condition cond, uint8_t value) {
+            external<void>(0x0204b040, this, cond, value);
+        }
+
+        inline bool UpdateOwnerInfo(Pml::PokePara::OwnerInfo::Object* ownerInfo) {
+            return external<bool>(0x02048c90, this, ownerInfo);
+        }
+
+        inline bool StartFastMode() {
+            return external<bool>(0x0204c910, this);
+        }
+
+        inline bool EndFastMode(bool validFlag) {
+            return external<bool>(0x0204c960, this, validFlag);
         }
     };
 }
