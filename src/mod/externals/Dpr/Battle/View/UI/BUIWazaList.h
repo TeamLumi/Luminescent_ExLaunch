@@ -30,5 +30,21 @@ namespace Dpr::Battle::View::UI {
             int32_t _pokeIndex;
             int32_t _Result_k__BackingField;
         };
+
+        inline void SetSelect(int32_t num) {
+            external<void>(0x01d2cd10, this, num);
+        }
+
+        inline void OnSubmit() {
+            external<void>(0x01d2c6e0, this);
+        }
+
+        inline void OnCancel() {
+            external<void>(0x01d2c870, this);
+        }
+
+        inline void OnSubmitWazaDescription() {
+            external<void>(0x01d2c930, this);
+        }
     };
 }

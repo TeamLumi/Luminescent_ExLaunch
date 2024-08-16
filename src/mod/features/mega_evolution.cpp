@@ -433,6 +433,7 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
     description->fields.successMessage->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, param->GetMonsNo() ==
             array_index(SPECIES, "Rayquaza") ? BTL_STRID_SET::MegaRayquazaEvo : BTL_STRID_SET::MegaEvo);
     description->fields.successMessage->AddArg(param->GetID());
+    description->fields.successMessage->AddArg(param->GetID());
 
     system_load_typeinfo(0x2c56);
     Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::Object* result =

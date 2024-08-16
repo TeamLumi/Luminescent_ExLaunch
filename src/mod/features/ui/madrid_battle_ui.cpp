@@ -63,8 +63,9 @@ HOOK_DEFINE_REPLACE(OnUpdate) {
     }
 };
 
-HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnUpdate) {
+HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this, float deltatime) {
+        system_load_typeinfo(0x1f84);
 
         if (!__this->fields._IsFocus_k__BackingField) {
             return;
@@ -74,20 +75,64 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnUpdate) {
             return;
         }
 
+        Dpr::UI::UIManager::getClass()->initIfNeeded();
+
         if (InputHelper::isPressR()) {
-            Logger::log("[OnUpdate] Toggle Mega\n");
+            bool isShowMegaUI = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3)->
+                    cast<UnityEngine::Component>()->get_gameObject()->get_activeSelf();
+            if (isShowMegaUI) {
+                Logger::log("[OnUpdate] Toggle Mega\n");
 
-            auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
-            auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+                auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+                auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
 
-            megaState->SetActive(!megaState->get_activeSelf());
+                megaState->SetActive(!megaState->get_activeSelf());
 
-            Logger::log("[OnUpdate] Mega Evolution: %s.\n", megaState->get_activeSelf() ? "Primed" : "Inactive");
+                Logger::log("[OnUpdate] Mega Evolution: %s.\n", megaState->get_activeSelf() ? "Primed" : "Inactive");
 
-            Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+            }
         }
 
-        Orig(__this, deltatime);
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, true)) {
+            __this->OnSubmit();
+        }
+
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true)) {
+            __this->SetSelect(0);
+            reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
+                    __this->fields._wazaButtons, 0, true,
+                    *Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
+        }
+
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
+            __this->SetSelect(1);
+            reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
+                    __this->fields._wazaButtons, 1, true,
+                    *Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
+        }
+
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true)) {
+            __this->SetSelect(2);
+            reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
+                    __this->fields._wazaButtons, 2, true,
+                    *Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
+        }
+
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true)) {
+            __this->SetSelect(3);
+            reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
+                    __this->fields._wazaButtons, 3, true,
+                    *Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
+        }
+
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, true)) {
+            __this->OnCancel();
+        }
+
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonY, true)) {
+            __this->OnSubmitWazaDescription();
+        }
     }
 };
 
