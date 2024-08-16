@@ -39,6 +39,7 @@
 #include "externals/Dpr/Box/SaveBoxTrayData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/Dpr/Item/SaveItem.h"
+#include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/MT_DATA.h"
 #include "externals/PLAYREPORT_DATA.h"
 #include "externals/Pml/PokePara/SavePokeParty.h"
@@ -298,5 +299,9 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline Dpr::Box::SaveBoxData::Object* GetBoxData() {
         return external<Dpr::Box::SaveBoxData::Object*>(0x02cf0180);
+    }
+
+    static inline Dpr::Message::MessageEnumData::MsgLangId get_msgLangID() {
+        return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
     }
 };
