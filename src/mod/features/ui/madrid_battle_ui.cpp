@@ -99,6 +99,9 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
         }
 
         else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true)) {
+            if (__this->fields._CurrentIndex_k__BackingField == 3) {
+                return;
+            }
             __this->SetSelect(0);
             reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
                     __this->fields._wazaButtons, 0, true,
@@ -106,6 +109,9 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
         }
 
         else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
+            if (__this->fields._CurrentIndex_k__BackingField == 0) {
+                return;
+            }
             __this->SetSelect(1);
             reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
                     __this->fields._wazaButtons, 1, true,
@@ -113,6 +119,9 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
         }
 
         else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true)) {
+            if (__this->fields._CurrentIndex_k__BackingField == 1) {
+                return;
+            }
             __this->SetSelect(2);
             reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
                     __this->fields._wazaButtons, 2, true,
@@ -120,6 +129,9 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
         }
 
         else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true)) {
+            if (__this->fields._CurrentIndex_k__BackingField == 2) {
+                return;
+            }
             __this->SetSelect(3);
             reinterpret_cast<Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*>(__this)->SelectButton(
                     __this->fields._wazaButtons, 3, true,
