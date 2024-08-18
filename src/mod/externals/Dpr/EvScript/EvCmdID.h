@@ -1255,6 +1255,8 @@ namespace Dpr::EvScript {
             _FIRST_MONSNO_FORMNO = 1245,
             _RIVAL_MONSNO_FORMNO = 1246,
             _SUPPORT_MONSNO_FORMNO = 1247,
+            _CHANGE_FORMNO = 1248,
+            _GET_COSTUME_GENDER = 1249,
 
             CUSTOM_CMD_END = 1500,
         };
