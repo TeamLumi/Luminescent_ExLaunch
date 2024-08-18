@@ -5,6 +5,7 @@
 #include "externals/Dpr/EvScript/EvScriptData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/Effect/EffectInstance.h"
+#include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/MulticastDelegate.h"
@@ -212,7 +213,7 @@ namespace Dpr::EvScript {
             bool _pendingInitScripts;
             int32_t SorawotobuZoneId;
             int32_t SorawotobuLocatorIndex;
-            void * _evCameraTable;
+            EventCameraTable::Object* _evCameraTable;
             void * _tairyouHasseiMane;
             bool _isFadeEventReturnInput;
             float _cloudSpeed;
@@ -342,6 +343,8 @@ namespace Dpr::EvScript {
             bool _nowInstantiate;
             void * _poolLoadObjects;
         };
+
+        static_assert(offsetof(Fields, _poolLoadObjects) == 0x590);
 
         static inline StaticILMethod<0x04c2afe0, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
         static inline StaticILMethod<0x04c2b028, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi {};
