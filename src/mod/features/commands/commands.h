@@ -98,6 +98,19 @@ bool RivalStarterMonsNoFormNo(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] formno: The work in which to put the formno in.
 bool SupportStarterMonsNoFormNo(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Sets the form of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] formno: The form to set the Pokémon to.
+bool ChangeFormNo(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the gender of the given outfit index.
+// Arguments:
+//   [Work, Number] index: The index of the outfit to check.
+//   [Work] result: The gender of the outfit, where 0 is masculine and 1 is feminine.
+bool GetCostumeGender(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Compares the value of the variable given to the last _SWITCH command ran to another value, then calls a script if they are equal.
 // Arguments:
 //   [Number, Label] Value: Value to compare to.
