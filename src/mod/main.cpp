@@ -75,6 +75,11 @@ HOOK_DEFINE_TRAMPOLINE(MainInitHook){
         nn::oe::GetDisplayVersion(&display_version);
         Logger::log("Detected version: %s\n", display_version.name);
 
+
+        // Load activated features
+        exl_save_main();
+        exl_features_main(); // Features JSON is read here
+
         if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging")))
             logFeatures();
 
@@ -113,8 +118,6 @@ extern "C" void exl_main(void* x0, void* x1) {
     exl_imgui_main();
     exl_debug_menu_main();
 #endif
-    exl_save_main();
-    exl_features_main();
 }
 
 extern "C" NORETURN void exl_exception_entry() {
