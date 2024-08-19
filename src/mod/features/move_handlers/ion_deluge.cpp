@@ -15,7 +15,8 @@ void HandlerIonDelugeFieldEffectCall(EventFactor::EventHandlerArgs::Object** arg
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    if (!HandlerAddFieldEffect(args, pokeID, array_index(FIELD_EFFECTS, "Ion Deluge"), 1, BtlStrType::BTL_STRTYPE_STD, BTL_STRID_STD::PlasmaShower))
+    if (!HandlerAddFieldEffect(args, pokeID, (EffectType)array_index(FIELD_EFFECTS, "Ion Deluge"), 1,
+        BtlStrType::BTL_STRTYPE_STD, BTL_STRID_STD::PlasmaShower))
         return;
 
     Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, 1);

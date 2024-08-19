@@ -6,6 +6,7 @@
 #include "externals/Dpr/Battle/Logic/FieldStatus.h"
 #include "externals/Dpr/Battle/Logic/POKECON.h"
 #include "externals/Dpr/Battle/Logic/PosPoke.h"
+#include "externals/Dpr/Battle/Logic/SideEffectStatus.h"
 
 namespace Dpr::Battle::Logic {
     struct BattleEnv : ILClass<BattleEnv> {
@@ -26,10 +27,15 @@ namespace Dpr::Battle::Logic {
             void* m_gGauge; // Dpr_Battle_Logic_GGauge_array
             void* m_raidBattleStatus; // Dpr_Battle_Logic_RaidBattleStatus_o
             void* m_flags; // Dpr_Battle_Logic_BattleFlags_o
-            Dpr::Battle::Logic::BattleCounter::Object* m_counter;
+            BattleCounter::Object* m_counter;
             void* m_escapeInfo; // Dpr_Battle_Logic_EscapeInfo_o
             void* m_lastExecutedWaza; // Dpr_Battle_Logic_WazaParam_o
             void* m_tamaHiroiData; // Dpr_Battle_Logic_TamaHiroiData_o
         };
+
+
+        inline SideEffectStatus::Object* GetSideEffectStatus(int32_t side, int32_t effect) {
+            return external<SideEffectStatus::Object*>(0x0187c710, this, side, effect);
+        }
     };
 }

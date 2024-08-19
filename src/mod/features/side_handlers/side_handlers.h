@@ -10,6 +10,7 @@
 ExtraSideEffectHandlers* getExtraSideEffectHandlers();
 
 using namespace Dpr::Battle::Logic;
+
 EventFactor::EventHandlerTable::Array* CreateSideEffectEventHandlerTable(long size);
 EventFactor::EventHandlerTable::Object* CreateSideEffectEventHandler(EventID eventID, Il2CppMethodPointer methodPointer);
 EventFactor::EventHandlerTable::Object* CreateSideEffectEventHandler(EventID eventID, MethodInfo* method);
@@ -18,3 +19,6 @@ void SetSideEffectFunctionTable(Handler::Side::GET_FUNC_TABLE_ELEM::Array* getFu
 
 // Installs hooks for Lucky Chant.
 void InstallHooks_SideEffect_LuckyChant();
+
+// Installs hooks for Spotlight.
+void InstallHooks_SideEffect_Spotlight();

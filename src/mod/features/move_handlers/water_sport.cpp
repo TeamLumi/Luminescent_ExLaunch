@@ -18,7 +18,8 @@ void HandlerWaterSportFieldEffectCall(EventFactor::EventHandlerArgs::Object** ar
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    if (!HandlerAddFieldEffect(args, pokeID, array_index(FIELD_EFFECTS, "Water Sport"), 5, BtlStrType::BTL_STRTYPE_STD, BTL_STRID_STD::Mizuasobi))
+    if (!HandlerAddFieldEffect(args, pokeID, (EffectType)array_index(FIELD_EFFECTS, "Water Sport"), 5,
+        BtlStrType::BTL_STRTYPE_STD, BTL_STRID_STD::Mizuasobi))
         return;
 
     Common::RewriteEventVar(args, EventVar::Label::SUCCESS_FLAG, 1);

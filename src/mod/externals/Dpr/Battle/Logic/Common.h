@@ -201,5 +201,9 @@ namespace Dpr::Battle::Logic {
         static inline bool CheckUnbreakablePokeItem(uint16_t monsno, uint16_t itemID) {
             return external<bool>(0x01d0d780, monsno, itemID);
         }
+
+        static inline int32_t PokeIDtoOpponentSide(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID) {
+            return external<int32_t>(0x01d0a010, args, pokeID);
+        }
     };
 }

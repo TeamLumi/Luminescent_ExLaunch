@@ -46,10 +46,6 @@ RomData::FormHeldItemMon GetFormHeldItemMon(int32_t monsNo)
 
         return formHeldItemMon;
     }
-    else
-    {
-        Logger::log("Error when parsing Form Held Item data!\n");
-    }
 
     // Default
     return {
@@ -70,10 +66,6 @@ RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo)
         unbreakablePokeItem = j.get<RomData::UnbreakablePokeItem>();
 
         return unbreakablePokeItem;
-    }
-    else
-    {
-        Logger::log("Error when parsing Form Held Item data!\n");
     }
 
     // Default

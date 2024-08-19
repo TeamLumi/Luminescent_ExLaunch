@@ -148,5 +148,8 @@ void Handlers_Move_Rototiller(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 // Adds move handlers for Ion Deluge.
 void Handlers_Move_IonDeluge(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
-// Installs hooks for Hyperspace Fury
+// Installs hooks for Hyperspace Fury.
 void InstallHooks_Move_HyperspaceFury();
+
+// Adds move handlers for Spotlight.
+void Handlers_Move_Spotlight(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

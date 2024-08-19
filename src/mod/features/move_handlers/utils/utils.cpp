@@ -18,7 +18,7 @@
 
 #include "logger/logger.h"
 
-bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns, BtlStrType strType, uint16_t strID)
+bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, EffectType effect, uint8_t turns, BtlStrType strType, uint16_t strID)
 {
     system_load_typeinfo(0xaa75);
     auto fieldEffectAddDesc = Section_FieldEffect_Add::Description::newInstance();
@@ -28,6 +28,20 @@ bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t
     fieldEffectAddDesc->fields.successMessage->Setup(strType, strID);
     fieldEffectAddDesc->fields.successMessage->AddArg(pokeID);
     return Common::AddFieldEffect(args, &fieldEffectAddDesc);
+}
+
+bool HandlerAddSideEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, BtlSideEffect effect, int32_t side, uint8_t targetPokeID, uint8_t turns, BtlStrType strType, uint16_t strID)
+{
+    system_load_typeinfo(0xa8ef);
+    auto sideEffectAddDesc = Section_SideEffect_Add::Description::newInstance();
+    sideEffectAddDesc->fields.pokeID = pokeID;
+    sideEffectAddDesc->fields.effect = effect;
+    sideEffectAddDesc->fields.side = side;
+    sideEffectAddDesc->fields.cont = SICKCONT::MakePokeTurn(pokeID, targetPokeID, turns);
+    sideEffectAddDesc->fields.isReplaceSuccessMessageArgs0ByExpandSide = false;
+    sideEffectAddDesc->fields.successMessage->Setup(strType, strID);
+    sideEffectAddDesc->fields.successMessage->AddArg(targetPokeID);
+    return Common::AddSideEffect(args, &sideEffectAddDesc);
 }
 
 bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont)

@@ -70,12 +70,14 @@ void InstallActivatedSideEffectHooks() {
 
     // DO NOT REMOVE ANY OF THESE! Disable the side effects in exl_side_handlers_main() below instead!
     if (ACTIVATED_SIDE_HANDLERS[array_index(SIDE_EFFECTS, "Lucky Chant")]) InstallHooks_SideEffect_LuckyChant();
+    if (ACTIVATED_SIDE_HANDLERS[array_index(SIDE_EFFECTS, "Spotlight")]) InstallHooks_SideEffect_Spotlight();
 }
 
 void exl_side_handlers_main() {
     Side_system_array_new::InstallAtOffset(0x0193cbe4);
 
     SetActivatedSideHandlers(array_index(SIDE_EFFECTS, "Lucky Chant"));
+    SetActivatedSideHandlers(array_index(SIDE_EFFECTS, "Spotlight"));
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
