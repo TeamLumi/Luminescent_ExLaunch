@@ -162,3 +162,6 @@ void Handlers_Move_GenesisSupernova(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* g
 
 // Adds move handlers for Light That Burns the Sky.
 void Handlers_Move_LightThatBurnsTheSky(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Searing Sunraze Smash.
+void Handlers_Move_SearingSunrazeSmash(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
