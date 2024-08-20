@@ -166,5 +166,8 @@ void Handlers_Move_LightThatBurnsTheSky(Handler::Waza::GET_FUNC_TABLE_ELEM::Arra
 // Adds move handlers for Searing Sunraze Smash.
 void Handlers_Move_SearingSunrazeSmash(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
-// Adds move handlers for Searing Sunraze Smash.
+// Adds move handlers for Menacing Moonraze Maelstrom.
 void Handlers_Move_MenacingMoonrazeMaelstrom(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Splintered Stormshards.
+void Handlers_Move_SplinteredStormshards(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

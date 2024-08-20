@@ -107,6 +107,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Light That Burns the Sky")]) Handlers_Move_LightThatBurnsTheSky(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Searing Sunraze Smash")]) Handlers_Move_SearingSunrazeSmash(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Menacing Moonraze Maelstrom")]) Handlers_Move_MenacingMoonrazeMaelstrom(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Splintered Stormshards")]) Handlers_Move_SplinteredStormshards(array);
 
         ctx->X[0] = (uint64_t)array;
     }

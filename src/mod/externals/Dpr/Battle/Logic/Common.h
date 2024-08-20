@@ -14,6 +14,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FieldEffect_Remove.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
@@ -204,6 +205,14 @@ namespace Dpr::Battle::Logic {
 
         static inline int32_t PokeIDtoOpponentSide(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID) {
             return external<int32_t>(0x01d0a010, args, pokeID);
+        }
+
+        static inline bool CheckFieldEffect(EventFactor::EventHandlerArgs::Object** args, int32_t* effType) {
+            return external<bool>(0x01d0a260, args, effType);
+        }
+
+        static inline bool RemoveFieldEffect(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FieldEffect_Remove::Description::Object** desc) {
+            return external<bool>(0x01d0b7c0, args, desc);
         }
     };
 }
