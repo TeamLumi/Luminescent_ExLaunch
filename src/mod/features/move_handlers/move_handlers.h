@@ -156,3 +156,6 @@ void Handlers_Move_Spotlight(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncT
 
 // Adds move handlers for Guardian of Alola.
 void Handlers_Move_GuardianOfAlola(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Genesis Supernova.
+void Handlers_Move_GenesisSupernova(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

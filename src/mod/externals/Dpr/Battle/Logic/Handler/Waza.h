@@ -350,5 +350,9 @@ namespace Dpr::Battle::Logic::Handler {
         static inline bool common_SideEffectStdMsg(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID, int32_t side, BtlSideEffect effect, BTL_SICKCONT::Object* cont, uint16_t strID) {
             return external<bool>(0x0180fe10, args, pokeID, side, effect, cont, strID);
         }
+
+        static inline void handler_common_GroundSet(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, BtlGround ground) {
+            external<void>(0x01820590, args, pokeID, ground);
+        }
     };
 }
