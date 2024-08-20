@@ -159,3 +159,6 @@ void Handlers_Move_GuardianOfAlola(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* ge
 
 // Adds move handlers for Genesis Supernova.
 void Handlers_Move_GenesisSupernova(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Light That Burns the Sky.
+void Handlers_Move_LightThatBurnsTheSky(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

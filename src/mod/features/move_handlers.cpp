@@ -104,6 +104,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spotlight")]) Handlers_Move_Spotlight(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Guardian of Alola")]) Handlers_Move_GuardianOfAlola(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Genesis Supernova")]) Handlers_Move_GenesisSupernova(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Light That Burns the Sky")]) Handlers_Move_GenesisSupernova(array);
 
         ctx->X[0] = (uint64_t)array;
     }

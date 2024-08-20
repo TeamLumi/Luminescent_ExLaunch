@@ -321,6 +321,7 @@ namespace Dpr::Battle::Logic::Handler {
         static inline StaticILMethod<0x04c6a488> PTR_Method$$ADD_Siboritoru {};
         static inline StaticILMethod<0x04c6a290> PTR_Method$$ADD_Meromero {};
         static inline StaticILMethod<0x04c6a338> PTR_Method$$ADD_NasiKuzusi {};
+        static inline StaticILMethod<0x04c6a3d8> PTR_Method$$ADD_PhotonGeyser {};
 
         static inline StaticILMethod<0x04c7a3b0, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Karagenki_WazaPow {};
 
