@@ -102,6 +102,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Ion Deluge")]) Handlers_Move_IonDeluge(array);
 
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Spotlight")]) Handlers_Move_Spotlight(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Guardian of Alola")]) Handlers_Move_GuardianOfAlola(array);
 
         ctx->X[0] = (uint64_t)array;
     }
