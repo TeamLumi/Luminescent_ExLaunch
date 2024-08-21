@@ -44,6 +44,19 @@ bool HandlerAddSideEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t 
     return Common::AddSideEffect(args, &sideEffectAddDesc);
 }
 
+bool HandlerAddSideEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, BtlSideEffect effect, int32_t side, uint8_t turns, BtlStrType strType, uint16_t strID)
+{
+    system_load_typeinfo(0xa8ef);
+    auto sideEffectAddDesc = Section_SideEffect_Add::Description::newInstance();
+    sideEffectAddDesc->fields.pokeID = pokeID;
+    sideEffectAddDesc->fields.effect = effect;
+    sideEffectAddDesc->fields.side = side;
+    sideEffectAddDesc->fields.cont = SICKCONT::MakeTurn(pokeID, turns);
+    sideEffectAddDesc->fields.isReplaceSuccessMessageArgs0ByExpandSide = false;
+    sideEffectAddDesc->fields.successMessage->Setup(strType, strID);
+    return Common::AddSideEffect(args, &sideEffectAddDesc);
+}
+
 bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont)
 {
     system_load_typeinfo(0xa9aa);

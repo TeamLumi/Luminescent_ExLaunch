@@ -208,3 +208,7 @@ void Handlers_Move_SplinteredStormshards(Handler::Waza::GET_FUNC_TABLE_ELEM::Arr
 
 // Adds move handlers for Pika Papow.
 void Handlers_Move_PikaPapow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Glitzy Glow.
+EventFactor::EventHandlerTable::Array* ADD_GlitzyGlow();
+void Handlers_Move_GlitzyGlow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
