@@ -20,363 +20,101 @@
 #include "externals/FlagWork_Enums.h"
 #include "externals/FlagWork.h"
 #include "externals/PlayerWork.h"
+#include "externals/Dpr/Battle/Logic/BtlRule.h"
 #include "data/utils.h"
 #include "data/species.h"
 #include "data/items.h"
+#include "data/megas.h"
 #include "data/moves.h"
 #include "logger/logger.h"
+#include "helpers/fsHelper.h"
+#include "memory/json.h"
 
 const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
 const long mega_flag_mask = 1L << mega_flag_loc;
+const char* notDoingFilePath = "rom:/Data/ExtraData/NotDoing/RequiredItem.json";
 
 uint8_t get_mega_flag(Dpr::Battle::Logic::BTL_ACTION::PARAM::Object __this) {
     return (*(uint64_t*)&__this.fields.raw >> 34) & 1;
 }
 
-bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+bool IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
+    nn::string filePath(notDoingFilePath);
+    nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
+    if (j != nullptr && !j.is_discarded())
+    {
+        auto lookupMon = SPECIES[pokeParam->GetMonsNo()];
+        auto lookupKey = j.at(lookupMon);
 
-    auto pokeParam = __this->fields._btlPokeParam;
-    PlayerWork::getClass()->initIfNeeded();
-
-    if (PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count == 0) {
-        return false;
-    }
-
-    //ToDo Consider other side trainer functionality
-    if (FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE)) {
-        return false;
-    }
-
-    //ToDo JSON-ize this switch
-    switch(pokeParam->GetMonsNo()) {
-
-        case array_index(SPECIES, "Venusaur"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Venusaurite")) {
-                return true;
+        // Check for correct stone
+        if (lookupKey.contains("megaFormItem")) {
+            Logger::log("[IsHoldRequiredItem] Contains megaFormItem.\n");
+            if (lookupKey.at("megaFormItem").is_array()) {
+                for (const auto& item : lookupKey.at("megaFormItem").get<nn::vector<int32_t>>()) {
+                    if (pokeParam->GetItem() == item) {
+                        return true;
+                    }
+                }
             }
-            break;
-        }
-
-        case array_index(SPECIES, "Charizard"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Charizardite X") ||
-                pokeParam->GetItem() == array_index(ITEMS, "Charizardite Y")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Blastoise"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Blastoisinite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Beedrill"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Beedrillite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Pidgeot"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Pidgeotite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Alakazam"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Alakazite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Slowbro"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Slowbronite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Gengar"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Gengarite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Kangaskhan"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Kangaskhanite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Pinsir"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Pinsirite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Gyarados"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Gyaradosite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Aerodactyl"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Aerodactylite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Mewtwo"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Mewtwonite X") ||
-                pokeParam->GetItem() == array_index(ITEMS, "Mewtwonite Y")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Ampharos"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Ampharosite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Steelix"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Steelixite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Scizor"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Scizorite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Heracross"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Heracronite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Houndoom"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Houndoominite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Tyranitar"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Tyranitarite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Sceptile"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Sceptilite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Blaziken"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Blazikenite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Swampert"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Swampertite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Gardevoir"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Gardevoirite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Sableye"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Sablenite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Mawile"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Mawilite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Aggron"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Aggronite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Medicham"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Medichamite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Sharpedo"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Sharpedonite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Camerupt"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Cameruptite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Altaria"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Altarianite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Banette"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Banettite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Absol"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Absolite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Glalie"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Glalitite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Salamence"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Salamencite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Metagross"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Metagrossite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Latias"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Latiasite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Latios"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Latiosite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Rayquaza"): {
-            for (uint8_t i = 0; i < pokeParam->WAZA_GetCount(); i++) {
-                if (pokeParam->WAZA_GetID(i) == array_index(MOVES, "Dragon Ascent")) {
+            else {
+                Logger::log("[IsHoldRequiredItem] Not Array.\n");
+                if (pokeParam->GetItem() == lookupKey.at("megaFormItem").get<int32_t>()) {
+                    Logger::log("[IsHoldRequiredItem] %s is holding the required %s.\n",
+                                SPECIES[pokeParam->GetMonsNo()], ITEMS[pokeParam->GetItem()]);
                     return true;
                 }
             }
-            break;
         }
 
-        case array_index(SPECIES, "Lopunny"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Lopunnite")) {
-                return true;
+            // Otherwise check
+        else if (lookupKey.contains("megaFormMove")) {
+            for (uint8_t i = 0; i < pokeParam->WAZA_GetCount(); i++) {
+                if (pokeParam->WAZA_GetID(i) == lookupKey.at("megaFormMove").get<int32_t>()) {
+                    return true;
+                }
             }
-            break;
         }
+    }
 
-        case array_index(SPECIES, "Garchomp"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Garchompite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Lucario"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Lucarionite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Abomasnow"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Abomasite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Gallade"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Galladite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Audino"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Audinite")) {
-                return true;
-            }
-            break;
-        }
-
-        case array_index(SPECIES, "Diancie"): {
-            if (pokeParam->GetItem() == array_index(ITEMS, "Diancite")) {
-                return true;
-            }
-            break;
-        }
-
-
-        default: {
-            return false;
-        }
-
+    else {
+        Logger::log("Error when parsing required item data!\n");
     }
 
     return false;
+}
+
+bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+
+    auto pokeParam = __this->fields._btlPokeParam;
+
+    //ToDo Consider other side trainer functionality
+    if (FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE)) {
+        Logger::log("[CanShowMegaUI] Unavailable Flag Active.\n");
+        return false;
+    }
+
+    for (int32_t i = 0; i < MEGA_COUNT; i++) {
+        if (pokeParam->GetMonsNo() == MEGAEVO_MONS[i]) {
+            Logger::log("[CanShowMegaUI] %s is an authorised Mega.\n", SPECIES[pokeParam->GetMonsNo()]);
+            break; // Exit the loop if a match is found
+        }
+
+        // If this is the last iteration and no match was found
+        if (i == MEGA_COUNT - 1) {
+            Logger::log("[CanShowMegaUI] %s was not found in the mega list.\n", SPECIES[pokeParam->GetMonsNo()]);
+            return false;
+        }
+    }
+
+    PlayerWork::getClass()->initIfNeeded();
+    if (PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count == 0) {
+        Logger::log("[CanShowMegaUI] Player does not have Key Stone.\n");
+        return false;
+    }
+
+    bool res = IsHoldRequiredItem(pokeParam);
+    Logger::log("[CanShowMegaUI] Returning %s.\n", res ? "True" : "False");
+    return res;
 }
 
 void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
@@ -486,6 +224,7 @@ HOOK_DEFINE_TRAMPOLINE(ProcessActionCore$$action) {
             case Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution: {
                 MegaEvolutionFormHandler(reinterpret_cast<Dpr::Battle::Logic::SectionContainer::Object*>(
                         __this->fields.m_pSectionContainer), pokeAction);
+                FlagWork::SetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE, true);
                 break;
             }
 
@@ -591,6 +330,8 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnShow) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
         bool isShowMegaUI = CanShowMegaUI(__this);
         auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+        auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+        if (megaState->get_activeSelf()) megaState->SetActive(false);
         megaButton->cast<UnityEngine::Component>()->get_gameObject()->SetActive(isShowMegaUI);
         Orig(__this);
     }
@@ -604,6 +345,35 @@ HOOK_DEFINE_TRAMPOLINE(PlaySequenceCore) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(SetupBattleWild) {
+    static void Callback(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* battleSetupParam,
+                         Pml::PokeParty::Object* iPtrEnemyParty, int32_t arenaID, int32_t mapAttrib, int32_t weatherType,
+                         bool isSwim, bool isFishing, int32_t partnerID, bool isCaptureDemo, int32_t safariBallNum,
+                         bool isSymbol, bool isMitu, System::String::Object* overlapBgm, int32_t overlapSetupEffectId,
+                         bool isCantUseBall) {
+
+
+        FlagWork::SetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE, (isCaptureDemo ||
+        battleSetupParam->fields.rule == Dpr::Battle::Logic::BtlRule::BTL_RULE_SAFARI));
+
+        Orig(battleSetupParam, iPtrEnemyParty, arenaID, mapAttrib, weatherType, isSwim, isFishing, partnerID, isCaptureDemo,
+             safariBallNum, isSymbol, isMitu, overlapBgm, overlapSetupEffectId, isCantUseBall);
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
+    static void Callback(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* battleSetupParam, int32_t arenaID,
+                         int32_t mapAttrib, int32_t weatherType, int32_t rule, int32_t enemyID0, int32_t enemyID1,
+                         int32_t partnerID) {
+
+        FlagWork::SetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE,
+                          (rule == static_cast<int32_t>(Dpr::Battle::Logic::BtlRule::BTL_RULE_SAFARI) ||
+                                  rule == static_cast<int32_t>(Dpr::Battle::Logic::BtlRule::BTL_RULE_RAID)));
+
+        Orig(battleSetupParam, arenaID, mapAttrib, weatherType, rule, enemyID0, enemyID1, partnerID);
+    }
+};
+
 void exl_mega_evolution_main() {
     OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
     CalcActionPriority$$Execute::InstallAtOffset(0x021ad570);
@@ -614,4 +384,6 @@ void exl_mega_evolution_main() {
     CMD_ACT_PokeChangeEffect_WaitCore::InstallAtOffset(0x01c86aa0);
     CMD_ChangeForm_Start::InstallAtOffset(0x01c86d9c);
     PlaySequenceCore::InstallAtOffset(0x01c85970);
+    SetupBattleWild::InstallAtOffset(0x02c3abc0);
+    SetupBattleTrainer::InstallAtOffset(0x02c3b800);
 }
