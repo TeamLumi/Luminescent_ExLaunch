@@ -94,6 +94,8 @@ void CallFeatureHooks()
         exl_relumi_dex_ui();
     if (IsActivatedFeature(array_index(FEATURES, "Local Trades Extension")))
         exl_local_trades_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Spinda Hijacking")))
+        exl_spinda_hijacking_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

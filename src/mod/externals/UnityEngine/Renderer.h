@@ -18,5 +18,9 @@ namespace UnityEngine {
         inline UnityEngine::Material::Array* get_materials() {
             return external<UnityEngine::Material::Array*>(0x0269a3b0, this);
         }
+
+        inline void set_material(UnityEngine::Material::Object* value) {
+            external<void>(0x0269a4a0, this, value);
+        }
     };
 }
