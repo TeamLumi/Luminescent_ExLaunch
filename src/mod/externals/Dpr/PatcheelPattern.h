@@ -17,5 +17,10 @@ namespace Dpr {
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             UVData::Array* UVDatas;
         };
+
+        // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
+        inline void SetPatcheelPattern(uint32_t personalRand, Pml::PokePara::PokemonParam::Object* param) {
+            external<void>(0x01bcb200, this, personalRand, param);
+        }
     };
 }
