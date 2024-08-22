@@ -4,7 +4,7 @@
 #include "externals/System/String.h"
 
 namespace UnityEngine {
-    struct _Object : ILClass<_Object> {
+    struct _Object : ILClass<_Object, 0x04c571f8> {
         struct Fields {
             intptr_t m_CachedPtr;
         };

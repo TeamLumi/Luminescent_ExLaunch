@@ -3,6 +3,7 @@
 #include "data/species.h"
 #include "data/utils.h"
 
+#include "externals/BattlePokemonEntity.h"
 #include "externals/Dpr/PatcheelPattern.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/PokemonCustomNodeAnim.h"
@@ -26,12 +27,14 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     Logger::log("[PatcheelPattern$$SetPattern] Spinda\n");
                     Orig(__this, personalRand, nullptr);
                 }
+                break;
 
                 case array_index(SPECIES, "Arbok"):
                 {
                     Logger::log("[PatcheelPattern$$SetPattern] Arbok\n");
                     // TODO
                 }
+                break;
 
                 case array_index(SPECIES, "Magikarp"):
                 {
@@ -40,7 +43,7 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     auto go = ((UnityEngine::Component::Object *) __this)->get_gameObject()->instance();
                     auto nodes = go->GetComponent(UnityEngine::Component::Method$$PokemonCustomNodeAnim$$GetComponent)->fields.mCustomNodeMaterials;
 
-                    nn::vector<UnityEngine::Material::Object*> patcheelMats;
+                    auto patcheelMats = nn::vector<UnityEngine::Material::Object*>();
                     for (uint64_t i=0; i<nodes->max_length; i++)
                     {
                         if (nodes->m_Items[i]->fields.shaderName->asCString() == "Patcheel")
@@ -54,8 +57,20 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                             ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->renderer)->set_material(patcheelMats[id]);
                     }
                 }
+                break;
             }
         }
+    }
+};
+
+HOOK_DEFINE_REPLACE(BattlePokemonEntity$$SetPatcheelPattern) {
+    // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
+    static void Callback(BattlePokemonEntity::Object* __this, uint32_t rand, Pml::PokePara::PokemonParam::Object* param) {
+        system_load_typeinfo(0x2226);
+        UnityEngine::_Object::getClass()->initIfNeeded();
+
+        if (UnityEngine::_Object::op_Inequality((UnityEngine::_Object::Object*)__this->fields._patcheelPattern_k__BackingField, nullptr))
+            __this->fields._patcheelPattern_k__BackingField->SetPatcheelPattern(rand, param);
     }
 };
 
@@ -67,14 +82,14 @@ HOOK_DEFINE_REPLACE(PatcheelPattern$$Awake) {
 
 void exl_spinda_hijacking_main() {
     PatcheelPattern$$SetPattern::InstallAtOffset(0x01bcb200);
+    BattlePokemonEntity$$SetPatcheelPattern::InstallAtOffset(0x01d77990);
+    PatcheelPattern$$Awake::InstallAtOffset(0x01bcb1f0);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
         { 0x01e520f0, MovRegister(X2, X20) }, // BOPokemon$$Initialize
-        { 0x01d779f8, MovRegister(X2, X2) }, // BattlePokemonEntity$$SetPatcheelPattern
-        { 0x01d77a0c, MovRegister(X2, X2) }, // BattlePokemonEntity$$SetPatcheelPattern
         { 0x01add5ac, LdrRegisterImmediate(X2, X20, 0x19 /*X20 + 0xC8*/) }, // Demo_PoffinEat.<Enter>d__16$$MoveNext
         { 0x01cd94f0, MovRegister(X2, X26) }, // FieldWalkingManager.<CreatePartner>d__43$$MoveNext
         { 0x01a7fc10, LdrRegisterImmediate(X2, X19, 0x6 /*X19 + 0x30*/) }, // FureaiHiroba_PokeFactory.<AddPoke>d__10$$MoveNext
