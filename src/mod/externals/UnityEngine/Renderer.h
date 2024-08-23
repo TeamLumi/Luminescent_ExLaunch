@@ -19,8 +19,24 @@ namespace UnityEngine {
             return external<UnityEngine::Material::Array*>(0x0269a3b0, this);
         }
 
+        inline void set_materials(UnityEngine::Material::Array* value) {
+            external<void>(0x0269a400, this, value);
+        }
+
+        inline UnityEngine::Material::Array* get_sharedMaterials() {
+            return external<UnityEngine::Material::Array*>(0x0269a590, this);
+        }
+
+        inline void set_sharedMaterials(UnityEngine::Material::Array* value) {
+            external<void>(0x0269a5e0, this, value);
+        }
+
         inline void set_material(UnityEngine::Material::Object* value) {
             external<void>(0x0269a4a0, this, value);
+        }
+
+        inline void set_sharedMaterial(UnityEngine::Material::Object* value) {
+            external<void>(0x0269a540, this, value);
         }
     };
 }
