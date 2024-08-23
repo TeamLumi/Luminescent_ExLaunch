@@ -30,31 +30,37 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                 break;
 
                 case array_index(SPECIES, "Arbok"):
-                {
-                    Logger::log("[PatcheelPattern$$SetPattern] Arbok\n");
-                    // TODO
-                }
-                break;
-
                 case array_index(SPECIES, "Magikarp"):
                 {
                     Logger::log("[PatcheelPattern$$SetPattern] Magikarp\n");
+                    system_load_typeinfo(0x7deb);
+                    system_load_typeinfo(0x1e84);
+                    system_load_typeinfo(0x1e8d);
+                    system_load_typeinfo(0x221b);
+                    system_load_typeinfo(0x6d4d);
 
                     auto go = ((UnityEngine::Component::Object *) __this)->get_gameObject()->instance();
-                    auto nodes = go->GetComponent(UnityEngine::Component::Method$$PokemonCustomNodeAnim$$GetComponent)->fields.mCustomNodeMaterials;
+                    auto renderers = go->GetComponentsInChildren(true, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
 
-                    auto patcheelMats = nn::vector<UnityEngine::Material::Object*>();
-                    for (uint64_t i=0; i<nodes->max_length; i++)
+                    UnityEngine::Renderer::Object* renderer = nullptr;
+                    if (renderers != nullptr)
                     {
-                        if (nodes->m_Items[i]->fields.shaderName->asCString() == "Patcheel")
-                            patcheelMats.push_back(nodes->m_Items[i]->fields.mp->fields.mat);
+                        for (uint64_t i=0; i<renderers->max_length; i++)
+                        {
+                            renderer = (UnityEngine::Renderer::Object*)renderers->m_Items[i];
+                            if (((UnityEngine::_Object::Object*)renderer)->GetName()->asCString().find("Patcheel") != -1)
+                                break;
+                        }
                     }
 
-                    if (patcheelMats.size() > 0)
+                    if (renderer != nullptr)
                     {
-                        uint32_t id = personalRand % patcheelMats.size();
+                        auto patcheelMats = renderer->get_sharedMaterials();
+                        uint32_t id = personalRand % patcheelMats->max_length;
+                        Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
+
                         for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
-                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->renderer)->set_material(patcheelMats[id]);
+                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_sharedMaterial(patcheelMats->m_Items[id]);
                     }
                 }
                 break;
@@ -66,6 +72,7 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
 HOOK_DEFINE_REPLACE(BattlePokemonEntity$$SetPatcheelPattern) {
     // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
     static void Callback(BattlePokemonEntity::Object* __this, uint32_t rand, Pml::PokePara::PokemonParam::Object* param) {
+        Logger::log("BattlePokemonEntity$$SetPatcheelPattern\n");
         system_load_typeinfo(0x2226);
         UnityEngine::_Object::getClass()->initIfNeeded();
 
