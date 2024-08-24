@@ -61,3 +61,5 @@ RomData::Arena GetExtraArenaData(int32_t arena);
 
 // Returns the extra local trade data.
 RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId);
+
+void LoadFeaturesFromJSON(nn::json j);

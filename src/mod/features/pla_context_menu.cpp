@@ -197,6 +197,9 @@ HOOK_DEFINE_INLINE(ContextMenuAction) {
             default:
                 break;
         }
+
+        //Allow Field Waza to perform its original checks
+        ctx->W[9] = contextMenuId - 35; // sub w9, w9, #0x23
     }
 };
 

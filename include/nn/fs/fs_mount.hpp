@@ -10,6 +10,9 @@ namespace nn::fs {
     */
     Result MountSdCardForDebug(char const* mount);
 
-    void QueryMountRomCacheSize(uint64_t* out);
-    void MountRom(char const* mount, void* cache, uint64_t cache_size);
+    Result QueryMountRomCacheSize(size_t* out);
+
+    Result MountRom(char const* mount, void* cache, size_t cache_size);
+
+    void Unmount(char const* mount);
 };

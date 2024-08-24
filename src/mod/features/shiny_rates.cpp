@@ -35,10 +35,20 @@ HOOK_DEFINE_INLINE(Shiny_Masuda) {
     }
 };
 
+HOOK_DEFINE_INLINE(UgPokeLottery) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto spec = (Pml::PokePara::InitialSpec::Object*) ctx->X[20];
+        auto origOverwrite = ctx->W[23];
+        spec->fields.rareTryCount += origOverwrite - 1;
+    }
+};
+
 void exl_shiny_rates_main() {
     InitialSpec_ctor::InstallAtOffset(0x020521d0);
 
     Shiny_Masuda::InstallAtOffset(0x02050874);
+
+    UgPokeLottery::InstallAtOffset(0x018c0064);
 
     // Assembly Patches
     using namespace exl::armv8::inst;
