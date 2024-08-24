@@ -52,3 +52,5 @@ struct MainSaveData {
 
 void loadMain(bool isBackup);
 void saveMain(bool isMain, bool isBackup);
+
+void JsonSaveTest();

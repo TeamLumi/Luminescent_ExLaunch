@@ -111,6 +111,8 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
         saveBerries(isMain, isBackup);
         saveColorVariations(isMain, isBackup);
         saveBoxes(isMain, isBackup);
+        JsonSaveTest();
+
 #endif
 
         // Save base save file

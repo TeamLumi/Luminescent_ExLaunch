@@ -304,4 +304,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     static inline Dpr::Message::MessageEnumData::MsgLangId get_msgLangID() {
         return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
     }
+
+    static inline DPData::PLAYER_DATA::Object* get_playerData() {
+        return external<DPData::PLAYER_DATA::Object*>(0x02ce2a50);
+    }
 };
