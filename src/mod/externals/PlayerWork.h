@@ -110,6 +110,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             Dpr::BallDeco::SaveBallDecoExtraData::Object ballDecoExtraData;
         };
 
+        static_assert(offsetof(Fields, systemFlags) == 0x18);
+        static_assert(sizeof(System::Boolean_array*) == 0x8);
         static_assert(offsetof(Fields, tr_battleData) == 0x220);
         static_assert(offsetof(Fields, kinomiGrowSaveData) == 0x340);
         static_assert(offsetof(Fields, poffinSaveData) == 0x350);

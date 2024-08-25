@@ -5,6 +5,7 @@
 #include "externals/DPData/PLAYER_DATA.h"
 #include "helpers/fsHelper.h"
 #include "externals/System/Convert.h"
+#include "save/save.h"
 
 nn::string ByteArrayToBase64(System::Byte_array* inArray) {
     Logger::log("[ByteArrayToBase64] \n");
@@ -29,8 +30,8 @@ nn::json GetArray(System::Boolean_array* inArray) {
     Logger::log("[GetArray] \n");
     if (inArray != nullptr && inArray->max_length > 0) {
         auto boolArray = nn::vector<bool>();
-        Logger::log("[GetArray] Pushing back %d items.\n", inArray->max_length);
-        for (size_t i = 0; i < inArray->max_length; i++) {
+        Logger::log("[GetArray] Pushing back %zu items.\n", inArray->max_length);
+        for (uint64_t i = 0; i < inArray->max_length; i++) {
             boolArray.push_back(inArray->m_Items[i]);
         }
         return boolArray;
@@ -64,9 +65,9 @@ nn::json GetGMTime(DPData::GMTIME::Fields gmTimeFields) {
 }
 
 // version
-// TODO: intValues
-// TODO: boolValues
-// TODO: systemFlags
+// intValues
+// boolValues
+// systemFlags
 // rivalName
 // zoneID
 // timeScale
@@ -82,9 +83,9 @@ nn::json GetPlayerData() {
     auto myStatus = (PlayerWork::get_playerStatus())->fields;
     auto playTime = (PlayerWork::get_playerData())->fields.playtime.fields;
     auto contest_data = (PlayerWork::get_playerData())->fields.contestdata.fields;
-    Logger::log("[PlayerSaveData] \n");
-    nn::json playerDataJson = {
-            {"PlayerData", {
+    Logger::log("[PlayerData] \n");
+    return {
+            {
                     {"Config", {
                             {"msg_speed", config.msg_speed},
                             {"msg_lang_id", config.msg_lang_id},
@@ -136,10 +137,8 @@ nn::json GetPlayerData() {
                             {"photoDatas", 0}, // ToDo
                             {"contestRankPoint", contest_data.contestRankPoint}
                     }}
-            }}
+            }
     };
-
-    return playerDataJson;
 }
 nn::json GetZukan(PlayerWork::SaveData::Fields saveData) { //ToDo
     auto zukanData = saveData.zukanData.fields;
@@ -253,20 +252,16 @@ nn::json GetSystemData(PlayerWork::SaveData::Fields saveDataFields) {
 // TODO: tvData
 // TODO: ballDecoExtraData
 
-void JsonSaveTest() {
-    PlayerWork::getClass()->initIfNeeded();
-    auto method = SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
-    ::Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
-    auto saveData = reinterpret_cast<PlayerWork::Object*>(SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
-    ::get_Instance(method))->fields._saveData.fields;
+void JsonSaveTest(PlayerWork::Object* playerWork) {
 
+    auto saveData = playerWork->fields._saveData.fields;
 
     nn::json wholeJson = {
             {"SaveData", {
                     {"version", saveData.version},
-                    {"intValues", GetArray(saveData.intValues)},
+                    {"intValues", 0}, //GetArray(saveData.intValues)
                     {"boolValues", 0}, //GetArray(saveData.boolValues)
-                    {"systemFlags", GetArray(saveData.systemFlags)},
+                    {"systemFlags", 0}, //GetArray(saveData.systemFlags)
                     {"rivalName", saveData.rivalName->asCString().c_str()},
                     {"zoneID", saveData.zoneID},
                     {"timeScale", saveData.timeScale},
@@ -325,4 +320,33 @@ void JsonSaveTest() {
     nn::string writeString = wholeJson.dump(4);
     nn::string filePath = "SaveData:/JSON_PlayerData.bin";
     FsHelper::writeFileToPath((void*) writeString.data(), writeString.size(), filePath.c_str());
+}
+
+void JsonLoadTest(PlayerWork::Object* playerWork) {
+    auto& saveData = playerWork->fields._saveData.fields;
+    nn::string filePath = "SaveData:/JSON_PlayerData.json";
+    Logger::log("[JSONLoadTest] Loading file...\n");
+    nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
+    if (j != nullptr && !j.is_discarded()) {
+        Logger::log("[JSONLoadTest] Loaded JSON\n");
+        auto jData = j.at("SaveData");
+
+        // Version
+        saveData.version = jData.at("version").get<int32_t>();
+        Logger::log("[JSONLoadTest] Version set to %d\n", saveData.version);
+
+        // IntValues
+        auto storedArray = jData["intValues"];
+        auto workArray = System::Int32_array::newArray(WorkCount);
+        Logger::log("[JSONLoadTest] New Array created\n");
+        for (uint64_t i = 0; i < workArray->max_length; i++) {
+            memcpy(&workArray->m_Items[i], &storedArray[i], sizeof(int32_t));
+        }
+        Logger::log("[JSONLoadTest] All values copied\n");
+        saveData.intValues = workArray;
+    }
+
+    else {
+        Logger::log("[JSONLoadTest] Error parsing JSON\n");
+    }
 }
