@@ -197,6 +197,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         float _autosaveWindowCloseOpenTime;
     };
 
+    static_assert(offsetof(Fields, _autosaveWindowCloseOpenTime) == 0x828);
+
     static inline Pml::PokeParty::Object* get_playerParty() {
         return external<Pml::PokeParty::Object*>(0x02ce2b50);
     }
@@ -307,5 +309,9 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline DPData::PLAYER_DATA::Object* get_playerData() {
         return external<DPData::PLAYER_DATA::Object*>(0x02ce2a50);
+    }
+
+    static inline System::String::Object* get_rivalName() {
+        return external<System::String::Object*>(0x02cee9a0);
     }
 };

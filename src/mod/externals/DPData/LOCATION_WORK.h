@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "externals/il2cpp-api.h"
 
 namespace DPData {
     struct LOCATION_WORK : ILStruct<LOCATION_WORK> {
