@@ -145,13 +145,13 @@ void renamePokemon(Dpr::UI::PokemonWindow::DisplayClass25_0::Object * dispClass,
     System::String::Object * headerLabel;
     switch (corePokeParam->GetSex())
     {
-        case 0:
+        case Pml::Sex::MALE:
             headerLabel = System::String::Create("SS_strinput_006");
             break;
-        case 1:
+        case Pml::Sex::FEMALE:
             headerLabel = System::String::Create("SS_strinput_007");
             break;
-        case 2:
+        case Pml::Sex::UNKNOWN:
         default:
             headerLabel = System::String::Create("SS_strinput_005");
             break;

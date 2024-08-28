@@ -120,11 +120,11 @@ namespace ui {
                         }
                         core->SetGetBall(ball->selected);
                         if (shiny->selected == array_index(DEBUG_SHINIES, "Non-shiny"))
-                            core->SetRareType(0);
+                            core->SetRareType(Pml::PokePara::RareType::NOT_RARE);
                         else if (shiny->selected == array_index(DEBUG_SHINIES, "Shiny"))
-                            core->SetRareType(1);
+                            core->SetRareType(Pml::PokePara::RareType::CAPTURED);
                         else if (shiny->selected == array_index(DEBUG_SHINIES, "Square Shiny"))
-                            core->SetRareType(2);
+                            core->SetRareType(Pml::PokePara::RareType::DISTRIBUTED);
 
                         auto myStatus = PlayerWork::get_playerStatus();
                         auto zoneID = PlayerWork::get_zoneID();

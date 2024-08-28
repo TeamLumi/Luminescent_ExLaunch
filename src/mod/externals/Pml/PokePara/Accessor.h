@@ -105,5 +105,13 @@ namespace Pml::PokePara {
         inline uint16_t GetFormNo() {
             return external<uint16_t>(0x024a64e0, this);
         }
+
+        inline uint32_t GetMultiPurposeWork() {
+            return external<uint32_t>(0x024a7f40, this);
+        }
+
+        inline void SetMultiPurposeWork(uint32_t value) {
+            external<void>(0x024abac0, this, value);
+        }
     };
 }
