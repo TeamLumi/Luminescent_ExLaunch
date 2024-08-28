@@ -337,12 +337,12 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
 
             case Pml::Personal::EvolveCond::MALE: // Male
                 Logger::log("MALE\n");
-                return poke->GetSex() == (uint8_t)Pml::Sex::MALE;
+                return poke->GetSex() == Pml::Sex::MALE;
 
             case Pml::Personal::EvolveCond::FEMALE: // Female
             case Pml::Personal::EvolveCond::FEMALE_FORMCHANGE: // Female (Meowstic, Basculegion, Oinkologne)
                 Logger::log("FEMALE\n");
-                return poke->GetSex() == (uint8_t)Pml::Sex::FEMALE;
+                return poke->GetSex() == Pml::Sex::FEMALE;
 
             case Pml::Personal::EvolveCond::PLACE_MAGNETIC: // Special magnetic field
                 Logger::log("PLACE_MAGNETIC\n");
@@ -471,7 +471,7 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
                 Logger::log("TOTAL_DAMAGE_RECIEVED_MALE\n");
                 if (extraDataIndex != -1) {
                     Logger::log("  damage: %d\n", extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived);
-                    return extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived >= evolutionParam && poke->GetSex() == (uint8_t)Pml::Sex::MALE;
+                    return extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived >= evolutionParam && poke->GetSex() == Pml::Sex::MALE;
                 }
                 return false;
 
@@ -479,7 +479,7 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
                 Logger::log("TOTAL_DAMAGE_RECIEVED_FEMALE\n");
                 if (extraDataIndex != -1) {
                     Logger::log("  damage: %d\n", extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived);
-                    return extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived >= evolutionParam && poke->GetSex() == (uint8_t)Pml::Sex::FEMALE;
+                    return extraEvoData.extraPartyEvoData[extraDataIndex].totalDamageReceived >= evolutionParam && poke->GetSex() == Pml::Sex::FEMALE;
                 }
                 return false;
 

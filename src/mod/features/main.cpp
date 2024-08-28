@@ -96,6 +96,8 @@ void CallFeatureHooks()
         exl_local_trades_main();
     if (IsActivatedFeature(array_index(FEATURES, "Spinda Hijacking")))
         exl_spinda_hijacking_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Form Argument Pokémon Icons")))
+        exl_form_arg_icons_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

@@ -7,6 +7,8 @@
 #include "externals/Pml/PokePara/EggCheckType.h"
 #include "externals/Pml/PokePara/OwnerInfo.h"
 #include "externals/Pml/PokePara/PowerID.h"
+#include "externals/Pml/PokePara/RareType.h"
+#include "externals/Pml/Sex.h"
 #include "externals/Pml/WazaNo.h"
 
 namespace Pml::PokePara {
@@ -89,8 +91,8 @@ namespace Pml::PokePara {
             return external<uint8_t>(0x0204b950, this);
         }
 
-        inline uint8_t GetSex() {
-            return external<uint8_t>(0x02048540, this);
+        inline Sex GetSex() {
+            return external<Sex>(0x02048540, this);
         }
 
         inline void SetNickName(System::String::Object* nickName) {
@@ -137,7 +139,7 @@ namespace Pml::PokePara {
             external<void>(0x0204b840, this, value);
         }
 
-        inline void SetRareType(uint8_t type) {
+        inline void SetRareType(RareType type) {
             external<void>(0x0204a920, this, type);
         }
 
@@ -181,8 +183,8 @@ namespace Pml::PokePara {
             external<void>(0x02049690, this);
         }
 
-        inline uint8_t GetRareType() {
-            return external<uint8_t>(0x0204a5a0, this);
+        inline RareType GetRareType() {
+            return external<RareType>(0x0204a5a0, this);
         }
 
         inline void ChangeEffortPower(Pml::PokePara::PowerID powerId, uint32_t value) {
@@ -211,6 +213,14 @@ namespace Pml::PokePara {
 
         inline bool EndFastMode(bool validFlag) {
             return external<bool>(0x0204c960, this, validFlag);
+        }
+
+        inline uint32_t GetMultiPurposeWork() {
+            return this->instance()->fields.m_accessor->GetMultiPurposeWork();
+        }
+
+        inline void SetMultiPurposeWork(uint32_t value) {
+            this->instance()->fields.m_accessor->SetMultiPurposeWork(value);
         }
     };
 }
