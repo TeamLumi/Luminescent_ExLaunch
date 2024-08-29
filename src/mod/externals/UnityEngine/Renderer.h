@@ -38,5 +38,9 @@ namespace UnityEngine {
         inline void set_sharedMaterial(UnityEngine::Material::Object* value) {
             external<void>(0x0269a540, this, value);
         }
+
+        inline void set_enabled(bool value) {
+            external<void>(0x0269a090, this, value);
+        }
     };
 }

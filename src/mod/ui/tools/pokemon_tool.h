@@ -60,6 +60,12 @@ namespace ui {
                     _.max = 255;
                     _.value = 70;
                 });
+                auto *formArg = _.InputInt([](InputInt &_) {
+                    _.label = "Variant (Form Argument)";
+                    _.min = -1;
+                    _.max = 255;
+                    _.value = 0;
+                });
                 auto* customMoves = _.Checkbox([](Checkbox &_) {
                     _.label = "Custom moves";
                     _.enabled = false;
@@ -89,9 +95,9 @@ namespace ui {
                     _.selected = array_index(MOVES, "Comet Punch");
                 });
 
-                _.Button([species, form, level, ball, sex, shiny, friendship, customMoves, move1, move2, move3, move4](Button &_) {
+                _.Button([species, form, level, ball, sex, shiny, friendship, formArg, customMoves, move1, move2, move3, move4](Button &_) {
                     _.label = "Give Pokemon";
-                    _.onClick = [species, form, level, ball, sex, shiny, friendship, customMoves, move1, move2, move3, move4]() {
+                    _.onClick = [species, form, level, ball, sex, shiny, friendship, formArg, customMoves, move1, move2, move3, move4]() {
                         system_load_typeinfo(0x43be);
                         auto party = PlayerWork::get_playerParty();
 
@@ -110,6 +116,9 @@ namespace ui {
                         auto core = param->cast<Pml::PokePara::CoreParam>();
 
                         core->SetFriendship(friendship->value);
+
+                        if (formArg->value > -1)
+                            core->SetMultiPurposeWork(formArg->value);
 
                         if (customMoves->enabled)
                         {

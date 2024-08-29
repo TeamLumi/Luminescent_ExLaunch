@@ -3,15 +3,14 @@
 #include "externals/Pml/Personal/EvolveCond.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/WazaNo.h"
+#include "externals/XLSXContent/GrowTable.h"
 #include "externals/XLSXContent/EvolveTable.h"
 #include "externals/XLSXContent/PersonalTable.h"
 #include "externals/il2cpp-api.h"
 
 namespace Pml::Personal {
-    struct PersonalSystem : ILClass<PersonalSystem,0x04c5ad18> {
-        struct Fields {
-
-        };
+    struct PersonalSystem : ILClass<PersonalSystem, 0x04c5ad18> {
+        struct Fields {};
 
         struct StaticFields {
             XLSXContent::PersonalTable::Object* m_alldata;
@@ -59,6 +58,10 @@ namespace Pml::Personal {
 
         static inline uint16_t GetEvolutionParam(uint8_t route_index) {
             return external<uint16_t>(0x024a2620, route_index);
+        }
+
+        static inline XLSXContent::GrowTable::SheetData::Object* GetGrowTable(int32_t monsno, uint16_t formno) {
+            return external<XLSXContent::GrowTable::SheetData::Object*>(0x024a1790, monsno, formno);
         }
     };
 }

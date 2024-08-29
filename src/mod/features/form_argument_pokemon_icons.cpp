@@ -26,6 +26,7 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
         {
             case array_index(SPECIES, "Magikarp"):
             {
+                // TODO: Change this to be a proper two digit number please :(
                 uint32_t formArg = coreParam->GetMultiPurposeWork();
                 assetName = System::String::Concat(assetName, System::String::Create("_0" + nn::to_string(formArg)));
             }
@@ -39,7 +40,7 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
             break;
         }
 
-        Logger::log("Looking for icon %s", assetName->asCString().c_str());
+        Logger::log("Looking for icon %s\n", assetName->asCString().c_str());
         auto sprite = __this->GetAtlasSprite(SpriteAtlasID::TEXTUREMASS, assetName);
         onComplete->Invoke((Il2CppObject*)sprite);
     }
