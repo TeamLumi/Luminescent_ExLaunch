@@ -90,6 +90,7 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         // Form Argument
         switch (spec->fields.monsno)
         {
+            case array_index(SPECIES, "Arbok"):
             case array_index(SPECIES, "Magikarp"):
             case array_index(SPECIES, "Scatterbug"):
             case array_index(SPECIES, "Spewpa"):
