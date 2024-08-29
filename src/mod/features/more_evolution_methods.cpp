@@ -1,6 +1,7 @@
 #include "exlaunch.hpp"
 
 #include "data/items.h"
+#include "data/species.h"
 #include "data/types.h"
 #include "data/utils.h"
 #include "externals/DPData/Form_Enums.h"
@@ -134,53 +135,52 @@ bool HasHighContestCondition(Pml::PokePara::CoreParam::Object* poke)
            poke->fields.m_accessor->GetStrong() >= 170;
 }
 
-uint16_t GetAlcremieForm(Pml::PokePara::CoreParam::Object* poke)
+AlcremieCream GetAlcremieCream(Pml::PokePara::CoreParam::Object* poke)
 {
-    AlcremieCream cream;
     if (poke->fields.m_accessor->GetStyle() >= 170)
     {
-        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) cream = AlcremieCream::RUBY_CREAM;
-        else if (extraEvoData.currentEvolutionSituation.isNight) cream = AlcremieCream::SALTED_CREAM;
+        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::RUBY_CREAM;
+        else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::SALTED_CREAM;
     }
     else if (poke->fields.m_accessor->GetBeautiful() >= 170)
     {
-        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) cream = AlcremieCream::RUBY_SWIRL;
-        else if (extraEvoData.currentEvolutionSituation.isNight) cream = AlcremieCream::MINT_CREAM;
+        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::RUBY_SWIRL;
+        else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::MINT_CREAM;
     }
     else if (poke->fields.m_accessor->GetCute() >= 170)
     {
-        cream = AlcremieCream::RAINBOW_SWIRL;
+        return AlcremieCream::RAINBOW_SWIRL;
     }
     else if (poke->fields.m_accessor->GetClever() >= 170)
     {
-        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) cream = AlcremieCream::VANILLA_CREAM;
-        else if (extraEvoData.currentEvolutionSituation.isNight) cream = AlcremieCream::MATCHA_CREAM;
+        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::VANILLA_CREAM;
+        else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::MATCHA_CREAM;
     }
     else if (poke->fields.m_accessor->GetStrong() >= 170)
     {
-        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) cream = AlcremieCream::CARAMEL_SWIRL;
-        else if (extraEvoData.currentEvolutionSituation.isNight) cream = AlcremieCream::LEMON_CREAM;
+        if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::CARAMEL_SWIRL;
+        else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::LEMON_CREAM;
     }
-    else cream = AlcremieCream::VANILLA_CREAM;
+    else return AlcremieCream::VANILLA_CREAM;
+}
 
-    AlcremieSweet sweet;
+AlcremieSweet GetAlcremieSweet(Pml::PokePara::CoreParam::Object* poke)
+{
     if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Strawberry Sweet"))
-        sweet = AlcremieSweet::STRAWBERRY_SWEET;
+        return AlcremieSweet::STRAWBERRY_SWEET;
     else if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Berry Sweet"))
-        sweet = AlcremieSweet::BERRY_SWEET;
+        return AlcremieSweet::BERRY_SWEET;
     else if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Love Sweet"))
-        sweet = AlcremieSweet::LOVE_SWEET;
+        return AlcremieSweet::LOVE_SWEET;
     else if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Star Sweet"))
-        sweet = AlcremieSweet::STAR_SWEET;
+        return AlcremieSweet::STAR_SWEET;
     else if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Clover Sweet"))
-        sweet = AlcremieSweet::CLOVER_SWEET;
+        return AlcremieSweet::CLOVER_SWEET;
     else if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Flower Sweet"))
-        sweet = AlcremieSweet::FLOWER_SWEET;
+        return AlcremieSweet::FLOWER_SWEET;
     else if (poke->fields.m_accessor->GetItemNo() == (uint32_t)array_index(ITEMS, "Ribbon Sweet"))
-        sweet = AlcremieSweet::RIBBON_SWEET;
-    else sweet = AlcremieSweet::STRAWBERRY_SWEET;
-
-    return (uint16_t)cream * 7 + (uint16_t)sweet;
+        return AlcremieSweet::RIBBON_SWEET;
+    else return AlcremieSweet::STRAWBERRY_SWEET;
 }
 
 int32_t FindExtraDataByPoke(Pml::PokePara::CoreParam::Object* poke)
@@ -288,6 +288,7 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
 
             case Pml::Personal::EvolveCond::LEVELUP: // Pure level up
             case Pml::Personal::EvolveCond::SPECIAL_LEVELUP: // Nincada level up
+            case Pml::Personal::EvolveCond::VARIANT_TO_FORM: // Variant into Form No level up
                 Logger::log("LEVELUP\n");
                 return true;
 
@@ -410,6 +411,7 @@ HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
                     Logger::log("  crits %d\n", extraEvoData.extraPartyEvoData[extraDataIndex].criticalCount);
                     return extraEvoData.extraPartyEvoData[extraDataIndex].criticalCount >= evolutionParam;
                 }
+                return false;
 
             case Pml::Personal::EvolveCond::TOTAL_DAMAGE_RECIEVED: // Total damage received in last battle
                 Logger::log("TOTAL_DAMAGE_RECIEVED\n");
@@ -548,21 +550,30 @@ HOOK_DEFINE_REPLACE(CoreParam_Evolve) {
                 __this->RemoveItem();
                 break;
 
-                // Adjust Alcremie's form
+            // Adjust Alcremie's form
             case Pml::Personal::EvolveCond::AMEZAIKU:
-                Logger::log("Fixing Alcremie form to %d!\n", GetAlcremieForm(__this));
-                __this->ChangeFormNo(GetAlcremieForm(__this), nullptr);
+                Logger::log("Fixing Alcremie form to %d!\n", GetAlcremieCream(__this));
+                __this->ChangeFormNo((uint16_t)GetAlcremieCream(__this), nullptr);
+                __this->SetMultiPurposeWork((uint32_t)GetAlcremieSweet(__this));
                 __this->RemoveItem();
                 break;
 
-                // Remove Bag Item x1
+            // Remove Bag Item x1
             case Pml::Personal::EvolveCond::BAG_ITEM_1:
+                Logger::log("Removing item from bag!\n");
                 ItemWork::SubItem(evolutionParam, 1);
                 break;
 
-                // Remove Bag Item x999
+            // Remove Bag Item x999
             case Pml::Personal::EvolveCond::BAG_ITEM_999:
+                Logger::log("Removing items from bag!\n");
                 ItemWork::SubItem(evolutionParam, 999);
+                break;
+
+            // Variant into Form No
+            case Pml::Personal::EvolveCond::VARIANT_TO_FORM:
+                Logger::log("Made form match variant!\n");
+                __this->ChangeFormNo(__this->GetMultiPurposeWork(), nullptr);
                 break;
 
             default:

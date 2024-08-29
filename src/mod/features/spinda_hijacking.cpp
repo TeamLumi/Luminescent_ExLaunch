@@ -56,12 +56,29 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     if (renderer != nullptr)
                     {
                         auto patcheelMats = renderer->get_sharedMaterials();
-                        uint32_t id = personalRand % patcheelMats->max_length;
+                        uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork() % patcheelMats->max_length;
                         Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
 
                         for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
                             ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_sharedMaterial(patcheelMats->m_Items[id]);
                     }
+                }
+                break;
+
+                case array_index(SPECIES, "Alcremie"):
+                {
+                    Logger::log("[PatcheelPattern$$SetPattern] Alcremie\n");
+                    system_load_typeinfo(0x7deb);
+                    system_load_typeinfo(0x1e84);
+                    system_load_typeinfo(0x1e8d);
+                    system_load_typeinfo(0x221b);
+                    system_load_typeinfo(0x6d4d);
+
+                    uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork();
+                    Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
+
+                    for (int i=0; i<__this->fields.UVDatas->max_length; i++)
+                        ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_enabled(i == id);
                 }
                 break;
             }

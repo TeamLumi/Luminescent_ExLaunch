@@ -73,6 +73,9 @@ void exl_extended_tm_learnsets_main();
 // Allows dynamically changing Pokémon icons based on the Pokémon's Form Argument.
 void exl_form_arg_icons_main();
 
+// Generates Form Argument data when generating a Pokémon's InitialSpec.
+void exl_form_arg_generation_main();
+
 // Adds new Pokémon/held item combos that trigger a form change when held.
 void exl_form_change_held_items_main();
 

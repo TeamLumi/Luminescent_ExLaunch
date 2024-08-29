@@ -28,8 +28,6 @@ UnityEngine::Sprite::Object* GetEggGroupSprite(int32_t eggGroup, int32_t langId)
 
 void SetEggGroupIcons(Dpr::UI::TypePanel::Object* panel1, Dpr::UI::TypePanel::Object* panel2, int32_t eggGroup1, int32_t eggGroup2, int32_t getStatus, int32_t langId)
 {
-    Logger::log("SetEggGroupIcons\n");
-
     Dpr::Message::MessageManager::getClass()->initIfNeeded();
 
     if (langId == 11)
@@ -78,8 +76,6 @@ void SetEggGroupIcons(Dpr::UI::TypePanel::Object* panel1, Dpr::UI::TypePanel::Ob
 
 void SetEggGroupIconsFromZukanInfo(Dpr::UI::ZukanInfo::Object* zukanInfo, XLSXContent::PersonalTable::SheetPersonal::Object* personalData, UnityEngine::Transform::Object* statusTf, int32_t langId)
 {
-    Logger::log("SetEggGroupIconsFromZukanInfo\n");
-
     system_load_typeinfo(0x870a);
     system_load_typeinfo(0x505e);
 
@@ -148,8 +144,6 @@ HOOK_DEFINE_TRAMPOLINE(ZukanInfo$$SetupUITexts) {
                          Dpr::UI::UIText::Object* weightText, Dpr::UI::UIText::Object* descText, Dpr::UI::UIText::Object* formNameText) {
         Orig(__this, nameText, classText, heightText, weightText, descText, formNameText);
 
-        Logger::log("ZukanInfo$$SetupUITexts\n");
-
         // We need this UIText to go back up the hierarchy
         // This is null in the compare panel, so we just stop here.
         if (classText == nullptr)
@@ -201,8 +195,6 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$OnSelectLanguageButton) {
     static void Callback(Dpr::UI::ZukanDescriptionPanel::Object* __this, Dpr::UI::ZukanLanguageButton::Object* button) {
         Orig(__this, button);
 
-        Logger::log("ZukanDescriptionPanel$$OnSelectLanguageButton\n");
-
         system_load_typeinfo(0x505e);
 
         if (UnityEngine::_Object::op_Equality((UnityEngine::_Object::Object*)button, nullptr))
@@ -238,8 +230,6 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$MoveCatalogSelect) {
     static bool Callback(Dpr::UI::ZukanDescriptionPanel::Object* __this, int32_t addValue) {
         if (!Orig(__this, addValue))
             return false;
-
-        Logger::log("ZukanDescriptionPanel$$MoveCatalogSelect\n");
 
         system_load_typeinfo(0x505e);
 
