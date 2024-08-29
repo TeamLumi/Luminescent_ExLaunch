@@ -13,6 +13,9 @@
 HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
     // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
     static void Callback(Dpr::PatcheelPattern::Object* __this, uint32_t personalRand, Pml::PokePara::PokemonParam::Object* param) {
+        system_load_typeinfo(0x7deb);
+        system_load_typeinfo(0x6d4d);
+
         if (param == nullptr)
         {
             Logger::log("[PatcheelPattern$$SetPattern] Did not receive a PokemonParam...\n");
@@ -33,11 +36,6 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                 case array_index(SPECIES, "Magikarp"):
                 {
                     Logger::log("[PatcheelPattern$$SetPattern] Magikarp\n");
-                    system_load_typeinfo(0x7deb);
-                    system_load_typeinfo(0x1e84);
-                    system_load_typeinfo(0x1e8d);
-                    system_load_typeinfo(0x221b);
-                    system_load_typeinfo(0x6d4d);
 
                     auto go = ((UnityEngine::Component::Object *) __this)->get_gameObject()->instance();
                     auto renderers = go->GetComponentsInChildren(true, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
@@ -68,11 +66,6 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                 case array_index(SPECIES, "Alcremie"):
                 {
                     Logger::log("[PatcheelPattern$$SetPattern] Alcremie\n");
-                    system_load_typeinfo(0x7deb);
-                    system_load_typeinfo(0x1e84);
-                    system_load_typeinfo(0x1e8d);
-                    system_load_typeinfo(0x221b);
-                    system_load_typeinfo(0x6d4d);
 
                     uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork();
                     Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);

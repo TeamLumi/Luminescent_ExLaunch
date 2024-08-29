@@ -20,22 +20,23 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
         bool isEgg = coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG);
 
         auto data = __this->GetPokemonIconData(monsno, formno, sex, rareType, isEgg);
-        auto assetName = data->fields.AssetName;
+        System::String::Object* assetName = nullptr;
 
         switch (monsno)
         {
+            case array_index(SPECIES, "Arbok"):
             case array_index(SPECIES, "Magikarp"):
+            case array_index(SPECIES, "Alcremie"):
             {
                 // TODO: Change this to be a proper two digit number please :(
                 uint32_t formArg = coreParam->GetMultiPurposeWork();
-                assetName = System::String::Concat(assetName, System::String::Create("_0" + nn::to_string(formArg)));
+                assetName = System::String::Concat(data->fields.AssetName, System::String::Create("_0" + nn::to_string(formArg)));
             }
             break;
 
-            case array_index(SPECIES, "Alcremie"):
+            default:
             {
-                uint32_t formArg = coreParam->GetMultiPurposeWork();
-                assetName = System::String::Concat(assetName, System::String::Create("_0" + nn::to_string(formArg)));
+                assetName = data->fields.AssetName;
             }
             break;
         }
