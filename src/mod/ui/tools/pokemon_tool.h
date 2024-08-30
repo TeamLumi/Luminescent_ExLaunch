@@ -60,6 +60,12 @@ namespace ui {
                     _.max = 255;
                     _.value = 70;
                 });
+                auto *formArg = _.InputInt([](InputInt &_) {
+                    _.label = "Variant (Form Argument)";
+                    _.min = -1;
+                    _.max = 255;
+                    _.value = 0;
+                });
                 auto* customMoves = _.Checkbox([](Checkbox &_) {
                     _.label = "Custom moves";
                     _.enabled = false;
@@ -89,9 +95,9 @@ namespace ui {
                     _.selected = array_index(MOVES, "Comet Punch");
                 });
 
-                _.Button([species, form, level, ball, sex, shiny, friendship, customMoves, move1, move2, move3, move4](Button &_) {
+                _.Button([species, form, level, ball, sex, shiny, friendship, formArg, customMoves, move1, move2, move3, move4](Button &_) {
                     _.label = "Give Pokemon";
-                    _.onClick = [species, form, level, ball, sex, shiny, friendship, customMoves, move1, move2, move3, move4]() {
+                    _.onClick = [species, form, level, ball, sex, shiny, friendship, formArg, customMoves, move1, move2, move3, move4]() {
                         system_load_typeinfo(0x43be);
                         auto party = PlayerWork::get_playerParty();
 
@@ -111,6 +117,9 @@ namespace ui {
 
                         core->SetFriendship(friendship->value);
 
+                        if (formArg->value > -1)
+                            core->SetMultiPurposeWork(formArg->value);
+
                         if (customMoves->enabled)
                         {
                             core->SetWaza(0, move1->selected);
@@ -120,11 +129,11 @@ namespace ui {
                         }
                         core->SetGetBall(ball->selected);
                         if (shiny->selected == array_index(DEBUG_SHINIES, "Non-shiny"))
-                            core->SetRareType(0);
+                            core->SetRareType(Pml::PokePara::RareType::NOT_RARE);
                         else if (shiny->selected == array_index(DEBUG_SHINIES, "Shiny"))
-                            core->SetRareType(1);
+                            core->SetRareType(Pml::PokePara::RareType::CAPTURED);
                         else if (shiny->selected == array_index(DEBUG_SHINIES, "Square Shiny"))
-                            core->SetRareType(2);
+                            core->SetRareType(Pml::PokePara::RareType::DISTRIBUTED);
 
                         auto myStatus = PlayerWork::get_playerStatus();
                         auto zoneID = PlayerWork::get_zoneID();
