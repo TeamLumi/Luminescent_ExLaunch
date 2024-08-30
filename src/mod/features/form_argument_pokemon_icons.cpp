@@ -26,11 +26,11 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
         {
             case array_index(SPECIES, "Arbok"):
             case array_index(SPECIES, "Magikarp"):
+            //case array_index(SPECIES, "Gyarados"): TODO: Eventually add Gyarados icons to this
             case array_index(SPECIES, "Alcremie"):
             {
-                // TODO: Change this to be a proper two digit number please :(
                 uint32_t formArg = coreParam->GetMultiPurposeWork();
-                assetName = System::String::Concat(data->fields.AssetName, System::String::Create("_0" + nn::to_string(formArg)));
+                assetName = System::String::Concat(data->fields.AssetName, System::String::Create("_0" + nn::to_string(formArg, "%02d")));
             }
             break;
 
@@ -41,7 +41,6 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
             break;
         }
 
-        Logger::log("Looking for icon %s\n", assetName->asCString().c_str());
         auto sprite = __this->GetAtlasSprite(SpriteAtlasID::TEXTUREMASS, assetName);
         onComplete->Invoke((Il2CppObject*)sprite);
     }

@@ -26,7 +26,7 @@ void patchContextMenu(System::Collections::Generic::List$$ContextMenuItem_Param:
 
     Pml::PokePara::CoreParam::Object * pokemonParam;
     pokemonParam = (Pml::PokePara::CoreParam::Object *) dispClass->fields.pokemonParam;
-    System::Collections::Generic::HashSet$$Pml_WazaNo::Object * remindableWaza = pokemonParam->CollectRemindableWaza();
+    System::Collections::Generic::HashSet$$WazaNo::Object * remindableWaza = pokemonParam->CollectRemindableWaza();
 
     if (remindableWaza->fields._count > 0)
     {

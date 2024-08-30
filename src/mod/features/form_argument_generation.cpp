@@ -4,15 +4,21 @@
 #include "data/utils.h"
 
 #include "externals/DPData/Form_Enums.h"
+#include "externals/GFL.h"
 #include "externals/PlayerWork.h"
 #include "externals/Pml/Personal/GrowTableExtensions.h"
 #include "externals/Pml/Personal/PersonalSystem.h"
 #include "externals/Pml/PmlUse.h"
 #include "externals/Pml/PokePara/Accessor.h"
 #include "externals/Pml/PokePara/CalcTool.h"
+#include "externals/Pml/PokePara/EggGenerator.h"
+#include "externals/Pml/PokePara/EggParam.h"
 #include "externals/Pml/PokePara/InitialSpec.h"
+#include "externals/Pml/PokePara/Parents.h"
+
 #include "logger/logger.h"
 #include "romdata/romdata.h"
+#include "save/save.h"
 
 HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
     static void Callback(System::Byte_array* coreData, Pml::PokePara::InitialSpec::Object* spec) {
@@ -90,25 +96,44 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         // Form Argument
         switch (spec->fields.monsno)
         {
-            case array_index(SPECIES, "Arbok"):
-            case array_index(SPECIES, "Magikarp"):
-            case array_index(SPECIES, "Scatterbug"):
-            case array_index(SPECIES, "Spewpa"):
-            case array_index(SPECIES, "Alcremie"):
+            case array_index(SPECIES, "Vivillon"):
             {
-                accessor->SetMultiPurposeWork(RollForVariant(spec->fields.monsno, spec->fields.formno, PlayerWork::get_zoneID()));
+                accessor->SetMultiPurposeWork(accessor->GetFormNo());
             }
             break;
 
             default:
             {
-                accessor->SetMultiPurposeWork(0);
+                accessor->SetMultiPurposeWork(RollForVariant(spec->fields.monsno, accessor->GetFormNo(), PlayerWork::get_zoneID()));
             }
             break;
         }
     }
 };
 
+HOOK_DEFINE_INLINE(EggGenerator$$CreateEgg_CoreParam_Variants) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto egg = (Pml::PokePara::CoreParam::Object*)ctx->X[0];
+        auto egg_param = (Pml::PokePara::EggParam::Object*)ctx->X[1];
+        auto parents = (Pml::PokePara::Parents::Object*)ctx->X[23];
+        auto setting = (Pml::PokePara::EggGenerator::Setting::Object*)ctx->X[3];
+
+        Pml::PokePara::EggGenerator::SetupEggParam(egg, egg_param, parents, setting);
+
+        bool fastMode = egg->fields.m_accessor->IsFastMode();
+        if (!fastMode)
+            egg->fields.m_accessor->StartFastMode();
+
+        // Inherit variant
+        auto targetParent = parents->fields.mother->GetMonsNo() == array_index(SPECIES, "Ditto") ? parents->fields.father : parents->fields.mother;
+        egg->fields.m_accessor->SetMultiPurposeWork(targetParent->fields.m_accessor->GetMultiPurposeWork());
+
+        if (!fastMode && egg->fields.m_accessor->IsFastMode())
+            egg->fields.m_accessor->EndFastMode();
+    }
+};
+
 void exl_form_arg_generation_main() {
     Factory$$InitCoreData::InstallAtOffset(0x02054140);
+    EggGenerator$$CreateEgg_CoreParam_Variants::InstallAtOffset(0x0204e28c);
 }
