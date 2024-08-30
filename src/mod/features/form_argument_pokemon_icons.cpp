@@ -30,7 +30,7 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
             case array_index(SPECIES, "Alcremie"):
             {
                 uint32_t formArg = coreParam->GetMultiPurposeWork();
-                assetName = System::String::Concat(data->fields.AssetName, System::String::Create("_0" + nn::to_string(formArg, "%02d")));
+                assetName = System::String::Concat(data->fields.AssetName, System::String::Create("_" + nn::to_string(formArg, "%02d")));
             }
             break;
 
