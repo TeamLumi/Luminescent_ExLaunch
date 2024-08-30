@@ -84,7 +84,7 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         accessor->SetTalentSpAtk(spec->fields.talentPower->m_Items[3]);
         accessor->SetTalentSpDef(spec->fields.talentPower->m_Items[4]);
         accessor->SetTalentAgi(spec->fields.talentPower->m_Items[5]);
-        accessor->SetTokuseiNo(Pml::PokePara::CalcTool::GetTokuseiNo(spec->fields.tokuseiIndex, spec->fields.tokuseiIndex, spec->fields.tokuseiIndex));
+        accessor->SetTokuseiNo(Pml::PokePara::CalcTool::GetTokuseiNo(spec->fields.monsno, accessor->GetFormNo(), spec->fields.tokuseiIndex));
         accessor->SetTokusei1Flag(spec->fields.tokuseiIndex == 0);
         accessor->SetTokusei2Flag(spec->fields.tokuseiIndex == 1);
         accessor->SetTokusei3Flag(spec->fields.tokuseiIndex == 2);
