@@ -21,7 +21,7 @@ namespace Pml::Personal {
             void* s_GrowTable; // XLSXContent::GrowTable::SheetData::Object*
             XLSXContent::EvolveTable::SheetEvolve::Object* s_EvolutionTable;
             void* s_WazaOboeData; // XLSXContent::WazaOboeTable::SheetWazaOboe::Object*
-            Pml_WazaNo_array* OSHIE_WAZA;
+            Pml::WazaNo_array* OSHIE_WAZA;
         };
 
         static inline XLSXContent::PersonalTable::SheetPersonal::Object* GetPersonalData(int32_t monsno, uint16_t formno) {
@@ -62,6 +62,10 @@ namespace Pml::Personal {
 
         static inline XLSXContent::GrowTable::SheetData::Object* GetGrowTable(int32_t monsno, uint16_t formno) {
             return external<XLSXContent::GrowTable::SheetData::Object*>(0x024a1790, monsno, formno);
+        }
+
+        static inline System::String::Object* GetMonsName(int32_t monsNo, int32_t langId) {
+            return external<System::String::Object*>(0x024a0a90, monsNo, langId);
         }
     };
 }

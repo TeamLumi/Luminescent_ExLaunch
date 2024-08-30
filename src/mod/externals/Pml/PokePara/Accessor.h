@@ -226,5 +226,29 @@ namespace Pml::PokePara {
         inline void SetTalentWeight(uint8_t value) {
             external<void>(0x024ac170, this, value);
         }
+
+        inline bool IsFastMode() {
+            return external<bool>(0x024a4250, this);
+        }
+
+        inline void StartFastMode() {
+            external<void>(0x024a4260, this);
+        }
+
+        inline void SetOyaName(System::String::Object* oyaName) {
+            external<void>(0x024aa550, this, oyaName);
+        }
+
+        inline void SetTamagoWazaNo(uint8_t index, uint32_t wazano) {
+            external<void>(0x024a9660, this, index, wazano);
+        }
+
+        inline void SetTamagoFlag(bool flag) {
+            external<void>(0x024a9d80, this, flag);
+        }
+
+        inline void EndFastMode() {
+            external<void>(0x024a42a0, this);
+        }
     };
 }

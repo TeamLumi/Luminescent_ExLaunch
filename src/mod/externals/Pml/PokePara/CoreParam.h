@@ -15,9 +15,9 @@ namespace Pml::PokePara {
     struct CoreParam : ILClass<CoreParam> {
         struct FormChangeResult : ILClass<FormChangeResult> {
             struct Fields {
-                Pml_WazaNo_array* m_addedWaza;
-                Pml_WazaNo_array* m_removedWaza;
-                Pml_WazaNo_array* m_addFailedWaza;
+                Pml::WazaNo_array* m_addedWaza;
+                Pml::WazaNo_array* m_removedWaza;
+                Pml::WazaNo_array* m_addFailedWaza;
             };
         };
 
@@ -99,8 +99,8 @@ namespace Pml::PokePara {
             external<void>(0x02048e90, this, nickName);
         }
 
-        inline System::Collections::Generic::HashSet$$Pml_WazaNo::Object* CollectRemindableWaza() {
-            return external<System::Collections::Generic::HashSet$$Pml_WazaNo::Object*>(0x02047aa0, this);
+        inline System::Collections::Generic::HashSet$$WazaNo::Object* CollectRemindableWaza() {
+            return external<System::Collections::Generic::HashSet$$WazaNo::Object*>(0x02047aa0, this);
         }
 
         inline int32_t AddWazaIfEmptyExist(int32_t wazano) {

@@ -47,10 +47,6 @@ nn::vector<uint32_t> GetFormRates(int32_t monsno, int32_t zoneID)
 
         return zoneRates.rates;
     }
-    else
-    {
-        Logger::log("Error when parsing ZoneForm data!\n");
-    }
 
     // Default - Only Form 0
     return { 100 };
@@ -74,10 +70,6 @@ nn::vector<uint32_t> GetVariantRates(int32_t monsno, int32_t formno, int32_t zon
         zoneRates = j.get<RomData::ZoneRates>();
 
         return zoneRates.rates;
-    }
-    else
-    {
-        Logger::log("Error when parsing ZoneVariant data!\n");
     }
 
     // Default - Only Variant 0

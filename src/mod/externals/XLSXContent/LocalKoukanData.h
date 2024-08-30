@@ -21,7 +21,7 @@ namespace XLSXContent {
                 int32_t rand;
                 uint8_t sex;
                 int32_t language;
-                Pml_WazaNo_array* waza;
+                Pml::WazaNo_array* waza;
             };
         };
 
