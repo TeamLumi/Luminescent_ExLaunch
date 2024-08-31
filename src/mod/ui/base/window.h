@@ -31,6 +31,7 @@
 #include "ui/tools/pokemon_tool.h"
 #include "ui/tools/pokemoninfo_tool.h"
 #include "ui/tools/save_tool.h"
+#include "ui/tools/script_tool.h"
 #include "ui/tools/variables_tool.h"
 #include "ui/tools/warp_tool.h"
 

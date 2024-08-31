@@ -2,16 +2,19 @@
 
 #include "externals/il2cpp-api.h"
 #include "externals/BattleObjectEntity.h"
-#include "externals/UnityEngine/Color.h"
-#include "externals/UnityEngine/Vector3.h"
 #include "externals/Dpr/Battle/View/SimpleParam.h"
+#include "externals/Dpr/PatcheelPattern.h"
+#include "externals/UnityEngine/Color.h"
+#include "externals/UnityEngine/Rendering/CompareFunction.h"
+#include "externals/UnityEngine/Rendering/StencilOp.h"
+#include "externals/UnityEngine/Vector3.h"
 
 struct BattlePokemonEntity : ILClass<BattlePokemonEntity> {
-    struct RenderingParam {
+    struct RenderingParam : ILStruct<RenderingParam> {
         struct Fields {
             int32_t stencilRef;
-            int32_t stencilComp;
-            int32_t stencilOp;
+            UnityEngine::Rendering::CompareFunction stencilComp;
+            UnityEngine::Rendering::StencilOp stencilOp;
         };
     };
 
@@ -21,7 +24,7 @@ struct BattlePokemonEntity : ILClass<BattlePokemonEntity> {
         float _scale;
         int32_t _landingType;
         int32_t _animationState;
-        BattlePokemonEntity::RenderingParam _renderingParam;
+        BattlePokemonEntity::RenderingParam::Object _renderingParam;
         void* _rendererClusters; //SmartPoint_Components_SkinnedMeshRendererCluster_array*
         void* _pokeAnimSound; //Dpr_PokeAnimSound_o*
         void* _propertyBlock; //UnityEngine_MaterialPropertyBlock_o*
@@ -39,11 +42,9 @@ struct BattlePokemonEntity : ILClass<BattlePokemonEntity> {
         void* _PokemonCustomNodeAnim_k__BackingField; //PokemonCustomNodeAnim_o*
         void* _PokemonAnime_k__BackingField; //PokemonAnime_o*
         void* _PokemonPrefabInfo_k__BackingField; //PokemonPrefabInfo_o*
-        void* _patcheelPattern_k__BackingField; //Dpr_PatcheelPattern_o*
+        Dpr::PatcheelPattern::Object* _patcheelPattern_k__BackingField;
         bool isZIBAKOIRU;
     };
 
-    inline void SetPatcheelPattern(uint32_t rand) {
-        external<void>(0x01d77990, this, rand);
-    }
+    static_assert(offsetof(Fields, isZIBAKOIRU) == 0x170);
 };

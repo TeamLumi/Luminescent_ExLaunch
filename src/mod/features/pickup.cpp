@@ -30,14 +30,14 @@ HOOK_DEFINE_REPLACE(GetPickupItem) {
         }
 
         int32_t ratioTotal = 0;
-        for (int32_t i=0; i<pickupTable->max_length; i++)
+        for (uint64_t i=0; i<pickupTable->max_length; i++)
         {
             ratioTotal += pickupTable->m_Items[i]->fields.Ratios->m_Items[tableIndex];
         }
 
         int32_t randomRoll = UnityEngine::Random::Range(1, ratioTotal+1);
         int32_t ratio = 0;
-        for (int32_t i=0; i<pickupTable->max_length; i++)
+        for (uint64_t i=0; i<pickupTable->max_length; i++)
         {
             ratio += pickupTable->m_Items[i]->fields.Ratios->m_Items[tableIndex];
             if (randomRoll <= ratio)

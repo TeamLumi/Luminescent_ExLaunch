@@ -1758,7 +1758,7 @@ enum class FlagWork_Flag : int32_t {
     FLAG_END = 1752,
 
     // Start of custom flags
-    FLAG_AFFECTION_ENABLED = 1753,
+    FLAG_CUSTOM_UNUSED = 1753,
     FLAG_UNOVA_SOUNDS = 1754,
     FLAG_KALOS_SOUNDS = 1755,
     FLAG_ALOLA_SOUNDS = 1756,
@@ -1771,6 +1771,11 @@ enum class FlagWork_Flag : int32_t {
     FLAG_DISABLE_LEVEL_CAP = 2197,
     FLAG_DISABLE_EXP_SHARE = 2198,
     FLAG_DISABLE_AFFECTION = 2199,
+    FLAG_DISABLE_VISIBLE_SHINY_EGGS = 2201,
+    FLAG_TEMP_DISABLE_LEVEL_CAP = 2202,
+    FLAG_TEMP_DISABLE_EXP_SHARE = 2203,
+    FLAG_TEMP_DISABLE_AFFECTION = 2204,
+    FLAG_TEMP_DISABLE_VISIBLE_SHINY_EGGS = 2205,
 
     FLAG_INCENSE_FLOWER_UNOVA = 2561,
     FLAG_INCENSE_FLOWER_KALOS = 2562,
@@ -2782,10 +2787,10 @@ enum class FlagWork_SysFlag : int32_t {
     SYSFLAG_993 = 993,
     SYSFLAG_994 = 994,
     SYSFLAG_995 = 995,
-    SYSFLAG_996 = 996,
-    SYSFLAG_997 = 997,
-    SYSFLAG_998 = 998,
-    SYSFLAG_999 = 999,
+    SYSFLAG_996 = 996, // Debug RunEvCmd Stepper enabled
+    SYSFLAG_997 = 997, // Debug RunEvCmd is currently frozen
+    SYSFLAG_998 = 998, // Debug Force Model in Boutique UI
+    SYSFLAG_999 = 999, // Debug Battle Pokémon bundles in UI
     FLAG_ARRIVE_EXTRA_000 = 1000,
     FLAG_ARRIVE_EXTRA_001 = 1001,
     FLAG_ARRIVE_EXTRA_002 = 1002,
@@ -3241,6 +3246,10 @@ enum class FlagWork_Work : int32_t {
 
     // Luminescent Works
     WK_LAST_BATTLE_TURN_COUNTER = 449,
+    WK_GAME_MODE = 487,
+    WK_RANDOM_TEAMS = 491,
+    WK_TEMP_GAME_MODE = 492,
+    WK_TEMP_RANDOM_TEAMS = 493,
     WK_INCENSE_SLOT = 495,
     SCWK_WK_SAVE_SIZE = 500,
 

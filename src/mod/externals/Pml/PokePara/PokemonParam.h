@@ -7,9 +7,7 @@
 
 namespace Pml::PokePara {
     struct PokemonParam : ILClass<PokemonParam, 0x04c59c10> {
-        struct Fields : public CoreParam::Fields {
-            //TODO
-        };
+        struct Fields : public CoreParam::Fields {};
 
         inline void ctor(int32_t monsno, uint16_t level, uint64_t id) {
             external<void>(0x02054fe0, this, monsno, level, id);

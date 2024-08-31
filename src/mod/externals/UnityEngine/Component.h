@@ -10,6 +10,7 @@
 // These are all to avoid cyclical definitions
 struct BattleCharacterEntity;
 struct FieldCharacterEntity;
+struct PokemonCustomNodeAnim;
 
 namespace System::Collections::Generic {
     struct List$$Component;
@@ -30,6 +31,7 @@ namespace UnityEngine {
     struct RectTransform;
     struct BoxCollider;
     struct GameObject;
+    struct XMenuTopItem;
 
     struct Component : ILClass<Component, 0x04c57e88> {
         struct Fields : public UnityEngine::_Object::Fields {
@@ -44,6 +46,12 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c67050, UnityEngine::BoxCollider> Method$$BoxCollider$$GetComponent {};
         static inline StaticILMethod<0x04c66d60, BattleCharacterEntity> Method$$BattleCharacterEntity$$GetComponent {};
         static inline StaticILMethod<0x04c66fc0, FieldCharacterEntity> Method$$FieldCharacterEntity$$GetComponent {};
+        static inline StaticILMethod<0x04c66840, PokemonCustomNodeAnim> Method$$PokemonCustomNodeAnim$$GetComponent {};
+        static inline StaticILMethod<0x04c669c0, XMenuTopItem> Method$$XMenuTopItem$$GetComponent {};
+
+        static inline StaticILMethod<0x04c66a18, Dpr::UI::UIText> Method$$UIText$$GetComponentInChildren {};
+
+        static inline StaticILMethod<0x04c8e360, Component> Method$$Component$$GetComponents {};
 
         template <typename T>
         inline T::Object* GetComponent() {
@@ -62,8 +70,18 @@ namespace UnityEngine {
             return external<typename T::Object*>(0x01f48340, this, *method);
         }
 
+        template <typename T>
+        inline T::Object* GetComponentInChildren(bool includeInactive, ILMethod<T>& method) {
+            return external<typename T::Object*>(0x01f484e0, this, includeInactive, *method);
+        }
+
         inline void GetComponents(System::Type* type, System::Collections::Generic::List$$Component* results) {
             external<void>(0x026a8510, this, type, results);
+        }
+
+        template <typename T>
+        inline void GetComponents(System::Collections::Generic::List$$Component* results, ILMethod<T>& method) {
+            external<void>(0x01cf27c0, this, results, *method);
         }
 
         inline UnityEngine::Transform* get_transform() {

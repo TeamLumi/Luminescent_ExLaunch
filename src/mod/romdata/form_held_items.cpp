@@ -43,7 +43,6 @@ RomData::FormHeldItemMon GetFormHeldItemMon(int32_t monsNo)
     {
         RomData::FormHeldItemMon formHeldItemMon = {};
         formHeldItemMon = j.get<RomData::FormHeldItemMon>();
-        LogFormHeldItemMonData(formHeldItemMon);
 
         return formHeldItemMon;
     }
@@ -69,7 +68,6 @@ RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo)
     {
         RomData::UnbreakablePokeItem unbreakablePokeItem = {};
         unbreakablePokeItem = j.get<RomData::UnbreakablePokeItem>();
-        LogUnbreakablePokeItem(unbreakablePokeItem);
 
         return unbreakablePokeItem;
     }

@@ -6,7 +6,20 @@
 namespace Dpr::Item {
     struct ItemInfo : ILClass<ItemInfo> {
         struct Fields {
-            // TODO
+            uint16_t _workNo;
+            bool _isDummy;
+            int32_t _dummyCount;
+            bool _dummyIsVanishNew;
+            bool _dummyIsFavorite;
+            uint16_t _dummySaveSortNumber;
+            bool _dummyIsShowWazaName;
+            int32_t _id;
+            int32_t _type;
+            int32_t _categoryType;
+            int32_t _price;
+            int32_t _groupId;
+            int32_t _sortId;
+            int32_t _NameSortOrder_k__BackingField;
         };
 
         inline int32_t get_Id() {

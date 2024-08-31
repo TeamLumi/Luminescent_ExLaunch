@@ -19,6 +19,9 @@ void exl_save_data_expansion_main();
 // Applies multiple small one-line patches.
 void exl_patches_main();
 
+// Applies new battle functionality.
+void exl_battle_features_main();
+
 
 // Applies some basic ability changes.
 void exl_ability_changes_main();
@@ -67,6 +70,12 @@ void exl_evolution_methods_main();
 // Redirects TM learnsets to external JSON files that contain more data.
 void exl_extended_tm_learnsets_main();
 
+// Allows dynamically changing Pokémon icons based on the Pokémon's Form Argument.
+void exl_form_arg_icons_main();
+
+// Generates Form Argument data when generating a Pokémon's InitialSpec.
+void exl_form_arg_generation_main();
+
 // Adds new Pokémon/held item combos that trigger a form change when held.
 void exl_form_change_held_items_main();
 
@@ -83,6 +92,9 @@ void exl_language_select_main();
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
 
+// Uniformizes local trades across languages and allows extending the table in RomFS.
+void exl_local_trades_main();
+
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
 
@@ -93,7 +105,7 @@ void exl_pla_context_menu_main();
 void exl_poke_radar_fixes_main();
 
 // Adds support for two-button Pokétch.
-// Requires an edited uiresidentwindow bundle with a second Pokétch button.
+// Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
 
 // Replaces pickup ranges with new ranges abiding by Lumi level caps
@@ -101,6 +113,10 @@ void exl_pickup_main();
 
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
+
+// Adds support for Egg Groups, Abilities, Held Items, etc. to be shown in the Pokédex.
+// Requires an edited Zukan prefab with the required components.
+void exl_relumi_dex_ui();
 
 // Remaps the controls.
 void exl_remap_main();
@@ -110,6 +126,9 @@ void exl_settings_main();
 
 // Reworks the shiny rates.
 void exl_shiny_rates_main();
+
+// Hijacks the Spinda PatcheelPattern MonoBehaviour to use it with other Pokémon in different ways.
+void exl_spinda_hijacking_main();
 
 // Allows static encounters such as Rotom/Legendary Encounters/Honey Trees to have held items.
 void exl_static_held_items_main();
@@ -123,7 +142,7 @@ void exl_swarm_forms_main();
 // Deposits items obtained by thief directly into the player's bag.
 void exl_thief_patches_main();
 
-//
+// Allows trainers to have the same color variation of the player.
 void exl_trainer_color_variations_main();
 
 // Allows double battles on trainers.
@@ -142,6 +161,9 @@ void exl_uniform_ui_main();
 
 // Removes validity checks.
 void exl_validity_checks_main();
+
+// Allows eggs to show as shiny in the UI before they are hatched.
+void exl_visible_shiny_egg_main();
 
 // Adds support for wild Pokémon of any form number.
 void exl_wild_forms_main();

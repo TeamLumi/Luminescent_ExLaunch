@@ -9,5 +9,9 @@ namespace Dpr::Battle::Logic {
             Dpr::Battle::Logic::BTL_POKEPARAM::Array* m_pMember;
             uint8_t m_memberCount;
         };
+
+        inline BTL_POKEPARAM::Object* GetMemberDataConst(uint8_t idx) {
+            return external<BTL_POKEPARAM::Object*>(0x01fd9c40, this, idx);
+        }
     };
 }

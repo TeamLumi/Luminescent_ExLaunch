@@ -214,6 +214,13 @@ enum class SilvallyForm : int32_t {
     MAX
 };
 
+enum class ToxtricityForm : int32_t {
+    AMPED = 0,
+    LOW_KEY = 1,
+
+    MAX
+};
+
 enum class AlcremieCream : int32_t {
     VANILLA_CREAM = 0,
     RUBY_CREAM = 1,

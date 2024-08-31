@@ -17,5 +17,13 @@ namespace Dpr::Battle::Logic {
                 external<void>(0x01fb7f40, this);
             }
         };
+
+        struct Result : ILClass<Result, 0x04c5af70> {
+            inline void ctor() {
+                external<void>(0x01fb7f70, this);
+            }
+        };
+
+        struct Fields : Section::Fields {};
     };
 }

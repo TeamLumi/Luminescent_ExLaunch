@@ -62,7 +62,7 @@ namespace System {
         }
 
         static inline System::String::Object* fromUnicodeBytes(void* bytes, long count) {
-            auto byteArray = (System::Byte_array*)system_array_new(System::Byte_array_TypeInfo(), count);
+            auto byteArray = System::Byte_array::newArray(count);
             memcpy((void*)byteArray->m_Items, bytes, count);
             return fromUnicodeBytes(byteArray);
         }
@@ -71,7 +71,7 @@ namespace System {
             System::String::Object* str = this->instance();
             System::Text::UTF8Encoding::Object* encoding = System::Text::Encoding::get_UTF8();
             uint32_t size = encoding->GetByteCount(str);
-            auto arr = reinterpret_cast<System::Byte_array *>(system_array_new(System::Byte_array_TypeInfo(), size+1));
+            auto arr = System::Byte_array::newArray(size+1);
             encoding->GetBytes(str, 0, str->fields.m_stringLength, arr, 0);
             arr->m_Items[size] = 0;
             auto res = nn::string((char*)&arr->m_Items[0]);
@@ -82,7 +82,7 @@ namespace System {
             System::String::Object* str = this->instance();
             System::Text::UnicodeEncoding::Object* encoding = System::Text::Encoding::get_Unicode();
             uint32_t size = encoding->GetByteCount(str);
-            auto arr = reinterpret_cast<System::Byte_array *>(system_array_new(System::Byte_array_TypeInfo(), size+2));
+            auto arr = System::Byte_array::newArray(size+2);
             encoding->GetBytes(str, 0, str->fields.m_stringLength, arr, 0);
             arr->m_Items[size] = 0;
             arr->m_Items[size+1] = 0;

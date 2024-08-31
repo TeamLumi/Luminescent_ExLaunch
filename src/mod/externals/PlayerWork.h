@@ -39,15 +39,17 @@
 #include "externals/Dpr/Box/SaveBoxTrayData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/Dpr/Item/SaveItem.h"
+#include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/MT_DATA.h"
 #include "externals/PLAYREPORT_DATA.h"
 #include "externals/Pml/PokePara/SavePokeParty.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/ReBuffnameData.h"
-#include "externals/SmartPoint/Components/PlayerPrefsProvider_PlayerWork_.h"
+#include "externals/SmartPoint/Components/PlayerPrefsProvider.h"
 #include "externals/System/Nullable.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
+#include "externals/Dpr/Box/SaveBoxData.h"
 
 struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     struct SaveData : ILStruct<SaveData> {
@@ -167,7 +169,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static_assert(offsetof(StaticFields, _SafariBallNum_k__BackingField) == 72);
 
-    struct Fields : SmartPoint::Components::PlayerPrefsProvider_PlayerWork_::Fields {
+    struct Fields : SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::Fields {
         PlayerWork::SaveData::Object _saveData;
         int32_t _transitionZoneID;
         int32_t _locatorIndex;
@@ -293,5 +295,13 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline int32_t get_supportPokeType() {
         return external<int32_t>(0x02cf1910);
+    }
+
+    static inline Dpr::Box::SaveBoxData::Object* GetBoxData() {
+        return external<Dpr::Box::SaveBoxData::Object*>(0x02cf0180);
+    }
+
+    static inline Dpr::Message::MessageEnumData::MsgLangId get_msgLangID() {
+        return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
     }
 };

@@ -23,5 +23,9 @@ namespace Pml::PokePara {
         static inline bool IsSeikakuLow(int32_t seikaku) {
             return external<bool>(0x024ae000, seikaku);
         }
+
+        static inline uint16_t GetTokuseiNo(int32_t monsno, uint16_t formno, uint8_t tokuseiIndex) {
+            return external<uint16_t>(0x024ae1f0, monsno, formno, tokuseiIndex);
+        }
     };
 }

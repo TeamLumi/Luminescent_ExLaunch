@@ -104,6 +104,7 @@ static Window mainWindow = Window::single([](Window &_) {
     _.MaterialTool();
     _.ColorVariationTool();
     _.SaveTool();
+    _.ScriptTool();
     _.AnimationTool();
     _.ModelTool();
     _.PokemonInfoTool();

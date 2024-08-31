@@ -5,6 +5,10 @@
 #include "externals/PlayerWork.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
+#include "externals/Pml/PokePara/SerializedPokemonFull.h"
+
+static const int64_t VANILLA_BOXSIZE = 40;
+static const uint64_t INIT_WALLPAPER_OFFSET = 8;
 
 template <int32_t size>
 struct BoxSaveData {
@@ -23,14 +27,46 @@ struct BoxSaveData {
         return count;
     }
 
+    long ToBytes(char* buffer, long index) {
+        for (uint64_t i=0; i<size; i++)
+        {
+            void* strData = (void*)(buffer+index);
+            System::String::Object* str = boxNames[i].fields.str->Truncate(16);
+            auto bytes = str->asUnicodeBytes();
+            memcpy(strData, (void*)bytes->m_Items, Dpr::Box::SaveBoxData::_STR17::GetByteCount());
+
+            index += Dpr::Box::SaveBoxData::_STR17::GetByteCount();
+        }
+
+        memcpy((void*)(buffer+index), &wallpapers, sizeof(System::Byte)*size);
+        index += sizeof(System::Byte)*size;
+
+        for (uint64_t i=0; i<size; i++)
+        {
+            auto serializedPoke = (Pml::PokePara::SerializedPokemonFull::Array*) pokemonParams[i].fields.pokemonParam;
+            for (uint64_t j=0; j<serializedPoke->max_length; j++)
+            {
+                auto pokeByteArray = serializedPoke->m_Items[j].fields.buffer;
+                void* pokeData = (void*)(buffer+index);
+                memcpy(pokeData, (void*)pokeByteArray->m_Items, Pml::PokePara::SerializedPokemonFull::GetByteCount());
+                index += Pml::PokePara::SerializedPokemonFull::GetByteCount();
+
+            }
+        }
+
+        return index;
+    }
+
     long FromBytes(char* buffer, long buffer_size, long index) {
         if (buffer_size >= GetByteCount() + index)
         {
-            auto newBoxNames = (Dpr::Box::SaveBoxData::_STR17::Array*)system_array_new(Dpr::Box::SaveBoxData::_STR17_array_TypeInfo(), size);
-            for (uint64_t i=0; i<newBoxNames->max_length; i++)
+            auto newBoxNames = Dpr::Box::SaveBoxData::_STR17::newArray(size);
+
+            for (uint64_t i=0; i<size; i++)
             {
                 void* strData = (void*)(buffer+index);
-                newBoxNames->m_Items[i].fields.str = System::String::fromUnicodeBytes(strData, Dpr::Box::SaveBoxData::_STR17::GetByteCount());
+                newBoxNames->m_Items[i].fields.str = System::String::fromUnicodeBytes(
+                        strData, Dpr::Box::SaveBoxData::_STR17::GetByteCount());
                 index += Dpr::Box::SaveBoxData::_STR17::GetByteCount();
             }
             memcpy(&boxNames, (void*)newBoxNames->m_Items, sizeof(Dpr::Box::SaveBoxData::_STR17::Object)*size);
@@ -38,17 +74,18 @@ struct BoxSaveData {
             memcpy(&wallpapers, (void*)(buffer+index), sizeof(System::Byte)*size);
             index += sizeof(System::Byte)*size;
 
-            auto newBoxData = (Dpr::Box::SaveBoxTrayData::Array*)system_array_new(Dpr::Box::SaveBoxTrayData_array_TypeInfo(), size);
+            auto newBoxData = Dpr::Box::SaveBoxTrayData::newArray(size);
             for (uint64_t i=0; i<newBoxData->max_length; i++)
             {
-                auto newPokeParams = (Pml::PokePara::SerializedPokemonFull::Array*)system_array_new(Pml::PokePara::SerializedPokemonFull_array_TypeInfo(), 30);
+                auto newPokeParams = Pml::PokePara::SerializedPokemonFull::newArray(30);
                 newBoxData->m_Items[i].fields.pokemonParam = newPokeParams;
-                for (uint64_t j=0; j<newBoxData->max_length; j++)
+                for (uint64_t j=0; j<newPokeParams->max_length; j++)
                 {
                     void* pokeData = (void*)(buffer+index);
-                    auto pokeByteArray = (System::Byte_array*)system_array_new(System::Byte_array_TypeInfo(), Pml::PokePara::SerializedPokemonFull::GetByteCount());
-                    memcpy(&pokeByteArray->m_Items, pokeData, Pml::PokePara::SerializedPokemonFull::GetByteCount());
+                    auto pokeByteArray = System::Byte_array::newArray(Pml::PokePara::SerializedPokemonFull::GetByteCount());
+                    memcpy(pokeByteArray->m_Items, pokeData, Pml::PokePara::SerializedPokemonFull::GetByteCount());
                     newPokeParams->m_Items[j].fields.buffer = pokeByteArray;
+                    newPokeParams->m_Items[j].CreateWorkIfNeed();
                     index += Pml::PokePara::SerializedPokemonFull::GetByteCount();
                 }
             }
@@ -56,7 +93,6 @@ struct BoxSaveData {
 
             return index;
         }
-
         return index + GetByteCount();
     }
 };

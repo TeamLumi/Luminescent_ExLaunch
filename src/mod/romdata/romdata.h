@@ -1,13 +1,16 @@
 #pragma once
 
-#include "romdata/data/IntroData.h"
+#include "romdata/data/Arena.h"
 #include "romdata/data/ColorSet.h"
 #include "romdata/data/FormHeldItemMon.h"
 #include "romdata/data/HoneyTreeEncounters.h"
+#include "romdata/data/IntroData.h"
+#include "romdata/data/LocalTrade.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
 #include "romdata/data/UnbreakablePokeItem.h"
+#include "romdata/data/ZoneRates.h"
 
 // Returns the max level based on the given level cap index.
 uint32_t GetLevelCapLevel(uint32_t index);
@@ -53,3 +56,23 @@ bool IsLanguageActivated(int32_t langID);
 
 // Returns the available Color Variation presets in the intro.
 nn::vector<int32_t> GetIntroColorVariationPresets();
+
+// Returns the extra arena data.
+RomData::Arena GetExtraArenaData(int32_t arena);
+
+// Returns the extra local trade data.
+RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId);
+
+// Returns the form rates of the given Pokémon at the given zoneID.
+nn::vector<uint32_t> GetFormRates(int32_t monsno, int32_t zoneID);
+
+// Rolls for a form based on the form rates for the given Pokémon at the given zoneID.
+int32_t RollForForm(int32_t monsno, int32_t zoneID);
+
+// Returns the variant rates of the given Pokémon at the given zoneID.
+nn::vector<uint32_t> GetVariantRates(int32_t monsno, int32_t formno, int32_t zoneID);
+
+// Rolls for a variant based on the form rates for the given Pokémon at the given zoneID.
+int32_t RollForVariant(int32_t monsno, int32_t formno, int32_t zoneID);
+
+void LoadFeaturesFromJSON(nn::json j);

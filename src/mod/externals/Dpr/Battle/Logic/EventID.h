@@ -232,7 +232,6 @@ namespace Dpr::Battle::Logic {
         CHECK_AIM_TARGET_ENABLE = 225,
         CHECK_WAZA_TARGET_INCREASE = 226,
         CHECK_HITCOUNT_MESSAGE = 227,
-        CHECK_RECOVER_MSG_CUSTOM = 228
+        CHECK_RECOVER_MSG_CUSTOM = 228,
     };
 }
-

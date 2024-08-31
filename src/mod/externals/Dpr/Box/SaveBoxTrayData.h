@@ -5,7 +5,7 @@
 #include "externals/Pml/PokePara/SerializedPokemonFull.h"
 
 namespace Dpr::Box {
-    struct SaveBoxTrayData : ILStruct<SaveBoxTrayData> {
+    struct SaveBoxTrayData : ILStruct<SaveBoxTrayData, 0x04c64da0> {
         struct Fields {
             Pml::PokePara::SerializedPokemonFull::Array* pokemonParam;
         };
@@ -14,8 +14,4 @@ namespace Dpr::Box {
             return Pml::PokePara::SerializedPokemonFull::GetByteCount()*30;
         }
     };
-
-    static Il2CppClass* SaveBoxTrayData_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c64da0));
-    }
 }

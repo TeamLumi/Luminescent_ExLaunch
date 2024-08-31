@@ -39,10 +39,8 @@ void loadBerries(bool isBackup)
 
 void linkBerries(PlayerWork::Object* playerWork)
 {
-    auto kinomiGrowCls = DPData::KinomiGrow_array_TypeInfo();
-
     // Create new array
-    auto newBerries = (DPData::KinomiGrow::Array*) system_array_new(kinomiGrowCls, BerryCount);
+    auto newBerries = DPData::KinomiGrow::newArray(BerryCount);
 
     // Fill the new array with the custom save data
     memcpy(newBerries->m_Items, getCustomSaveData()->berries.items, sizeof(getCustomSaveData()->berries.items));

@@ -25,7 +25,6 @@ static constexpr const char* FEATURES[] = {
     "Party Context Menu",
     "Pickup Changes",
     "Poké Radar Fixes",
-    "Thief Deposits to Bag",
     "Two-Button Pokétch",
     "Relearn TMs",
     "Controls Remap",
@@ -41,7 +40,13 @@ static constexpr const char* FEATURES[] = {
     "Wild Forms",
     "Wild Held Item Rates",
     "Validity Checks",
+    "Visible Shiny Eggs",
     "Contest NPC Forms",
+    "Re:Lumi Pokédex UI",
+    "Local Trades Extension",
+    "Spinda Hijacking",
+    "Form Argument Pokémon Icons",
+    "Form Argument Generation",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
@@ -77,7 +82,6 @@ static constexpr const char* KEY_ITEM_FEATURES[] = {
 
 constexpr int KEY_ITEM_FEATURE_COUNT = sizeof(KEY_ITEM_FEATURES) / sizeof(KEY_ITEM_FEATURES[0]);
 
-
 static constexpr const char* SMALL_PATCH_FEATURES[] = {
     "Affection Toggle",
     "Global Exp. Share Toggle",
@@ -93,3 +97,12 @@ static constexpr const char* SAVE_FEATURES[] = {
 };
 
 constexpr int SAVE_FEATURE_COUNT = sizeof(SAVE_FEATURES) / sizeof(SAVE_FEATURES[0]);
+
+static constexpr const char* BATTLE_FEATURES[] = {
+    "Move Handlers",
+    "Ability Handlers",
+    "Field Handlers",
+    "Side Handlers",
+};
+
+constexpr int BATTLE_FEATURE_COUNT = sizeof(BATTLE_FEATURES) / sizeof(BATTLE_FEATURES[0]);

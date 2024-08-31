@@ -25,7 +25,8 @@ HOOK_DEFINE_REPLACE(LevelCap) {
         }
 
         // Is Level Cap enabled
-        if (!PlayerWork::GetBool((int32_t)FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP))
+        // Logic: Disabling the level cap means we want vanilla behaviour, therefore return exp.
+        if (PlayerWork::GetBool((int32_t)FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP))
         {
             return (uint32_t) exp;
         }

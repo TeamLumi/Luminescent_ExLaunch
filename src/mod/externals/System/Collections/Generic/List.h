@@ -24,9 +24,20 @@ namespace System::Collections::Generic {
             ILClass<T>::template external<void>(0x02a3c680, this, item, *T::Method$$Add);
         }
 
+        template <typename O>
+        inline void Add(E* item, ILMethod<O>& method) {
+            ILClass<T>::template external<void>(0x02a3c680, this, item, *method);
+        }
+
+        template <typename O>
+        inline void Clear(ILMethod<O>& method) {
+            ILClass<T>::template external<void>(0x02a3ca20, this, *method);
+        }
+
         inline void Clear() {
             ILClass<T>::template external<void>(0x02a3ca20, this, *T::Method$$Clear);
         }
+
     };
 
     struct List$$int32_t : ILClass<List$$int32_t> {

@@ -3,16 +3,21 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Pml/PokePara/Accessor.h"
+#include "externals/Pml/PokePara/Condition.h"
 #include "externals/Pml/PokePara/EggCheckType.h"
+#include "externals/Pml/PokePara/OwnerInfo.h"
+#include "externals/Pml/PokePara/PowerID.h"
+#include "externals/Pml/PokePara/RareType.h"
+#include "externals/Pml/Sex.h"
 #include "externals/Pml/WazaNo.h"
 
 namespace Pml::PokePara {
     struct CoreParam : ILClass<CoreParam> {
         struct FormChangeResult : ILClass<FormChangeResult> {
             struct Fields {
-                Pml_WazaNo_array* m_addedWaza;
-                Pml_WazaNo_array* m_removedWaza;
-                Pml_WazaNo_array* m_addFailedWaza;
+                Pml::WazaNo_array* m_addedWaza;
+                Pml::WazaNo_array* m_removedWaza;
+                Pml::WazaNo_array* m_addFailedWaza;
             };
         };
 
@@ -86,16 +91,16 @@ namespace Pml::PokePara {
             return external<uint8_t>(0x0204b950, this);
         }
 
-        inline uint8_t GetSex() {
-            return external<uint8_t>(0x02048540, this);
+        inline Sex GetSex() {
+            return external<Sex>(0x02048540, this);
         }
 
         inline void SetNickName(System::String::Object* nickName) {
             external<void>(0x02048e90, this, nickName);
         }
 
-        inline System::Collections::Generic::HashSet$$Pml_WazaNo::Object* CollectRemindableWaza() {
-            return external<System::Collections::Generic::HashSet$$Pml_WazaNo::Object*>(0x02047aa0, this);
+        inline System::Collections::Generic::HashSet$$WazaNo::Object* CollectRemindableWaza() {
+            return external<System::Collections::Generic::HashSet$$WazaNo::Object*>(0x02047aa0, this);
         }
 
         inline int32_t AddWazaIfEmptyExist(int32_t wazano) {
@@ -134,7 +139,7 @@ namespace Pml::PokePara {
             external<void>(0x0204b840, this, value);
         }
 
-        inline void SetRareType(uint8_t type) {
+        inline void SetRareType(RareType type) {
             external<void>(0x0204a920, this, type);
         }
 
@@ -176,6 +181,46 @@ namespace Pml::PokePara {
 
         inline void RemoveItem() {
             external<void>(0x02049690, this);
+        }
+
+        inline RareType GetRareType() {
+            return external<RareType>(0x0204a5a0, this);
+        }
+
+        inline void ChangeEffortPower(Pml::PokePara::PowerID powerId, uint32_t value) {
+            external<void>(0x02044da0, this, powerId, value);
+        }
+
+        inline void SetParentName(System::String::Object* name) {
+            external<void>(0x0204ac00, this, name);
+        }
+
+        inline void SetLangId(uint32_t langId) {
+            external<void>(0x02049650, this, langId);
+        }
+
+        inline void SetCondition(Pml::PokePara::Condition cond, uint8_t value) {
+            external<void>(0x0204b040, this, cond, value);
+        }
+
+        inline bool UpdateOwnerInfo(Pml::PokePara::OwnerInfo::Object* ownerInfo) {
+            return external<bool>(0x02048c90, this, ownerInfo);
+        }
+
+        inline bool StartFastMode() {
+            return external<bool>(0x0204c910, this);
+        }
+
+        inline bool EndFastMode(bool validFlag) {
+            return external<bool>(0x0204c960, this, validFlag);
+        }
+
+        inline uint32_t GetMultiPurposeWork() {
+            return this->instance()->fields.m_accessor->GetMultiPurposeWork();
+        }
+
+        inline void SetMultiPurposeWork(uint32_t value) {
+            this->instance()->fields.m_accessor->SetMultiPurposeWork(value);
         }
     };
 }
