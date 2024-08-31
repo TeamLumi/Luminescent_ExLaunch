@@ -34,6 +34,7 @@ static constexpr const char* FEATURES[] = {
     "Static Held Items",
     "Sound Encounters",
     "Swarm Forms",
+    "Trainer Color Variations",
     "Trainer Double Battle",
     "Turn Counter",
     "Underground Forms",

@@ -74,6 +74,8 @@ void CallFeatureHooks()
         exl_sounds_main();
     if (IsActivatedFeature(array_index(FEATURES, "Swarm Forms")))
         exl_swarm_forms_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Trainer Color Variations")))
+        exl_trainer_color_variations_main();
     if (IsActivatedFeature(array_index(FEATURES, "Turn Counter")))
         exl_turn_counter_main();
     if (IsActivatedFeature(array_index(FEATURES, "Underground Forms")))
@@ -128,6 +130,7 @@ void exl_features_main() {
     SetActivatedFeature(array_index(FEATURES, "Pickup Changes"));
     SetActivatedFeature(array_index(FEATURES, "Poké Radar Fixes"));
     SetActivatedFeature(array_index(FEATURES, "Thief Deposits to Bag"));
+    SetActivatedFeature(array_index(FEATURES, "Trainer Color Variations"));
     SetActivatedFeature(array_index(FEATURES, "Trainer Double Battle"));
     SetActivatedFeature(array_index(FEATURES, "Two-Button Pokétch"));
     SetActivatedFeature(array_index(FEATURES, "Relearn TMs"));

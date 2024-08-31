@@ -123,6 +123,9 @@ void exl_swarm_forms_main();
 // Deposits items obtained by thief directly into the player's bag.
 void exl_thief_patches_main();
 
+//
+void exl_trainer_color_variations_main();
+
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();
 
