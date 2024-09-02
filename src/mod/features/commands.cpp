@@ -66,6 +66,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(RivalStarterMonsNoFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SUPPORT_MONSNO_FORMNO:
                     return HandleCmdStepper(SupportStarterMonsNoFormNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CASE_CALL:
+                    return HandleCmdStepper(CaseCall(__this));
                 default:
                     break;
             }
@@ -99,4 +101,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_MONSNO_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RIVAL_MONSNO_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SUPPORT_MONSNO_FORMNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CASE_CALL);
 }
