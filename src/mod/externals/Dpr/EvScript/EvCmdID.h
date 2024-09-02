@@ -1256,6 +1256,7 @@ namespace Dpr::EvScript {
             _RIVAL_MONSNO_FORMNO = 1246,
             _SUPPORT_MONSNO_FORMNO = 1247,
 
+            _CASE_CALL = 1499,
             CUSTOM_CMD_END = 1500,
         };
     };

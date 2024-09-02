@@ -366,6 +366,10 @@ namespace Dpr::EvScript {
             return external<bool>(0x02c423c0, this, label, callback);
         }
 
+        inline bool CallLabel(System::String::Object* label) {
+            return external<bool>(0x02c485e0, this, label);
+        }
+
         inline bool Cmd_TalkMsg(System::String::Object* msbt, System::String::Object* label) {
             return external<bool>(0x02c567f0, this, msbt, label);
         }
