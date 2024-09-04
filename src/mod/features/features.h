@@ -70,6 +70,12 @@ void exl_evolution_methods_main();
 // Redirects TM learnsets to external JSON files that contain more data.
 void exl_extended_tm_learnsets_main();
 
+// Allows dynamically changing Pokémon icons based on the Pokémon's Form Argument.
+void exl_form_arg_icons_main();
+
+// Generates Form Argument data when generating a Pokémon's InitialSpec.
+void exl_form_arg_generation_main();
+
 // Adds new Pokémon/held item combos that trigger a form change when held.
 void exl_form_change_held_items_main();
 
@@ -120,6 +126,9 @@ void exl_settings_main();
 
 // Reworks the shiny rates.
 void exl_shiny_rates_main();
+
+// Hijacks the Spinda PatcheelPattern MonoBehaviour to use it with other Pokémon in different ways.
+void exl_spinda_hijacking_main();
 
 // Allows static encounters such as Rotom/Legendary Encounters/Honey Trees to have held items.
 void exl_static_held_items_main();

@@ -1257,6 +1257,7 @@ namespace Dpr::EvScript {
             _SUPPORT_MONSNO_FORMNO = 1247,
             _CHANGE_FORMNO = 1248,
             _GET_COSTUME_GENDER = 1249,
+            _CASE_CALL = 1250,
 
             CUSTOM_CMD_END = 1500,
         };

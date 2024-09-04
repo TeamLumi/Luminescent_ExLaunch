@@ -66,6 +66,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(RivalStarterMonsNoFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SUPPORT_MONSNO_FORMNO:
                     return HandleCmdStepper(SupportStarterMonsNoFormNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CASE_CALL:
+                    return HandleCmdStepper(CaseCall(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_CHANGE_FORMNO:
                     return HandleCmdStepper(ChangeFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_COSTUME_GENDER:
@@ -103,6 +105,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_MONSNO_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RIVAL_MONSNO_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SUPPORT_MONSNO_FORMNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CASE_CALL);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHANGE_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_COSTUME_GENDER);
 }
