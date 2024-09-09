@@ -352,6 +352,7 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c77ce0, int32_t, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnInputCheck {};
         static inline StaticILMethod<0x04c7cf70, int32_t, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
         static inline StaticILMethod<0x04c7cfd0>                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
+        static inline StaticILMethod<0x04c7cfd8, int32_t> Method$$EvDataManager_EvCmdAddPokemonUI {};
 
         inline bool RunEvCmd(int32_t index) {
             return external<bool>(0x02c5b290, this, index);
