@@ -1258,6 +1258,7 @@ namespace Dpr::EvScript {
             _CHANGE_FORMNO = 1248,
             _GET_COSTUME_GENDER = 1249,
             _CASE_CALL = 1250,
+            _ADD_POKEMON_UI_EXTRA = 1251,
 
             CUSTOM_CMD_END = 1500,
         };
