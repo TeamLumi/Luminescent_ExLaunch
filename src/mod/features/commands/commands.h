@@ -115,11 +115,18 @@ bool GetCostumeGender(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] monsno: ID of the species to give.
 //   [Work, Number] formno: ID of the form the species is in.
-//   [Work, Number] level: Level of the Pokémon to give
+//   [Work, Number] level: Level of the Pokémon to give.
 //   [Work, Number] item: ID of the item the Pokémon is to hold
 //   [Work, Number] maxIVs: Number of max IVs the Pokémon will have.
 //   [Work, Number] ball: ID of the ball the Pokémon will reside in.
 bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Inserts a string of the specified Pokémon's form name into the supplied tagIndex.
+// Arguments:
+//   [Work, Number] tagIndex: The tagIndex where the string will be set into.
+//   [Work, Number] monsno: ID of the species to look up.
+//   [Work, Number] formno: ID of the form the species is in.
+bool PokemonNameForm(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Compares the value of the variable given to the last _SWITCH command ran to another value, then calls a script if they are equal.
 // Arguments:
