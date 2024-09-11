@@ -39,7 +39,6 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
                     System::Action::UIZukanRegister_AddMemberResult_TypeInfo)->newInstance(manager, mi);
 
             uiZukanReg->add_OnComplete(onComplete);
-            Logger::log("[_ADD_POKEMON_UI_EXTRA] OnComplete Added.\n");
 
             auto monsNo = GetWorkOrIntValue(args->m_Items[1]);
             auto formNo = GetWorkOrIntValue(args->m_Items[2]);
@@ -54,7 +53,6 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             initialSpec->fields.level = level;
             initialSpec->fields.talentVNum = maxIVs;
             auto coreParam = Pml::PokePara::PokemonParam::newInstance(initialSpec)->cast<Pml::PokePara::CoreParam>();
-            Logger::log("[_ADD_POKEMON_UI_EXTRA] CoreParam Created.\n");
             if (item != 0) coreParam->SetItem(item);
             coreParam->SetGetBall(ball);
 
@@ -62,16 +60,13 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             auto pMyStatus = PlayerWork::get_playerStatus();
             auto placeNo = PlayerWork::get_zoneID();
             poketool::poke_memo::poketool_poke_memo::SetFromCapture(coreParam, pMyStatus, placeNo);
-            Logger::log("[_ADD_POKEMON_UI_EXTRA] Capture Set.\n");
 
             if (FlagWork::GetWork(FlagWork_Work::WK_SCENE_KASEKI_MONSNO) == monsNo) {
                 auto playReport = PlayerWork::get_playReportDataRef();
                 playReport->fields.fossil_restore += 1;
             }
 
-            Logger::log("[_ADD_POKEMON_UI_EXTRA] Pre-Open.\n");
             uiZukanReg->Open(reinterpret_cast<Pml::PokePara::PokemonParam::Object*>(coreParam), false, -1);
-            Logger::log("[_ADD_POKEMON_UI_EXTRA] ZukanReg Opened.\n");
             azukariyaSeq = 0;
             manager->fields._azukariyaSequence = 1;
         }
