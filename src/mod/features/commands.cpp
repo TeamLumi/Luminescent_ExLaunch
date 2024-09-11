@@ -74,6 +74,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(GetCostumeGender(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_UI_EXTRA:
                     return HandleCmdStepper(AddPokemonUIExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_POKEMON_NAME_FORM:
+                    return HandleCmdStepper(PokemonNameForm(__this));
                 default:
                     break;
             }
@@ -111,4 +113,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHANGE_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_COSTUME_GENDER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_UI_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_POKEMON_NAME_FORM);
 }
