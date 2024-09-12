@@ -71,5 +71,5 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             manager->fields._azukariyaSequence = 1;
         }
     }
-    return static_cast<bool>(static_cast<uint>(azukariyaSeq) >> 0x1f);
+    return azukariyaSeq < 1;
 }
