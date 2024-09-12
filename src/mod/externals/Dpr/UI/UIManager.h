@@ -15,6 +15,7 @@
 
 namespace Dpr::UI {
     struct ShopBoutiqueChange;
+    struct UIZukanRegister;
 }
 
 namespace Dpr::UI {
@@ -63,6 +64,7 @@ namespace Dpr::UI {
         static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow_ShopBoutiqueChange_ {};
         static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow_UIWazaManage_ {};
 
+        static inline StaticILMethod<0x04c900a8, Dpr::UI::UIZukanRegister> Method$$CreateUIWindow_UIZukanRegister_ {};
         static inline StaticILMethod<0x04c90130, Dpr::UI::UIWindow> Method$$GetCurrentUIWindow_UIWindow_ {};
 
         template <typename T>
