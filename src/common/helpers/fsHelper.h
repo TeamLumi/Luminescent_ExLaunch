@@ -24,4 +24,6 @@ namespace FsHelper {
     bool isFileExist(const char *path);
 
     nn::json loadJsonFileFromPath(const char *path);
+
+    nn::string loadJsonSaveFromPath(const char *path);
 }

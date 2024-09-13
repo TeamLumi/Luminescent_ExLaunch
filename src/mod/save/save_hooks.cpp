@@ -64,7 +64,7 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
             linkColorVariations(playerWork);
             if (migrationRequired) linkBoxes(playerWork);
 
-            JsonLoadTest(playerWork);
+            //JsonLoadTest(playerWork);
         }
 
         playerWork->fields._isBackupSave = false;
@@ -84,10 +84,11 @@ void injectPlayerWork() {
 }
 
 HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
-    static void Callback(PlayerWork::Object* playerWork, void* param_2, void* param_3, void* param_4) {
+    static void Callback(PlayerWork::Object* playerWork, PlayerWork::SaveData::Object* obj, System::Byte_array** bytes,
+                         void* param_4) {
         bool isMain = playerWork->fields._isMainSave;
         isBackup = playerWork->fields._isBackupSave;
-        JsonSaveTest(playerWork);
+        JsonSaveTest(obj);
 
 
         // Remove the custom-length PlayerWork data with the vanilla save's
@@ -119,7 +120,7 @@ HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
 #endif
 
         // Save base save file
-        Orig(playerWork, param_2, param_3, param_4);
+        Orig(playerWork, obj, bytes, param_4);
 
         // Re-replace the PlayerWork data with our custom-length one
         relinkZukan(playerWork);

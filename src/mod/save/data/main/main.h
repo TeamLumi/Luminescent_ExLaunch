@@ -53,5 +53,5 @@ struct MainSaveData {
 void loadMain(bool isBackup);
 void saveMain(bool isMain, bool isBackup);
 
-void JsonSaveTest(PlayerWork::Object* playerWork);
+void JsonSaveTest(PlayerWork::SaveData::Object* obj);
 void JsonLoadTest(PlayerWork::Object* playerWork);

@@ -101,4 +101,25 @@ namespace FsHelper {
             return nullptr;
         }
     }
+
+    nn::string loadJsonSaveFromPath(const char *path) {
+        if (FsHelper::isFileExist(path))
+        {
+            long size = FsHelper::getFileSize(path);
+            FsHelper::LoadData data {
+                    .path = path,
+                    .alignment = 1,
+                    .bufSize = size,
+            };
+            FsHelper::loadFileFromPath(data);
+
+            nn::string strBuffer((char*)data.buffer, data.bufSize);
+
+            return strBuffer;
+        }
+        else
+        {
+            return "";
+        }
+    }
 }

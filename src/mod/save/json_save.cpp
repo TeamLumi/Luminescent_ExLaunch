@@ -6,12 +6,71 @@
 #include "helpers/fsHelper.h"
 #include "externals/System/Convert.h"
 #include "save/save.h"
+#include "externals/UnityEngine/JsonUtility.h"
 
 nn::string ByteArrayToBase64(System::Byte_array* inArray) {
     Logger::log("[ByteArrayToBase64] \n");
     return System::Convert::ToBase64String(inArray)->asCString();
 }
 
+nn::json GetTopMenuItem(DPData::TOPMENUITEM_WORK::Object menuItem) {
+    return {
+            {"index", menuItem.fields.index},
+            {"isNew", menuItem.fields.isNew},
+    };
+}
+
+nn::json GetArray(Dpr::Box::SaveBoxData::_STR17::Array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto stringArray = nn::vector<nn::string>();
+        Logger::log("[GetArray] Pushing back %d items.\n", inArray->max_length);
+        for (size_t i = 0; i < inArray->max_length; i++) {
+            stringArray.push_back(inArray->m_Items[i].fields.str->asCString());
+        }
+        return stringArray;
+    }
+    return {};
+}
+
+nn::json GetArray(Dpr::Box::SaveBoxData::_STR11::Array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto stringArray = nn::vector<nn::string>();
+        Logger::log("[GetArray] Pushing back %d items.\n", inArray->max_length);
+        for (size_t i = 0; i < inArray->max_length; i++) {
+            stringArray.push_back(inArray->m_Items[i].fields.str->asCString());
+        }
+        return stringArray;
+    }
+    return {};
+}
+
+nn::json GetArray(DPData::GET_STATUS_array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto int32Array = nn::vector<int32_t>();
+        Logger::log("[GetArray] Pushing back %d items.\n", inArray->max_length);
+        for (size_t i = 0; i < inArray->max_length; i++) {
+            int32Array.push_back(inArray->m_Items[i]);
+        }
+        return int32Array;
+    }
+    return {};
+}
+
+nn::json GetArray(DPData::TOPMENUITEM_WORK::Array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto int32Array = nn::vector<int32_t>();
+        Logger::log("[GetArray] Pushing back %d items.\n", inArray->max_length);
+        for (size_t i = 0; i < inArray->max_length; i++) {
+            int32Array.push_back(GetTopMenuItem(inArray->m_Items[i]));
+        }
+        return int32Array;
+    }
+    return {};
+}
 
 nn::json GetArray(System::Int32_array* inArray) {
     Logger::log("[GetArray] \n");
@@ -22,6 +81,19 @@ nn::json GetArray(System::Int32_array* inArray) {
             int32Array.push_back(inArray->m_Items[i]);
         }
         return int32Array;
+    }
+    return {};
+}
+
+nn::json GetArray(System::UInt16_array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto uint16Array = nn::vector<uint16_t>();
+        Logger::log("[GetArray] Pushing back %d items.\n", inArray->max_length);
+        for (size_t i = 0; i < inArray->max_length; i++) {
+            uint16Array.push_back(inArray->m_Items[i]);
+        }
+        return uint16Array;
     }
     return {};
 }
@@ -71,11 +143,69 @@ nn::json GetGMTime(DPData::GMTIME::Fields gmTimeFields) {
 // rivalName
 // zoneID
 // timeScale
-// TODO: saveItem
+nn::json GetSaveItemFromArray(Dpr::Item::SaveItem::Object item) {
+    auto saveItem = item.fields;
+    return {
+            {"Count", saveItem.Count},
+            {"VanishNew", saveItem.VanishNew},
+            {"FavouriteFlag", saveItem.FavoriteFlag},
+            {"ShowWazaNameFlag", saveItem.ShowWazaNameFlag},
+            {"Dummy1", saveItem.Dummy1},
+            {"Dummy2", saveItem.Dummy2},
+            {"SortNumber", saveItem.SortNumber}
+    };
+}
+
+nn::json GetSaveItemArray(Dpr::Item::SaveItem::Array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto itemArray = nn::json::array();
+        Logger::log("[GetArray] Pushing back %zu items.\n", inArray->max_length);
+        for (uint64_t i = 0; i < inArray->max_length; i++) {
+            itemArray.push_back(GetSaveItemFromArray(inArray->m_Items[i]));
+        }
+        return itemArray;
+    }
+    return {};
+}
 // TODO: saveUgItem
 // TODO: saveItemShortcut
-// TODO: playerParty
-// TODO: boxData
+
+nn::json GetSerializedPokeFromArray(Pml::PokePara::SerializedPokemonFull::Array* inArray) {
+    Logger::log("[GetArray] \n");
+    if (inArray != nullptr && inArray->max_length > 0) {
+        auto partyArray = nn::json::array();
+        Logger::log("[GetArray] Pushing back %zu items.\n", inArray->max_length);
+        for (uint64_t i = 0; i < inArray->max_length; i++) {
+            partyArray.push_back(ByteArrayToBase64(inArray->m_Items[i].fields.buffer));
+        }
+        return partyArray;
+    }
+    return {};
+}
+nn::json GetSavePokeParty(Pml::PokePara::SavePokeParty::Object playerParty) {
+
+    return {
+            {"members", GetSerializedPokeFromArray(playerParty.fields.members)},
+            {"memberCount", playerParty.fields.memberCount},
+            {"markingIndex", playerParty.fields.markingIndex}
+    };
+}
+
+nn::json GetBoxSaveData(Dpr::Box::SaveBoxData::Object saveBoxData) {
+    auto boxData = saveBoxData.fields;
+    return {
+            {"trayName", GetArray(boxData.trayName)},
+            {"teamName", GetArray(boxData.teamName)},
+            {"teamPos", GetArray(boxData.teamPos)},
+            {"teamLock", boxData.teamLock},
+            {"trayMax", boxData.trayMax},
+            {"currentTray", boxData.currentTray},
+            {"isOpened", boxData.isOpened},
+            {"wallPaper", ByteArrayToBase64(boxData.wallPaper)},
+            {"statusPut", boxData.statusPut},
+    };
+}
 // TODO: boxTray
 nn::json GetPlayerData() {
     PlayerWork::getClass()->initIfNeeded();
@@ -85,102 +215,107 @@ nn::json GetPlayerData() {
     auto contest_data = (PlayerWork::get_playerData())->fields.contestdata.fields;
     Logger::log("[PlayerData] \n");
     return {
-            {
-                    {"Config", {
-                            {"msg_speed", config.msg_speed},
-                            {"msg_lang_id", config.msg_lang_id},
-                            {"is_kanji", config.is_kanji},
-                            {"window_type", config.window_type},
-                            {"wazaeff_mode", config.wazaeff_mode},
-                            {"battle_rule", config.battle_rule},
-                            {"party_and_box", config.party_and_box},
-                            {"regist_nickname", config.regist_nickname},
-                            {"gyrosensor", config.gyrosensor},
-                            {"camerashake_of_fossil", config.camerashake_of_fossil},
-                            {"camera_updown", config.camera_updown},
-                            {"camera_leftright", config.camera_leftright},
-                            {"autoreport", config.autoreport},
-                            {"input_mode", config.input_mode},
-                            {"show_nickname", config.show_nickname},
-                            {"bgm_volume", config.bgm_volume},
-                            {"se_volume", config.se_volume},
-                            {"voice_volume", config.voice_volume}
-                    }},
-                    {"MyStatus", {
-                            {"name", myStatus.name->asCString().c_str()},
-                            {"id", myStatus.id},
-                            {"gold", myStatus.gold},
-                            {"sex", myStatus.sex},
-                            {"region_code", myStatus.region_code},
-                            {"badge", myStatus.badge},
-                            {"trainer_view", myStatus.trainer_view},
-                            {"rom_code", myStatus.rom_code},
-                            {"dp_clear", myStatus.dp_clear},
-                            {"body_type", myStatus.body_type},
-                            {"fashion", myStatus.fashion},
-                            {"defaultPokeType", myStatus.defaultPokeType},
-                            {"dsPlayerFlag", myStatus.dsPlayerFlag},
-                            {"turewalkMemberIndex", myStatus.turewalkMemberIndex},
-                            {"grid", {
-                                    {"m_X", myStatus.grid.fields.m_X},
-                                    {"m_Y", myStatus.grid.fields.m_Y}
-                            }},
-                            {"height", myStatus.height},
-                            {"rotation", myStatus.rotation}
-                    }},
-                    {"PlayTime", {
-                            {"hour", playTime.hour},
-                            {"minute", playTime.minute},
-                            {"second", playTime.second}
-                    }},
-                    {"Contest_Data", {
-                            {"photoDatas", 0}, // ToDo
-                            {"contestRankPoint", contest_data.contestRankPoint}
-                    }}
-            }
+            {"Config", {
+                               {"msg_speed", config.msg_speed},
+                               {"msg_lang_id", config.msg_lang_id},
+                               {"is_kanji", config.is_kanji},
+                               {"window_type", config.window_type},
+                               {"wazaeff_mode", config.wazaeff_mode},
+                               {"battle_rule", config.battle_rule},
+                               {"party_and_box", config.party_and_box},
+                               {"regist_nickname", config.regist_nickname},
+                               {"gyrosensor", config.gyrosensor},
+                               {"camerashake_of_fossil", config.camerashake_of_fossil},
+                               {"camera_updown", config.camera_updown},
+                               {"camera_leftright", config.camera_leftright},
+                               {"autoreport", config.autoreport},
+                               {"input_mode", config.input_mode},
+                               {"show_nickname", config.show_nickname},
+                               {"bgm_volume", config.bgm_volume},
+                               {"se_volume", config.se_volume},
+                               {"voice_volume", config.voice_volume}
+                       }},
+            {"MyStatus", {
+                               {"name", myStatus.name->asCString().c_str()},
+                               {"id", myStatus.id},
+                               {"gold", myStatus.gold},
+                               {"sex", myStatus.sex},
+                               {"region_code", myStatus.region_code},
+                               {"badge", myStatus.badge},
+                               {"trainer_view", myStatus.trainer_view},
+                               {"rom_code", myStatus.rom_code},
+                               {"dp_clear", myStatus.dp_clear},
+                               {"body_type", myStatus.body_type},
+                               {"fashion", myStatus.fashion},
+                               {"defaultPokeType", myStatus.defaultPokeType},
+                               {"dsPlayerFlag", myStatus.dsPlayerFlag},
+                               {"turewalkMemberIndex", myStatus.turewalkMemberIndex},
+                               {"grid", {
+                                                         {"m_X", myStatus.grid.fields.m_X},
+                                                         {"m_Y", myStatus.grid.fields.m_Y}
+                                                 }},
+                               {"height", myStatus.height},
+                               {"rotation", myStatus.rotation}
+                       }},
+            {"PlayTime", {
+                               {"hour", playTime.hour},
+                               {"minute", playTime.minute},
+                               {"second", playTime.second}
+                       }},
+            {"Contest_Data", {
+                               {"photoDatas", 0}, // ToDo
+                               {"contestRankPoint", contest_data.contestRankPoint}
+                       }}
     };
 }
-nn::json GetZukan(PlayerWork::SaveData::Fields saveData) { //ToDo
-    auto zukanData = saveData.zukanData.fields;
+nn::json GetZukan(DPData::ZUKAN_WORK::Object zukanWork) { //ToDo
+    auto zukanData = zukanWork.fields;
     return {
-            {"GET_STATUS", 0},
-            {"male_color_flag", 0},
-            {"female_color_flag", 0},
-            {"male_flag", 0},
-            {"female_flag", 0},
-            {"UnknownTurn", 0},
-            {"UnknownColor", 0},
-            {"PowarunTurn", 0},
-            {"PowarunColor", 0},
-            {"DeokisisuTurn", 0},
-            {"DeokisisuColor", 0},
-            {"MinomuttiTurn", 0},
-            {"MinomuttiColor", 0},
-            {"MinomadamTurn", 0},
-            {"MinomadamColor", 0},
-            {"GaameiruTurn", 0},
-            {"GaameiruColor", 0},
-            {"TherimuTurn", 0},
-            {"TherimuColor", 0},
-            {"KaranakusiTurn", 0},
-            {"KaranakusiColor", 0},
-            {"ToritodonTurn", 0},
-            {"ToritodonColor", 0},
-            {"RotomTurn", 0},
-            {"RotomColor", 0},
-            {"GirathinaTurn", 0},
-            {"GirathinaColor", 0},
-            {"SheimiTurn", 0},
-            {"SheimiColor", 0},
-            {"AruseusuTurn", 0},
-            {"AruseusuColor", 0},
-            {"TextVersionUp", 0},
+            {"GET_STATUS", GetArray(zukanData.get_status)},
+            {"male_color_flag", GetArray(zukanData.male_color_flag)},
+            {"female_color_flag", GetArray(zukanData.male_color_flag)},
+            {"male_flag", GetArray(zukanData.male_flag)},
+            {"female_flag", GetArray(zukanData.female_flag)},
+            {"UnknownTurn", GetArray(zukanData.UnknownTurn)},
+            {"UnknownColor", GetArray(zukanData.UnknownColor)},
+            {"PowarunTurn", GetArray(zukanData.PowarunTurn)},
+            {"PowarunColor", GetArray(zukanData.PowarunColor)},
+            {"DeokisisuTurn", GetArray(zukanData.DeokisisuTurn)},
+            {"DeokisisuColor", GetArray(zukanData.DeokisisuColor)},
+            {"MinomuttiTurn", GetArray(zukanData.MinomuttiTurn)},
+            {"MinomuttiColor", GetArray(zukanData.MinomuttiColor)},
+            {"MinomadamTurn", GetArray(zukanData.MinomadamTurn)},
+            {"MinomadamColor", GetArray(zukanData.MinomadamColor)},
+            {"GaameiruTurn", GetArray(zukanData.GaameiruTurn)},
+            {"GaameiruColor", GetArray(zukanData.GaameiruColor)},
+            {"TherimuTurn", GetArray(zukanData.TherimuTurn)},
+            {"TherimuColor", GetArray(zukanData.TherimuColor)},
+            {"KaranakusiTurn", GetArray(zukanData.KaranakusiTurn)},
+            {"KaranakusiColor", GetArray(zukanData.KaranakusiColor)},
+            {"ToritodonTurn", GetArray(zukanData.ToritodonTurn)},
+            {"ToritodonColor", GetArray(zukanData.ToritodonColor)},
+            {"RotomTurn", GetArray(zukanData.RotomTurn)},
+            {"RotomColor", GetArray(zukanData.RotomColor)},
+            {"GirathinaTurn", GetArray(zukanData.GirathinaTurn)},
+            {"GirathinaColor", GetArray(zukanData.GirathinaColor)},
+            {"SheimiTurn", GetArray(zukanData.SheimiTurn)},
+            {"SheimiColor", GetArray(zukanData.SheimiColor)},
+            {"AruseusuTurn", GetArray(zukanData.AruseusuTurn)},
+            {"AruseusuColor", GetArray(zukanData.AruseusuColor)},
+            {"TextVersionUp", GetArray(zukanData.TextVersionUp)},
             {"zukan_get", zukanData.zukan_get},
             {"zenkoku_flag", zukanData.zenkoku_flag}
     };
 }
 // TODO: tr_battleData
-// TODO: topMenuData
+
+nn::json GetTopMenuData(DPData::TOPMENU_WORK::Object topMenu) {
+    auto menu = topMenu.fields;
+    return {
+            {"gear_type", GetArray(menu.items)},
+            {"selectType", menu.selectType}
+    };
+}
 // TODO: fieldObj_Save
 // TODO: record
 // TODO: enc_sv_data
@@ -252,87 +387,89 @@ nn::json GetSystemData(PlayerWork::SaveData::Fields saveDataFields) {
 // TODO: tvData
 // TODO: ballDecoExtraData
 
-void JsonSaveTest(PlayerWork::Object* playerWork) {
+void JsonSaveTest(PlayerWork::SaveData::Object* obj) {
 
-    auto saveData = playerWork->fields._saveData.fields;
+    auto saveData = obj->fields;
 
     nn::json wholeJson = {
             {"SaveData", {
                     {"version", saveData.version},
-                    {"intValues", 0}, //GetArray(saveData.intValues)
-                    {"boolValues", 0}, //GetArray(saveData.boolValues)
-                    {"systemFlags", 0}, //GetArray(saveData.systemFlags)
+                    {"intValues", GetArray(saveData.intValues)}, //GetArray(saveData.intValues)
+                    {"boolValues", GetArray(saveData.boolValues)}, //GetArray(saveData.boolValues)
+                    {"systemFlags", GetArray(saveData.systemFlags)}, //GetArray(saveData.systemFlags)
                     {"rivalName", saveData.rivalName->asCString().c_str()},
                     {"zoneID", saveData.zoneID},
                     {"timeScale", saveData.timeScale},
-                    {"saveItem", 0},
-                    {"saveUgItem", 0},
-                    {"saveItemShortcut", 0},
-                    {"playerParty", 0},
-                    {"boxData", 0},
-                    {"boxTray", 0},
+                    {"saveItem", GetSaveItemArray(saveData.saveItem)},
+                    {"saveUgItem", nullptr},
+                    {"saveItemShortcut", nullptr},
+                    {"playerParty", GetSavePokeParty(saveData.playerParty)},
+                    {"boxData", GetBoxSaveData(saveData.boxData)},
+                    {"boxTray", nullptr},
                     {"playerData", GetPlayerData()},
-                    {"zukanData", 0},
-                    {"tr_battleData", 0},
-                    {"topMenuData", 0},
-                    {"fieldObj_Save", 0},
-                    {"record", 0},
-                    {"enc_sv_data", 0},
+                    {"zukanData", GetZukan(saveData.zukanData)},
+                    {"tr_battleData", nullptr},
+                    {"topMenuData", GetTopMenuData(saveData.topMenuData)},
+                    {"fieldObj_Save", nullptr},
+                    {"record", nullptr},
+                    {"enc_sv_data", nullptr},
                     {"player_save_data", GetPlayerSaveData(saveData)},
-                    {"ballDecoData", 0},
-                    {"saveSeal", 0},
-                    {"randomGroup", 0},
-                    {"fieldGimmickSaveData", 0},
-                    {"kinomiGrowSaveData", 0},
-                    {"poffinSaveData", 0},
-                    {"btlTowerSave", 0},
+                    {"ballDecoData", nullptr},
+                    {"saveSeal", nullptr},
+                    {"randomGroup", nullptr},
+                    {"fieldGimmickSaveData", nullptr},
+                    {"kinomiGrowSaveData", nullptr},
+                    {"poffinSaveData", nullptr},
+                    {"btlTowerSave", nullptr},
                     {"systemData", GetSystemData(saveData)},
-                    {"poketchData", 0},
-                    {"azukariyaData", 0},
-                    {"dendoudata", 0},
-                    {"badgeSaveData", 0},
-                    {"boukenNote", 0},
-                    {"tvDataOld", 0},
-                    {"ugSaveData", 0},
-                    {"gmsdata", 0},
-                    {"networkdata", 0},
-                    {"unionSaveData", 0},
-                    {"contstPhotoLangData", 0},
-                    {"zukanPersonalRndData", 0},
-                    {"contestPhotoExtData", 0},
-                    {"gmsPointExtData", 0},
-                    {"ugCountRecord", 0},
-                    {"reBuffNameData", 0},
-                    {"saveDataHash", 0},
-                    {"recodeAddData", 0},
-                    {"mysteryGiftSaveData", 0},
-                    {"poketoreCountArray", 0},
-                    {"playReportData", 0},
-                    {"mtData", 0},
-                    {"dendouSaveAdd", 0},
-                    {"tvData", 0},
-                    {"ballDecoExtraData", 0}
+                    {"poketchData", nullptr},
+                    {"azukariyaData", nullptr},
+                    {"dendoudata", nullptr},
+                    {"badgeSaveData", nullptr},
+                    {"boukenNote", nullptr},
+                    {"tvDataOld", nullptr},
+                    {"ugSaveData", nullptr},
+                    {"gmsdata", nullptr},
+                    {"networkdata", nullptr},
+                    {"unionSaveData", nullptr},
+                    {"contstPhotoLangData", nullptr},
+                    {"zukanPersonalRndData", nullptr},
+                    {"contestPhotoExtData", nullptr},
+                    {"gmsPointExtData", nullptr},
+                    {"ugCountRecord", nullptr},
+                    {"reBuffNameData", nullptr},
+                    {"saveDataHash", nullptr},
+                    {"recodeAddData", nullptr},
+                    {"mysteryGiftSaveData", nullptr},
+                    {"poketoreCountArray", nullptr},
+                    {"playReportData", nullptr},
+                    {"mtData", nullptr},
+                    {"dendouSaveAdd", nullptr},
+                    {"tvData", nullptr},
+                    {"ballDecoExtraData", nullptr}
             }}
     };
 
-
+//    auto extractedJson = UnityEngine::JsonUtility::ToJson(reinterpret_cast<Il2CppObject*>(obj), false);
+//    Logger::log("[ToJson] Json extraction complete.\n");
 
     nn::string writeString = wholeJson.dump(4);
+//    nn::string writeString = extractedJson->asCString();
     nn::string filePath = "SaveData:/JSON_PlayerData.bin";
     FsHelper::writeFileToPath((void*) writeString.data(), writeString.size(), filePath.c_str());
 }
 
 void JsonLoadTest(PlayerWork::Object* playerWork) {
     auto& saveData = playerWork->fields._saveData.fields;
-    nn::string filePath = "SaveData:/JSON_PlayerData.json";
+    nn::string filePath = "SaveData:/JSON_PlayerData.bin";
     Logger::log("[JSONLoadTest] Loading file...\n");
     nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
     if (j != nullptr && !j.is_discarded()) {
         Logger::log("[JSONLoadTest] Loaded JSON\n");
-        auto jData = j.at("SaveData");
+        auto jData = j["SaveData"];
 
         // Version
-        saveData.version = jData.at("version").get<int32_t>();
+        saveData.version = jData["version"].get<int32_t>();
         Logger::log("[JSONLoadTest] Version set to %d\n", saveData.version);
 
         // IntValues
