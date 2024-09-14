@@ -133,3 +133,7 @@ bool PokemonNameForm(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Number, Label] Value: Value to compare to.
 //   [Label] Script: Script to call.
 bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);

@@ -44,5 +44,9 @@ namespace Dpr::Message {
                                                     int32_t labelIndex) {
             external<void>(0x01f9f8e0, index, msgFile, labelIndex);
         }
+
+        static inline void SetTrainerNameWord(int32_t tagIndex, System::String::Object* labelName) {
+            external<void>(0x01f9bf50, tagIndex, labelName);
+        }
     };
 }
