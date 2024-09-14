@@ -1260,6 +1260,8 @@ namespace Dpr::EvScript {
             _CASE_CALL = 1250,
             _ADD_POKEMON_UI_EXTRA = 1251,
             _POKEMON_NAME_FORM = 1252,
+            _SET_AYOU_NAME = 1253,
+            _AYOU_NAME = 1254,
 
             CUSTOM_CMD_END = 1500,
         };

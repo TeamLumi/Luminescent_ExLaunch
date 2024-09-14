@@ -9,6 +9,8 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
 #include "logger/logger.h"
+#include "helpers/fsHelper.h"
+#include "memory/json.h"
 
 float ConvertToFloat(int32_t value)
 {
@@ -112,4 +114,19 @@ bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t m
     }
 
     return added;
+}
+
+System::String::Object* GetAYouName() {
+    const nn::string filePath = "SaveData:/AYou.bin";
+    nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
+    if (j != nullptr && !j.is_discarded()) {
+        Logger::log("[GetAYouName] File Loaded.\n");
+        nn::string jData = j["AYou"]["codeName"].get<nn::string>();
+        Logger::log("[GetAYouName] Returning %s\n", jData.c_str());
+        return System::String::Create(jData.c_str());
+    }
+    else {
+        Logger::log("[GetAYouName] Returning ???\n");
+        return System::String::Create("???");
+    }
 }

@@ -8,8 +8,11 @@
 #include "externals/Dpr/Demo/Demo_Evolve.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/FlagWork.h"
+#include "externals/Dpr/Message/MessageManager.h"
+#include "externals/Dpr/Message/MessageWordSetHelper.h"
 
 #include "features/activated_features.h"
+#include "features/commands/utils/utils.h"
 #include "logger/logger.h"
 
 using namespace Dpr::Battle::Logic;

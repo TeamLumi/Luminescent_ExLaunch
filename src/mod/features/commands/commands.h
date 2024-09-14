@@ -133,3 +133,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] monsno: ID of the species to look up.
 //   [Work, Number] formno: ID of the form the species is in.
 bool PokemonNameForm(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);
