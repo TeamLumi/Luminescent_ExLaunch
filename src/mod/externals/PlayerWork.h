@@ -50,6 +50,10 @@
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
 #include "externals/Dpr/Box/SaveBoxData.h"
+#include "externals/Dpr/Item/SaveUgItem.h"
+#include "externals/Dpr/BallDeco/SaveSealData.h"
+#include "externals/DPData/CON_PHOTO_EXT_DATA.h"
+#include "externals/DPData/GMS_POINT_HISTORY_EXT_DATA.h"
 
 struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     struct SaveData : ILStruct<SaveData> {
@@ -62,8 +66,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             int32_t zoneID;
             float timeScale;
             Dpr::Item::SaveItem::Array* saveItem;
-            void* saveUgItem;
-            void* saveItemShortcut;
+            Dpr::Item::SaveUgItem::Array* saveUgItem;
+            System::UInt16_array* saveItemShortcut;
             Pml::PokePara::SavePokeParty::Object playerParty;
             Dpr::Box::SaveBoxData::Object boxData;
             Dpr::Box::SaveBoxTrayData::Array* boxTray;
@@ -76,7 +80,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             DPData::ENC_SV_DATA::Object enc_sv_data;
             DPData::PLAYER_SAVE_DATA::Object player_save_data;
             Dpr::BallDeco::SaveBallDecoData::Object ballDecoData;
-            void* saveSeal;
+            Dpr::BallDeco::SaveSealData::Array* saveSeal;
             DPData::_RANDOM_GROUP::Object randomGroup;
             DPData::FieldGimmickSaveData::Object fieldGimmickSaveData;
             DPData::KinomiGrowSaveData::Object kinomiGrowSaveData;
@@ -88,18 +92,18 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             DPData::_DENDOU_SAVEDATA::Object dendoudata;
             DPData::BadgeSaveData::Object badgeSaveData;
             DPData::BoukenNote::Object boukenNote;
-            void* tvDataOld;
+            System::Byte_array* tvDataOld;
             DPData::UgSaveData::Object ugSaveData;
             DPData::GMS_DATA::Object gmsdata;
             DPData::PLAYER_NETWORK_DATA::Object networkdata;
             DPData::UnionSaveData::Object unionSaveData;
             DPData::CON_PHOTO_LANG_DATA::Object contstPhotoLangData;
             DPData::ZUKAN_PERSONAL_RND_DATA::Object zukanPersonalRndData;
-            void* contestPhotoExtData;
-            void* gmsPointExtData;
+            DPData::CON_PHOTO_EXT_DATA::Array* contestPhotoExtData;
+            DPData::GMS_POINT_HISTORY_EXT_DATA::Array* gmsPointExtData;
             DPData::UgCountRecord::Object ugCountRecord;
             ReBuffnameData::Object reBuffNameData;
-            void* saveDataHash;
+            System::Byte_array* saveDataHash;
             DPData::RECORD_ADD_DATA::Object recodeAddData;
             DPData::MysteryGiftSaveData::Object mysteryGiftSaveData;
             DPData::POKETCH_POKETORE_COUNT_ARRAY::Object poketoreCountArray;
@@ -123,6 +127,13 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         static_assert(offsetof(Fields, ugCountRecord) == 0x590);
         static_assert(offsetof(Fields, ballDecoExtraData) == 0x7a8);
         static_assert(sizeof(Fields) == 0x7b8);
+    };
+
+    enum class LoadResult : int32_t {
+        SUCCESS = 0,
+        NOT_EXIST = 1,
+        CORRUPTED = 2,
+        FAILED = 3
     };
 
     struct StaticFields {
@@ -185,12 +196,12 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         bool _isEncount;
         bool _isDigFossil;
         bool _isGMS;
-        int32_t _loadResult;
+        LoadResult _loadResult;
         void* _battleSetupParam;
         Pml::PokeParty::Object* _playerParty;
         Pml::PokePara::PokemonParam::Object* _capturedPokemon;
         void* _evolveRequets;
-        void* _writeSrcBuffer;
+        System::Byte_array* _writeSrcBuffer;
         bool _isMainSave;
         bool _isBackupSave;
         bool _autosaveCoroutineIsBusy;
@@ -200,6 +211,10 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     };
 
     static_assert(offsetof(Fields, _autosaveWindowCloseOpenTime) == 0x828);
+
+    static inline StaticILMethod<0x04c81de0> Method$PlayerWork_ToBytes__PlayerWork_SaveData__ {};
+    static inline StaticILMethod<0x04c81dc8> Method$PlayerWork_LoadBytes__PlayerWork_SaveData__ {};
+
 
     static inline Pml::PokeParty::Object* get_playerParty() {
         return external<Pml::PokeParty::Object*>(0x02ce2b50);
@@ -316,4 +331,20 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     static inline System::String::Object* get_rivalName() {
         return external<System::String::Object*>(0x02cee9a0);
     }
+
+//    template <typename T>
+//    inline void ToBytes(T::Object* obj, System::Byte_array** bytes, MethodInfo* method) {
+//        external<void>(0x01a8c2f0, this, obj, bytes, method);
+//    }
+
+    template <typename T>
+    inline void ToBytes(PlayerWork::SaveData::Object* obj, System::Byte_array** bytes, MethodInfo* method) {
+        external<void>(0x01a8c2f0, this, obj, bytes, method);
+    }
+
+    template <typename T>
+    inline void LoadBytes(System::Byte_array* bytes, PlayerWork::SaveData::Object* obj, MethodInfo* method) {
+        external<void>(0x01a8bf60, this, bytes, obj, method);
+    }
+
 };

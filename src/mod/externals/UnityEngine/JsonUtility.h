@@ -8,6 +8,10 @@ namespace UnityEngine {
             external<void>(0x02c375d0, objectToOverwrite);
         }
 
+        static inline Il2CppObject* FromJson(System::String::Object* json, System::Type::Object* type) {
+            return external<Il2CppObject*>(0x02c37420, json, type);
+        }
+
         static inline System::String::Object* ToJson(Il2CppObject* obj, bool prettyPrint) {
             return external<System::String::Object*>(0x02c372c0, obj, prettyPrint);
         }
