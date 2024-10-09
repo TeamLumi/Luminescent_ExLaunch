@@ -96,7 +96,7 @@ namespace FsHelper {
             FsHelper::loadFileFromPath(data);
 
             nn::string strBuffer((char*)data.buffer, data.bufSize);
-            nn::json j = nn::json::parse(strBuffer);
+            nn::json j = nn::json::parse(strBuffer, nullptr, false);
 
             return j;
         }

@@ -3,6 +3,7 @@
 #include "externals/PlayerWork.h"
 
 #include "logger/logger.h"
+#include "memory/json.h"
 
 enum class ModVersion : int32_t {
     // Base game
@@ -16,42 +17,26 @@ enum class ModVersion : int32_t {
 };
 
 struct MainSaveData {
-    static constexpr const char* fileName = "SaveData:/Lumi_Main.bin";
-    static constexpr const char* backupFileName = "SaveData:/Lumi_Main_BK.bin";
-
     ModVersion version;
 
     void Initialize() {
         version = ModVersion::Vanilla;
     }
 
-    long GetByteCount() {
-        return sizeof(ModVersion);
+    [[nodiscard]] nn::json ToJson() const {
+        return {
+                {"main", {
+                        {"version", static_cast<int32_t>(version)}
+                }}
+        };
     }
 
-    long ToBytes(char* buffer, long index) {
-        *(ModVersion*)(buffer+index) = version;
-        index += sizeof(ModVersion);
-
-        return index;
-    }
-
-    long FromBytes(char* buffer, long buffer_size, long index) {
+    void FromJson(const nn::json& main) {
         Initialize();
-        if (buffer_size >= GetByteCount() + index)
-        {
-            memcpy(&version, (void*)(buffer+index), sizeof(ModVersion));
-            index += sizeof(ModVersion);
-
-            return index;
-        }
-
-        return index + GetByteCount();
+        version = static_cast<ModVersion>(main["version"].get<int32_t>());
     }
+
 };
 
 void loadMain(bool isBackup);
-void saveMain(bool isMain, bool isBackup);
-
-void JsonSaveTest(PlayerWork::SaveData::Object* obj);
-void JsonLoadTest(PlayerWork::Object* playerWork);
+nn::json saveMain();
