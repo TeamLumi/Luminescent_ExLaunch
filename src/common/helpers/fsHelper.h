@@ -17,6 +17,8 @@ namespace FsHelper {
 
     nn::Result writeFileToPath(void *buf, size_t size, const char *path);
 
+    nn::Result Commit(const char *path);
+
     void loadFileFromPath(LoadData &loadData);
 
     long getFileSize(const char *path);

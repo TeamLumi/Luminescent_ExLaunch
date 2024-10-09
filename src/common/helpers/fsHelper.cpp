@@ -39,6 +39,10 @@ namespace FsHelper {
         return 0;
     }
 
+    nn::Result Commit(const char *path) {
+        return nn::fs::Commit(path);
+    }
+
     // make sure to free buffer after usage is done
     void loadFileFromPath(LoadData &loadData) {
         nn::fs::FileHandle handle {};

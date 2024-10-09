@@ -8,7 +8,7 @@ namespace DPData {
         };
 
         static long GetByteCount() {
-            return RANDOM_SEED::GetByteCount() * 12;
+            return 0;
         }
     };
 }

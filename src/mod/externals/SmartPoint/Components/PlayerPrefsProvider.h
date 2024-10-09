@@ -34,13 +34,10 @@ namespace SmartPoint::Components {
             VirtualInvokeData _11_OnPreSave;
         };
 
-        static inline StaticILMethod<0x04c90330, PlayerWork>
-                Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance {};
-
         static inline StaticILMethod<0x04c82110, PlayerWork>
                 Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_Save {};
 
-        static inline typename T::Object* get_Instance(ILMethod<T>& method) {
+        static inline typename T::Object* get_instance(ILMethod<T>& method) {
             return ILClass<T>::template external<typename T::Object*>(0x02324910, *method);
         }
     };

@@ -214,7 +214,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline StaticILMethod<0x04c81de0> Method$PlayerWork_ToBytes__PlayerWork_SaveData__ {};
     static inline StaticILMethod<0x04c81dc8> Method$PlayerWork_LoadBytes__PlayerWork_SaveData__ {};
-
+    static inline StaticILMethod<0x04c90330, PlayerWork> Method$PlayerWork_get_instance {};
 
     static inline Pml::PokeParty::Object* get_playerParty() {
         return external<Pml::PokeParty::Object*>(0x02ce2b50);
@@ -347,4 +347,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         external<void>(0x01a8bf60, this, bytes, obj, method);
     }
 
+    static inline PlayerWork::Object* get_instance() {
+        return SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::get_instance(Method$PlayerWork_get_instance);
+    }
 };
