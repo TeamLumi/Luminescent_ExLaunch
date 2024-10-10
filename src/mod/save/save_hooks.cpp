@@ -8,10 +8,8 @@
 #include "memory/json.h"
 #include "fs/fs_files.hpp"
 #include "externals/Dpr/NX/SaveSystem.h"
-#include "result.h"
 #include "helpers/fsHelper.h"
 #include "externals/UnityEngine/JsonUtility.h"
-#include "externals/UnityEngine/PlayerPrefs.h"
 #include "externals/GameManager.h"
 #include "err.h"
 
@@ -36,6 +34,7 @@ bool SaveSystem_Load(bool fromBackup, PlayerWork::Object* playerWork) {
         handle.fields.value = &PlayerWork::getClass()->_1.byval_arg;
         auto tempPlayerWork = reinterpret_cast<PlayerWork::Object*>(UnityEngine::JsonUtility::FromJson(jsonString, System::Type::GetTypeFromHandle(handle)));
 
+        // Copy the saveData of our temporary converted PlayerWork into the real PlayerWork
         memcpy(&playerWork->fields._saveData.fields, &tempPlayerWork->fields._saveData.fields, 0x7b8);
 
         Logger::log("[SaveSystem$$Load] JSON save data loaded.\n");
@@ -54,11 +53,13 @@ bool VerifySaveData() {
     return true;
 }
 
-void FailedLoad(PlayerWork::LoadResult res) {
-    nn::err::ApplicationErrorArg err(nn::err::MakeErrorCode(nn::err::ErrorCodeCategoryType::unk1, 0x421), "Failed to load save file!",
-                                     res == PlayerWork::LoadResult::NOT_EXIST ? "Save data was not found" : "The save file was not parsed successfully",
+void FailedLoad() {
+    nn::err::ApplicationErrorArg err(nn::err::MakeErrorCode(
+            nn::err::ErrorCodeCategoryType::unk1, 0x421),
+                                     "Failed to load save file!","The save file was not parsed successfully!",
                                      nn::settings::LanguageCode::Make(nn::settings::Language::Language_English));
     nn::err::ShowApplicationError(err);
+    EXL_ABORT(0);
 }
 
 void LoadCustomSaveData(bool isBackup) {
@@ -67,19 +68,32 @@ void LoadCustomSaveData(bool isBackup) {
     Logger::log("CustomSaveData Loaded.\n");
 }
 
+nn::json WriteCustomSaveData() {
+    nn::json lumiObject = nn::json::object();
+    nn::vector<nn::json> saveFunctions = {saveMain()};
+
+    for (const auto& jsonStructure : saveFunctions) {
+        lumiObject.update(jsonStructure);
+    }
+
+    return {{"lumi", lumiObject}};
+}
+
 HOOK_DEFINE_TRAMPOLINE(PlayerWork$$CustomLoadOperation) {
     static bool Callback(PlayerWork::Object* playerWork) {
         system_load_typeinfo(0x6a91);
         system_load_typeinfo(0x6ad4);
         Dpr::NX::SaveSystem::getClass()->initIfNeeded();
 
+        // Initialize version as "Vanilla" prior to loading.
+        getCustomSaveData()->main.Initialize();
+
         bool loadResult = SaveSystem_Load(playerWork->fields._isBackupSave, playerWork);
 
-
         if (!loadResult) {
-            playerWork->fields._loadResult = Dpr::NX::SaveSystem::SaveDataExists() ? PlayerWork::LoadResult::FAILED : PlayerWork::LoadResult::NOT_EXIST;
-            FailedLoad(playerWork->fields._loadResult);
-            EXL_ABORT(0);
+            auto res = Dpr::NX::SaveSystem::SaveDataExists() ? PlayerWork::LoadResult::FAILED : PlayerWork::LoadResult::NOT_EXIST;
+            playerWork->fields._loadResult = res;
+            if (res == PlayerWork::LoadResult::FAILED) FailedLoad(); // EXL_ABORT
         }
         else if (!VerifySaveData())
             playerWork->fields._loadResult = PlayerWork::LoadResult::CORRUPTED;
@@ -88,6 +102,7 @@ HOOK_DEFINE_TRAMPOLINE(PlayerWork$$CustomLoadOperation) {
             LoadCustomSaveData(playerWork->fields._isBackupSave);
         }
 
+        migrate(playerWork);
         playerWork->fields._isBackupSave = false;
         return true;
     }
@@ -102,19 +117,6 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveOperation) {
         return true;
     }
 };
-
-void WriteCustomSaveData(nn::string* writeString) {
-    writeString->append(R"(,"lumi:")");
-
-    // Main
-    writeString->append(saveMain().dump());
-
-    // AYou
-    //writeString->append(getCustomSaveData()->ayou.ToJson());
-
-    // Complete our JSON structure after adding the additional entries.
-    writeString->append(R"(})");
-}
 
 HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
     static bool Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
@@ -134,7 +136,7 @@ HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
         nn::string writeString = {R"({"playerWork":)" + jsonData->asCString()};
 
         // Append all Custom Data separate from the PlayerWork structure.
-        WriteCustomSaveData(&writeString);
+        writeString.append("," + WriteCustomSaveData().dump().erase(0,1));
 
         if (writeMain) {
             auto result = FsHelper::writeFileToPath(writeString.data(), writeString.size(), CustomSaveData::mainSaveName);

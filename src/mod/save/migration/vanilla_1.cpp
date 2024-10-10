@@ -16,16 +16,17 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
     auto& kinomigrow = playerWork->fields._saveData.fields.kinomiGrowSaveData.fields;
     auto& myStatus = playerWork->fields._saveData.fields.playerData.fields.mystatus.fields;
 
+    // Initialize Data Expansions
+    save->dex.Initialize();
+    save->berries.Initialize();
+    save->playerColorVariation.Initialize();
+    save->flags.Initialize();
+    save->sysflags.Initialize();
+    save->works.Initialize();
+    save->trainers.Initialize();
+    save->items.Initialize();
+
     // Copy over vanilla data from PlayerWork into the custom save
-    for (uint64_t i=0; i<VANILLA_DEXSIZE; i++)
-    {
-        save->dex.elements[i].get_status = zukan.get_status->m_Items[i];
-        save->dex.elements[i].male_color_flag = zukan.male_color_flag->m_Items[i];
-        save->dex.elements[i].female_color_flag = zukan.female_color_flag->m_Items[i];
-        save->dex.elements[i].male_flag = zukan.male_flag->m_Items[i];
-        save->dex.elements[i].female_flag = zukan.female_flag->m_Items[i];
-        save->dex.elements[i].female_flag = zukan.female_flag->m_Items[i];
-    }
 
     savedata.boxData.fields.trayName->copyInto(save->boxes.boxNames);
     savedata.boxData.fields.wallPaper->copyInto(save->boxes.wallpapers);
@@ -77,6 +78,18 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
 
     // Set amount of boxes unlocked to 80
     playerWork->fields._saveData.fields.boxData.fields.trayMax = BoxCount;
+
+
+    Logger::log("Gigantamaxing PlayerWork...\n");
+
+    linkWorks(playerWork);
+    linkFlags(playerWork);
+    linkSysFlags(playerWork);
+    linkZukan(playerWork);
+    linkItems(playerWork);
+    linkTrainers(playerWork);
+    linkBerries(playerWork);
+    linkBoxes(playerWork);
 
     Logger::log("Migration from Vanilla done!\n");
 }

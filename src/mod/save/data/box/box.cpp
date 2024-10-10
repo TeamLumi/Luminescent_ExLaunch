@@ -1,48 +1,9 @@
 #include "helpers/fsHelper.h"
 #include "save/save.h"
 
-static Dpr::Box::SaveBoxTrayData::Array* cache_boxTray;
-static Dpr::Box::SaveBoxData::_STR17::Array* cache_trayNames;
-static System::Byte_array* cache_wallPapers;
+void linkBoxes(PlayerWork::Object* playerWork) {
+    auto& saveData = playerWork->fields._saveData.fields;
 
-static Dpr::Box::SaveBoxTrayData::Array* tmp_boxTray;
-static Dpr::Box::SaveBoxData::_STR17::Array* tmp_trayNames;
-static System::Byte_array* tmp_wallPapers;
-
-void loadBoxes(bool isBackup)
-{
-    if (!isBackup && FsHelper::isFileExist(getCustomSaveData()->boxes.fileName))
-    {
-        long actualSize = FsHelper::getFileSize(getCustomSaveData()->boxes.fileName);
-        long expectedSize = getCustomSaveData()->boxes.GetByteCount();
-        long size = std::max(actualSize, expectedSize);
-        FsHelper::LoadData data {
-                .path = getCustomSaveData()->boxes.fileName,
-                .alignment = 0x1000,
-                .bufSize = size,
-        };
-        FsHelper::loadFileFromPath(data);
-        getCustomSaveData()->boxes.FromBytes((char*)data.buffer, actualSize, 0);
-        Logger::log("Loaded Lumi_Boxes!\n");
-    }
-    else if (FsHelper::isFileExist(getCustomSaveData()->boxes.backupFileName))
-    {
-        long actualSize = FsHelper::getFileSize(getCustomSaveData()->boxes.backupFileName);
-        long expectedSize = getCustomSaveData()->boxes.GetByteCount();
-        long size = std::max(actualSize, expectedSize);
-        FsHelper::LoadData data {
-                .path = getCustomSaveData()->boxes.backupFileName,
-                .alignment = 0x1000,
-                .bufSize = size,
-        };
-        FsHelper::loadFileFromPath(data);
-        getCustomSaveData()->boxes.FromBytes((char*)data.buffer, actualSize, 0);
-        Logger::log("Loaded Lumi_Boxes_BK!\n");
-    }
-}
-
-void linkBoxes(PlayerWork::Object* playerWork)
-{
     // Create new array
     auto newBoxNames = Dpr::Box::SaveBoxData::_STR17::newArray(BoxCount);
     auto wallPapers = System::Byte_array::newArray(BoxCount);
@@ -52,60 +13,11 @@ void linkBoxes(PlayerWork::Object* playerWork)
     for (uint64_t i=0; i<BoxCount; i++) {
         memcpy(&newBoxNames->m_Items[i], &getCustomSaveData()->boxes.boxNames[i], sizeof(Dpr::Box::SaveBoxData::_STR17::Object));
         memcpy(&wallPapers->m_Items[i], &getCustomSaveData()->boxes.wallpapers[i], sizeof(System::Byte));
-
         memcpy(&newBoxData->m_Items[i], &getCustomSaveData()->boxes.pokemonParams[i], sizeof(Dpr::Box::SaveBoxTrayData::Object));
     }
 
-    // Cache the data that is in the vanilla save
-    auto& savedata = playerWork->fields._saveData.fields;
-    cache_trayNames = savedata.boxData.fields.trayName;
-    cache_wallPapers = savedata.boxData.fields.wallPaper;
-    cache_boxTray = savedata.boxTray;
-
     // Set the data in PlayerWork to our custom save data
-    savedata.boxData.fields.trayName = newBoxNames;
-    savedata.boxData.fields.wallPaper = wallPapers;
-    savedata.boxTray = newBoxData;
-}
-
-void unlinkBoxes(PlayerWork::Object* playerWork)
-{
-    auto& savedata = playerWork->fields._saveData.fields;
-
-    // Copy PlayerWork data to our Custom save data
-    for (uint64_t i=0; i<BoxCount; i++) {
-        memcpy(&getCustomSaveData()->boxes.boxNames[i], &savedata.boxData.fields.trayName->m_Items[i], sizeof(Dpr::Box::SaveBoxData::_STR17::Object));
-        memcpy(&getCustomSaveData()->boxes.wallpapers[i], &savedata.boxData.fields.wallPaper->m_Items[i], sizeof(System::Byte));
-
-        memcpy(&getCustomSaveData()->boxes.pokemonParams[i], &savedata.boxTray->m_Items[i], sizeof(Dpr::Box::SaveBoxTrayData::Object));
-    }
-
-    // Create a temp copy of the PlayerWork data
-    tmp_trayNames = savedata.boxData.fields.trayName;
-    tmp_wallPapers = savedata.boxData.fields.wallPaper;
-    tmp_boxTray = savedata.boxTray;
-
-    // Set PlayerWork to our cached data
-    savedata.boxData.fields.trayName = cache_trayNames;
-    savedata.boxData.fields.wallPaper = cache_wallPapers;
-    savedata.boxTray = cache_boxTray;
-}
-
-void saveBoxes(bool isMain, bool isBackup)
-{
-    char buffer[getCustomSaveData()->boxes.GetByteCount()];
-    getCustomSaveData()->boxes.ToBytes((char*)buffer, 0);
-
-    if (isMain)
-        FsHelper::writeFileToPath(buffer, sizeof(buffer), getCustomSaveData()->boxes.fileName);
-    if (isBackup)
-        FsHelper::writeFileToPath(buffer, sizeof(buffer), getCustomSaveData()->boxes.backupFileName);
-}
-
-void relinkBoxes(PlayerWork::Object* playerWork)
-{
-    auto& savedata = playerWork->fields._saveData.fields;
-    savedata.boxData.fields.trayName = tmp_trayNames;
-    savedata.boxData.fields.wallPaper = tmp_wallPapers;
-    savedata.boxTray = tmp_boxTray;
+    saveData.boxData.fields.trayName = newBoxNames;
+    saveData.boxData.fields.wallPaper = wallPapers;
+    saveData.boxTray = newBoxData;
 }
