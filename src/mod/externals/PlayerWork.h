@@ -332,19 +332,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         return external<System::String::Object*>(0x02cee9a0);
     }
 
-//    template <typename T>
-//    inline void ToBytes(T::Object* obj, System::Byte_array** bytes, MethodInfo* method) {
-//        external<void>(0x01a8c2f0, this, obj, bytes, method);
-//    }
-
-    template <typename T>
-    inline void ToBytes(PlayerWork::SaveData::Object* obj, System::Byte_array** bytes, MethodInfo* method) {
-        external<void>(0x01a8c2f0, this, obj, bytes, method);
-    }
-
-    template <typename T>
-    inline void LoadBytes(System::Byte_array* bytes, PlayerWork::SaveData::Object* obj, MethodInfo* method) {
-        external<void>(0x01a8bf60, this, bytes, obj, method);
+    inline void OnPreSave() {
+        external<void>(0x02cecd90, this);
     }
 
     static inline PlayerWork::Object* get_instance() {

@@ -4,15 +4,11 @@
 
 #include "logger/logger.h"
 
-const uint64_t VANILLA_DEXSIZE = 493;
-
-
 void migrateFromVanilla(PlayerWork::Object* playerWork) {
     Logger::log("Migrating from Vanilla...\n");
     CustomSaveData* save = getCustomSaveData();
 
     auto& savedata = playerWork->fields._saveData.fields;
-    auto& zukan = playerWork->fields._saveData.fields.zukanData.fields;
     auto& kinomigrow = playerWork->fields._saveData.fields.kinomiGrowSaveData.fields;
     auto& myStatus = playerWork->fields._saveData.fields.playerData.fields.mystatus.fields;
 

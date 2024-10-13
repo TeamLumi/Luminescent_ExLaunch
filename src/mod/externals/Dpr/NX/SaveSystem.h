@@ -38,7 +38,15 @@ namespace Dpr::NX {
         }
 
         static inline bool Save(System::Byte_array* data, bool writeMain, bool writeBackup) {
-            return external<bool>(0x01ddf3e0);
+            return external<bool>(0x01ddf3e0, data, writeMain, writeBackup);
+        }
+
+        static inline void SaveAsync(System::Byte_array* data, bool writeMain, bool writeBackup) {
+            external<void>(0x01ddf680, data, writeMain, writeBackup);
+        }
+
+        inline void StartThread() {
+            external<void>(0x01ddf830, this);
         }
     };
 }

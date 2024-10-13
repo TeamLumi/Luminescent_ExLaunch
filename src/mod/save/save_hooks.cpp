@@ -12,6 +12,7 @@
 #include "externals/UnityEngine/JsonUtility.h"
 #include "externals/GameManager.h"
 #include "err.h"
+#include "externals/UnityEngine/Switch/Notification.h"
 
 static CustomSaveData* gCustomSaveData = nullptr;
 
@@ -24,18 +25,18 @@ CustomSaveData* getCustomSaveData() {
 bool SaveSystem_Load(bool fromBackup, PlayerWork::Object* playerWork) {
     Dpr::NX::SaveSystem::getClass()->static_fields->_Instance->MountSaveData();
 
-    Logger::log("[SaveSystem$$Load] Loading JSON save data...\n");
+    Logger::log("Loading JSON save data...\n");
     nn::json saveFile = FsHelper::loadJsonFileFromPath(fromBackup ? CustomSaveData::backupSaveName : CustomSaveData::mainSaveName);
     if (saveFile != nullptr && !saveFile.is_discarded()) {
+        // Retrieve the PlayerWork structure from the parsed Json
         System::String::Object* jsonString = System::String::Create(saveFile["playerWork"].dump().c_str());
 
-        Logger::log("[SaveSystem$$Load] Converting to PlayerWork...\n");
         System::RuntimeTypeHandle::Object handle{};
         handle.fields.value = &PlayerWork::getClass()->_1.byval_arg;
         auto tempPlayerWork = reinterpret_cast<PlayerWork::Object*>(UnityEngine::JsonUtility::FromJson(jsonString, System::Type::GetTypeFromHandle(handle)));
 
         // Copy the saveData of our temporary converted PlayerWork into the real PlayerWork
-        memcpy(&playerWork->fields._saveData.fields, &tempPlayerWork->fields._saveData.fields, 0x7b8);
+        memcpy(&playerWork->fields._saveData.fields, &tempPlayerWork->fields._saveData.fields, sizeof(PlayerWork::SaveData::Fields));
 
         Logger::log("[SaveSystem$$Load] JSON save data loaded.\n");
         return true;
@@ -44,8 +45,6 @@ bool SaveSystem_Load(bool fromBackup, PlayerWork::Object* playerWork) {
     else {
         return false;
     }
-
-    // TODO: Return false if the file doesn't exist or this failed somehow?
 }
 
 bool VerifySaveData() {
@@ -64,8 +63,6 @@ void FailedLoad() {
 
 void LoadCustomSaveData(bool isBackup) {
     loadMain(isBackup);
-
-    Logger::log("CustomSaveData Loaded.\n");
 }
 
 nn::json WriteCustomSaveData() {
@@ -79,7 +76,7 @@ nn::json WriteCustomSaveData() {
     return {{"lumi", lumiObject}};
 }
 
-HOOK_DEFINE_TRAMPOLINE(PlayerWork$$CustomLoadOperation) {
+HOOK_DEFINE_REPLACE(PlayerWork$$CustomLoadOperation) {
     static bool Callback(PlayerWork::Object* playerWork) {
         system_load_typeinfo(0x6a91);
         system_load_typeinfo(0x6ad4);
@@ -118,18 +115,25 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveOperation) {
     }
 };
 
+HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveAsyncOperation) {
+    static bool Callback(PlayerWork::Object* playerWork) {
+        system_load_typeinfo(0x6a92);
+        playerWork->OnPreSave();
+        Dpr::NX::SaveSystem::SaveAsync(nullptr, playerWork->fields._isMainSave, playerWork->fields._isBackupSave);
+
+        playerWork->fields._isMainSave = true;
+        playerWork->fields._isBackupSave = false;
+        return true;
+    }
+};
+
 HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
     static bool Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
         system_load_typeinfo(0x757e);
         Dpr::NX::SaveSystem::getClass()->initIfNeeded();
-
-        Logger::log("[SaveSystem$$Save] Mounting Save Data...\n");
         Dpr::NX::SaveSystem::getClass()->static_fields->_Instance->MountSaveData();
-
-        Logger::log("[SaveSystem$$Save] Get PlayerWork instance...\n");
         auto playerWork = PlayerWork::get_instance();
 
-        Logger::log("[SaveSystem$$Save] Convert to JSON...\n");
         System::String::Object* jsonData = UnityEngine::JsonUtility::ToJson(reinterpret_cast<Il2CppObject*>(playerWork), false);
 
         // Isolate the PlayerWork section into a key to easily retrieve it.
@@ -140,23 +144,39 @@ HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
 
         if (writeMain) {
             auto result = FsHelper::writeFileToPath(writeString.data(), writeString.size(), CustomSaveData::mainSaveName);
-            if (!result.isSuccess())
-            {
-                Logger::log("[SaveSystem$$Save] The save was unsuccessful!\n");
+            if (!result.isSuccess()) {
+                Logger::log("[SaveSystem$$Save] Failed to save!\n");
                 return false;
             }
         }
 
         if (writeBackup) {
             auto result = FsHelper::writeFileToPath(writeString.data(), writeString.size(), CustomSaveData::backupSaveName);
-            if (!result.isSuccess())
-            {
-                Logger::log("[SaveSystem$$Save] The save was unsuccessful!\n");
+            if (!result.isSuccess()) {
+                Logger::log("[SaveSystem$$Save] Failed to save!\n");
                 return false;
             }
         }
 
         return FsHelper::Commit(CustomSaveData::saveMountName).isSuccess();
+    }
+};
+
+HOOK_DEFINE_REPLACE(SaveSystem$$SaveAsync) {
+    static void Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
+        system_load_typeinfo(0x757c);
+        Dpr::NX::SaveSystem::getClass()->initIfNeeded();
+
+        auto saveSystem = Dpr::NX::SaveSystem::getClass()->static_fields->_Instance;
+
+        if (!saveSystem->fields._isBusy) {
+            saveSystem->fields._isBusy = true;
+            UnityEngine::Switch::Notification::EnterExitRequestHandlingSection();
+            saveSystem->fields._writeMain = writeMain;
+            saveSystem->fields._writeBackup = writeBackup;
+            saveSystem->fields._saveRequest = true;
+            saveSystem->StartThread();
+        }
     }
 };
 
@@ -172,7 +192,9 @@ void exl_save_main() {
 
     // Saving
     PlayerWork$$CustomSaveOperation::InstallAtOffset(0x02cebf00);
+    PlayerWork$$CustomSaveAsyncOperation::InstallAtOffset(0x02cec400);
     SaveSystem$$Save::InstallAtOffset(0x01ddf3e0);
+    SaveSystem$$SaveAsync::InstallAtOffset(0x01ddf680);
 
     // Verifying
     PlayerWork$$VerifySaveData::InstallAtOffset(0x02ceba00);

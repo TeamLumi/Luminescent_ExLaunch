@@ -40,5 +40,5 @@ void migrate(PlayerWork::Object* playerWork)
         nn::err::ShowApplicationError(err);*/
     }
 
-    Logger::log("Custom save data loaded.\n");
+    Logger::log("CustomSaveData Loaded.\n");
 }
