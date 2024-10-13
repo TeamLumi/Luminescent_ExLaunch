@@ -31,5 +31,3 @@ bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t m
 // Returns the string from the provided argument if its type is string.
 // Returns "" otherwise.
 System::String::Object* GetStringText(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg);
-
-System::String::Object* GetAYouName();

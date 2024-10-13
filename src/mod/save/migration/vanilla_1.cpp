@@ -22,6 +22,9 @@ void migrateFromVanilla(PlayerWork::Object* playerWork) {
     save->trainers.Initialize();
     save->items.Initialize();
 
+    // Initialize Custom Data
+    save->ayou.Initialize();
+
     // Copy over vanilla data from PlayerWork into the custom save
 
     savedata.boxData.fields.trayName->copyInto(save->boxes.boxNames);

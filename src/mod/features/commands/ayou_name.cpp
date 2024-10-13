@@ -7,8 +7,7 @@
 #include "memory/json.h"
 #include "helpers/fsHelper.h"
 #include "externals/Dpr/UI/SoftwareKeyboard.h"
-
-const nn::string filePath = "SaveData:/AYou.bin";
+#include "save/save.h"
 
 void OnComplete(Dpr::EvScript::EvDataManager::DisplayClass773_0::Object* __this, bool isSuccess,
                 System::String::Object* resultText) {
@@ -21,14 +20,7 @@ void OnComplete(Dpr::EvScript::EvDataManager::DisplayClass773_0::Object* __this,
         return;
     }
 
-    nn::json wholeJson = {
-            {"AYou", {
-                    {"codeName", resultText->asCString()}
-            }}
-    };
-
-    nn::string writeString = wholeJson.dump(4);
-    FsHelper::writeFileToPath((void*) writeString.data(), writeString.size(), filePath.c_str());
+    getCustomSaveData()->ayou.name = resultText->asCString();
 }
 
 bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager) {
@@ -53,7 +45,6 @@ bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager) {
     MethodInfo* onCompleteMI = (*Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdNameInPoke_OnComplete)->copyWith((Il2CppMethodPointer)&OnComplete);
     UnityEngine::Events::UnityAction::Object* onComplete = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass773, onCompleteMI);
 
-    Logger::log("[SetAYouName] Opening Keyboard\n");
     Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onComplete);
 
     return true;
@@ -70,7 +61,8 @@ bool AYouName(Dpr::EvScript::EvDataManager::Object* manager) {
         auto tagIndex = GetWorkOrIntValue(args->m_Items[1]);
 
         Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
-        Dpr::Message::MessageWordSetHelper::SetStringWord(tagIndex, GetAYouName());
+        Dpr::Message::MessageWordSetHelper::SetStringWord(tagIndex, System::String::Create(
+                getCustomSaveData()->ayou.name));
 
     }
 

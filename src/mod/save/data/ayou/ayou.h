@@ -6,27 +6,23 @@
 #include "memory/json.h"
 
 struct AYouSaveData {
-    System::String::Object* name;
-    bool isNamed;
+    nn::string name;
 
     void Initialize() {
-        name = System::String::Create("???");
-        isNamed = false;
+        name = "???";
     }
 
     [[nodiscard]] nn::json ToJson() const {
         return {
                 {"ayou", {
-                        {"name", name->asCString()},
-                        {"isNamed", isNamed}
+                        {"name", name}
                 }}
         };
     }
 
     void FromJson(const nn::json& ayou) {
         Initialize();
-        name = System::String::Create(ayou["name"].get<nn::string>());
-        isNamed = ayou["isNamed"].get<bool>();
+        name = ayou["name"].get<nn::string>();
     }
 
 };
