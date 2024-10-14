@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "AffixSealData.h"
 
 namespace Dpr::BallDeco {
     struct CapsuleData : ILStruct<CapsuleData> {
@@ -10,7 +11,7 @@ namespace Dpr::BallDeco {
             bool Is3DEditMode;
             bool IsAppliedTemplate;
             uint8_t AffixSealCount;
-            void* AffixSealDatas;
+            Dpr::BallDeco::AffixSealData::Array* AffixSealDatas;
         };
     };
 }
