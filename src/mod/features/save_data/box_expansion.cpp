@@ -2,6 +2,9 @@
 #include "save/save.h"
 #include "logger/logger.h"
 #include "externals/Dpr/UI/BoxListPanel.h"
+#include "externals/Dpr/UI/BoxTray.h"
+
+static constexpr int32_t WALLPAPER_COUNT = 32;
 
 /* Hooks */
 HOOK_DEFINE_REPLACE(GetOpenTrayMax) {
@@ -28,6 +31,13 @@ HOOK_DEFINE_TRAMPOLINE(BoxListPanel$$ctor) {
         __this->fields._boxItemScales->m_Items[4] = 0.5f;
     }
 };
+
+HOOK_DEFINE_REPLACE(PokeDupeChecker$$UpdateIllegalFlagAll) {
+    static void Callback() {
+        // C e a s e
+    }
+};
+
 
 /* Assembly Patches */
 using namespace exl::armv8::inst;
@@ -93,6 +103,21 @@ void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
     p.WriteInst(inst);
 }
 
+void PlayerWork_ASM(exl::patch::CodePatcher p) {
+    auto inst = nn::vector<exl::patch::Instruction> {
+            {0x02ceb170, Movz(X1, BoxCount)}, // $$Initialization
+
+    };
+    p.WriteInst(inst);
+}
+
+HOOK_DEFINE_INLINE(SaveBoxData$$Clear) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        ctx->W[11] = (static_cast<int32_t>(ctx->X[9]) % WALLPAPER_COUNT) + 1;
+    }
+};
+
+
 void exl_save_box_expansion_main() {
     exl::patch::CodePatcher p(0);
 
@@ -101,10 +126,13 @@ void exl_save_box_expansion_main() {
     Dpr_Box_BoxWork_ASM(p);
     Dpr_Box_SaveBoxData_ASM(p);
     Dpr_UI_BoxListPanel_ASM(p);
+    PlayerWork_ASM(p);
 
     /* Install Hooks */
     UpdateTrayMax::InstallAtOffset(0x01d317f0);
     GetOpenTrayMax::InstallAtOffset(0x01d30190);
     GetTrayMax::InstallAtOffset(0x01d30610);
     BoxListPanel$$ctor::InstallAtOffset(0x01ab0630);
+    PokeDupeChecker$$UpdateIllegalFlagAll::InstallAtOffset(0x01996900);
+    SaveBoxData$$Clear::InstallAtOffset(0x01d343d4);
 }

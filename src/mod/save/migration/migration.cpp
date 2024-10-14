@@ -42,3 +42,29 @@ void migrate(PlayerWork::Object* playerWork)
 
     Logger::log("CustomSaveData Loaded.\n");
 }
+
+/* Assembly Patches */
+using namespace exl::armv8::inst;
+using namespace exl::armv8::reg;
+
+void PlayerWork_Initialization_ASM(exl::patch::CodePatcher p) {
+    auto inst = nn::vector<exl::patch::Instruction> {
+            {0x02ceb054, Movz(X1, WorkCount)},
+            {0x02ceb078, Movz(X1, FlagCount)},
+            {0x02ceb094, Movz(X1, SysFlagCount)},
+            {0x02ceb0ec, Movz(X1, SaveItemCount)},
+            // Box Expansion in box_expansion.cpp
+            // Dex Expansion in dex_expansion.cpp
+            {0x02ceb224, Movz(X1, TrainerCount)},
+            {0x02ceb2b8, Movz(X1, BerryCount)},
+    };
+    p.WriteInst(inst);
+}
+
+
+void exl_migration_main() {
+    exl::patch::CodePatcher p(0);
+
+    /* Write Assembly Patches */
+    PlayerWork_Initialization_ASM(p);
+}
