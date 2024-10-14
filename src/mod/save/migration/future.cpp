@@ -5,10 +5,10 @@
 #include "logger/logger.h"
 
 void migrateToFuture(PlayerWork::Object* playerWork) {
-    Logger::log("Migrating from Storage to Future...\n");
+    Logger::log("Migrating from Re:Lease to Future...\n");
     CustomSaveData* save = getCustomSaveData();
 
     // Insert new migration code here
 
-    Logger::log("Migration from Storage to Future done!\n");
+    Logger::log("Migration from Re:Lease to Future done!\n");
 }

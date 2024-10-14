@@ -1,3 +1,5 @@
+#pragma once
+
 #include "externals/PlayerWork.h"
 
 // Main function to migrate the save file.
