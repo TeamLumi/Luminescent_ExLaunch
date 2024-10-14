@@ -13,7 +13,7 @@ void migrate(PlayerWork::Object* playerWork)
 
         switch (getCustomSaveData()->main.version) {
             case ModVersion::Vanilla: {
-                migrateFromVanilla(playerWork);
+                InitializeExpansion(playerWork);
 
                 getCustomSaveData()->main.version = ModVersion::Release_3_0;
                 break;

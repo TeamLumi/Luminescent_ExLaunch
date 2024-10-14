@@ -4,7 +4,7 @@
 
 #include "logger/logger.h"
 
-void migrateFromVanilla(PlayerWork::Object* playerWork) {
+void InitializeExpansion(PlayerWork::Object* playerWork) {
     Logger::log("Migrating from Vanilla...\n");
     CustomSaveData* save = getCustomSaveData();
 

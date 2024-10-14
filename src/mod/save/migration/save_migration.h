@@ -4,4 +4,4 @@
 void migrate(PlayerWork::Object* playerWork);
 
 // Migrates from Vanilla to Release 3.0.
-void migrateFromVanilla(PlayerWork::Object* playerWork);
+void InitializeExpansion(PlayerWork::Object* playerWork);
