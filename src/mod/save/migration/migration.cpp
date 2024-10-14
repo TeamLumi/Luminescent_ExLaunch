@@ -13,14 +13,22 @@ void migrate(PlayerWork::Object* playerWork)
 
         switch (getCustomSaveData()->main.version) {
             case ModVersion::Vanilla: {
-                InitializeExpansion(playerWork);
+                migrateToReLease(playerWork);
 
-                getCustomSaveData()->main.version = ModVersion::Release_3_0;
+                getCustomSaveData()->main.version = ModVersion::Re_Lease;
                 break;
             }
 
-            case ModVersion::Release_3_0: {
-                // New save migration code goes here
+            case ModVersion::Re_Lease: {
+                migrateToFuture(playerWork);
+
+                getCustomSaveData()->main.version = ModVersion::Future;
+                break;
+            }
+
+            case ModVersion::Future: {
+                // Insert currently WIP migration code here before moving it to the new version (once it's ready to release)
+                // This code will migrate to the "Dev" version
 
                 getCustomSaveData()->main.version = ModVersion::Dev;
                 break;
@@ -36,8 +44,8 @@ void migrate(PlayerWork::Object* playerWork)
     }
 
     if (changed) {
-        /*nn::err::ApplicationErrorArg err(0, "A mod update has been detected. Press Details to view the changelog.", CHANGELOG, nn::settings::LanguageCode::Make(nn::settings::Language::Language_English));
-        nn::err::ShowApplicationError(err);*/
+        nn::err::ApplicationErrorArg err(0, "A mod update has been detected. Press Details to view the changelog.", CHANGELOG, nn::settings::LanguageCode::Make(nn::settings::Language::Language_English));
+        nn::err::ShowApplicationError(err);
     }
 
     Logger::log("CustomSaveData Loaded.\n");
@@ -60,7 +68,6 @@ void PlayerWork_Initialization_ASM(exl::patch::CodePatcher p) {
     };
     p.WriteInst(inst);
 }
-
 
 void exl_migration_main() {
     exl::patch::CodePatcher p(0);

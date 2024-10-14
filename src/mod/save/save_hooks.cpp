@@ -187,6 +187,8 @@ HOOK_DEFINE_REPLACE(PlayerWork$$VerifySaveData) {
 };
 
 void exl_save_main() {
+    exl_migration_main();
+
     // Loading
     PlayerWork$$CustomLoadOperation::InstallAtOffset(0x02ceb850);
 

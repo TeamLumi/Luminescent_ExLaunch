@@ -4,8 +4,8 @@
 
 #include "logger/logger.h"
 
-void InitializeExpansion(PlayerWork::Object* playerWork) {
-    Logger::log("Migrating from Vanilla...\n");
+void migrateToReLease(PlayerWork::Object* playerWork) {
+    Logger::log("Migrating from Vanilla to Re:Lease...\n");
     CustomSaveData* save = getCustomSaveData();
 
     auto& myStatus = playerWork->fields._saveData.fields.playerData.fields.mystatus.fields;
@@ -33,7 +33,7 @@ void InitializeExpansion(PlayerWork::Object* playerWork) {
     save->playerColorVariation.bHair =      { .fields = { set.battleHair.r, set.battleHair.g, set.battleHair.b, set.battleHair.a } };
 
     // Set amount of boxes unlocked to 80
-    playerWork->fields._saveData.fields.boxData.fields.trayMax = BoxCount;
+    playerWork->fields._saveData.fields.boxData.fields.trayMax = Re_Lease_BoxCount;
 
-    Logger::log("Migration from Vanilla done!\n");
+    Logger::log("Migration from Vanilla to Re:Lease done!\n");
 }

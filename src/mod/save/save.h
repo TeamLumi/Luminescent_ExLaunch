@@ -28,8 +28,8 @@ CustomSaveData* getCustomSaveData();
 void exl_save_main();
 void exl_migration_main();
 
-#if NDEBUG
-constexpr ModVersion CURRENT_VERSION = ModVersion::Release_3_0;
-#else
+#if DEBUG_BUILD
 constexpr ModVersion CURRENT_VERSION = ModVersion::Dev;
+#else
+constexpr ModVersion CURRENT_VERSION = ModVersion::Re_Lease;
 #endif

@@ -78,7 +78,6 @@ HOOK_DEFINE_TRAMPOLINE(MainInitHook){
 
         // Load activated features
         exl_save_main();
-        exl_migration_main();
         exl_features_main(); // Features JSON is read here
 
         if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Feature Logging")))
