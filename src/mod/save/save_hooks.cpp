@@ -22,11 +22,13 @@ CustomSaveData* getCustomSaveData() {
     return gCustomSaveData;
 }
 
-bool SaveSystem_Load(bool fromBackup, PlayerWork::Object* playerWork) {
+nn::json LoadJSONSave(bool fromBackup) {
     Dpr::NX::SaveSystem::getClass()->static_fields->_Instance->MountSaveData();
-
     Logger::log("Loading JSON save data...\n");
-    nn::json saveFile = FsHelper::loadJsonFileFromPath(fromBackup ? CustomSaveData::backupSaveName : CustomSaveData::mainSaveName);
+    return FsHelper::loadJsonFileFromPath(fromBackup ? CustomSaveData::backupSaveName : CustomSaveData::mainSaveName);
+}
+
+bool SaveSystem_Load(PlayerWork::Object* playerWork, nn::json saveFile) {
     if (saveFile != nullptr && !saveFile.is_discarded()) {
         // Retrieve the PlayerWork structure from the parsed Json
         System::String::Object* jsonString = System::String::Create(saveFile["playerWork"].dump().c_str());
@@ -41,7 +43,6 @@ bool SaveSystem_Load(bool fromBackup, PlayerWork::Object* playerWork) {
         Logger::log("[SaveSystem$$Load] JSON save data loaded.\n");
         return true;
     }
-
     else {
         return false;
     }
@@ -61,13 +62,17 @@ void FailedLoad() {
     EXL_ABORT(0);
 }
 
-void LoadCustomSaveData(bool isBackup) {
-    loadMain(isBackup);
+void LoadCustomSaveData(nn::json& saveFile) {
+    loadMainFromJson(saveFile);
+    loadPlayerColorVariationFromJson(saveFile);
 }
 
 nn::json WriteCustomSaveData() {
     nn::json lumiObject = nn::json::object();
-    nn::vector<nn::json> saveFunctions = {saveMain()};
+    nn::vector<nn::json> saveFunctions = {
+        getMainAsJson(),
+        getPlayerColorVariationAsJson(),
+    };
 
     for (const auto& jsonStructure : saveFunctions) {
         lumiObject.update(jsonStructure);
@@ -85,18 +90,26 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomLoadOperation) {
         // Initialize version as "Vanilla" prior to loading.
         getCustomSaveData()->main.Initialize();
 
-        bool loadResult = SaveSystem_Load(playerWork->fields._isBackupSave, playerWork);
+        auto saveFile = LoadJSONSave(playerWork->fields._isBackupSave);
+        bool loadResult = SaveSystem_Load(playerWork, saveFile);
 
         if (!loadResult) {
-            auto res = Dpr::NX::SaveSystem::SaveDataExists() ? PlayerWork::LoadResult::FAILED : PlayerWork::LoadResult::NOT_EXIST;
-            playerWork->fields._loadResult = res;
-            if (res == PlayerWork::LoadResult::FAILED) FailedLoad(); // EXL_ABORT
+            if (Dpr::NX::SaveSystem::SaveDataExists()) {
+                playerWork->fields._loadResult = PlayerWork::LoadResult::FAILED;
+                FailedLoad(); // EXL_ABORT
+            }
+            else {
+                playerWork->fields._loadResult = PlayerWork::LoadResult::NOT_EXIST;
+                Logger::log("No save exists.\n");
+            }
         }
-        else if (!VerifySaveData())
+        else if (!VerifySaveData()) {
             playerWork->fields._loadResult = PlayerWork::LoadResult::CORRUPTED;
+            FailedLoad(); // EXL_ABORT
+        }
         else {
             playerWork->fields._loadResult = PlayerWork::LoadResult::SUCCESS;
-            LoadCustomSaveData(playerWork->fields._isBackupSave);
+            LoadCustomSaveData(saveFile);
         }
 
         migrate(playerWork);

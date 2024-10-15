@@ -36,8 +36,7 @@ struct MainSaveData {
         Initialize();
         version = static_cast<ModVersion>(main["version"].get<int32_t>());
     }
-
 };
 
-void loadMain(bool isBackup);
-nn::json saveMain();
+void loadMainFromJson(const nn::json& saveFile);
+nn::json getMainAsJson();
