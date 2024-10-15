@@ -3,10 +3,12 @@
 #include "externals/PlayerWork.h"
 
 #include "save/data/color_variation/color_variation.h"
+#include "save/data/dex_form/dex_form.h"
 #include "save/data/main/main.h"
 
 #include "logger/logger.h"
 
+// Current sizes
 constexpr int32_t DexSize = 1025;
 constexpr int32_t WorkCount = 5000;
 constexpr int32_t FlagCount = 15000;
@@ -22,6 +24,7 @@ struct CustomSaveData {
     static constexpr const char* saveMountName = "SaveData";
     MainSaveData main;
     ColorVariationSaveData playerColorVariation;
+    DexFormSaveData<DexSize> dexForms;
 };
 
 CustomSaveData* getCustomSaveData();
