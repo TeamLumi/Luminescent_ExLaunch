@@ -63,16 +63,22 @@ void FailedLoad() {
 }
 
 void LoadCustomSaveData(nn::json& saveFile) {
+    Logger::log("[LoadCustomSaveData] Loading custom data...\n");
     loadMainFromJson(saveFile);
     loadPlayerColorVariationFromJson(saveFile);
+    loadDexFormsFromJson(saveFile);
+    Logger::log("[LoadCustomSaveData] Custom data loaded successfully.\n");
 }
 
 nn::json WriteCustomSaveData() {
+    Logger::log("[WriteCustomSaveData] Converting custom data...\n");
     nn::json lumiObject = nn::json::object();
     nn::vector<nn::json> saveFunctions = {
         getMainAsJson(),
         getPlayerColorVariationAsJson(),
+        getDexFormsAsJson(),
     };
+    Logger::log("[WriteCustomSaveData] Custom data converted successfully.\n");
 
     for (const auto& jsonStructure : saveFunctions) {
         lumiObject.update(jsonStructure);

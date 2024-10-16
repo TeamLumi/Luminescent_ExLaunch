@@ -339,4 +339,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     static inline PlayerWork::Object* get_instance() {
         return SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::get_instance(Method$PlayerWork_get_instance);
     }
+
+    static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
+        external<void>(0x02cf0fd0, value);
+    }
 };

@@ -57,6 +57,9 @@ void exl_commands_main();
 // Adds support for contest NPCs to have alternate forms of Pokémon.
 void exl_contest_npc_forms_main();
 
+// Adds support for form flags for every species in the Pokédex.
+void exl_dex_form_flags_main();
+
 // Rewrites the methods that deal with determining a zone's encounter slots.
 // Defaults to changing slots how Luminescent does it.
 void exl_encounter_slots_main();
