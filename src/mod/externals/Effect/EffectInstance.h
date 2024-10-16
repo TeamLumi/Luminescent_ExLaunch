@@ -23,7 +23,7 @@ namespace Effect {
         };
 
         inline void Stop(float fadeTime, bool isForce) {
-            return external<void>(0x01efe7b0, this, fadeTime, isForce);
+            external<void>(0x01efe7b0, this, fadeTime, isForce);
         }
     };
 }

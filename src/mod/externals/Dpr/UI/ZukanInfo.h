@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/UI/IndexSelector.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/String.h"
 
 namespace Dpr::UI {
@@ -31,5 +32,9 @@ namespace Dpr::UI {
             int32_t formIndex;
             Dpr::UI::IndexSelector::Object *modelIndexSelector;
         };
+
+        inline Pml::PokePara::PokemonParam::Object* GetCurrentPokemonParam() {
+            return external<Pml::PokePara::PokemonParam::Object*>(0x01bb04e0, this);
+        }
     };
 }

@@ -11,23 +11,16 @@ namespace System {
     typedef int32_t Int32;
     typedef uint32_t UInt32;
     typedef int64_t Int64;
+    typedef uint64_t UInt64;
     typedef float Single;
 
-    PRIMITIVE_ARRAY(Boolean);
-    static Il2CppClass* Boolean_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c55920));
-    }
-    PRIMITIVE_ARRAY(Byte);
-    static Il2CppClass* Byte_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c552e0));
-    }
-    PRIMITIVE_ARRAY(Char);
-    PRIMITIVE_ARRAY(UInt16);
-    PRIMITIVE_ARRAY(Int32);
-    static Il2CppClass* Int32_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c553e0));
-    }
-    PRIMITIVE_ARRAY(UInt32);
-    PRIMITIVE_ARRAY(Int64);
-    PRIMITIVE_ARRAY(Single);
+    PRIMITIVE_ARRAY(Boolean, 0x04c55920)
+    PRIMITIVE_ARRAY(Byte, 0x04c552e0)
+    PRIMITIVE_ARRAY(Char, 0x04c55340)
+    PRIMITIVE_ARRAY(UInt16, 0x04c559e8)
+    PRIMITIVE_ARRAY(Int32, 0x04c553e0)
+    PRIMITIVE_ARRAY(UInt32, 0x04c558c8)
+    PRIMITIVE_ARRAY(Int64, 0x04c56388)
+    PRIMITIVE_ARRAY(UInt64, 0x04c563a0)
+    PRIMITIVE_ARRAY(Single, 0x04c56398)
 }

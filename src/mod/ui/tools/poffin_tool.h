@@ -67,7 +67,7 @@ namespace ui {
                         DPData::PoffinSaveData::Object poffinSaveData = PlayerWork::get_poffinSaveData();
                         DPData::PoffinData::Object newPoffin = {};
 
-                        auto flavors = (System::Byte_array*) system_array_new(System::Byte_array_TypeInfo(), 5);
+                        auto flavors = System::Byte_array::newArray(5);
                         flavors->m_Items[0] = (uint8_t)spicyValue->value;
                         flavors->m_Items[1] = (uint8_t)dryValue->value;
                         flavors->m_Items[2] = (uint8_t)sweetValue->value;

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "externals/DPData/TV_STR_DATA.h"
+
 namespace DPData {
     struct TV_RECORD : ILStruct<TV_RECORD> {
         struct Fields {
-            void* int_data;
-            void* str_data;
+            System::Int32_array* int_data;
+            DPData::TV_STR_DATA::Array* str_data;
         };
     };
 }

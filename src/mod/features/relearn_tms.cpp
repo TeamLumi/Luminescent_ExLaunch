@@ -10,7 +10,7 @@
 #include "logger/logger.h"
 
 HOOK_DEFINE_TRAMPOLINE(CollectRemindableWaza) {
-    static System::Collections::Generic::HashSet$$Pml_WazaNo::Object * Callback(Pml::PokePara::CoreParam::Object *__this) {
+    static System::Collections::Generic::HashSet$$WazaNo::Object * Callback(Pml::PokePara::CoreParam::Object *__this) {
         Logger::log("CollectRemindableWaza\n");
         system_load_typeinfo(0x3199);
         

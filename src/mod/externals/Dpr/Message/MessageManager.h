@@ -18,7 +18,7 @@ namespace Dpr::Message {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$MessageManager$$get_Instance);
         }
 
-        inline System::String::Object * GetSimpleMessage(System::String::Object *fileName,System::String::Object *label) {
+        inline System::String::Object* GetSimpleMessage(System::String::Object* fileName, System::String::Object* label) {
             return external<System::String::Object *>(0x0210d000, this, fileName, label);
         }
 
@@ -28,6 +28,10 @@ namespace Dpr::Message {
 
         inline int32_t get_UserLanguageID() {
             return external<int32_t>(0x0210a0a0, this);
+        }
+
+        inline System::String::Object* GetNameMessage(System::String::Object* fileName, System::String::Object* label) {
+            return external<System::String::Object*>(0x0210ce50, this, fileName, label);
         }
     };
 }

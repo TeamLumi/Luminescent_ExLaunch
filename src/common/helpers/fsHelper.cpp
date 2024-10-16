@@ -39,6 +39,10 @@ namespace FsHelper {
         return 0;
     }
 
+    nn::Result Commit(const char *path) {
+        return nn::fs::Commit(path);
+    }
+
     // make sure to free buffer after usage is done
     void loadFileFromPath(LoadData &loadData) {
         nn::fs::FileHandle handle {};
@@ -92,13 +96,34 @@ namespace FsHelper {
             FsHelper::loadFileFromPath(data);
 
             nn::string strBuffer((char*)data.buffer, data.bufSize);
-            nn::json j = nn::json::parse(strBuffer);
+            nn::json j = nn::json::parse(strBuffer, nullptr, false);
 
             return j;
         }
         else
         {
             return nullptr;
+        }
+    }
+
+    nn::string loadJsonSaveFromPath(const char *path) {
+        if (FsHelper::isFileExist(path))
+        {
+            long size = FsHelper::getFileSize(path);
+            FsHelper::LoadData data {
+                    .path = path,
+                    .alignment = 1,
+                    .bufSize = size,
+            };
+            FsHelper::loadFileFromPath(data);
+
+            nn::string strBuffer((char*)data.buffer, data.bufSize);
+
+            return strBuffer;
+        }
+        else
+        {
+            return "";
         }
     }
 }

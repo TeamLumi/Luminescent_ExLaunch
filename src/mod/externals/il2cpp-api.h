@@ -34,13 +34,27 @@ struct _ILExternal {
     }
 };
 
-template <typename T>
+template <typename T, long ArrayTypeInfo = 0>
 struct ILStruct : _ILExternal  {
 public:
     struct Fields { };
 
     struct Object : T {
         T::Fields fields;
+    };
+
+    struct ArrayClass : Il2CppClass {
+        inline void initIfNeeded() {
+            if ((_2.bitflags2 >> 1 & 1) && (_2.cctor_finished == 0)) {
+                il2cpp_runtime_class_init((Il2CppClass*)this);
+            }
+        }
+
+        T::Array* newArray(long length) {
+            auto array = reinterpret_cast<T::Array*>(system_array_new((Il2CppClass*)this, length));
+            system_array_init(array, nullptr);
+            return array;
+        }
     };
 
     struct Array {
@@ -94,6 +108,17 @@ public:
             return iterator(&this->m_Items[this->max_length]);
         }
     };
+
+    static Array* newArray(long length) {
+        auto klass = getArrayClass();
+        klass->initIfNeeded();
+        return klass->newArray(length);
+    }
+
+    static ArrayClass* getArrayClass() {
+        static_assert(ArrayTypeInfo != 0, "ArrayTypeInfo address not set");
+        return *reinterpret_cast<T::ArrayClass**>(exl::util::modules::GetTargetOffset(ArrayTypeInfo));
+    }
 };
 
 template <typename T, long TypeInfo = 0, long ArrayTypeInfo = 0>
@@ -246,23 +271,33 @@ public:
     }
 };
 
-#define PRIMITIVE_ARRAY(name)                               \
-struct name##_array {                                       \
-    Il2CppObject obj;                                       \
-    Il2CppArrayBounds* bounds;                              \
-    uint64_t max_length;                                    \
-    name m_Items[65535];                                    \
-    inline void copyInto(name* dst) {                       \
-        for (uint64_t i = 0; i < max_length; i++) {         \
-            dst[i] = m_Items[i];                            \
-        }                                                   \
-    }                                                       \
-    inline void fillWith(name value) {                      \
-        for (uint64_t i = 0; i < max_length; i++) {         \
-            m_Items[i] = value;                             \
-        }                                                   \
-    }                                                       \
+#define PRIMITIVE_ARRAY(name, typeInfo)                                                             \
+struct name##_array {                                                                               \
+    Il2CppObject obj;                                                                               \
+    Il2CppArrayBounds* bounds;                                                                      \
+    uint64_t max_length;                                                                            \
+    name m_Items[65535];                                                                            \
+    inline void copyInto(name* dst) {                                                               \
+        for (uint64_t i = 0; i < max_length; i++) {                                                 \
+            dst[i] = m_Items[i];                                                                    \
+        }                                                                                           \
+    }                                                                                               \
+    inline void fillWith(name value) {                                                              \
+        for (uint64_t i = 0; i < max_length; i++) {                                                 \
+            m_Items[i] = value;                                                                     \
+        }                                                                                           \
+    }                                                                                               \
+    inline static Il2CppClass* getClass() {                                                         \
+        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(typeInfo));     \
+    }                                                                                               \
+    inline static name##_array* newArray(long length) {                                             \
+        auto array = reinterpret_cast<name##_array*>(system_array_new(getClass(), length));         \
+        system_array_init(array, nullptr);                                                          \
+        return array;                                                                               \
+    }                                                                                               \
 };
+
+
 
 template <typename... Args>
 struct ILMethod {

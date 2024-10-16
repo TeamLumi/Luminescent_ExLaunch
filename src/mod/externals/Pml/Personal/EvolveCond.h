@@ -65,5 +65,6 @@ namespace Pml::Personal {
         RND_99_OF_100_MOVE = 56,
         TOTAL_DAMAGE_RECIEVED_MALE = 57,
         TOTAL_DAMAGE_RECIEVED_FEMALE = 58,
+        VARIANT_TO_FORM = 59,
     };
 }

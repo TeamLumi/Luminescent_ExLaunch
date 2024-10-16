@@ -1,10 +1,13 @@
 #pragma once
 
 namespace DPData {
-    typedef int32_t GET_STATUS;
+    enum class GET_STATUS : int32_t
+    {
+        NONE = 0,
+        UWASA = 1,
+        SEE = 2,
+        GET = 3,
+    };
 
-    PRIMITIVE_ARRAY(GET_STATUS);
-    static Il2CppClass* GET_STATUS_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c5a5a8));
-    }
+    PRIMITIVE_ARRAY(GET_STATUS, 0x04c5a5a8)
 }
