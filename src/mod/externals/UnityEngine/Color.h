@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "externals/il2cpp-api.h"
+#include "memory/json.h"
 
 namespace UnityEngine {
     struct Color : ILStruct<Color> {
@@ -68,6 +69,29 @@ namespace UnityEngine {
                 newFields.g = 0+m;
                 newFields.b = x+m;
             }
+
+            return *(Color::Object*)&newFields;
+        }
+
+        [[nodiscard]] nn::json ToJson() const {
+            auto fields = *(Color::Fields*)this;
+
+            return {
+                {"r", fields.r},
+                {"g", fields.g},
+                {"b", fields.b},
+                {"a", fields.a},
+            };
+        }
+
+        static Color::Object FromJson(const nn::json& color) {
+            Color::Fields newFields = {};
+            newFields = {
+                .r = color["r"].get<float>(),
+                .g = color["g"].get<float>(),
+                .b = color["b"].get<float>(),
+                .a = color["a"].get<float>()
+            };
 
             return *(Color::Object*)&newFields;
         }

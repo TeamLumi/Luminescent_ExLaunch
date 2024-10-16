@@ -8,8 +8,13 @@ namespace nn::fs {
         Mount SD card. Must have explicit permission.
         mount: drive to mount to.
     */
-    Result MountSdCardForDebug(char const* mount);
+    Result MountSdCardForDebug(const char* mount);
 
-    void QueryMountRomCacheSize(uint64_t* out);
-    void MountRom(char const* mount, void* cache, uint64_t cache_size);
+    Result QueryMountRomCacheSize(size_t* out);
+
+    Result MountRom(const char* mount, void* cache, size_t cache_size);
+
+    void Unmount(const char* mount);
+
+    Result Commit(const char* name);
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "externals/ZukanWork.h"
+
 #include "ui/base/collapsing_header.h"
 #include "ui/base/element.h"
 #include "ui/ui.h"
@@ -33,38 +35,39 @@ namespace ui {
                 });
 
                 _.Button([](Button &_) {
+                    _.label = "Give Pokédex";
+                    _.onClick = []() {
+                        FlagWork::SetFlag(FlagWork_Flag::FE_ZUKAN_GET, true);
+                        ZukanWork::ZukanON();
+                        ZukanWork::ZenkokuON();
+                    };
+                });
+
+                _.Button([](Button &_) {
                     _.label = "Set full Pokédex to None";
                     _.onClick = []() {
-                        setDexGetStatusOverride(true);
-                        setFullDex(0);
-                        setDexGetStatusOverride(false);
+                        setFullDex((int32_t)DPData::GET_STATUS::NONE);
                     };
                 });
 
                 _.Button([](Button &_) {
                     _.label = "Set full Pokédex to \"Uwasa\"";
                     _.onClick = []() {
-                        setDexGetStatusOverride(true);
-                        setFullDex(1);
-                        setDexGetStatusOverride(false);
+                        setFullDex((int32_t)DPData::GET_STATUS::UWASA);
                     };
                 });
 
                 _.Button([](Button &_) {
                     _.label = "Set full Pokédex to Seen";
                     _.onClick = []() {
-                        setDexGetStatusOverride(true);
-                        setFullDex(2);
-                        setDexGetStatusOverride(false);
+                        setFullDex((int32_t)DPData::GET_STATUS::SEE);
                     };
                 });
 
                 _.Button([](Button &_) {
                     _.label = "Set full Pokédex to Caught";
                     _.onClick = []() {
-                        setDexGetStatusOverride(true);
-                        setFullDex(3);
-                        setDexGetStatusOverride(false);
+                        setFullDex((int32_t)DPData::GET_STATUS::GET);
                     };
                 });
             });

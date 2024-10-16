@@ -44,6 +44,11 @@ static constexpr const char* FEATURES[] = {
     "Re:Lumi Pokédex UI",
     "Madrid UI",
     "Mega Evolution",
+    "Local Trades Extension",
+    "Spinda Hijacking",
+    "Form Argument Pokémon Icons",
+    "Form Argument Generation",
+    "Pokédex Form Flags",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

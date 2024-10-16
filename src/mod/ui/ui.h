@@ -1,9 +1,11 @@
 #pragma once
 
-#include "externals/UnityEngine/Transform.h"
-
 namespace ui {
     struct Root;
+}
+
+namespace UnityEngine {
+    struct Transform;
 }
 
 ui::Root* getRootElement();
@@ -15,7 +17,6 @@ void ui_inspect(UnityEngine::Transform* transform);
 void setArenaSettings(bool enabled, int id);
 void showAreaName();
 void setFlyOverride(bool enabled);
-void setDexGetStatusOverride(bool enabled);
-void setFullDex(int32_t getStatus);
+void setFullDex(int getStatus);
 
 #define ROOT getRootElement()

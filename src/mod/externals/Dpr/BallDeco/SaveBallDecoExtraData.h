@@ -3,8 +3,8 @@
 namespace Dpr::BallDeco {
     struct SaveBallDecoExtraData : ILStruct<SaveBallDecoExtraData> {
         struct Fields {
-            void* AttachCapsuleTrays;
-            void* AttachCapsulePositions;
+            System::Int32_array* AttachCapsuleTrays;
+            System::Int32_array* AttachCapsulePositions;
         };
     };
 }

@@ -46,12 +46,13 @@ void IndexBoundsCheck(Dpr::UI::SettingMenuItem::Object* __this) {
     int32_t selectIndex = __this->fields._selectIndex;
 
     if (itemType == 3) {
-        if (selectIndex > 1 && selectIndex < 23) {
-            selectIndex = 0;
-        }
-        else if (selectIndex == 23) {
-            selectIndex = 1; // Leaves Challenge Mode unreachable for now
-        }
+//        if (selectIndex > 1 && selectIndex < 23) {
+//            selectIndex = 0;
+//        }
+//        else if (selectIndex == 23) {
+//            selectIndex = 1;
+//        }
+        selectIndex = 0; // Leaves NatDex Mode & Challenge Mode unreachable for now
     }
 
     else if (itemType == 4) {

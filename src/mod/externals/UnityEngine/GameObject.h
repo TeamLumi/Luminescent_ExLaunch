@@ -55,7 +55,7 @@ namespace UnityEngine {
         }
 
         template <typename T>
-        inline T::Array* GetComponentsInChildren(T::Class* type, bool includeInactive) {
+        inline T::Array* GetComponentsInternal(T::Class* type, bool includeInactive) {
             System::RuntimeTypeHandle::Object handle {};
             handle.fields.value = &type->_1.byval_arg;
             return external<typename T::Array*>(0x026b1680, this, System::Type::GetTypeFromHandle(handle), true, true, includeInactive, false, nullptr);

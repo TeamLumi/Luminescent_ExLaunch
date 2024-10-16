@@ -4,9 +4,10 @@
 
 #include "externals/Pml/Sex.h"
 #include "externals/XLSXContent/CharacterDressData.h"
+#include "externals/XLSXContent/LocalKoukanData.h"
+#include "externals/XLSXContent/MonohiroiTable.h"
 #include "externals/XLSXContent/PokemonInfo.h"
 #include "externals/XLSXContent/ShopTable.h"
-#include "externals/XLSXContent/MonohiroiTable.h"
 
 namespace GameData {
     struct DataManager : ILClass<DataManager, 0x04c59d70> {
@@ -34,7 +35,7 @@ namespace GameData {
             void* AdventureNoteDataDict; //System::Collections::Generic::Dictionary$$int$$List_AdventureNoteData_SheetData::Object*
             void* TowerBattlePoint;
             void* TagPlaceData;
-            void* LocalKoukanData;
+            XLSXContent::LocalKoukanData::Object* LocalKoukanData;
             void* ContestCommonData;
             void* TvDataTable;
             void* TvSchedule;
