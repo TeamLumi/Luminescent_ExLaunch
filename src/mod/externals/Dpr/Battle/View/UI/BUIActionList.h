@@ -4,6 +4,7 @@
 #include "externals/Dpr/Battle/View/UI/BattleViewUICanvasBase.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
+#include "externals/Dpr/Battle/View/UI/BUIButtonBase.h"
 
 namespace Dpr::Battle::View::UI {
     struct BUIActionList : ILClass<BUIActionList> {
@@ -32,3 +33,4 @@ namespace Dpr::Battle::View::UI {
         }
     };
 }
+

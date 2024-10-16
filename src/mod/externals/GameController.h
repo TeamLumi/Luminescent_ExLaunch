@@ -80,4 +80,8 @@ struct GameController : ILClass<GameController, 0x04c5a618> {
     static inline bool IsRepeat(GameController_Button button) {
         return getClass()->static_fields->repeat & (int32_t)button;
     }
+
+    static inline int32_t GetAnalogStickButtonIndex(UnityEngine::Vector2::Object analogStick) {
+        return external<int32_t>(0x02ccc470, analogStick);
+    }
 };

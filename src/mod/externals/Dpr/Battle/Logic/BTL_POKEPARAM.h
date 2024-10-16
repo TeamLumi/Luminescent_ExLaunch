@@ -232,5 +232,9 @@ namespace Dpr::Battle::Logic {
         inline static uint8_t PokeIDtoFreeFallCounter(uint8_t pokeID) {
             return external<uint8_t>(0x01fda190, pokeID);
         }
+
+        inline uint8_t GetFormNo() {
+            return external<uint8_t>(0x01fda170, this);
+        }
     };
 }

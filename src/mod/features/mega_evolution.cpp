@@ -32,13 +32,23 @@
 
 const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
 const long mega_flag_mask = 1L << mega_flag_loc;
+
+const int32_t ultra_burst_flag_loc = 30;
+const long ultra_burst_flag_mask = 1L << ultra_burst_flag_loc;
+
 const char* notDoingFilePath = "rom:/Data/ExtraData/NotDoing/RequiredItem.json";
+
+using Dpr::Battle::Logic::PokeActionCategory;
 
 uint8_t get_mega_flag(Dpr::Battle::Logic::BTL_ACTION::PARAM::Object __this) {
     return (*(uint64_t*)&__this.fields.raw >> 34) & 1;
 }
 
-bool IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
+uint8_t get_ultraBurst_flag(Dpr::Battle::Logic::BTL_ACTION::PARAM::Object __this) {
+    return (*(uint64_t*)&__this.fields.raw >> 30) & 1;
+}
+
+PokeActionCategory IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
     nn::string filePath(notDoingFilePath);
     nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
     if (j != nullptr && !j.is_discarded())
@@ -52,7 +62,7 @@ bool IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
             if (lookupKey.at("megaFormItem").is_array()) {
                 for (const auto& item : lookupKey.at("megaFormItem").get<nn::vector<int32_t>>()) {
                     if (pokeParam->GetItem() == item) {
-                        return true;
+                        return PokeActionCategory::Mega_Evolution;
                     }
                 }
             }
@@ -61,7 +71,7 @@ bool IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
                 if (pokeParam->GetItem() == lookupKey.at("megaFormItem").get<int32_t>()) {
                     Logger::log("[IsHoldRequiredItem] %s is holding the required %s.\n",
                                 SPECIES[pokeParam->GetMonsNo()], ITEMS[pokeParam->GetItem()]);
-                    return true;
+                    return PokeActionCategory::Mega_Evolution;
                 }
             }
         }
@@ -70,8 +80,16 @@ bool IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
         else if (lookupKey.contains("megaFormMove")) {
             for (uint8_t i = 0; i < pokeParam->WAZA_GetCount(); i++) {
                 if (pokeParam->WAZA_GetID(i) == lookupKey.at("megaFormMove").get<int32_t>()) {
-                    return true;
+                    return PokeActionCategory::Mega_Evolution;
                 }
+            }
+        }
+
+        else if (lookupKey.contains("ultraBurstItem")) {
+            if (pokeParam->GetItem() == lookupKey.at("ultraBurstItem").get<int32_t>()) {
+                Logger::log("[IsHoldRequiredItem] %s is holding the required %s.\n",
+                            SPECIES[pokeParam->GetMonsNo()], ITEMS[pokeParam->GetItem()]);
+                return PokeActionCategory::Ultra_Burst;
             }
         }
     }
@@ -80,41 +98,92 @@ bool IsHoldRequiredItem(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pokeParam) {
         Logger::log("Error when parsing required item data!\n");
     }
 
+    return PokeActionCategory::Null;
+}
+
+bool CanMegaEvolve(Dpr::Battle::Logic::BTL_POKEPARAM::Object* param) {
+    for (int32_t megaMonsNo : MEGAEVO_MONS) {
+        if (param->GetMonsNo() == megaMonsNo) {
+            return true;
+        }
+    }
     return false;
 }
 
-bool CanShowMegaUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+bool CanUltraBurst(Dpr::Battle::Logic::BTL_POKEPARAM::Object* param) {
+    return param->GetMonsNo() == array_index(SPECIES, "Necrozma") && (param->GetFormNo() == 1 || param->GetFormNo() == 2);
+}
+
+Dpr::Battle::Logic::PokeActionCategory CanShowGimmickUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
 
     auto pokeParam = __this->fields._btlPokeParam;
-
-    //ToDo Consider other side trainer functionality
-    if (FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE)) {
-        Logger::log("[CanShowMegaUI] Unavailable Flag Active.\n");
-        return false;
-    }
-
-    for (int32_t i = 0; i < MEGA_COUNT; i++) {
-        if (pokeParam->GetMonsNo() == MEGAEVO_MONS[i]) {
-            Logger::log("[CanShowMegaUI] %s is an authorised Mega.\n", SPECIES[pokeParam->GetMonsNo()]);
-            break; // Exit the loop if a match is found
-        }
-
-        // If this is the last iteration and no match was found
-        if (i == MEGA_COUNT - 1) {
-            Logger::log("[CanShowMegaUI] %s was not found in the mega list.\n", SPECIES[pokeParam->GetMonsNo()]);
-            return false;
-        }
-    }
-
     PlayerWork::getClass()->initIfNeeded();
-    if (PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count == 0) {
-        Logger::log("[CanShowMegaUI] Player does not have Key Stone.\n");
-        return false;
+
+    PokeActionCategory targetGimmick = IsHoldRequiredItem(pokeParam);
+
+    switch(targetGimmick) {
+        case PokeActionCategory::Mega_Evolution: {
+            return (
+                           !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE) &&
+                           CanMegaEvolve(pokeParam) &&
+                           PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count > 0
+                   ) ? PokeActionCategory::Mega_Evolution : PokeActionCategory::Null;
+        }
+
+        case PokeActionCategory::Ultra_Burst: {
+            return (
+                           !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE) &&
+                           CanUltraBurst(pokeParam) &&
+                           PlayerWork::GetItem(array_index(ITEMS, "Z-Ring")).fields.Count > 0
+                   ) ? PokeActionCategory::Ultra_Burst : PokeActionCategory::Null;
+        }
+
+        default: {
+            return PokeActionCategory::Null;
+        }
+    }
+}
+
+void UltraBurstFormHandler (Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
+    system_load_typeinfo(0x8910);
+    system_load_typeinfo(0x2c99);
+    system_load_typeinfo(0xa963);
+    Dpr::Battle::Logic::Common::getClass()->initIfNeeded();
+    Dpr::Battle::Logic::BTL_POKEPARAM::Object* param = pokeAction->fields.bpp;
+    Logger::log("[UltraBurstFormHandler]\n");
+
+
+    auto sectionMessageDesc = Dpr::Battle::Logic::Section_FromEvent_Message::Description::newInstance();
+
+    if (param->GetMonsNo() == array_index(SPECIES, "Necrozma")) {
+        sectionMessageDesc->fields.pokeID = param->GetID();
+        sectionMessageDesc->fields.message->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::UltraBurstStart);
+        sectionMessageDesc->fields.message->AddArg(pokeAction->fields.clientID);
+        sectionMessageDesc->fields.message->AddArg(param->GetID());
     }
 
-    bool res = IsHoldRequiredItem(pokeParam);
-    Logger::log("[CanShowMegaUI] Returning %s.\n", res ? "True" : "False");
-    return res;
+    auto sectionMessageResult = Dpr::Battle::Logic::Section_FromEvent_Message::Result::newInstance();
+    __this->fields.m_section_FromEvent_Message->Execute(sectionMessageResult, &sectionMessageDesc);
+
+    Dpr::Battle::Logic::Section_FromEvent_FormChange::Description::Object* description =
+            Dpr::Battle::Logic::Section_FromEvent_FormChange::Description::newInstance();
+
+    if (param->GetFormNo() == 1 || param->GetFormNo() == 2) { // Dusk-Mane or Dawn-Wings
+        description->fields.formNo = 3; // Ultra Necrozma
+    }
+
+    description->fields.pokeID = param->GetID();
+    description->fields.successMessage->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::UltraBurst);
+    description->fields.successMessage->AddArg(param->GetID());
+
+    system_load_typeinfo(0x2c56);
+    Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::Object* result =
+            Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::newInstance();
+
+    auto formChange = __this->fields.m_section_FromEvent_FormChange;
+
+    formChange->Execute(result, &description);
+
 }
 
 void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
@@ -203,15 +272,31 @@ HOOK_DEFINE_TRAMPOLINE(CMD_ACT_PokeChangeEffect_WaitCore) {
         }
     }
 };
+
 HOOK_DEFINE_INLINE(OnSubmitWazaButton) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto __this = reinterpret_cast<Dpr::Battle::View::UI::BUIWazaList::Object*>(ctx->X[19]);
         auto destActionParam = __this->fields._destActionParam;
         ctx->X[8] = reinterpret_cast<u64>(destActionParam);
-        auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
-        auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
-        if (megaState->get_activeSelf()) {
-            destActionParam->fields.value.fields.raw |= mega_flag_mask;
+        auto gimmickButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+        auto gimmickState = gimmickButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+        if (gimmickState->get_activeSelf()) {
+            switch(CanShowGimmickUI(__this)) {
+                case PokeActionCategory::Mega_Evolution: {
+                    destActionParam->fields.value.fields.raw |= mega_flag_mask;
+                    break;
+                }
+                case PokeActionCategory::Ultra_Burst: {
+                    destActionParam->fields.value.fields.raw |= ultra_burst_flag_mask;
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+
+
         }
     }
 };
@@ -224,6 +309,13 @@ HOOK_DEFINE_TRAMPOLINE(ProcessActionCore$$action) {
             case Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution: {
                 MegaEvolutionFormHandler(reinterpret_cast<Dpr::Battle::Logic::SectionContainer::Object*>(
                         __this->fields.m_pSectionContainer), pokeAction);
+                FlagWork::SetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE, true);
+                break;
+            }
+
+            case Dpr::Battle::Logic::PokeActionCategory::Ultra_Burst: {
+                UltraBurstFormHandler(reinterpret_cast<Dpr::Battle::Logic::SectionContainer::Object*>(
+                                                 __this->fields.m_pSectionContainer), pokeAction);
                 FlagWork::SetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE, true);
                 break;
             }
@@ -246,7 +338,7 @@ HOOK_DEFINE_TRAMPOLINE(createPokeAction_FromClientInstruction) {
         Dpr::Battle::Logic::BTL_ACTION::PARAM::Object firstInstruction{};
         firstInstruction.fields.raw = Dpr::Battle::Logic::SVCL_ACTION::Get(instructions, clientID, 0)->fields.raw;
 
-        if (!get_mega_flag(firstInstruction)) {
+        if (!get_mega_flag(firstInstruction) && !get_ultraBurst_flag(firstInstruction)) {
             Orig(__this, actionContainer, instructions, clientID);
         }
 
@@ -257,7 +349,7 @@ HOOK_DEFINE_TRAMPOLINE(createPokeAction_FromClientInstruction) {
                     Dpr::Battle::Logic::PokeAction::Object* newAction = Dpr::Battle::Logic::PokeAction::newInstance();
 
                     if (i == numAction) {
-                        firstInstruction.fields.raw &= ~mega_flag_mask;
+                        firstInstruction.fields.raw &= get_mega_flag(firstInstruction) ? ~mega_flag_mask : ~ultra_burst_flag_mask;
                     }
 
                     bool setupPokeAction = __this->setupPokeAction_FromClientInstruction(newAction, &firstInstruction, clientID);
@@ -279,8 +371,8 @@ HOOK_DEFINE_TRAMPOLINE(setupPokeAction_FromClientInstruction) {
         Dpr::Battle::Logic::BTL_ACTION::PARAM::Object instruction{};
         instruction.fields.raw = clientInstruction->fields.raw;
 
-        if (get_mega_flag(instruction)) {
-            (pokeAction->fields).actionCategory = Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution;
+        if (get_mega_flag(instruction) || get_ultraBurst_flag(instruction)) {
+            (pokeAction->fields).actionCategory = get_mega_flag(instruction) ? PokeActionCategory::Mega_Evolution : PokeActionCategory::Ultra_Burst;
 
             pokeAction->fields.bpp = __this->getActionPoke(clientInstruction, clientID);
             pokeAction->fields.priority = 2;
@@ -307,7 +399,8 @@ HOOK_DEFINE_TRAMPOLINE(CalcActionPriority$$Execute) {
         auto pokeAction = (*description)->fields.pokeAction;
 
         switch (pokeAction->fields.actionCategory) {
-            case Dpr::Battle::Logic::PokeActionCategory::Mega_Evolution: {
+            case PokeActionCategory::Ultra_Burst:
+            case PokeActionCategory::Mega_Evolution: {
                 uint8_t operationPri = 2;
                 uint8_t dominantPri = 2;
                 uint8_t wazaPri = 0;
@@ -328,11 +421,10 @@ HOOK_DEFINE_TRAMPOLINE(CalcActionPriority$$Execute) {
 
 HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnShow) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
-        bool isShowMegaUI = CanShowMegaUI(__this);
-        auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
-        auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
-        if (megaState->get_activeSelf()) megaState->SetActive(false);
-        megaButton->cast<UnityEngine::Component>()->get_gameObject()->SetActive(isShowMegaUI);
+        auto gimmickButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+        auto gimmickState = gimmickButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+        if (gimmickState->get_activeSelf()) gimmickState->SetActive(false);
+        gimmickButton->cast<UnityEngine::Component>()->get_gameObject()->SetActive(CanShowGimmickUI(__this) != PokeActionCategory::Null);
         Orig(__this);
     }
 };

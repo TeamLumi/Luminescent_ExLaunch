@@ -6,6 +6,7 @@
 #include "externals/UnityEngine/RectTransform.h"
 #include "externals/System/Action.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaButton.h"
+#include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
 
 namespace Dpr::Battle::View::UI {
     struct BattleViewUICanvasBase : ILClass<BattleViewUICanvasBase> {
@@ -36,9 +37,22 @@ namespace Dpr::Battle::View::UI {
         };
 
         static inline StaticILMethod<0x04c7c3e8, BUIWazaButton> Method$$SelectButton__BUIWazaButton__ {};
+        static inline StaticILMethod<0x04c7c3c8, BUIActionSelectButton> Method$$SelectButton__BUIActionSelectButton__ {};
 
         inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, MethodInfo* method) {
-            external<void>(0x01d2ca80, this, buttons, index, isPlaySe, method);
+            external<void>(0x01a88450, this, buttons, index, isPlaySe, method);
+        }
+
+        inline void Show(System::Action::Object* onComplete) {
+            external<void>(0x01d20420, this, onComplete);
+        }
+
+        inline void Hide(bool isForce, System::Action::Object* onComplete) {
+            external<void>(0x01d21340, this, isForce, onComplete);
+        }
+
+        inline void OnShow() {
+            external<void>(0x01d20590, this);
         }
     };
 }

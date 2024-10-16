@@ -26,6 +26,9 @@ namespace Dpr {
 
 namespace SmartPoint::AssetAssistant {
     struct SingletonMonoBehaviour : ILClass<SingletonMonoBehaviour, 0x04c59b28> {
+
+        static const inline long BattleViewCore_TypeInfo = 0x04c5ca30;
+
         struct Fields : public UnityEngine::MonoBehaviour::Fields {
         };
 

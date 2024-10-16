@@ -30,5 +30,9 @@ namespace Dpr::Battle::View::UI {
         inline bool Submit() {
             return ILClass<T>::template external<bool>(0x021d47f0, this, *T::Method$$Submit);
         }
+
+        inline bool Submit(MethodInfo* methodInfo) {
+            return ILClass<T>::template external<bool>(0x021d47f0, this, methodInfo);
+        }
     };
 }
