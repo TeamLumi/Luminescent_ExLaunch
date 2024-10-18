@@ -5,6 +5,7 @@
 #include "externals/Dpr/Battle/Logic/BattleViewBase.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionList.h"
 #include "externals/Dpr/Battle/View/UI/BUIPokeBallList.h"
+#include "externals/Dpr/Battle/View/UI/BUITargetSelect.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/UI/Cursor.h"
 #include "externals/UnityEngine/Coroutine.h"
@@ -38,7 +39,7 @@ namespace Dpr::Battle::View::Systems {
             void* _ballPlateFar;
             Dpr::Battle::View::UI::BUIPokeBallList::Object* _pokeBallList;
             void* _safariBall;
-            void* _targetSelect;
+            Dpr::Battle::View::UI::BUITargetSelect::Object* _targetSelect;
             void* _commTime;
             Dpr::UI::Cursor::Object* _cursor;
             float _cursorWait;

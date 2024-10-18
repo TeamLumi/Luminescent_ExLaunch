@@ -131,20 +131,24 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
         }
 
         if (Dpr::Battle::View::BtlvInput::GetPush(
+                GameController::ButtonMask::StickLUp | GameController::ButtonMask::StickRUp, true)) {
+            if (wazaList->fields._wazaCount > 0)
+                SelectWazaButton(wazaList, 0);
+        }
+        else if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLRight | GameController::ButtonMask::StickRRight, true)) {
-            SelectWazaButton(wazaList, 1);
+            if (wazaList->fields._wazaCount > 1)
+                SelectWazaButton(wazaList, 1);
         }
         else if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLDown | GameController::ButtonMask::StickRDown, true)) {
-            SelectWazaButton(wazaList, 2);
+            if (wazaList->fields._wazaCount > 2)
+                SelectWazaButton(wazaList, 2);
         }
         else if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLLeft | GameController::ButtonMask::StickRLeft, true)) {
-            SelectWazaButton(wazaList, 3);
-        }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(
-                GameController::ButtonMask::StickLUp | GameController::ButtonMask::StickRUp, true)) {
-            SelectWazaButton(wazaList, 0);
+            if (wazaList->fields._wazaCount > 3)
+                SelectWazaButton(wazaList, 3);
         }
     }
 };
@@ -298,8 +302,14 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_Start) {
 
 HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_Wait) {
     static bool Callback(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
-        // Do nothing, we want to skip to combat
         Logger::log("[BattleViewUISystem$$CMD_UI_SelectWaza_Wait] we're in\n");
+        // If we're coming back from targeting, we cancel back to SelectAction
+        if (__this->fields._targetSelect->fields._Result_k__BackingField == Dpr::Battle::Logic::BtlPokePos::POS_NULL &&
+            __this->fields._targetSelect->fields._IsValid_k__BackingField) {
+            Logger::log("[BattleViewUISystem$$CMD_UI_SelectWaza_Wait] Returning from target select\n");
+            __this->fields._targetSelect->fields._IsValid_k__BackingField = false;
+            __this->fields._wazaList->OnCancel();
+        }
         return true;
     }
 };
