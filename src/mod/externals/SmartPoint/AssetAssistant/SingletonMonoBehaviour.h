@@ -9,12 +9,6 @@ namespace Audio {
 }
 
 namespace Dpr {
-    namespace Battle {
-        namespace View {
-            struct BattleViewCore;
-        }
-    }
-
     namespace Message{
         struct MessageManager;
     }
@@ -26,17 +20,9 @@ namespace Dpr {
 
 namespace SmartPoint::AssetAssistant {
     struct SingletonMonoBehaviour : ILClass<SingletonMonoBehaviour, 0x04c59b28> {
-
-        static const inline long BattleViewCore_TypeInfo = 0x04c5ca30;
-
-        struct Fields : public UnityEngine::MonoBehaviour::Fields {
-        };
-
-
-        static_assert(offsetof(Fields, m_CachedPtr) == 0);
+        struct Fields : UnityEngine::MonoBehaviour::Fields {};
 
         static inline StaticILMethod<0x04c676a0, Audio::AudioManager> Method$$AudioManager$$get_Instance {};
-        static inline StaticILMethod<0x04c676c0, Dpr::Battle::View::BattleViewCore> Method$$BattleViewCore$$get_Instance {};
         static inline StaticILMethod<0x04c67700, Dpr::UI::UIManager> Method$$UIManager$$get_Instance {};
         static inline StaticILMethod<0x04c676e0, Dpr::Message::MessageManager> Method$$MessageManager$$get_Instance {};
 

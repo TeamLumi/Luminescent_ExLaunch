@@ -54,5 +54,9 @@ namespace Dpr::Battle::View::UI {
         inline void Initialize(Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex, Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* dest) {
             external<void>(0x01d2b800, this, bpp, pokeIndex, dest);
         }
+
+        inline void SetInvalid() {
+            external<void>(0x01d2d030, this);
+        }
     };
 }

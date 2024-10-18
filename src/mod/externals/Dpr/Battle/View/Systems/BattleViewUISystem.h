@@ -1,16 +1,29 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
-#include "externals/UnityEngine/MonoBehaviour.h"
-#include "externals/UnityEngine/Sprite.h"
+
+#include "externals/Dpr/Battle/Logic/BattleViewBase.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionList.h"
+#include "externals/Dpr/Battle/View/UI/BUIPokeBallList.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/UI/Cursor.h"
 #include "externals/UnityEngine/Coroutine.h"
-#include "externals/Dpr/Battle/Logic/BattleViewBase.h"
+#include "externals/UnityEngine/MonoBehaviour.h"
+#include "externals/UnityEngine/Sprite.h"
 
 namespace Dpr::Battle::View::Systems {
     struct BattleViewUISystem : ILClass<BattleViewUISystem> {
+        struct SwitchActionListCoroutine_d__198 : ILClass<SwitchActionListCoroutine_d__198> {
+            struct Fields {
+                int32_t __1__state;
+                Il2CppObject* __2__current;
+                BattleViewUISystem::Object* __4__this;
+                bool isShow;
+                bool withStatusWindow;
+                bool withDecoraton;
+            };
+        };
+
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             void* _decoImage; // UnityEngine_UI_RawImage_o*
             void* _statusWindows; // Dpr_Battle_View_UI_BUIStatusWindow_array*
@@ -23,7 +36,7 @@ namespace Dpr::Battle::View::Systems {
             void* _tokuseiFar;
             void* _ballPlateNear;
             void* _ballPlateFar;
-            void* _pokeBallList;
+            Dpr::Battle::View::UI::BUIPokeBallList::Object* _pokeBallList;
             void* _safariBall;
             void* _targetSelect;
             void* _commTime;
@@ -69,8 +82,40 @@ namespace Dpr::Battle::View::Systems {
 
         static_assert(offsetof(Fields, _uiCanvasGroup) == 0x148);
 
-        inline void PlaySe(int32_t eventId, MethodInfo* methodInfo) {
-            external<void>(0x01e7c5f0, this, eventId, methodInfo);
+        inline void PlaySe(uint32_t eventId) {
+            external<void>(0x01e7c5f0, this, eventId);
+        }
+
+        inline bool IsOpenMessage() {
+            return external<bool>(0x01e77c40, this);
+        }
+
+        inline bool IsStatusWindowTarasit() {
+            return external<bool>(0x01e7b350, this);
+        }
+
+        inline void SetCurrentPokemonStatus() {
+            external<void>(0x01e7a6f0, this);
+        }
+
+        inline void Apply(int32_t interpFrame) {
+            external<void>(0x01e7a540, this, interpFrame);
+        }
+
+        inline void SwitchShowStatusWindowsCore(bool isShow, bool isForceBallHide) {
+            external<void>(0x01e79f50, this, isShow, isForceBallHide);
+        }
+
+        inline void SwitchShowDecoImage(bool isShow) {
+            external<void>(0x01e765e0, this, isShow);
+        }
+
+        inline void SwitchShowActionList(bool isShow, bool withStatusWindow, bool withDecoraton) {
+            external<void>(0x01e763f0, this, isShow, withStatusWindow, withDecoraton);
+        }
+
+        inline bool IsOpenedStatus() {
+            return external<bool>(0x01e76340, this);
         }
     };
 }

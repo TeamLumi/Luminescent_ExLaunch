@@ -37,10 +37,10 @@ namespace Dpr::Battle::View::UI {
         };
 
         static inline StaticILMethod<0x04c7c3e8, BUIWazaButton> Method$$SelectButton__BUIWazaButton__ {};
-        static inline StaticILMethod<0x04c7c3c8, BUIActionSelectButton> Method$$SelectButton__BUIActionSelectButton__ {};
 
-        inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, MethodInfo* method) {
-            external<void>(0x01a88450, this, buttons, index, isPlaySe, method);
+        template <typename T>
+        inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, ILMethod<T>& method) {
+            external<void>(0x01a88450, this, buttons, index, isPlaySe, *method);
         }
 
         inline void Show(System::Action::Object* onComplete) {

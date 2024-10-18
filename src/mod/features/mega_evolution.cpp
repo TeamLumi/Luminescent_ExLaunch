@@ -467,7 +467,7 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
 };
 
 void exl_mega_evolution_main() {
-    OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
+    /*OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
     CalcActionPriority$$Execute::InstallAtOffset(0x021ad570);
     ProcessActionCore$$action::InstallAtOffset(0x021c0de0);
     setupPokeAction_FromClientInstruction::InstallAtOffset(0x021cdbf0);
@@ -477,5 +477,5 @@ void exl_mega_evolution_main() {
     CMD_ChangeForm_Start::InstallAtOffset(0x01c86d9c);
     PlaySequenceCore::InstallAtOffset(0x01c85970);
     SetupBattleWild::InstallAtOffset(0x02c3abc0);
-    SetupBattleTrainer::InstallAtOffset(0x02c3b800);
+    SetupBattleTrainer::InstallAtOffset(0x02c3b800);*/
 }
