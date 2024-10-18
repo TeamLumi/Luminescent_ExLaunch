@@ -1,5 +1,8 @@
 #include "exlaunch.hpp"
 
+#include "data/gimmicks.h"
+#include "data/utils.h"
+
 #include "externals/Audio/AudioManager.h"
 #include "externals/Dpr/Battle/View/BattleViewCore.h"
 #include "externals/Dpr/Battle/View/BtlvInput.h"
@@ -7,6 +10,7 @@
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/UI/UIManager.h"
+#include "externals/FlagWork.h"
 #include "externals/GameController.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/UnityEngine/Debug.h"
@@ -16,6 +20,8 @@
 const uint32_t AK_EVENTS_UI_COMMON_CANCEL = 0xa4eb827e;
 const uint32_t AK_EVENTS_UI_COMMON_SELECT = 0xb7533038;
 const uint32_t AK_EVENTS_UI_COMMON_SLIDE = 0x19377fd7;
+
+static int32_t selectedGimmick = array_index(GIMMICKS, "None");
 
 void SubmitActionButton(Dpr::Battle::View::UI::BUIActionList::Object* actionList, int32_t index) {
     if (actionList->fields._IsFocus_k__BackingField && !actionList->fields.isButtonAction) {
@@ -32,6 +38,86 @@ void SelectWazaButton(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int3
         ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)wazaList)->SelectButton(
                 wazaList->fields._wazaButtons,index, true, Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
     }
+}
+
+UnityEngine::Transform::Object* GetGimmickRoot(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)wazaList)->get_transform()
+            ->Find(System::String::Create("GimmickButton"))
+            ->Find(System::String::Create("Gimmicks"));
+}
+
+UnityEngine::GameObject::Object* GetMegaIcon(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetGimmickRoot(wazaList)->Find(System::String::Create("MegaIcon")))->get_gameObject()->instance();
+}
+
+UnityEngine::GameObject::Object* GetZMoveIcon(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetGimmickRoot(wazaList)->Find(System::String::Create("ZMoveIcon")))->get_gameObject()->instance();
+}
+
+UnityEngine::GameObject::Object* GetUBurstIcon(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetGimmickRoot(wazaList)->Find(System::String::Create("UBurstIcon")))->get_gameObject()->instance();
+}
+
+UnityEngine::GameObject::Object* GetDMaxIcon(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetGimmickRoot(wazaList)->Find(System::String::Create("DMaxIcon")))->get_gameObject()->instance();
+}
+
+UnityEngine::GameObject::Object* GetTeraIcon(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetGimmickRoot(wazaList)->Find(System::String::Create("TeraIcon")))->get_gameObject()->instance();
+}
+
+UnityEngine::GameObject::Object* GetGimmickIconFromIndex(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index) {
+    switch (index)
+    {
+        case array_index(GIMMICKS, "Mega Evolution"):
+            return GetMegaIcon(wazaList);
+
+        case array_index(GIMMICKS, "Z-Move"):
+            return GetZMoveIcon(wazaList);
+
+        case array_index(GIMMICKS, "Ultra Burst"):
+            return GetUBurstIcon(wazaList);
+
+        case array_index(GIMMICKS, "Dynamax"):
+            return GetDMaxIcon(wazaList);
+
+        case array_index(GIMMICKS, "Terastallization"):
+            return GetTeraIcon(wazaList);
+
+        default:
+            return nullptr;
+    }
+}
+
+int32_t GetNextGimmick(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t previousGimmick) {
+    for (int32_t i=previousGimmick+1; i<GIMMICK_COUNT; i++)
+    {
+        auto gimmick = GetGimmickIconFromIndex(wazaList, i);
+        if (gimmick != nullptr && gimmick->get_activeSelf())
+            return i;
+    }
+
+    return array_index(GIMMICKS, "None");
+}
+
+void SetGimmickIconActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index, bool state) {
+    auto gimmickIcon = GetGimmickIconFromIndex(wazaList, index);
+    if (gimmickIcon != nullptr)
+        gimmickIcon->SetActive(state);
+}
+
+void SetGimmickIconsFromFlags(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    for (int32_t i=0; i<GIMMICK_COUNT; i++)
+        SetGimmickIconActive(wazaList, i, false);
+
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Mega Evolution"), !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE));
+    // TODO: Add flags to other gimmicks
+}
+
+void SetGimmickIconBackgroundActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index, bool state) {
+    auto gimmickIcon = GetGimmickIconFromIndex(wazaList, index);
+    if (gimmickIcon != nullptr)
+        ((UnityEngine::Component::Object*)gimmickIcon->get_transform()->Find(System::String::Create("Active")))->get_gameObject()->SetActive(state);
 }
 
 HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
@@ -56,10 +142,10 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
 
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonY, true))
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonX, true))
             wazaList->OnSubmitWazaDescription();
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonX, true))
+        if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::R, true))
             __this->OnSubmitPokeBall();
 
         if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, true)) {
@@ -103,21 +189,20 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
             SubmitActionButton(__this, 3);
         }
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::R, true)) {
-            /*bool isShowMegaUI = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3)->
-                    cast<UnityEngine::Component>()->get_gameObject()->get_activeSelf();
-            if (isShowMegaUI) {
-                Logger::log("[OnUpdate] Toggle Mega\n");
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonY, true)) {
+            Logger::log("[BUIActionList$$OnUpdate] Change gimmick\n");
+            for (int32_t i=0; i<GIMMICK_COUNT; i++)
+                SetGimmickIconBackgroundActive(wazaList, i, false);
 
-                auto megaButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
-                auto megaState = megaButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+            int32_t nextGimmick = GetNextGimmick(wazaList, selectedGimmick);
 
-                megaState->SetActive(!megaState->get_activeSelf());
+            if (nextGimmick != selectedGimmick)
+                battleViewCore->fields._UISystem_k__BackingField->PlaySe(AK_EVENTS_UI_COMMON_SELECT);
 
-                Logger::log("[OnUpdate] Mega Evolution: %s.\n", megaState->get_activeSelf() ? "Primed" : "Inactive");
+            selectedGimmick = nextGimmick;
+            SetGimmickIconBackgroundActive(wazaList, selectedGimmick, true);
 
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
-            }*/
+            Logger::log("[BUIActionList$$OnUpdate] New gimmick is %s\n", GIMMICKS[selectedGimmick]);
         }
 
         if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, true)) {
@@ -174,6 +259,20 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnShow) {
 
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
         battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(true);
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$Initialize) {
+    static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this,
+                         Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex,
+                         Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* dest) {
+        Logger::log("[BUIWazaList$$Initialize] we're in\n");
+        Orig(__this, bpp, pokeIndex, dest);
+
+        selectedGimmick = array_index(GIMMICKS, "None");
+        SetGimmickIconsFromFlags(__this);
+        for (int32_t i=0; i<GIMMICK_COUNT; i++)
+            SetGimmickIconBackgroundActive(__this, i, false);
     }
 };
 
@@ -358,6 +457,7 @@ void exl_madrid_ui_main() {
 
     BUIWazaList$$OnUpdate::InstallAtOffset(0x01d2c490);
     BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
+    BUIWazaList$$Initialize::InstallAtOffset(0x01d2b800);
 
     BattleViewUISystem_SwitchActionListCoroutine$$MoveNext::InstallAtOffset(0x01e7efe0);
 
