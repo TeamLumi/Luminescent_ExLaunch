@@ -1,16 +1,18 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
-#include "externals/Dpr/Battle/View/UI/BattleViewUICanvasBase.h"
-#include "externals/UnityEngine/GameObject.h"
+
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/BTL_ACTION.h"
+#include "externals/Dpr/Battle/View/UI/BattleViewUICanvasBase.h"
+#include "externals/Dpr/Battle/View/UI/BUIWazaButton.h"
+#include "externals/UnityEngine/GameObject.h"
 
 namespace Dpr::Battle::View::UI {
     struct BUIWazaList : ILClass<BUIWazaList> {
         struct Fields : Dpr::Battle::View::UI::BattleViewUICanvasBase::Fields {
             void* _wazaDescriptionButton;
-            void* _wazaButtons;
+            Dpr::Battle::View::UI::BUIWazaButton::Array* _wazaButtons;
             void* _wazaTypeSprites;
             void* _effectBgSprites;
             UnityEngine::Color::Object _wazaTextColor;
@@ -30,6 +32,8 @@ namespace Dpr::Battle::View::UI {
             int32_t _pokeIndex;
             int32_t _Result_k__BackingField;
         };
+
+        static_assert(offsetof(Fields, _Result_k__BackingField) == 0x11C);
 
         inline void SetSelect(int32_t num) {
             external<void>(0x01d2cd10, this, num);

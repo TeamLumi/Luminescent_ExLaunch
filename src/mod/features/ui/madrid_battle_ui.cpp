@@ -4,16 +4,22 @@
 #include "data/utils.h"
 
 #include "externals/Audio/AudioManager.h"
+#include "externals/Dpr/Battle/Logic/BattleStr.h"
 #include "externals/Dpr/Battle/View/BattleViewCore.h"
+#include "externals/Dpr/Battle/View/BTLV_WAZA_INFO.h"
 #include "externals/Dpr/Battle/View/BtlvInput.h"
+#include "externals/Dpr/Battle/View/UI/BattleAffinityInfo.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionList.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
+#include "externals/Dpr/Message/MessageWordSetHelper.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/FlagWork.h"
 #include "externals/GameController.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
+#include "externals/System/Nullable.h"
 #include "externals/UnityEngine/Debug.h"
+#include "externals/UnityEngine/UI/LayoutRebuilder.h"
 
 #include "logger/logger.h"
 
@@ -22,6 +28,11 @@ const uint32_t AK_EVENTS_UI_COMMON_SELECT = 0xb7533038;
 const uint32_t AK_EVENTS_UI_COMMON_SLIDE = 0x19377fd7;
 
 static int32_t selectedGimmick = array_index(GIMMICKS, "None");
+
+UnityEngine::Transform::Object* GetWazaButtonBackgroundRoot(Dpr::Battle::View::UI::BUIWazaButton::Object* btn) {
+    return ((UnityEngine::Component::Object*)btn)->get_transform()
+            ->Find(System::String::Create("background"));
+}
 
 void SubmitActionButton(Dpr::Battle::View::UI::BUIActionList::Object* actionList, int32_t index) {
     if (actionList->fields._IsFocus_k__BackingField && !actionList->fields.isButtonAction) {
@@ -32,11 +43,25 @@ void SubmitActionButton(Dpr::Battle::View::UI::BUIActionList::Object* actionList
     }
 }
 
-void SelectWazaButton(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index) {
+void SelectWazaButton(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index, bool playSe) {
     if (!wazaList->fields._IsValid_k__BackingField) {
+        playSe = playSe && wazaList->fields._CurrentIndex_k__BackingField != index;
         wazaList->fields._CurrentIndex_k__BackingField = index;
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)wazaList)->SelectButton(
-                wazaList->fields._wazaButtons,index, true, Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
+
+        for (uint64_t i=0; i<wazaList->fields._wazaButtons->max_length; i++) {
+            auto btn = wazaList->fields._wazaButtons->m_Items[i];
+            btn->fields._isSelected = ((int32_t)i) == index;
+            btn->fields._state = btn->fields._isSelected ? 1 : 0;
+            if (btn->fields._onSelected != nullptr)
+                btn->fields._onSelected->Invoke();
+
+            ((UnityEngine::Component::Object*)GetWazaButtonBackgroundRoot(btn))->get_gameObject()->SetActive(btn->fields._isSelected);
+        }
+
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+        if (playSe)
+            battleViewCore->fields._UISystem_k__BackingField->PlaySe(AK_EVENTS_UI_COMMON_SELECT);
     }
 }
 
@@ -89,6 +114,37 @@ UnityEngine::GameObject::Object* GetGimmickIconFromIndex(Dpr::Battle::View::UI::
     }
 }
 
+UnityEngine::Transform::Object* GetAffinitySpritesRoot(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)wazaList)->get_transform()
+            ->Find(System::String::Create("WazaButtons"))
+            ->Find(System::String::Create("AffinityIcons"));
+}
+
+UnityEngine::Sprite::Object* GetNoneAffinitySprite(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetAffinitySpritesRoot(wazaList)->Find(System::String::Create("None")))
+                ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetImmuneAffinitySprite(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetAffinitySpritesRoot(wazaList)->Find(System::String::Create("Immune")))
+                ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetNotVeryAffinitySprite(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetAffinitySpritesRoot(wazaList)->Find(System::String::Create("NotVery")))
+                ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetRegularAffinitySprite(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetAffinitySpritesRoot(wazaList)->Find(System::String::Create("Regular")))
+                ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetSuperAffinitySprite(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    return ((UnityEngine::Component::Object*)GetAffinitySpritesRoot(wazaList)->Find(System::String::Create("Super")))
+                ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
 int32_t GetNextGimmick(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t previousGimmick) {
     for (int32_t i=previousGimmick+1; i<GIMMICK_COUNT; i++)
     {
@@ -111,6 +167,7 @@ void SetGimmickIconsFromFlags(Dpr::Battle::View::UI::BUIWazaList::Object* wazaLi
         SetGimmickIconActive(wazaList, i, false);
 
     SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Mega Evolution"), !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE));
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Ultra Burst"), true);
     // TODO: Add flags to other gimmicks
 }
 
@@ -218,22 +275,22 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
         if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLUp | GameController::ButtonMask::StickRUp, true)) {
             if (wazaList->fields._wazaCount > 0)
-                SelectWazaButton(wazaList, 0);
+                SelectWazaButton(wazaList, 0, true);
         }
         else if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLRight | GameController::ButtonMask::StickRRight, true)) {
             if (wazaList->fields._wazaCount > 1)
-                SelectWazaButton(wazaList, 1);
+                SelectWazaButton(wazaList, 1, true);
         }
         else if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLDown | GameController::ButtonMask::StickRDown, true)) {
             if (wazaList->fields._wazaCount > 2)
-                SelectWazaButton(wazaList, 2);
+                SelectWazaButton(wazaList, 2, true);
         }
         else if (Dpr::Battle::View::BtlvInput::GetPush(
                 GameController::ButtonMask::StickLLeft | GameController::ButtonMask::StickRLeft, true)) {
             if (wazaList->fields._wazaCount > 3)
-                SelectWazaButton(wazaList, 3);
+                SelectWazaButton(wazaList, 3, true);
         }
     }
 };
@@ -253,12 +310,10 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnShow) {
         __this->fields._IsShow_k__BackingField = true;
         __this->fields._animationState_k__BackingField = 2;
 
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)__this)->SelectButton(__this->fields._wazaButtons,
-            __this->fields._CurrentIndex_k__BackingField, false,
-            Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$SelectButton__BUIWazaButton__);
+        SelectWazaButton(__this, 0, false);
 
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
-        battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(true);
+        battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(false);
     }
 };
 
@@ -273,8 +328,102 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$Initialize) {
         SetGimmickIconsFromFlags(__this);
         for (int32_t i=0; i<GIMMICK_COUNT; i++)
             SetGimmickIconBackgroundActive(__this, i, false);
+
+        UnityEngine::UI::LayoutRebuilder::ForceRebuildLayoutImmediate((UnityEngine::RectTransform::Object*)GetGimmickRoot(__this));
     }
 };
+
+
+HOOK_DEFINE_REPLACE(BUIWazaButton$$Initialize) {
+    static void Callback(Dpr::Battle::View::UI::BUIWazaButton::Object* __this, int32_t index,
+                         System::Nullable<Dpr::Battle::View::BTLV_WAZA_INFO>::Object* info,
+                         UnityEngine::Sprite::Object* typeSprite, UnityEngine::Sprite::Object* effBgSprite,
+                         UnityEngine::Sprite::Object* effSprite, System::String::Object* affinityString,
+                         UnityEngine::Color::Array* ppColors) {
+        system_load_typeinfo(0x1f77);
+        system_load_typeinfo(0x239d);
+
+        __this->fields._index = index;
+        if (!info->fields.has_value)
+            return;
+
+        Logger::log("[BUIWazaButton$$Initialize] we're in\n");
+
+        __this->fields._Info_k__BackingField = *info;
+        __this->fields._backgroundImage->set_sprite(typeSprite);
+        __this->fields._effectiveBG->set_sprite(effBgSprite);
+
+        auto fullInfo = info->fields.value;
+
+        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+        Dpr::Message::MessageWordSetHelper::SetStringWord(0, fullInfo.fields.WazaName);
+        Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
+        auto wazaStr = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_fr_pokewaza"), nullptr);
+        ((Dpr::Battle::View::UI::BUIButtonBase::Object*)__this)->set_Text(wazaStr);
+
+        Dpr::Message::MessageWordSetHelper::SetDigitWord(0, fullInfo.fields.MaxPP);
+        auto maxPPStr = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_btl_pp_02"), nullptr);
+        ((TMPro::TMP_Text::Object*)__this->fields._maxPpText)->set_text(maxPPStr);
+
+        Dpr::Message::MessageWordSetHelper::SetDigitWord(0, fullInfo.fields.PP);
+        auto ppStr = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_btl_pp_01"), nullptr);
+        ((TMPro::TMP_Text::Object*)__this->fields._ppText)->set_text(ppStr);
+
+        int32_t colorIndex;
+        if (ppColors == nullptr || ppColors->max_length < 4)
+            colorIndex = 0;
+        else if (fullInfo.fields.PP == 0)
+            colorIndex = 3;
+        else if (fullInfo.fields.PP > (fullInfo.fields.MaxPP / 2))
+            colorIndex = 0;
+        else if (fullInfo.fields.PP > (fullInfo.fields.MaxPP / 4))
+            colorIndex = 1;
+        else
+            colorIndex = 2;
+
+        ((TMPro::TMP_Text::Object*)__this->fields._maxPpText)->set_color(ppColors->m_Items[colorIndex]);
+        ((TMPro::TMP_Text::Object*)__this->fields._ppText)->set_color(ppColors->m_Items[colorIndex]);
+
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        Dpr::Battle::View::UI::BattleAffinityInfo::getClass()->initIfNeeded();
+        auto uiSystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
+        auto bpp = uiSystem->fields._wazaList->fields._btlPokeParam;
+        int32_t wazano = bpp->WAZA_GetID(index);
+        auto targets = Dpr::Battle::View::UI::BattleAffinityInfo::GetBattleTargets();
+
+        ((UnityEngine::GameObject::Object*)__this->fields._effectiveText)->SetActive(false);
+
+        Pml::Battle::TypeAffinity::AboutAffinityID affinity;
+        bool canHit = Dpr::Battle::View::UI::BattleAffinityInfo::CheckWazaAffinity(bpp, wazano, targets, &affinity);
+        if (!canHit) {
+            __this->fields._effectiveObj->SetActive(false);
+        }
+        else {
+            __this->fields._effectiveObj->SetActive(true);
+            switch (affinity)
+            {
+                case Pml::Battle::TypeAffinity::AboutAffinityID::NONE:
+                    __this->fields._effectiveImage->set_sprite(GetImmuneAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+
+                case Pml::Battle::TypeAffinity::AboutAffinityID::NORMAL:
+                    __this->fields._effectiveImage->set_sprite(GetRegularAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+
+                case Pml::Battle::TypeAffinity::AboutAffinityID::ADVANTAGE:
+                    __this->fields._effectiveImage->set_sprite(GetSuperAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+
+                case Pml::Battle::TypeAffinity::AboutAffinityID::DISADVANTAGE:
+                    __this->fields._effectiveImage->set_sprite(GetNotVeryAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+            }
+        }
+
+        Logger::log("[BUIWazaButton$$Initialize] done\n");
+    }
+};
+
 
 HOOK_DEFINE_REPLACE(BattleViewUISystem_SwitchActionListCoroutine$$MoveNext) {
     static bool Callback(Dpr::Battle::View::Systems::BattleViewUISystem::SwitchActionListCoroutine_d__198::Object* __this) {
@@ -458,6 +607,8 @@ void exl_madrid_ui_main() {
     BUIWazaList$$OnUpdate::InstallAtOffset(0x01d2c490);
     BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
     BUIWazaList$$Initialize::InstallAtOffset(0x01d2b800);
+
+    BUIWazaButton$$Initialize::InstallAtOffset(0x01d2a8f0);
 
     BattleViewUISystem_SwitchActionListCoroutine$$MoveNext::InstallAtOffset(0x01e7efe0);
 

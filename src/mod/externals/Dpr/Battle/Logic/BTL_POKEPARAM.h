@@ -1,6 +1,7 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
 #include "externals/Dpr/Battle/Logic/PokeTypePair.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/WazaData/WazaSick.h"
@@ -236,5 +237,11 @@ namespace Dpr::Battle::Logic {
         inline uint8_t GetFormNo() {
             return external<uint8_t>(0x01fda170, this);
         }
+    };
+}
+
+namespace System::Collections::Generic {
+    struct List$$BTL_POKEPARAM : List<List$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
+
     };
 }

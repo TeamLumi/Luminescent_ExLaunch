@@ -26,5 +26,9 @@ namespace UnityEngine::UI {
         inline void set_sprite(UnityEngine::Sprite::Object* value) {
             external<void>(0x024b8ed0, this, value);
         }
+
+        inline UnityEngine::Sprite::Object* get_sprite() {
+            return external<UnityEngine::Sprite::Object*>(0x024b8ec0, this);
+        }
     };
 }
