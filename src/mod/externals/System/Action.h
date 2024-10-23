@@ -22,5 +22,9 @@ namespace System {
         inline void ctor(void* target, MethodInfo* delegate) {
             external<void>(0x023feb30, this, target, delegate);
         }
+
+        inline void Invoke() {
+            external<void>(0x023feb50, this);
+        }
     };
 }

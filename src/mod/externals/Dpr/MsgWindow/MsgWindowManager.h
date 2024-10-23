@@ -13,5 +13,9 @@ namespace Dpr::MsgWindow {
         static inline bool get_IsOpenWindow() {
             return external<bool>(0x01dd9810);
         }
+
+        static inline bool get_IsOpen() {
+            return external<bool>(0x01dd9910);
+        }
     };
 }

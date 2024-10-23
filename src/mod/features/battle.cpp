@@ -13,4 +13,6 @@ void exl_battle_features_main() {
         exl_field_handlers_main();
     if (IsActivatedBattleFeature(array_index(BATTLE_FEATURES, "Side Handlers")))
         exl_side_handlers_main();
+    if (IsActivatedBattleFeature(array_index(BATTLE_FEATURES, "Battle Situation")))
+        exl_battle_situation_main();
 }

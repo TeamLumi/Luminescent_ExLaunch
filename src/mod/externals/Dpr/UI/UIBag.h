@@ -60,6 +60,13 @@ namespace Dpr::UI {
 
             static inline StaticILMethod<0x04c801a0, int32_t> Method$$DisplayClass144_0_UseFormChange {};
 
+            static inline MethodInfo* Method$$OnSelectedIncenseBurner = nullptr;
+            static MethodInfo* getMethod$$OnSelectedIncenseBurner(Il2CppMethodPointer method) {
+                if (Method$$OnSelectedIncenseBurner == nullptr)
+                    Method$$OnSelectedIncenseBurner = (*Method$$DisplayClass144_0_UseFormChange)->copyWith(method);
+                return Method$$OnSelectedIncenseBurner;
+            };
+
             inline void ctor() {
                 external<void>(0x01be1910, this);
             }

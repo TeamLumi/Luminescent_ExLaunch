@@ -10,5 +10,9 @@ namespace Dpr::Battle::Logic {
             PokeAction::Array* m_actions;
             uint8_t m_count;
         };
+
+        inline void Add(Dpr::Battle::Logic::PokeAction::Object** action) {
+            external<void>(0x02042920, this, action);
+        }
     };
 }

@@ -1,9 +1,9 @@
 #pragma once
 
 static constexpr const char *SIDE_EFFECTS[] = {
-    "-SIDE EFFECT ZERO-",
     "Reflect",
     "Light Screen",
+    "Safeguard",
     "Mist",
     "Tailwind",
     "Lucky Chant",

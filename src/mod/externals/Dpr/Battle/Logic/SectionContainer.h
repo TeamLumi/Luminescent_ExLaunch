@@ -2,7 +2,9 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Message.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_InterruptAction.h"
 
@@ -108,7 +110,7 @@ namespace Dpr::Battle::Logic {
             void* m_section_FromEvent_ExtendPokeType; // Dpr_Battle_Logic_Section_FromEvent_ExtendPokeType_o*
             void* m_section_FieldEffect_Add; // Dpr_Battle_Logic_Section_FieldEffect_Add_o*
             void* m_section_FromEvent_FieldEffect_Remove; // Dpr_Battle_Logic_Section_FromEvent_FieldEffect_Remove_o*
-            void* m_section_FromEvent_FormChange; // Dpr_Battle_Logic_Section_FromEvent_FormChange_o*
+            Section_FromEvent_FormChange::Object* m_section_FromEvent_FormChange;
             Section_FromEvent_FreeFallStart::Object* m_section_FromEvent_FreeFallStart;
             void* m_section_FromEvent_FriendshipEffect; // Dpr_Battle_Logic_Section_FromEvent_FriendshipEffect_o*
             void* m_section_FromEvent_GetWeather; // Dpr_Battle_Logic_Section_FromEvent_GetWeather_o*
@@ -119,7 +121,7 @@ namespace Dpr::Battle::Logic {
             void* m_section_FromEvent_InterruptAction_ByWaza; // Dpr_Battle_Logic_Section_FromEvent_InterruptAction_ByWaza_o*
             void* m_section_FromEvent_Kill; // Dpr_Battle_Logic_Section_FromEvent_Kill_o*
             void* m_section_FromEvent_MemberChange; // Dpr_Battle_Logic_Section_FromEvent_MemberChange_o*
-            void* m_section_FromEvent_Message; // Dpr_Battle_Logic_Section_FromEvent_Message_o*
+            Section_FromEvent_Message::Object* m_section_FromEvent_Message;
             void* m_section_FromEvent_PlayWazaEffect; // Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_o*
             void* m_section_FromEvent_PosEffect_Add; // Dpr_Battle_Logic_Section_FromEvent_PosEffect_Add_o*
             void* m_section_FromEvent_PostponeAction; // Dpr_Battle_Logic_Section_FromEvent_PostponeAction_o*

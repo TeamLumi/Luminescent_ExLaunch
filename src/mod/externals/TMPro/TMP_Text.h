@@ -217,5 +217,14 @@ namespace TMPro {
             void* m_TextBackingArray; //TMPro_TMP_Text_TextBackingContainer_o
             void* k_Power; //System_Decimal_array*
         };
+
+        inline void set_text(System::String::Object* value) {
+            external<void>(0x01e94520, this, value);
+        }
+
+        inline void set_color(UnityEngine::Color::Object value) {
+            UnityEngine::Color::Fields valueProxy = { .r = value.fields.r, .g = value.fields.g, .b = value.fields.b, .a = value.fields.a };
+            external<void>(0x01e94aa0, this, valueProxy);
+        }
     };
 }

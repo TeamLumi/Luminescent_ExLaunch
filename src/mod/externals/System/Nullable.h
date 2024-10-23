@@ -17,9 +17,5 @@ namespace System {
             T::Object value;
             bool has_value;
         };
-
-        inline bool get_Value() {
-            return external<bool>(0x025e01c0, this);
-        }
     };
 }

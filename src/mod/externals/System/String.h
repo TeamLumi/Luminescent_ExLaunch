@@ -3,9 +3,11 @@
 #include "externals/il2cpp-api.h"
 
 #include "memory/string.h"
+#include "externals/System/Collections/Generic/Dictionary.h"
 #include "externals/System/Collections/Generic/List.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/Text/Encoding.h"
+#include "externals/System/ValueTuple.h"
 
 namespace System {
     struct String : ILClass<String> {
@@ -91,9 +93,34 @@ namespace System {
     };
 }
 
+namespace System {
+    struct ValueTuple2$$String$$int32 : ValueTuple2<ValueTuple2$$String$$int32, System::String::Object*, int32_t> {};
+    struct ValueTuple3$$String$$String$$String : ValueTuple3<ValueTuple3$$String$$String$$String, System::String::Object*, System::String::Object*, System::String::Object*> {};
+}
+
 namespace System::Collections::Generic {
     struct List$$String : List<List$$String, System::String> {
         static inline StaticILMethod<0x04c8a528> Method$$Add {};
         static inline StaticILMethod<0x04c8a538> Method$$Clear {};
+    };
+
+    struct List$$ValueTuple3$$String$$String$$String : List<List$$ValueTuple3$$String$$String$$String, ValueTuple3$$String$$String$$String> {
+        static inline StaticILMethod<0x04c8a858> Method$$Clear{};
+    };
+
+    struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {
+        static inline StaticILMethod<0x04c87350> Method$$ctor {};
+        static inline StaticILMethod<0x04c87358> Method$$Add {};
+        static inline StaticILMethod<0x04c87a08> Method$$set_Item {};
+        static inline StaticILMethod<0x04c70d98> Method$$get_Values {};
+    };
+
+    struct Dictionary$$uint8_t$$String : Dictionary$$uint8_t<Dictionary$$uint8_t$$String, System::String> {
+        static inline StaticILMethod<0x04c87318> Method$$ctor {};
+        static inline StaticILMethod<0x04c87320> Method$$Add {};
+    };
+
+    struct IEnumerable$$String : IEnumerable<IEnumerable$$String, System::String> {
+        static inline StaticILMethod<0x04c71720> Method$$ToList {};
     };
 }

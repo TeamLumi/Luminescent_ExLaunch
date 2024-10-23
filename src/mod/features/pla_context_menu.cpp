@@ -77,7 +77,7 @@ void EvDataManager_EvCmdCallWazaOmoidashiUi_b__1539_0(Dpr::EvScript::EvDataManag
     evDataManagerDispClass->fields.tray = 0;
     evDataManagerDispClass->fields.idx = 0;
 
-    MethodInfo* mi = (*Dpr::EvScript::EvDataManager::PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith((Il2CppMethodPointer) &EvDataManager_EvCmdCallWazaOshieUi_b__0);
+    MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdCallWazaOshieUiParty((Il2CppMethodPointer)&EvDataManager_EvCmdCallWazaOshieUi_b__0);
     System::Action::Object* resultCallback = System::Action::getClass(System::Action::WazaNo_WazaNo_TypeInfo)->newInstance(evDataManagerDispClass, mi);
 
     auto param = (Dpr::UI::UIWazaManage::Param::Object) {
@@ -107,7 +107,7 @@ void createMoveRelearnerWindow(Dpr::UI::PokemonWindow::DisplayClass25_0::Object 
 
     Dpr::EvScript::EvDataManager::Object * evDataManager = Dpr::EvScript::EvDataManager::get_Instanse();
 
-    MethodInfo* mi = (*Dpr::EvScript::EvDataManager::PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi)->copyWith((Il2CppMethodPointer) &EvDataManager_EvCmdCallWazaOmoidashiUi_b__1539_0);
+    MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdCallWazaOmoidashiUiParty((Il2CppMethodPointer)&EvDataManager_EvCmdCallWazaOmoidashiUi_b__1539_0);
     System::Action::Object* resultCallback = System::Action::getClass(System::Action::WazaNo_WazaNo_TypeInfo)->newInstance(evDataManager, mi);
 
     sPokemonParam = dispClass->fields.pokemonParam;

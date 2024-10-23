@@ -67,5 +67,13 @@ namespace Pml::Personal {
         static inline System::String::Object* GetMonsName(int32_t monsNo, int32_t langId) {
             return external<System::String::Object*>(0x024a0a90, monsNo, langId);
         }
+
+        static inline void LoadGrowTable(int32_t monsno, uint16_t formno) {
+            external<void>(0x024a1700, monsno, formno);
+        }
+
+        static inline uint32_t GetMinExp(uint8_t level) {
+            return external<uint32_t>(0x024a1a30, level);
+        }
     };
 }

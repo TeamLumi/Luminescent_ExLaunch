@@ -12,5 +12,14 @@ namespace Dpr::UI {
             UnityEngine::UI::Image::Object* _imageItemIcon;
             UnityEngine::UI::Image::Object* _imageBallDecoIcon;
         };
+
+        static inline StaticILMethod<0x04c7f448, UnityEngine::Sprite> Method$$Load_10_0 {};
+
+        static inline MethodInfo* Method$$BUISituationLoadIcon = nullptr;
+        static MethodInfo* getMethod$$BUISituationLoadIcon(Il2CppMethodPointer method) {
+            if (Method$$BUISituationLoadIcon == nullptr)
+                Method$$BUISituationLoadIcon = (*Method$$Load_10_0)->copyWith(method);
+            return Method$$BUISituationLoadIcon;
+        };
     };
 }

@@ -17,7 +17,7 @@ HOOK_DEFINE_REPLACE(RemapPoketchToPlus) {
             GameController::getClass()->initIfNeeded();
             FieldPoketch::getClass()->initIfNeeded();
 
-            if (GameController::IsPush(GameController_Button::BUTTON_PLUS)) {
+            if (((GameController::getClass()->static_fields->push) & GameController::ButtonMask::Plus) != 0) {
                 FieldPoketch::OnPushedAppearButton();
             } else {
                 FieldPoketch::RestorePoketchWindow();
@@ -55,7 +55,7 @@ void exl_remap_main() {
     // Remap Poketch to Plus
     RemapPoketchToPlus::InstallAtOffset(0x0179e360);
     exl::patch::CodePatcher p(0x01e66ac0);
-    p.WriteInst(exl::armv8::inst::Movz(exl::armv8::reg::X1, (int32_t)GameController_Button::BUTTON_PLUS));
+    p.WriteInst(exl::armv8::inst::Movz(exl::armv8::reg::X1, GameController::ButtonMask::Plus));
 
     // Disable Y to warp to union room
     UnionWarp::InstallAtOffset(0x017a1050);

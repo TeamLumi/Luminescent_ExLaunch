@@ -103,7 +103,7 @@ void UseIncenseBurner(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Display
         contextMenuIDVector.push_back((int32_t)ContextMenuID::INCENSE_CANCEL);
 
         // Create the Method Info for selection in the context menu
-        MethodInfo* mi = (*Dpr::UI::UIBag::__c__DisplayClass144_0::Method$$DisplayClass144_0_UseFormChange)->copyWith((Il2CppMethodPointer) &OnSelectedIncenseBurner);
+        MethodInfo* mi = Dpr::UI::UIBag::__c__DisplayClass144_0::getMethod$$OnSelectedIncenseBurner((Il2CppMethodPointer)&OnSelectedIncenseBurner);
         System::Action::Object* onSelected = System::Action::getClass(System::Action::ContextMenuID_TypeInfo)->newInstance(displayClass144, mi);
 
         UnityEngine::Vector2::Object pivot = (UnityEngine::Vector2::Object) {

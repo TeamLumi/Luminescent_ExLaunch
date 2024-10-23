@@ -15,8 +15,8 @@ namespace Dpr::Battle::Logic {
 
         struct Fields {
             PosPoke::State::Array* m_state;
-            BtlPokePos::Array* m_lastPosInst;
-            uint8_t m_lastPosDmy;
+            BtlPokePos_array* m_lastPosInst;
+            BtlPokePos m_lastPosDmy;
         };
 
         inline bool IsExist(uint8_t pokeID) {

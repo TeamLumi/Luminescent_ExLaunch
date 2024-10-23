@@ -5,7 +5,7 @@
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 
 namespace Dpr::Battle::Logic {
-    struct CommonParam : ILClass<CommonParam> {
+    struct Section_CommonParam : ILClass<Section_CommonParam> {
         struct Fields {
             Dpr::Battle::Logic::MainModule::Object* pMainModule;
             Dpr::Battle::Logic::BattleEnv::Object* pBattleEnv;
