@@ -10,12 +10,14 @@
 #include "externals/Dpr/Battle/View/BtlvInput.h"
 #include "externals/Dpr/Battle/View/UI/BattleAffinityInfo.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionList.h"
+#include "externals/Dpr/Battle/View/UI/BUIWazaDescription.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Message/MessageWordSetHelper.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/FlagWork.h"
 #include "externals/GameController.h"
+#include "externals/Pml/WazaData/WazaDataSystem.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/System/Nullable.h"
 #include "externals/UnityEngine/Debug.h"
@@ -52,7 +54,8 @@ void SelectWazaButton(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int3
             auto btn = wazaList->fields._wazaButtons->m_Items[i];
             btn->fields._isSelected = ((int32_t)i) == index;
             btn->fields._state = btn->fields._isSelected ? 1 : 0;
-            if (btn->fields._onSelected != nullptr)
+
+            if (btn->fields._isSelected && btn->fields._onSelected != nullptr)
                 btn->fields._onSelected->Invoke();
 
             ((UnityEngine::Component::Object*)GetWazaButtonBackgroundRoot(btn))->get_gameObject()->SetActive(btn->fields._isSelected);
@@ -143,6 +146,57 @@ UnityEngine::Sprite::Object* GetRegularAffinitySprite(Dpr::Battle::View::UI::BUI
 UnityEngine::Sprite::Object* GetSuperAffinitySprite(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
     return ((UnityEngine::Component::Object*)GetAffinitySpritesRoot(wazaList)->Find(System::String::Create("Super")))
                 ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Transform::Object* GetDamageTypeSpritesRoot(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    return ((UnityEngine::Component::Object*)wazaDesc)->get_transform()
+            ->Find(System::String::Create("CategoryIcons"));
+}
+
+UnityEngine::Sprite::Object* GetPhysicalDamageSprite(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    return ((UnityEngine::Component::Object*)GetDamageTypeSpritesRoot(wazaDesc)->Find(System::String::Create("Physical")))
+            ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetSpecialDamageSprite(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    return ((UnityEngine::Component::Object*)GetDamageTypeSpritesRoot(wazaDesc)->Find(System::String::Create("Special")))
+            ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetStatusDamageSprite(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    return ((UnityEngine::Component::Object*)GetDamageTypeSpritesRoot(wazaDesc)->Find(System::String::Create("Status")))
+            ->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)->get_sprite();
+}
+
+UnityEngine::Sprite::Object* GetDamageSpriteFromType(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc, Pml::WazaData::WazaDamageType type) {
+    switch (type)
+    {
+        case Pml::WazaData::WazaDamageType::NONE:
+            return GetStatusDamageSprite(wazaDesc);
+
+        case Pml::WazaData::WazaDamageType::PHYSIC:
+            return GetPhysicalDamageSprite(wazaDesc);
+
+        case Pml::WazaData::WazaDamageType::SPECIAL:
+            return GetSpecialDamageSprite(wazaDesc);
+
+        default:
+            return nullptr;
+    }
+}
+
+void SetMoveDescDamageType(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc, int32_t wazaNo) {
+    Logger::log("[SetMoveDescDamageType] we're in\n");
+    auto type = Pml::WazaData::WazaDataSystem::GetDamageType(wazaNo);
+    auto sprite = GetDamageSpriteFromType(wazaDesc, type);
+
+    if (sprite != nullptr) {
+        ((UnityEngine::Component::Object*)wazaDesc->fields._wazaCategory)->get_gameObject()->SetActive(true);
+        wazaDesc->fields._wazaCategory->fields.iconImage->set_sprite(sprite);
+    }
+    else {
+        wazaDesc->fields._wazaCategory->Deactive();
+    }
 }
 
 int32_t GetNextGimmick(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t previousGimmick) {
@@ -425,6 +479,24 @@ HOOK_DEFINE_REPLACE(BUIWazaButton$$Initialize) {
 };
 
 
+HOOK_DEFINE_TRAMPOLINE(BUIWazaDescription$$Initialize) {
+    static void Callback(Dpr::Battle::View::UI::BUIWazaDescription::Object* __this, Dpr::Battle::View::BTLV_WAZA_INFO::Object* info, float posY) {
+        Logger::log("[BUIWazaDescription$$Initialize] we're in\n");
+        Orig(__this, info, posY);
+
+        Logger::log("[BUIWazaDescription$$Initialize] custom stuff\n");
+        SetMoveDescDamageType(__this, info->fields.WazaNo);
+    }
+};
+
+HOOK_DEFINE_REPLACE(BUIWazaDescription$$SetWazaDamageType) {
+    static void Callback(Dpr::Battle::View::UI::BUIWazaDescription::Object* __this, int32_t wazaNo) {
+        Logger::log("[BUIWazaDescription$$SetWazaDamageType] we're in\n");
+        SetMoveDescDamageType(__this, wazaNo);
+    }
+};
+
+
 HOOK_DEFINE_REPLACE(BattleViewUISystem_SwitchActionListCoroutine$$MoveNext) {
     static bool Callback(Dpr::Battle::View::Systems::BattleViewUISystem::SwitchActionListCoroutine_d__198::Object* __this) {
         system_load_typeinfo(0x1f16);
@@ -586,21 +658,6 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit) {
 };
 
 
-HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnSubmitWazaButton) {
-    static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this, Dpr::Battle::View::UI::BUIWazaButton::Object* button) {
-        Logger::log("[BUIWazaList$$OnSubmitWazaButton] we're in\n");
-        Orig(__this, button);
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(BUIButtonBase$$Submit) {
-    static void Callback(void* __this, MethodInfo* method) {
-        Logger::log("[BUIButtonBase$$Submit] we're in\n");
-        Orig(__this, method);
-    }
-};
-
-
 void exl_madrid_ui_main() {
     BUIActionList$$OnUpdate::InstallAtOffset(0x01e8bdb0);
 
@@ -609,6 +666,9 @@ void exl_madrid_ui_main() {
     BUIWazaList$$Initialize::InstallAtOffset(0x01d2b800);
 
     BUIWazaButton$$Initialize::InstallAtOffset(0x01d2a8f0);
+
+    BUIWazaDescription$$Initialize::InstallAtOffset(0x01d2aea0);
+    BUIWazaDescription$$SetWazaDamageType::InstallAtOffset(0x01d2b3c0);
 
     BattleViewUISystem_SwitchActionListCoroutine$$MoveNext::InstallAtOffset(0x01e7efe0);
 
@@ -620,7 +680,4 @@ void exl_madrid_ui_main() {
     BattleViewUISystem$$CMD_UI_SelectWaza_Wait::InstallAtOffset(0x01e76ac0);
     BattleViewUISystem$$CMD_UI_SelectWaza_End::InstallAtOffset(0x01e76b40);
     BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit::InstallAtOffset(0x01e76b70);
-
-    BUIWazaList$$OnSubmitWazaButton::InstallAtOffset(0x01d2ce60);
-    BUIButtonBase$$Submit::InstallAtOffset(0x021d47f0);
 }
