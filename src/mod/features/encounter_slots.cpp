@@ -456,13 +456,13 @@ int32_t ApplyAbilityToEncounterRate(Dpr::Field::FieldEncount::ENC_FLD_SPA::Objec
             encounterRate /= 2;
         }
         else if (spa == array_index(ABILITIES, "Sand Veil") &&
-                 PlayerWork::getClass()->static_fields->_FieldWeather_k__BackingField == array_index(WEATHERS, "Sandstorm"))
+                 PlayerWork::getClass()->static_fields->_FieldWeather_k__BackingField == array_index(FIELD_WEATHERS, "Sandstorm"))
         {
             // Half if sandstorm
             encounterRate /= 2;
         }
         else if (spa == array_index(ABILITIES, "Snow Cloak") &&
-                 PlayerWork::getClass()->static_fields->_FieldWeather_k__BackingField == array_index(WEATHERS, "Snow"))
+                 PlayerWork::getClass()->static_fields->_FieldWeather_k__BackingField == array_index(FIELD_WEATHERS, "Snow"))
         {
             // Half if hail
             encounterRate /= 2;

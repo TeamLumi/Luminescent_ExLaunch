@@ -38,15 +38,15 @@ void exl_badge_check_main();
 // Adds support for new Poké Balls.
 void exl_balls_main();
 
+// Removes the automatic switch to the default battle camera on certain actions.
+void exl_battle_camera_fix_main();
+
 // Makes it possible to set a flag to prevent escape from a wild encounter.
 // Defaults to flag 2591, as Luminescent does it.
 void exl_battle_escape_flag_main();
 
 // Makes the battle menu scroll instead of the cursor.
 void exl_battle_revolver_main();
-
-// Removes the automatic switch to the default battle camera on certain actions.
-void exl_battle_camera_fix_main();
 
 // Adds support for custom color variations for player and NPCs.
 void exl_color_variations_main();

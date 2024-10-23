@@ -37,5 +37,10 @@ namespace Dpr::Battle::View::UI {
         inline void set_Text(System::String::Object* value) {
             external<void>(0x021d4640, this, value);
         }
+
+        // This has a MethodInfo, but it's unused in the method so we just ignore it
+        inline UnityEngine::RectTransform::Object* get_rectTransform() {
+            return external<UnityEngine::RectTransform::Object*>(0x021d4530, this);
+        }
     };
 }

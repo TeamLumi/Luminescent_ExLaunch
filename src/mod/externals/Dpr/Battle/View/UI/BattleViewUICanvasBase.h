@@ -5,10 +5,13 @@
 #include "externals/UnityEngine/Vector2.h"
 #include "externals/UnityEngine/RectTransform.h"
 #include "externals/System/Action.h"
-#include "externals/Dpr/Battle/View/UI/BUIWazaButton.h"
-#include "externals/Dpr/Battle/View/UI/BUIActionSelectButton.h"
 
 namespace Dpr::Battle::View::UI {
+    struct BUIActionSelectButton;
+    struct BUISituationButton;
+    struct BUISituationDescriptionButton;
+    struct BUIWazaButton;
+
     struct BattleViewUICanvasBase : ILClass<BattleViewUICanvasBase> {
         struct TransitionParams : ILStruct<TransitionParams> {
             struct Fields {
@@ -36,7 +39,9 @@ namespace Dpr::Battle::View::UI {
             int32_t _animationState_k__BackingField;
         };
 
-        static inline StaticILMethod<0x04c7c3e8, BUIWazaButton> Method$$SelectButton__BUIWazaButton__ {};
+        static inline StaticILMethod<0x04c7c3d0, BUISituationButton> Method$$BUISituationButton$$SelectButton {};
+        static inline StaticILMethod<0x04c7c3d8, BUISituationDescriptionButton> Method$$BUISituationDescriptionButton$$SelectButton {};
+        static inline StaticILMethod<0x04c7c3e8, BUIWazaButton> Method$$BUIWazaButton$$SelectButton {};
 
         template <typename T>
         inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, ILMethod<T>& method) {
@@ -53,6 +58,10 @@ namespace Dpr::Battle::View::UI {
 
         inline void OnShow() {
             external<void>(0x01d20590, this);
+        }
+
+        inline void PlayTransitionAnimation(bool isShow) {
+            external<void>(0x01d2d960, this, isShow);
         }
     };
 }

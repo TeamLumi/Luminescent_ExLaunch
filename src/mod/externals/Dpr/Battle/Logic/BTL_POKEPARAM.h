@@ -2,13 +2,16 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/FieldStatus.h"
 #include "externals/Dpr/Battle/Logic/PokeTypePair.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/WazaData/WazaSick.h"
+#include "externals/System/Collections/Generic/Dictionary.h"
+#include "externals/System/Collections/Generic/List.h"
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
-    struct BTL_POKEPARAM : ILClass<BTL_POKEPARAM> {
+    struct BTL_POKEPARAM : ILClass<BTL_POKEPARAM, 0x04c5a9d0> {
         enum class NemuriCheckMode : int32_t {
             NEMURI_CHECK_ONLY_SICK = 0,
             NEMURI_CHECK_INCLUDE_ZETTAINEMURI = 1,
@@ -130,6 +133,10 @@ namespace Dpr::Battle::Logic {
             void * m_fldSim;
         };
 
+        inline void ctor(FieldStatus::Object* fieldStatus) {
+            external<void>(0x01fda310, this, fieldStatus);
+        }
+
         inline bool IsFightEnable() {
             return external<bool>(0x01fd9750, this);
         }
@@ -242,6 +249,16 @@ namespace Dpr::Battle::Logic {
 
 namespace System::Collections::Generic {
     struct List$$BTL_POKEPARAM : List<List$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
+        static inline StaticILMethod<0x04c74028> Method$$IndexOf {};
+    };
 
+    struct Dictionary$$int32_t$$BTL_POKEPARAM : Dictionary$$int32_t<Dictionary$$int32_t$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
+        static inline StaticILMethod<0x04c875b0> Method$$set_Item {};
+        static inline StaticILMethod<0x04c68af8> Method$$get_Item {};
+        static inline StaticILMethod<0x04c70d90> Method$$get_Values {};
+    };
+
+    struct IEnumerable$$BTL_POKEPARAM : IEnumerable<IEnumerable$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
+        static inline StaticILMethod<0x04c716e0> Method$$ToList {};
     };
 }

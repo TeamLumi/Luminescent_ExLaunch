@@ -1,14 +1,16 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
+#include "externals/System/Collections/Generic/Dictionary.h"
 #include "externals/UnityEngine/Sprite.h"
 #include "externals/UnityEngine/UI/MaskableGraphic.h"
 
 namespace UnityEngine::UI {
     struct Image : ILClass<Image> {
         struct Fields : UnityEngine::UI::MaskableGraphic::Fields {
-            void* m_Sprite;
-            void* m_OverrideSprite;
+            Sprite::Object* m_Sprite;
+            Sprite::Object* m_OverrideSprite;
             int32_t m_Type;
             bool m_PreserveAspect;
             bool m_FillCenter;
@@ -30,5 +32,20 @@ namespace UnityEngine::UI {
         inline UnityEngine::Sprite::Object* get_sprite() {
             return external<UnityEngine::Sprite::Object*>(0x024b8ec0, this);
         }
+    };
+}
+
+namespace System::Collections::Generic {
+    struct List$$UnityEngine_UI_Image : List<List$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
+        static inline StaticILMethod<0x04c896b8> Method$$ctor {};
+    };
+
+    struct Dictionary$$int32_t$$UnityEngine_UI_Image : Dictionary$$int32_t<Dictionary$$int32_t$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
+        static inline StaticILMethod<0x04c87bb0> Method$$set_Item {};
+        static inline StaticILMethod<0x04c70da8> Method$$get_Values {};
+    };
+
+    struct IEnumerable$$UnityEngine_UI_Image : IEnumerable<IEnumerable$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
+        static inline StaticILMethod<0x04c71770> Method$$ToList {};
     };
 }

@@ -74,7 +74,7 @@ namespace Dpr::Battle::View::UI {
         }
 
         inline void virtual_ForceHide() {
-            (this->instance()->klass)->vtable->_10_ForceHide.methodPtr(((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)this), (this->instance()->klass)->vtable->_10_ForceHide.method);
+            (this->instance()->klass)->vtable._10_ForceHide.methodPtr(((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)this), (this->instance()->klass)->vtable._10_ForceHide.method);
         }
     };
 }

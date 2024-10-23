@@ -196,11 +196,11 @@ namespace Dpr::UI {
 
         inline void virtual_set_color(UnityEngine::Color::Object value) {
             UnityEngine::Color::Fields valueProxy = { .r = value.fields.r, .g = value.fields.g, .b = value.fields.b, .a = value.fields.a };
-            (this->instance()->klass)->vtable->_23_set_color.methodPtr(((UIText::Object*)this), valueProxy, (this->instance()->klass)->vtable->_23_set_color.method);
+            (this->instance()->klass)->vtable._23_set_color.methodPtr(((UIText::Object*)this), valueProxy, (this->instance()->klass)->vtable._23_set_color.method);
         }
 
         inline void virtual_set_text(System::String::Object* value) {
-            (this->instance()->klass)->vtable->_66_set_text.methodPtr(((UIText::Object*)this), value, (this->instance()->klass)->vtable->_66_set_text.method);
+            (this->instance()->klass)->vtable._66_set_text.methodPtr(((UIText::Object*)this), value, (this->instance()->klass)->vtable._66_set_text.method);
         }
     };
 }

@@ -105,6 +105,7 @@ static constexpr const char* BATTLE_FEATURES[] = {
     "Ability Handlers",
     "Field Handlers",
     "Side Handlers",
+    "Battle Situation",
 };
 
 constexpr int BATTLE_FEATURE_COUNT = sizeof(BATTLE_FEATURES) / sizeof(BATTLE_FEATURES[0]);

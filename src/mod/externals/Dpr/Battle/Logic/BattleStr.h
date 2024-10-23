@@ -30,8 +30,16 @@ namespace Dpr::Battle::Logic {
         static_assert(offsetof(Fields, checkTagSb) == 0x20);
         static_assert(offsetof(StaticFields, textSb) == 0x20);
 
+        inline System::String::Object* GetFormatUITrainerName(System::String::Object* label, uint8_t clientID, uint8_t bufID) {
+            return external<System::String::Object*>(0x01886720, this, label, clientID, bufID);
+        }
+
         inline System::String::Object* GetFormatUIText(System::String::Object* label, Dpr::Message::MessageMsgFile::Object* msgFile) {
             return external<System::String::Object*>(0x01886530, this, label, msgFile);
+        }
+
+        inline System::String::Object* GetFormatUIPokeName(System::String::Object* label, uint8_t pokeID, bool isTruth, uint8_t bufID) {
+            return external<System::String::Object*>(0x01886620, this, label, pokeID, isTruth, bufID);
         }
     };
 }

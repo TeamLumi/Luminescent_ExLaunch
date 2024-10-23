@@ -20,6 +20,8 @@ namespace UnityEngine {
 
         static inline StaticILMethod<0x04c66980, UnityEngine::Image> Method$$Image$$GetComponent {};
 
+        static inline StaticILMethod<0x04c8e9c0, UnityEngine::Component> Method$$Component$$GetComponents {};
+
         inline UnityEngine::Transform::Object* get_transform() {
             return external<UnityEngine::Transform::Object*>(0x026b18d0, this);
         }
@@ -34,6 +36,17 @@ namespace UnityEngine {
 
         inline bool get_activeSelf() {
             return external<bool>(0x026b1a10, this);
+        }
+
+        template <typename T>
+        inline T::Array* GetComponentsInternal(System::Type::Object* type, bool useSearchTypeAsArrayReturnType, bool recursive, bool includeInactive, bool reverse, Il2CppObject* resultList) {
+            return external<typename T::Array*>(0x026b1680, this, type, useSearchTypeAsArrayReturnType, recursive, includeInactive, reverse, resultList);
+        }
+
+        inline Component::Array* GetAllComponents() {
+            System::RuntimeTypeHandle::Object handle {};
+            handle.fields.value = &Component::getClass()->_1.byval_arg;
+            return GetComponentsInternal<Component>(System::Type::GetTypeFromHandle(handle), true, false, true, false, nullptr);
         }
 
         template <typename T>

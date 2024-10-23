@@ -92,6 +92,15 @@ namespace Dpr::UI {
 
         static_assert(sizeof(Fields) == 424);
 
+        static inline StaticILMethod<0x04c7f9a0> Method$$OnCreate_b_90 {};
+
+        static inline MethodInfo* Method$$GoBackAction = nullptr;
+        static MethodInfo* getMethod$$GoBackAction(Il2CppMethodPointer method) {
+            if (Method$$GoBackAction == nullptr)
+                Method$$GoBackAction = (*Method$$OnCreate_b_90)->copyWith(method);
+            return Method$$GoBackAction;
+        };
+
         inline void SelectApp(bool forward) {
             external<void>(0x01e68ca0, this, forward);
         }

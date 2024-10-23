@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "data/features.h"
 #include "data/gimmicks.h"
 #include "data/utils.h"
 
@@ -10,6 +11,7 @@
 #include "externals/Dpr/Battle/View/BtlvInput.h"
 #include "externals/Dpr/Battle/View/UI/BattleAffinityInfo.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionList.h"
+#include "externals/Dpr/Battle/View/UI/BUISituation.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaDescription.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Message/MessageWordSetHelper.h"
@@ -23,9 +25,14 @@
 #include "externals/UnityEngine/Debug.h"
 #include "externals/UnityEngine/UI/LayoutRebuilder.h"
 
+#include "features/activated_features.h"
+#include "features/battle/battle.h"
+
 #include "logger/logger.h"
 
+const uint32_t AK_EVENTS_UI_COMMON_BEEP = 0x707237c4;
 const uint32_t AK_EVENTS_UI_COMMON_CANCEL = 0xa4eb827e;
+const uint32_t AK_EVENTS_UI_COMMON_MENU_OPEN = 0x132562f0;
 const uint32_t AK_EVENTS_UI_COMMON_SELECT = 0xb7533038;
 const uint32_t AK_EVENTS_UI_COMMON_SLIDE = 0x19377fd7;
 
@@ -185,6 +192,13 @@ UnityEngine::Sprite::Object* GetDamageSpriteFromType(Dpr::Battle::View::UI::BUIW
     }
 }
 
+Dpr::Battle::View::UI::BUISituation::Object* GetSituationObject(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
+    auto situationTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituation"));
+    auto situationGO = ((UnityEngine::Component::Object*)situationTF)->get_gameObject();
+    auto situationCmpList = (UnityEngine::Component::Array*)situationGO->GetAllComponents();
+    return (Dpr::Battle::View::UI::BUISituation::Object*)situationCmpList->m_Items[2];
+}
+
 void SetMoveDescDamageType(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc, int32_t wazaNo) {
     Logger::log("[SetMoveDescDamageType] we're in\n");
     auto type = Pml::WazaData::WazaDataSystem::GetDamageType(wazaNo);
@@ -271,20 +285,26 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
         if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Up, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Battle Situation\n");
             if (__this->fields._IsFocus_k__BackingField && !__this->fields.isButtonAction) {
-                // TODO: Grab the battle Situation code from the new-ui branch
-                /*__this->fields.isButtonAction = true;
                 Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
-                Dpr::Battle::View::Systems::BattleViewUISystem::Object* battleViewUISystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
-                auto situationUI = getSituationUI(battleViewUISystem);
+                Dpr::Battle::View::Systems::BattleViewUISystem::Object *battleViewUISystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
 
-                __this->fields._IsValid_k__BackingField = false;
-                battleViewUISystem->SwitchShowDecoImage(false);
-                ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) __this)->Hide(false, nullptr);
+                if (IsActivatedBattleFeature(array_index(BATTLE_FEATURES, "Battle Situation"))) {
+                    __this->fields.isButtonAction = true;
+                    auto situationUI = GetSituationObject(battleViewUISystem);
 
-                situationUI->Initialize();
-                ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) situationUI)->Show(nullptr);
+                    __this->fields._IsValid_k__BackingField = false;
+                    battleViewUISystem->SwitchShowDecoImage(false);
+                    ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) __this)->Hide(false, nullptr);
+                    ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) wazaList)->Hide(false, nullptr);
 
-                battleViewUISystem->PlaySe(0x132562f0);*/
+                    situationUI->Initialize();
+                    ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) situationUI)->Show(nullptr);
+
+                    battleViewUISystem->PlaySe(AK_EVENTS_UI_COMMON_MENU_OPEN);
+                }
+                else {
+                    battleViewUISystem->PlaySe(AK_EVENTS_UI_COMMON_BEEP);
+                }
             }
         }
         else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Left, true)) {
@@ -401,8 +421,6 @@ HOOK_DEFINE_REPLACE(BUIWazaButton$$Initialize) {
         if (!info->fields.has_value)
             return;
 
-        Logger::log("[BUIWazaButton$$Initialize] we're in\n");
-
         __this->fields._Info_k__BackingField = *info;
         __this->fields._backgroundImage->set_sprite(typeSprite);
         __this->fields._effectiveBG->set_sprite(effBgSprite);
@@ -445,7 +463,7 @@ HOOK_DEFINE_REPLACE(BUIWazaButton$$Initialize) {
         int32_t wazano = bpp->WAZA_GetID(index);
         auto targets = Dpr::Battle::View::UI::BattleAffinityInfo::GetBattleTargets();
 
-        ((UnityEngine::GameObject::Object*)__this->fields._effectiveText)->SetActive(false);
+        __this->fields._effectiveText->cast<UnityEngine::Component>()->get_gameObject()->SetActive(false);
 
         Pml::Battle::TypeAffinity::AboutAffinityID affinity;
         bool canHit = Dpr::Battle::View::UI::BattleAffinityInfo::CheckWazaAffinity(bpp, wazano, targets, &affinity);
@@ -473,8 +491,6 @@ HOOK_DEFINE_REPLACE(BUIWazaButton$$Initialize) {
                     break;
             }
         }
-
-        Logger::log("[BUIWazaButton$$Initialize] done\n");
     }
 };
 

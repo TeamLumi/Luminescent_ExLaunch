@@ -1,6 +1,6 @@
 #pragma once
 
-static constexpr const char* WEATHERS[] = {
+static constexpr const char* FIELD_WEATHERS[] = {
         "Sunny",
         "Cloudy",
         "Rain",
@@ -23,4 +23,17 @@ static constexpr const char* WEATHERS[] = {
         "FOGM (Stubbed)",
 };
 
-constexpr int WEATHER_COUNT = sizeof(WEATHERS) / sizeof(WEATHERS[0]);
+constexpr int FIELD_WEATHER_COUNT = sizeof(FIELD_WEATHERS) / sizeof(FIELD_WEATHERS[0]);
+
+static constexpr const char* BATTLE_WEATHERS[] = {
+        "-BATTLE WEATHER ZERO-",
+        "Harsh Sunlight",
+        "Rain",
+        "Hail",
+        "Sandstorm",
+        "Heavy Rain",
+        "Extremely Harsh Sunlight",
+        "Strong Winds",
+};
+
+constexpr int BATTLE_WEATHER_COUNT = sizeof(BATTLE_WEATHERS) / sizeof(BATTLE_WEATHERS[0]);

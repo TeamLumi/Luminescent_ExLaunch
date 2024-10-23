@@ -222,5 +222,9 @@ namespace Pml::PokePara {
         inline void SetMultiPurposeWork(uint32_t value) {
             this->instance()->fields.m_accessor->SetMultiPurposeWork(value);
         }
+
+        inline uint32_t GetExp() {
+            return external<uint32_t>(0x02043f30, this);
+        }
     };
 }
