@@ -25,6 +25,10 @@ namespace Dpr::Battle::Logic {
             bool fRecalcPriority;
         };
 
+        inline void ctor() {
+            external<void>(0x020423d0, this);
+        };
+
         static inline int32_t GetWazaID(PokeAction::Object* action) {
             return external<int32_t>(0x02042560, action);
         }

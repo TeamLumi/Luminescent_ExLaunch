@@ -7,11 +7,12 @@
 #include "externals/UnityEngine/RectTransform.h"
 #include "externals/UnityEngine/Bounds.h"
 #include "externals/UnityEngine/DrivenRectTransformTracker.h"
+#include "externals/UnityEngine/RectOffset.h"
 
 namespace UnityEngine::UI {
     struct LayoutGroup : ILClass<LayoutGroup> {
         struct Fields : UnityEngine::EventSystems::UIBehaviour::Fields {
-            void* m_Padding;
+            UnityEngine::RectOffset::Object* m_Padding;
             int32_t m_ChildAlignment;
             UnityEngine::RectTransform::Object* m_Rect;
             UnityEngine::DrivenRectTransformTracker::Object m_Tracker;

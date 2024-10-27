@@ -64,13 +64,13 @@ HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_GetCharacterBagData) {
 };
 
 HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_LoadSpritePokemonDot) {
-    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
+    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, Pml::Sex sex, Pml::PokePara::RareType rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
         __this->LoadSpritePokemon(monsNo, formNo, sex, rareType, isEgg, onComplete);
     }
 };
 
 HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_LoadSpritePokemonLarge) {
-    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
+    static void Callback(Dpr::UI::UIManager::Object* __this, int32_t monsNo, uint16_t formNo, Pml::Sex sex, Pml::PokePara::RareType rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
         __this->LoadSpritePokemon(monsNo, formNo, sex, rareType, isEgg, onComplete);
     }
 };
