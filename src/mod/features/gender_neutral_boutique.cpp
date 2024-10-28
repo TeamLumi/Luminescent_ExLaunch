@@ -21,11 +21,10 @@ HOOK_DEFINE_REPLACE(Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams) {
 
         for (int32_t dressId = 0; dressId < OUTFIT_COUNT; dressId++)
         {
-            if (dressId == array_index(OUTFITS, "Contest Style Masculine") ||
-                dressId == array_index(OUTFITS, "Contest Style Feminine") ||
-                dressId == array_index(OUTFITS, "Bicycle Style Masculine") ||
+            if (dressId == array_index(OUTFITS, "Bicycle Style Masculine") ||
                 dressId == array_index(OUTFITS, "Bicycle Style Feminine") ||
-                dressId == array_index(OUTFITS, "Cyber Style 2.0 Masculine"))
+                dressId == array_index(OUTFITS, "Cyber Style 2.0 Masculine")||
+                dressId == array_index(OUTFITS, "Renegade Style Feminine"))
             {
                 // Don't add these outfits
                 continue;

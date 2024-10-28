@@ -30,6 +30,12 @@ namespace TMPro {
             void* OnPreRenderText; //System_Action_TMP_TextInfo__o*
         };
 
+        struct VirtualInvokeData_get_color {
+            typedef UnityEngine::Color::Fields(*Il2CppMethodPointer)(TMPro::TextMeshProUGUI::Object* __this, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VirtualInvokeData_set_text {
             typedef void(*Il2CppMethodPointer)(TMPro::TextMeshProUGUI::Object* __this, System::String::Object* value, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
@@ -59,7 +65,7 @@ namespace TMPro {
             VirtualInvokeData _19_unknown;
             VirtualInvokeData _20_unknown;
             VirtualInvokeData _21_unknown;
-            VirtualInvokeData _22_get_color;
+            VirtualInvokeData_get_color _22_get_color;
             VirtualInvokeData _23_set_color;
             VirtualInvokeData _24_get_raycastTarget;
             VirtualInvokeData _25_set_raycastTarget;
@@ -181,6 +187,13 @@ namespace TMPro {
             VirtualInvokeData _141_unknown;
             VirtualInvokeData _142_GenerateTextMesh;
         };
+
+        inline UnityEngine::Color::Object virtual_get_color() {
+            return {
+                .fields = (*(this->instance()->klass->vtable)._22_get_color.methodPtr)
+                            (this->instance(), this->instance()->klass->vtable._22_get_color.method)
+            };
+        }
 
         inline void virtual_set_text(System::String::Object* value) {
             (*(this->instance()->klass->vtable)._66_set_text.methodPtr)

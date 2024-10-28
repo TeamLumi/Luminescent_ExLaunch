@@ -49,6 +49,7 @@ static constexpr const char* FEATURES[] = {
     "Form Argument Pokémon Icons",
     "Form Argument Generation",
     "Pokédex Form Flags",
+    "Dialog Text Color",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
