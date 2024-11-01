@@ -254,5 +254,9 @@ namespace Pml::PokePara {
         inline uint32_t GetGetPlace() {
             return external<uint32_t>(0x024a6ee0, this);
         }
+
+        inline uint32_t GetBirthPlace() {
+            return external<uint32_t>(0x024a6f50, this);
+        }
     };
 }

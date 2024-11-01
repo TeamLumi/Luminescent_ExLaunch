@@ -12,14 +12,12 @@ bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager) {
 
     if (args->max_length >= 2) {
         int32_t index = GetWorkOrIntValue(args->m_Items[1]);
-        Logger::log("[GetCaughtLocation] Index: %d.\n", index);
 
         auto playerParty = PlayerWork::get_playerParty();
         auto memberPtr = playerParty->GetMemberPointer(index)->cast<Pml::PokePara::CoreParam>();
 
-        int32_t value = (memberPtr != nullptr && !memberPtr->IsNull()) ? memberPtr->fields.m_accessor->GetGetPlace() : 0;
+        int32_t value = (memberPtr != nullptr && !memberPtr->IsNull()) ? memberPtr->fields.m_accessor->GetBirthPlace() : 0;
         FlagWork::SetWork(GetWorkOrIntValue(args->m_Items[2]), value);
-        Logger::log("[GetCaughtLocation] PlaceID: %d.\n", value);
     }
 
     return true;
