@@ -76,6 +76,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(AddPokemonUIExtra(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_POKEMON_NAME_FORM:
                     return HandleCmdStepper(PokemonNameForm(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION:
+                    return HandleCmdStepper(GetCaughtLocation(__this));
                 default:
                     break;
             }
@@ -114,4 +116,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_COSTUME_GENDER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_UI_EXTRA);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_POKEMON_NAME_FORM);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION);
 }
