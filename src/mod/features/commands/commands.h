@@ -97,3 +97,9 @@ bool RivalStarterMonsNoFormNo(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] monsno: The work in which to put the monsno in.
 //   [Work] formno: The work in which to put the formno in.
 bool SupportStarterMonsNoFormNo(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the assistant's starter's species id and form id.
+// Arguments:
+//   [Work] Location: The work in which to put the location index in.
+//   [Work, Number] index: The index that points to the given Pokémon.
+bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);

@@ -1255,6 +1255,9 @@ namespace Dpr::EvScript {
             _FIRST_MONSNO_FORMNO = 1245,
             _RIVAL_MONSNO_FORMNO = 1246,
             _SUPPORT_MONSNO_FORMNO = 1247,
+            //1248 - 1254 Reserved
+            _GET_CAUGHT_LOCATION = 1255,
+
 
             CUSTOM_CMD_END = 1500,
         };
