@@ -133,3 +133,9 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] monsno: ID of the species to look up.
 //   [Work, Number] formno: ID of the form the species is in.
 bool PokemonNameForm(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the place ID of the selected mons index.
+// Arguments:
+//   [Work] Location: The work in which to put the location index in.
+//   [Work, Number] index: The index that points to the given Pokémon.
+bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
