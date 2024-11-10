@@ -42,4 +42,8 @@ struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
     static inline bool IsSee(uint32_t monsNo) {
         return external<bool>(0x017dca50, monsNo);
     }
+
+    static inline int32_t GetStatus(uint32_t monsNo) {
+        return external<int32_t>(0x017dcbd0, monsNo);
+    }
 };

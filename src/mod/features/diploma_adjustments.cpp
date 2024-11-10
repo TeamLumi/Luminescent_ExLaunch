@@ -5,6 +5,9 @@
 #include "helpers/fsHelper.h"
 #include "externals/ZukanWork.h"
 #include "save/save.h"
+#include "externals/Dpr/UI/UIZukan.h"
+#include "externals/Dpr/UI/UIManager.h"
+#include "externals/DPData/GET_STATUS.h"
 
 const char* diplomaFilePath = "rom:/Data/ExtraData/Zukan/Diploma.json";
 
@@ -121,6 +124,72 @@ HOOK_DEFINE_REPLACE(CheckZenzokuZukanCompGet) {
     }
 };
 
+HOOK_DEFINE_REPLACE(SetupZukan) {
+    static void Callback(Dpr::UI::UIZukan::Object* __this) {
+        system_load_typeinfo(0x9e73);
+        Logger::log("[SetupZukan]\n");
+        bool isNational = __this->fields.isShowZenkokuZukan;
+        auto displayClass = Dpr::UI::UIZukan::__c__DisplayClass66_0_::newInstance();
+        Logger::log("[SetupZukan] DispClass created\n");
+        __this->fields.descriptionPanel->SetBGHead(__this->fields.isShowZenkokuZukan);
+        Logger::log("[SetupZukan] SetBGHead\n");
+        __this->fields.zukanInfoList->Clear();
+        Logger::log("[SetupZukan] List Cleared\n");
+
+        if (!isNational) {
+            displayClass->fields.getCount = SinouCount(false, true);
+            displayClass->fields.foundCount = SinouCount(false, false);
+            auto sinnohDex = GetSinnohDex(ReadDiplomaJSON());
+
+            for (uint64_t i = 0; i < sinnohDex->max_length; i++) {
+                if (ZukanWork::GetStatus(sinnohDex->m_Items[i]) != static_cast<int32_t>(DPData::GET_STATUS::NONE)) {
+                    auto zukanInfo = Dpr::UI::ZukanInfo::newInstance(sinnohDex->m_Items[i], true);
+                    __this->fields.zukanInfoList->Add(zukanInfo);
+                    if (i == 0) Logger::log("[SetupZukan] Added to List\n");
+                }
+            }
+        }
+
+        else {
+            displayClass->fields.getCount = NatCount(false, true);
+            displayClass->fields.foundCount = NatCount(false, false);
+
+            for (uint64_t i = 0; i < DexSize; i++) {
+                if (ZukanWork::GetStatus(i) != static_cast<int32_t>(DPData::GET_STATUS::NONE)) {
+                    auto zukanInfo = Dpr::UI::ZukanInfo::newInstance(i, false);
+                    __this->fields.zukanInfoList->Add(zukanInfo);
+                    if (i == 0) Logger::log("[SetupZukan] Added to List\n");
+                }
+            }
+        }
+
+
+        auto getCountText = __this->fields.getCountText;
+        auto getCountTextMI = *Dpr::UI::UIZukan::__c__DisplayClass66_0_::Method$$__SetupZukan__b__0;
+        auto onSet = UnityEngine::Events::UnityAction::getClass(
+                UnityEngine::Events::UnityAction::void_TypeInfo)->newInstance(displayClass, getCountTextMI);
+        getCountText->SetFormattedText(onSet, nullptr, nullptr);
+        Logger::log("[SetupZukan] Set Formatted Text\n");
+
+        auto foundCountText = __this->fields.foundCountText;
+        auto foundCountTextMI = *Dpr::UI::UIZukan::__c__DisplayClass66_0_::Method$$__SetupZukan__b__1;
+        auto onSetFound = UnityEngine::Events::UnityAction::getClass(
+                UnityEngine::Events::UnityAction::void_TypeInfo)->newInstance(displayClass, foundCountTextMI);
+        foundCountText->SetFormattedText(onSetFound, nullptr, nullptr);
+        Logger::log("[SetupZukan] Set Formatted Text2\n");
+
+        auto headerSprites = __this->fields.headerSprites;
+        if (isNational < headerSprites->max_length) {
+            __this->fields.headerImage->set_sprite(headerSprites->m_Items[isNational]);
+            auto titleString = System::String::Create(!isNational ? "dex_txt_title_01_01" : "dex_txt_title_01_02");
+            auto sprite = Dpr::UI::UIManager::instance()->GetAtlasSprite(SpriteAtlasID::COMMON_LANG, titleString);
+            __this->fields.titleImage->set_sprite(sprite);
+            Logger::log("[SetupZukan] Set Sprite\n");
+        }
+
+    }
+};
+
 //HOOK_DEFINE_INLINE(ShinouX8) {
 //    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
 //        ctx->X[8] = reinterpret_cast<u64>(GetSinnohDex(ReadDiplomaJSON()));
@@ -170,6 +239,7 @@ void exl_diploma_adjustments_main() {
     SeeCount::InstallAtOffset(0x017db8f0);
     CheckShinouZukanCompSee::InstallAtOffset(0x017dd0b0);
     CheckZenzokuZukanCompGet::InstallAtOffset(0x017dd260);
+    SetupZukan::InstallAtOffset(0x01a39650);
 
 //    /* Inline Hooks */
 //    ShinouX8::InstallAtOffset(0x01a39920);

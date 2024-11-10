@@ -5,6 +5,7 @@
 #include "externals/System/String.h"
 #include "externals/TMPro/TextMeshProUGUI.h"
 #include "externals/System/Collections/Generic/List.h"
+#include "externals/UnityEngine/Events/UnityAction.h"
 
 namespace Dpr::UI {
     struct UIText : ILClass<UIText> {
@@ -192,6 +193,11 @@ namespace Dpr::UI {
 
         inline void ChangeLanguage(int32_t langId) {
             external<void>(0x01dd19b0, this, langId);
+        }
+
+        inline void SetFormattedText(UnityEngine::Events::UnityAction::Object* onSet, System::String::Object* messageFile,
+                                     System::String::Object* messageId) {
+            external<void>(0x01dc76c0, this, onSet, messageFile, messageId);
         }
 
         inline void virtual_set_color(UnityEngine::Color::Object value) {

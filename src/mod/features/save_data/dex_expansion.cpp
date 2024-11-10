@@ -45,7 +45,7 @@ void exl_save_dex_expansion_main() {
         { 0x0199ca48, CmpImmediate(W9, DexSize + 1) },
         { 0x0199ca54, SubImmediate(W8, W8, DexSize - 1) },
         { 0x0199ca88, AddImmediate(W8, W8, DexSize - 1) },
-        { 0x01a39760, CmpImmediate(W22, DexSize + 1) },
+//        { 0x01a39760, CmpImmediate(W22, DexSize + 1) }, No longer required with SetupZukan replace hook
         { 0x01cd637c, CmpImmediate(W8, DexSize - 1) },
         { 0x01cd6494, CmpImmediate(W8, DexSize) },
         { 0x01cd6628, CmpImmediate(W8, DexSize - 1) },
