@@ -106,6 +106,8 @@ void CallFeatureHooks()
         exl_form_arg_generation_main();
     if (IsActivatedFeature(array_index(FEATURES, "Pokédex Form Flags")))
         exl_dex_form_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Diploma Adjustments")))
+        exl_diploma_adjustments_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

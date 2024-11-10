@@ -34,4 +34,12 @@ struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
     static inline void ZenkokuON() {
         external<void>(0x017db310);
     }
+
+    static inline bool IsGet(uint32_t monsNo) {
+        return external<bool>(0x017dc990, monsNo);
+    }
+
+    static inline bool IsSee(uint32_t monsNo) {
+        return external<bool>(0x017dca50, monsNo);
+    }
 };
