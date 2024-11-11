@@ -60,7 +60,7 @@ struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
         return external<bool>(0x017dca50, monsNo);
     }
 
-    static inline int32_t GetStatus(uint32_t monsNo) {
-        return external<int32_t>(0x017dcbd0, monsNo);
+    static inline DPData::GET_STATUS GetStatus(uint32_t monsNo) {
+        return external<DPData::GET_STATUS>(0x017dcbd0, monsNo);
     }
 };
