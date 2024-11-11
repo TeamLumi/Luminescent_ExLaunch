@@ -7,6 +7,23 @@
 #include "externals/Pml/PokePara/PokemonParam.h"
 
 struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
+
+    struct StaticFields {
+        System::Int32_array* ShinouZukanNos;
+        System::Int32_array* ShinouZukanCompSeeExcludeNos;
+        System::Int32_array* ZenzokuZukanCompGetExcludeNos;
+        System::Int32_array* ZukanRatingExcludeNos;
+        int32_t zukanSortType;
+        System::Int32_array* viewModelUniqueIDs;
+        int32_t ListIndex;
+        float ListScrollPosition;
+        int32_t SelectLanguageIndex;
+        bool IsShowFootPrintBoth;
+        bool IsShowDescription;
+        bool IsShowShinouZukan;
+    };
+
+
     static inline bool GetZenkokuFlag() {
         return external<bool>(0x017db490);
     }
