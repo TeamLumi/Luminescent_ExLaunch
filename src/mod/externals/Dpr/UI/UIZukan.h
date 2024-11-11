@@ -61,5 +61,7 @@ namespace Dpr::UI {
             int32_t loadModelCount;
             ShowZukanType showZukanType;
         };
+
+        static_assert(offsetof(Fields, showZukanType) == 0x118);
     };
 }

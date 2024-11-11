@@ -39,7 +39,7 @@ HOOK_DEFINE_INLINE(ZukanWork$$ctor_Sinou) {
     }
 };
 
-HOOK_DEFINE_INLINE(ZukanWork$$ctor_Zenzoku) {
+HOOK_DEFINE_INLINE(ZukanWork$$ctor_Zenkoku) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         ctx->X[0] = reinterpret_cast<u64>(GetExcludedMythicals(ReadDiplomaJSON()));
     }
@@ -53,8 +53,8 @@ HOOK_DEFINE_INLINE(NOP) {
 
 void exl_diploma_adjustments_main() {
     ZukanWork$$ctor_Sinou::InstallAtOffset(0x017dde04);
-    ZukanWork$$ctor_Zenzoku::InstallAtOffset(0x017dde74);
-    ZukanWork$$ctor_Zenzoku::InstallAtOffset(0x017ddeac);
+    ZukanWork$$ctor_Zenkoku::InstallAtOffset(0x017dde74);
+    ZukanWork$$ctor_Zenkoku::InstallAtOffset(0x017ddeac);
 
     NOP::InstallAtOffset(0x017dde1c);
     NOP::InstallAtOffset(0x017dde8c);
