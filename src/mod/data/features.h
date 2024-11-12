@@ -42,10 +42,13 @@ static constexpr const char* FEATURES[] = {
     "Visible Shiny Eggs",
     "Contest NPC Forms",
     "Re:Lumi Pokédex UI",
+    "Madrid UI",
+    "Mega Evolution",
     "Local Trades Extension",
     "Spinda Hijacking",
     "Form Argument Pokémon Icons",
     "Form Argument Generation",
+    "Pokédex Form Flags",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
@@ -102,6 +105,7 @@ static constexpr const char* BATTLE_FEATURES[] = {
     "Ability Handlers",
     "Field Handlers",
     "Side Handlers",
+    "Battle Situation",
 };
 
 constexpr int BATTLE_FEATURE_COUNT = sizeof(BATTLE_FEATURES) / sizeof(BATTLE_FEATURES[0]);

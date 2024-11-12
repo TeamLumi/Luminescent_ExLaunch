@@ -11,6 +11,7 @@ namespace System {
     typedef int32_t Int32;
     typedef uint32_t UInt32;
     typedef int64_t Int64;
+    typedef uint64_t UInt64;
     typedef float Single;
 
     PRIMITIVE_ARRAY(Boolean, 0x04c55920)
@@ -20,5 +21,6 @@ namespace System {
     PRIMITIVE_ARRAY(Int32, 0x04c553e0)
     PRIMITIVE_ARRAY(UInt32, 0x04c558c8)
     PRIMITIVE_ARRAY(Int64, 0x04c56388)
+    PRIMITIVE_ARRAY(UInt64, 0x04c563a0)
     PRIMITIVE_ARRAY(Single, 0x04c56398)
 }

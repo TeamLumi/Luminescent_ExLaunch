@@ -72,6 +72,8 @@ void exl_save_dex_expansion_main() {
         { 0x024a2bc8, CmpImmediate(W19, DexSize) },
         { 0x024a3b48, Movz(W9, DexSize + 1) },
         { 0x024a6b38, Movz(W0, DexSize + 1) },
+        { 0x017da928, Movz(W19, DexSize)}, // Dex Array Expansion
+
     };
     p.WriteInst(inst);
 

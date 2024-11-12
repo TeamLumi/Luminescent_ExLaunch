@@ -81,7 +81,7 @@ namespace Dpr::UI {
             return external<int32_t>(0x017c4990, value, start, end);
         }
 
-        inline void LoadSpritePokemon(int32_t monsNo, uint16_t formNo, uint8_t sex, uint8_t rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
+        inline void LoadSpritePokemon(int32_t monsNo, uint16_t formNo, Pml::Sex sex, Pml::PokePara::RareType rareType, bool isEgg, UnityEngine::Events::UnityAction::Object* onComplete) {
             external<void>(0x017c3ef0, this, monsNo, formNo, sex, rareType, isEgg, onComplete);
         }
 

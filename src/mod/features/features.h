@@ -38,15 +38,15 @@ void exl_badge_check_main();
 // Adds support for new Poké Balls.
 void exl_balls_main();
 
+// Removes the automatic switch to the default battle camera on certain actions.
+void exl_battle_camera_fix_main();
+
 // Makes it possible to set a flag to prevent escape from a wild encounter.
 // Defaults to flag 2591, as Luminescent does it.
 void exl_battle_escape_flag_main();
 
 // Makes the battle menu scroll instead of the cursor.
 void exl_battle_revolver_main();
-
-// Removes the automatic switch to the default battle camera on certain actions.
-void exl_battle_camera_fix_main();
 
 // Adds support for custom color variations for player and NPCs.
 void exl_color_variations_main();
@@ -56,6 +56,9 @@ void exl_commands_main();
 
 // Adds support for contest NPCs to have alternate forms of Pokémon.
 void exl_contest_npc_forms_main();
+
+// Adds support for form flags for every species in the Pokédex.
+void exl_dex_form_flags_main();
 
 // Rewrites the methods that deal with determining a zone's encounter slots.
 // Defaults to changing slots how Luminescent does it.
@@ -91,6 +94,12 @@ void exl_language_select_main();
 
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
+
+//
+void exl_madrid_ui_main();
+
+//
+void exl_mega_evolution_main();
 
 // Uniformizes local trades across languages and allows extending the table in RomFS.
 void exl_local_trades_main();
