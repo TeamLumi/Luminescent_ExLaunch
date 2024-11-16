@@ -11,4 +11,6 @@ void exl_save_data_expansion_main() {
         exl_save_box_expansion_main();
     if (IsActivatedSaveFeature(array_index(SAVE_FEATURES, "Dex Expansion")))
         exl_save_dex_expansion_main();
+    if (IsActivatedSaveFeature(array_index(SAVE_FEATURES, "Roamer Expansion")))
+        exl_more_roamers_main();
 };

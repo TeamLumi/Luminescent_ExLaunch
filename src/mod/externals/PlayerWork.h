@@ -343,4 +343,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
         external<void>(0x02cf0fd0, value);
     }
+
+    static inline void set_Enc_SV_Data(DPData::ENC_SV_DATA::Object* value) {
+        external<void>(0x02cf27d0, value);
+    }
 };

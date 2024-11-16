@@ -6,6 +6,7 @@
 #include "romdata/data/HoneyTreeEncounters.h"
 #include "romdata/data/IntroData.h"
 #include "romdata/data/LocalTrade.h"
+#include "romdata/data/RoamerData.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
@@ -76,3 +77,4 @@ nn::vector<uint32_t> GetVariantRates(int32_t monsno, int32_t formno, int32_t zon
 int32_t RollForVariant(int32_t monsno, int32_t formno, int32_t zoneID);
 
 void LoadFeaturesFromJSON(nn::json j);
+

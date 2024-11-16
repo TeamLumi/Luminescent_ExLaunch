@@ -226,5 +226,9 @@ namespace Pml::PokePara {
         inline uint32_t GetExp() {
             return external<uint32_t>(0x02043f30, this);
         }
+
+        inline uint32_t GetSick() {
+            return external<uint32_t>(0x02043e10, this);
+        }
     };
 }

@@ -3,7 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace DPData {
-    struct MV_POKE_DATA : ILStruct<MV_POKE_DATA> {
+    struct MV_POKE_DATA : ILStruct<MV_POKE_DATA, 0x04c5a478> {
         #pragma pack(push, 4)
         struct Fields {
             int32_t ZoneIDIndex;

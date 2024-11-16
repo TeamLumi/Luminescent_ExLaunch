@@ -17,6 +17,7 @@ constexpr int32_t TrainerCount = 10000;
 constexpr int32_t SaveItemCount = 10000;
 constexpr int32_t BerryCount = 1000;
 constexpr int32_t BoxCount = 80;
+constexpr int32_t RoamerCount = 5;
 
 struct CustomSaveData {
     static constexpr const char* mainSaveName = "SaveData:/SaveData.bin";

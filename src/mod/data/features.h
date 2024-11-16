@@ -96,6 +96,7 @@ static constexpr const char* SAVE_FEATURES[] = {
     "Badge Expansion",
     "Box Expansion",
     "Dex Expansion",
+    "Roamer Expansion"
 };
 
 constexpr int SAVE_FEATURE_COUNT = sizeof(SAVE_FEATURES) / sizeof(SAVE_FEATURES[0]);
