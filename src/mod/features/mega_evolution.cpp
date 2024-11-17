@@ -30,7 +30,7 @@
 #include "helpers/fsHelper.h"
 #include "memory/json.h"
 
-const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
+/*const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
 const long mega_flag_mask = 1L << mega_flag_loc;
 
 const int32_t ultra_burst_flag_loc = 30;
@@ -464,7 +464,7 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
 
         Orig(battleSetupParam, arenaID, mapAttrib, weatherType, rule, enemyID0, enemyID1, partnerID);
     }
-};
+};*/
 
 void exl_mega_evolution_main() {
     /*OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
