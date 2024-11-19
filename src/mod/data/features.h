@@ -50,6 +50,7 @@ static constexpr const char* FEATURES[] = {
     "Form Argument Generation",
     "AYou Patches",
     "Pokédex Form Flags",
+    "Diploma Adjustments",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

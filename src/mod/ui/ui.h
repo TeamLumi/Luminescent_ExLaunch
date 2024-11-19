@@ -18,5 +18,6 @@ void setArenaSettings(bool enabled, int id);
 void showAreaName();
 void setFlyOverride(bool enabled);
 void setFullDex(int getStatus);
+void setOrigDex(int getStatus);
 
 #define ROOT getRootElement()

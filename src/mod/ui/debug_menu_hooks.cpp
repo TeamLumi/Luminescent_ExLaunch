@@ -92,6 +92,29 @@ void setFullDex(int getStatus) {
     ZukanWork::DebugSet(25, DPData::GET_STATUS::GET, Pml::Sex::UNKNOWN, 3, false, true);
 }
 
+void setOrigDex(int getStatus) {
+    for (int i=1; i<=493; i++) {
+        ZukanWork::DebugSet(i, (DPData::GET_STATUS)getStatus, Pml::Sex::UNKNOWN, 0, true, (DPData::GET_STATUS)getStatus >= DPData::GET_STATUS::GET);
+        ZukanWork::DebugSet(i, (DPData::GET_STATUS)getStatus, Pml::Sex::UNKNOWN, 0, false, (DPData::GET_STATUS)getStatus >= DPData::GET_STATUS::GET);
+
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::JPN);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::USA);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::FRA);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::ITA);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::DEU);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::ESP);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::KOR);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::SCH);
+        ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::TCH);
+    }
+
+    ZukanWork::DebugSet(25, DPData::GET_STATUS::GET, Pml::Sex::UNKNOWN, 0, true, true);
+    ZukanWork::DebugSet(25, DPData::GET_STATUS::GET, Pml::Sex::UNKNOWN, 0, false, true);
+
+    ZukanWork::DebugSet(25, DPData::GET_STATUS::GET, Pml::Sex::UNKNOWN, 3, true, true);
+    ZukanWork::DebugSet(25, DPData::GET_STATUS::GET, Pml::Sex::UNKNOWN, 3, false, true);
+}
+
 HOOK_DEFINE_TRAMPOLINE(FlyOverride) {
     static bool Callback(void* __this, bool useArrive) {
         if (flyOverride) {
