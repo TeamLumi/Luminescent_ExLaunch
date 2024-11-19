@@ -6,8 +6,11 @@
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/poketool/poke_memo/poketool_poke_memo.h"
 #include "externals/ZukanWork.h"
+#include "externals/Dpr/EvScript/EvDataManager.h"
 
 #include "logger/logger.h"
+#include "helpers/fsHelper.h"
+#include "memory/json.h"
 
 float ConvertToFloat(int32_t value)
 {
@@ -56,6 +59,13 @@ float GetWorkOrFloatValue(EvData::Aregment::Object arg)
     }
 
     return result;
+}
+
+System::String::Object* GetStringText(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg) {
+    EvData::Object* evData = manager->fields._evData->fields._EvData;
+    auto argType = static_cast<EvData::ArgType>(arg.fields.argType);
+
+    return (argType == EvData::ArgType::String) ? evData->GetString(arg.fields.data) : System::String::Create("");
 }
 
 void SetWorkToValue(EvData::Aregment::Object arg, int32_t value)

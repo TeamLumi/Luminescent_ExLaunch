@@ -104,6 +104,8 @@ void CallFeatureHooks()
         exl_form_arg_icons_main();
     if (IsActivatedFeature(array_index(FEATURES, "Form Argument Generation")))
         exl_form_arg_generation_main();
+    if (IsActivatedFeature(array_index(FEATURES, "AYou Patches")))
+        exl_ayou_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Pokédex Form Flags")))
         exl_dex_form_flags_main();
 

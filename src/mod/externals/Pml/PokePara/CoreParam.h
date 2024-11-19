@@ -226,5 +226,9 @@ namespace Pml::PokePara {
         inline uint32_t GetExp() {
             return external<uint32_t>(0x02043f30, this);
         }
+
+        inline uint32_t GetMemories(int32_t memoriesKind) {
+            return external<uint32_t>(0x204ac30, this, memoriesKind);
+        }
     };
 }

@@ -97,3 +97,55 @@ bool RivalStarterMonsNoFormNo(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] monsno: The work in which to put the monsno in.
 //   [Work] formno: The work in which to put the formno in.
 bool SupportStarterMonsNoFormNo(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the form of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] formno: The form to set the Pokémon to.
+bool ChangeFormNo(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the gender of the given outfit index.
+// Arguments:
+//   [Work, Number] index: The index of the outfit to check.
+//   [Work] result: The gender of the outfit, where 0 is masculine and 1 is feminine.
+bool GetCostumeGender(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Compares the value of the variable given to the last _SWITCH command ran to another value, then calls a script if they are equal.
+// Arguments:
+//   [Work, Number] Value: Value to compare to.
+//   [Label] Script: Script to call.
+bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives a Pokémon to the Player.
+// Arguments:
+//   [Work, Number] monsno: ID of the species to give.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] level: Level of the Pokémon to give.
+//   [Work, Number] item: ID of the item the Pokémon is to hold.
+//   [Work, Number] maxIVs: Number of max IVs the Pokémon will have.
+//   [Work, Number] ball: ID of the ball the Pokémon will reside in.
+bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Inserts a string of the specified Pokémon's form name into the supplied tagIndex.
+// Arguments:
+//   [Work, Number] tagIndex: The tagIndex where the string will be set into.
+//   [Work, Number] monsno: ID of the species to look up.
+//   [Work, Number] formno: ID of the form the species is in.
+bool PokemonNameForm(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Opens the keyboard to set the player's codename.
+// Arguments:
+//   None.
+bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Inserts a string of the player's codename into the supplied tagIndex.
+// Arguments:
+//   [Work, Number] tagIndex: The tagIndex where the string will be set into.
+bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the place ID of the selected mons index.
+// Arguments:
+//   [Work] Location: The work in which to put the location index in.
+//   [Work, Number] index: The index that points to the given Pokémon.
+bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
