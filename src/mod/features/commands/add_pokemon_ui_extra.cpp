@@ -10,7 +10,6 @@
 #include "externals/FlagWork_Enums.h"
 #include "externals/FlagWork.h"
 
-
 void EvCmdAddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager, int32_t addMemberResult) {
     EvData::Aregment::Array* args = manager->fields._evArg;
     if (args->max_length >= 7) {
@@ -34,7 +33,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             Dpr::UI::UIZukanRegister::Object* uiZukanReg = uiManager->CreateUIWindow(
                     UIWindowID::ZUKAN_REGISTER, Dpr::UI::UIManager::Method$$CreateUIWindow_UIZukanRegister_);
 
-            MethodInfo* mi = (*Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdAddPokemonUI)->copyWith((Il2CppMethodPointer) &EvCmdAddPokemonUIExtra);
+            MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdAddPokemonUIExtra((Il2CppMethodPointer) &EvCmdAddPokemonUIExtra);
             auto onComplete = System::Action::getClass(
                     System::Action::UIZukanRegister_AddMemberResult_TypeInfo)->newInstance(manager, mi);
 

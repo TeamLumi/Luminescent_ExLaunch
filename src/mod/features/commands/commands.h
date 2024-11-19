@@ -113,7 +113,7 @@ bool GetCostumeGender(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Compares the value of the variable given to the last _SWITCH command ran to another value, then calls a script if they are equal.
 // Arguments:
-//   [Number, Label] Value: Value to compare to.
+//   [Work, Number] Value: Value to compare to.
 //   [Label] Script: Script to call.
 bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
 
@@ -122,7 +122,7 @@ bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] monsno: ID of the species to give.
 //   [Work, Number] formno: ID of the form the species is in.
 //   [Work, Number] level: Level of the Pokémon to give.
-//   [Work, Number] item: ID of the item the Pokémon is to hold
+//   [Work, Number] item: ID of the item the Pokémon is to hold.
 //   [Work, Number] maxIVs: Number of max IVs the Pokémon will have.
 //   [Work, Number] ball: ID of the ball the Pokémon will reside in.
 bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager);
