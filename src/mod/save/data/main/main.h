@@ -10,7 +10,8 @@ enum class ModVersion : int32_t {
     Vanilla,
 
     // Mod releases (in order!)
-    Release_3_0,
+    Re_Lease, // 3.0
+    Future, // 3.1
 
     // Development version, always after the latest release
     Dev,
@@ -35,8 +36,7 @@ struct MainSaveData {
         Initialize();
         version = static_cast<ModVersion>(main["version"].get<int32_t>());
     }
-
 };
 
-void loadMain(bool isBackup);
-nn::json saveMain();
+void loadMainFromJson(const nn::json& saveFile);
+nn::json getMainAsJson();

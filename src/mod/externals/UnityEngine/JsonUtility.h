@@ -1,5 +1,7 @@
 #pragma once
+
 #include "externals/il2cpp-api.h"
+
 #include "externals/System/String.h"
 
 namespace UnityEngine {
@@ -17,4 +19,3 @@ namespace UnityEngine {
         }
     };
 }
-

@@ -222,5 +222,13 @@ namespace Pml::PokePara {
         inline void SetMultiPurposeWork(uint32_t value) {
             this->instance()->fields.m_accessor->SetMultiPurposeWork(value);
         }
+
+        inline uint32_t GetExp() {
+            return external<uint32_t>(0x02043f30, this);
+        }
+
+        inline uint32_t GetMemories(int32_t memoriesKind) {
+            return external<uint32_t>(0x204ac30, this, memoriesKind);
+        }
     };
 }

@@ -92,6 +92,10 @@ void CallFeatureHooks()
         exl_contest_npc_forms_main();
     if (IsActivatedFeature(array_index(FEATURES, "Re:Lumi Pokédex UI")))
         exl_relumi_dex_ui();
+    if (IsActivatedFeature(array_index(FEATURES, "Madrid UI")))
+        exl_madrid_ui_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Mega Evolution")))
+        exl_mega_evolution_main();
     if (IsActivatedFeature(array_index(FEATURES, "Local Trades Extension")))
         exl_local_trades_main();
     if (IsActivatedFeature(array_index(FEATURES, "Spinda Hijacking")))
@@ -102,6 +106,8 @@ void CallFeatureHooks()
         exl_form_arg_generation_main();
     if (IsActivatedFeature(array_index(FEATURES, "AYou Patches")))
         exl_ayou_patches_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Pokédex Form Flags")))
+        exl_dex_form_flags_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

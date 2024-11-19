@@ -1262,6 +1262,7 @@ namespace Dpr::EvScript {
             _POKEMON_NAME_FORM = 1252,
             _SET_AYOU_NAME = 1253,
             _AYOU_NAME = 1254,
+            _GET_CAUGHT_LOCATION = 1255,
 
             CUSTOM_CMD_END = 1500,
         };

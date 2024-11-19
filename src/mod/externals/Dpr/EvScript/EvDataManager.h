@@ -352,7 +352,21 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c77ce0, int32_t, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnInputCheck {};
         static inline StaticILMethod<0x04c7cf70, int32_t, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
         static inline StaticILMethod<0x04c7cfd0>                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
-        static inline StaticILMethod<0x04c7cfd8, int32_t> Method$$EvDataManager_EvCmdAddPokemonUI {};
+        static inline StaticILMethod<0x04c7cfd8, int32_t>          Method$$EvDataManager_EvCmdAddPokemonUI {};
+
+        static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
+        static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {
+            if (Method$$EvCmdCallWazaOmoidashiUiParty == nullptr)
+                Method$$EvCmdCallWazaOmoidashiUiParty = (*PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi)->copyWith(method);
+            return Method$$EvCmdCallWazaOmoidashiUiParty;
+        };
+
+        static inline MethodInfo* Method$$EvCmdCallWazaOshieUiParty = nullptr;
+        static MethodInfo* getMethod$$EvCmdCallWazaOshieUiParty(Il2CppMethodPointer method) {
+            if (Method$$EvCmdCallWazaOshieUiParty == nullptr)
+                Method$$EvCmdCallWazaOshieUiParty = (*PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith(method);
+            return Method$$EvCmdCallWazaOshieUiParty;
+        };
 
         inline bool RunEvCmd(int32_t index) {
             return external<bool>(0x02c5b290, this, index);

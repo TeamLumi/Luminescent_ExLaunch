@@ -27,5 +27,5 @@ struct AYouSaveData {
 
 };
 
-void loadAYou(bool isBackup);
-nn::json saveAYou();
+void loadAYouFromJson(const nn::json& saveFile);
+nn::json getAYouAsJson();

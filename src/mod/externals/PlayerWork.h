@@ -182,7 +182,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static_assert(offsetof(StaticFields, _SafariBallNum_k__BackingField) == 72);
 
-    struct Fields : SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::Fields {
+    struct Fields : SmartPoint::Components::PlayerPrefsProvider::Fields {
         PlayerWork::SaveData::Object _saveData;
         int32_t _transitionZoneID;
         int32_t _locatorIndex;
@@ -341,6 +341,10 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     }
 
     static inline PlayerWork::Object* get_instance() {
-        return SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::get_instance(Method$PlayerWork_get_instance);
+        return SmartPoint::Components::PlayerPrefsProvider::get_instance(Method$PlayerWork_get_instance);
+    }
+
+    static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
+        external<void>(0x02cf0fd0, value);
     }
 };
