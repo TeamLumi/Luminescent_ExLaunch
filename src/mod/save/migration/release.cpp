@@ -12,6 +12,8 @@ void migrateToReLease(PlayerWork::Object* playerWork) {
 
     // Initialize Data Expansions
     save->playerColorVariation.Initialize();
+    save->dexForms.Initialize();
+    save->ayou.Initialize();
 
     // Set player color to the one in the vanilla save
     save->playerColorVariation.playerColorID = myStatus.body_type;

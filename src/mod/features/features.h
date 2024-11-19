@@ -32,6 +32,9 @@ void exl_alt_starters_main();
 // Overrides calls to C#'s Enum.GetName on AreaID and ZoneID enums.
 void exl_area_zone_codes_main();
 
+// Provides functionality for AYou's custom name.
+void exl_ayou_patches_main();
+
 // Swaps the badges to the Platinum order.
 void exl_badge_check_main();
 

@@ -1255,6 +1255,14 @@ namespace Dpr::EvScript {
             _FIRST_MONSNO_FORMNO = 1245,
             _RIVAL_MONSNO_FORMNO = 1246,
             _SUPPORT_MONSNO_FORMNO = 1247,
+            _CHANGE_FORMNO = 1248,
+            _GET_COSTUME_GENDER = 1249,
+            _CASE_CALL = 1250,
+            _ADD_POKEMON_UI_EXTRA = 1251,
+            _POKEMON_NAME_FORM = 1252,
+            _SET_AYOU_NAME = 1253,
+            _AYOU_NAME = 1254,
+            _GET_CAUGHT_LOCATION = 1255,
 
             CUSTOM_CMD_END = 1500,
         };

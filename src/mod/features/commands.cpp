@@ -66,6 +66,22 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(RivalStarterMonsNoFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SUPPORT_MONSNO_FORMNO:
                     return HandleCmdStepper(SupportStarterMonsNoFormNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CHANGE_FORMNO:
+                    return HandleCmdStepper(ChangeFormNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_COSTUME_GENDER:
+                    return HandleCmdStepper(GetCostumeGender(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CASE_CALL:
+                    return HandleCmdStepper(CaseCall(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_UI_EXTRA:
+                    return HandleCmdStepper(AddPokemonUIExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_POKEMON_NAME_FORM:
+                    return HandleCmdStepper(PokemonNameForm(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_AYOU_NAME:
+                    return HandleCmdStepper(SetAYouName(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_AYOU_NAME:
+                    return HandleCmdStepper(AYouName(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION:
+                    return HandleCmdStepper(GetCaughtLocation(__this));
                 default:
                     break;
             }
@@ -82,6 +98,7 @@ void exl_commands_main() {
     // Select which new commands/overrides are activated
     for (bool & i : ACTIVATED_COMMANDS)
         i = false;
+
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET);
@@ -99,4 +116,12 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_MONSNO_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RIVAL_MONSNO_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SUPPORT_MONSNO_FORMNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHANGE_FORMNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_COSTUME_GENDER);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CASE_CALL);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_UI_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_POKEMON_NAME_FORM);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_AYOU_NAME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_AYOU_NAME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION);
 }

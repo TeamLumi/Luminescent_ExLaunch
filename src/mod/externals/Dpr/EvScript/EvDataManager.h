@@ -5,6 +5,7 @@
 #include "externals/Dpr/EvScript/EvScriptData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
 #include "externals/Effect/EffectInstance.h"
+#include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/MulticastDelegate.h"
@@ -107,6 +108,8 @@ namespace Dpr::EvScript {
                 int32_t index;
                 EvDataManager::Object * __4__this;
             };
+
+            static_assert(offsetof(Fields, __4__this) == 0x10);
 
             inline void ctor() {
                 external<void>(0x019aeef0, this);
@@ -212,7 +215,7 @@ namespace Dpr::EvScript {
             bool _pendingInitScripts;
             int32_t SorawotobuZoneId;
             int32_t SorawotobuLocatorIndex;
-            void * _evCameraTable;
+            EventCameraTable::Object* _evCameraTable;
             void * _tairyouHasseiMane;
             bool _isFadeEventReturnInput;
             float _cloudSpeed;
@@ -343,12 +346,16 @@ namespace Dpr::EvScript {
             void * _poolLoadObjects;
         };
 
+        static_assert(offsetof(Fields, _softwareKeyboardSubState) == 0x448);
+        static_assert(offsetof(Fields, _poolLoadObjects) == 0x590);
+
         static inline StaticILMethod<0x04c2afe0, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
         static inline StaticILMethod<0x04c2b028, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi {};
 
-        static inline StaticILMethod<0x04c77ce0, int32_t, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnInputCheck {};
-        static inline StaticILMethod<0x04c7cf70, int32_t, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
-        static inline StaticILMethod<0x04c7cfd0>                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
+        static inline StaticILMethod<0x04c77ce0, System::String::Object*, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnInputCheck {};
+        static inline StaticILMethod<0x04c7cf70, bool, System::String::Object*>    Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
+        static inline StaticILMethod<0x04c7cfd0>                                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
+        static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {
@@ -362,6 +369,20 @@ namespace Dpr::EvScript {
             if (Method$$EvCmdCallWazaOshieUiParty == nullptr)
                 Method$$EvCmdCallWazaOshieUiParty = (*PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith(method);
             return Method$$EvCmdCallWazaOshieUiParty;
+        };
+
+        static inline MethodInfo* Method$$EvCmdNameInPoke_OnCompleteAYou = nullptr;
+        static MethodInfo* getMethod$$EvCmdNameInPoke_OnCompleteAYou(Il2CppMethodPointer method) {
+            if (Method$$EvCmdNameInPoke_OnCompleteAYou == nullptr)
+                Method$$EvCmdNameInPoke_OnCompleteAYou = (*Method$$EvDataManager_EvCmdNameInPoke_OnComplete)->copyWith(method);
+            return Method$$EvCmdNameInPoke_OnCompleteAYou;
+        };
+
+        static inline MethodInfo* Method$$EvCmdAddPokemonUIExtra = nullptr;
+        static MethodInfo* getMethod$$EvCmdAddPokemonUIExtra(Il2CppMethodPointer method) {
+            if (Method$$EvCmdAddPokemonUIExtra == nullptr)
+                Method$$EvCmdAddPokemonUIExtra = (*Method$$EvDataManager_EvCmdAddPokemonUI)->copyWith(method);
+            return Method$$EvCmdAddPokemonUIExtra;
         };
 
         inline bool RunEvCmd(int32_t index) {
@@ -378,6 +399,10 @@ namespace Dpr::EvScript {
 
         inline bool JumpLabel(System::String::Object* label, EventEndDelegate::Object* callback) {
             return external<bool>(0x02c423c0, this, label, callback);
+        }
+
+        inline bool CallLabel(System::String::Object* label) {
+            return external<bool>(0x02c485e0, this, label);
         }
 
         inline bool Cmd_TalkMsg(System::String::Object* msbt, System::String::Object* label) {

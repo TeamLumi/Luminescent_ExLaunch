@@ -67,6 +67,7 @@ void LoadCustomSaveData(nn::json& saveFile) {
     loadMainFromJson(saveFile);
     loadPlayerColorVariationFromJson(saveFile);
     loadDexFormsFromJson(saveFile);
+    loadAYouFromJson(saveFile);
     Logger::log("[LoadCustomSaveData] Custom data loaded successfully.\n");
 }
 
@@ -77,6 +78,7 @@ nn::json WriteCustomSaveData() {
         getMainAsJson(),
         getPlayerColorVariationAsJson(),
         getDexFormsAsJson(),
+        getAYouAsJson(),
     };
     Logger::log("[WriteCustomSaveData] Custom data converted successfully.\n");
 
