@@ -325,7 +325,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     }
 
     static inline PLAYREPORT_DATA::Object* get_playReportDataRef() {
-        return external<PLAYREPORT_DATA::Object *>(0x02cf6530);
+        return external<PLAYREPORT_DATA::Object*>(0x02cf6530);
     }
 
     static inline DPData::PLAYER_DATA::Object* get_playerData() {

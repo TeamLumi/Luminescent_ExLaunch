@@ -48,6 +48,7 @@ static constexpr const char* FEATURES[] = {
     "Spinda Hijacking",
     "Form Argument Pokémon Icons",
     "Form Argument Generation",
+    "AYou Patches",
     "Pokédex Form Flags",
 };
 

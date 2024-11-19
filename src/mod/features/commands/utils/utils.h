@@ -4,6 +4,7 @@
 
 #include "externals/EvData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/Dpr/EvScript/EvDataManager.h"
 
 // Converts the IEEE-754 formatted int32 into its proper float value.
 float ConvertToFloat(int32_t value);

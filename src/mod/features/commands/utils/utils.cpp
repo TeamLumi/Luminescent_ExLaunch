@@ -9,6 +9,8 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
 #include "logger/logger.h"
+#include "helpers/fsHelper.h"
+#include "memory/json.h"
 
 float ConvertToFloat(int32_t value)
 {
