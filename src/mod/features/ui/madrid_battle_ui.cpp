@@ -390,6 +390,41 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(BUIActionList$$OnSubmitPokeBall) {
+    static void Callback(Dpr::Battle::View::UI::BUIActionList::Object* __this) {
+        Logger::log("[BUIActionList$$OnSubmitPokeBall] we're in\n");
+
+        if (__this->fields._IsFocus_k__BackingField && __this->fields._isBallEnable && !__this->fields.isButtonAction)
+        {
+            Orig(__this);
+
+            Logger::log("[BUIActionList$$OnSubmitPokeBall] custom stuff\n");
+            Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+            auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+            ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)battleViewCore->fields._UISystem_k__BackingField->fields._wazaList)->Hide(false, nullptr);
+        }
+    }
+};
+
+
+HOOK_DEFINE_TRAMPOLINE(BUIPokeBallList$$OnCancel) {
+    static void Callback(Dpr::Battle::View::UI::BUIPokeBallList::Object* __this) {
+        Logger::log("[BUIPokeBallList$$OnCancel] we're in\n");
+
+        if (__this->fields.isAction) {
+            return;
+        }
+
+        Orig(__this);
+
+        Logger::log("[BUIPokeBallList$$OnCancel] custom stuff\n");
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)battleViewCore->fields._UISystem_k__BackingField->fields._wazaList)->Show(nullptr);
+    }
+};
+
+
 HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this, float deltatime) {
         // Do nothing, the OnUpdate is done in BUIActionList$$OnUpdate
@@ -670,6 +705,8 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_Wait) {
             __this->fields._targetSelect->fields._IsValid_k__BackingField = false;
             __this->fields._wazaList->OnCancel();
         }
+
+        // TODO: Situation Detail cancel
         return true;
     }
 };
@@ -700,6 +737,9 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit) {
 
 void exl_madrid_ui_main() {
     BUIActionList$$OnUpdate::InstallAtOffset(0x01e8bdb0);
+    BUIActionList$$OnSubmitPokeBall::InstallAtOffset(0x01e8c1b0);
+
+    BUIPokeBallList$$OnCancel::InstallAtOffset(0x01d221b0);
 
     BUIWazaList$$OnUpdate::InstallAtOffset(0x01d2c490);
     BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
