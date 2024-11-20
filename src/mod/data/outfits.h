@@ -7,6 +7,8 @@ static constexpr const char *OUTFITS[] = {
     "Contest Style Feminine",
     "Pikachu Hoodie Style Masculine",
     "Pikachu Hoodie Style Feminine",
+    "Eevee Hoodie Style Masculine",
+    "Eevee Hoodie Style Feminine",
     "Platinum Style Masculine",
     "Platinum Style Feminine",
     "Overalls Style Masculine",
@@ -31,6 +33,10 @@ static constexpr const char *OUTFITS[] = {
     "Bicycle Style Feminine",
     "Cyber Style 2.0 Masculine",
     "Cyber Style 2.0 Feminine",
+    "Renegade Style Masculine",
+    "Renegade Style Feminine",
+    "Vintage Style Masculine",
+    "Vintage Style Feminine",
 };
 
 const int OUTFIT_COUNT = sizeof(OUTFITS) / sizeof(OUTFITS[0]);

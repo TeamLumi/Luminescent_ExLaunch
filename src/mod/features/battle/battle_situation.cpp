@@ -480,7 +480,7 @@ void exl_battle_situation_main() {
 
     //BUISituation_OnUpdate::InstallAtOffset(0x01d23280);
 
-    //BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
+    BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
 
     BUISituationDetail_ctor_fieldIDs::InstallAtOffset(0x01d26780);
     BUISituationDetail_ctor_weatherIDs::InstallAtOffset(0x01d26868);

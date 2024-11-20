@@ -108,6 +108,8 @@ void CallFeatureHooks()
         exl_ayou_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Pokédex Form Flags")))
         exl_dex_form_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Dialog Text Color")))
+        exl_text_color_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

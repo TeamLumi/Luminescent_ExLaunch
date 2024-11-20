@@ -16,6 +16,7 @@
 #include "externals/Dpr/Battle/View/UI/BUIWazaList.h"
 #include "externals/Dpr/Message/MessageWordSetHelper.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
+#include "externals/Dpr/UI/CharacterModelView.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/FlagWork.h"
 #include "externals/GameController.h"
@@ -36,11 +37,20 @@ const uint32_t AK_EVENTS_UI_COMMON_MENU_OPEN = 0x132562f0;
 const uint32_t AK_EVENTS_UI_COMMON_SELECT = 0xb7533038;
 const uint32_t AK_EVENTS_UI_COMMON_SLIDE = 0x19377fd7;
 
+const UnityEngine::Color::Fields SELECTED_MOVE_BACKGROUND_COLOR = { .r = 1, .g = 1, .b = 1, .a = 1 };
+const UnityEngine::Color::Fields NOT_SELECTED_MOVE_BACKGROUND_COLOR = { .r = 0.4, .g = 0.4, .b = 0.4, .a = 1 };
+const UnityEngine::Color::Fields SELECTED_MOVE_TEXT_COLOR = { .r = 0, .g = 0, .b = 0, .a = 1 };
+const UnityEngine::Color::Fields NOT_SELECTED_MOVE_TEXT_COLOR = { .r = 1, .g = 1, .b = 1, .a = 1 };
+
 static int32_t selectedGimmick = array_index(GIMMICKS, "None");
 
 UnityEngine::Transform::Object* GetWazaButtonBackgroundRoot(Dpr::Battle::View::UI::BUIWazaButton::Object* btn) {
     return ((UnityEngine::Component::Object*)btn)->get_transform()
             ->Find(System::String::Create("background"));
+}
+
+UnityEngine::Transform::Object* GetWazaButtonArrowRoot(Dpr::Battle::View::UI::BUIWazaButton::Object* btn) {
+    return GetWazaButtonBackgroundRoot(btn)->Find(System::String::Create("DirectionArrow"));
 }
 
 void SubmitActionButton(Dpr::Battle::View::UI::BUIActionList::Object* actionList, int32_t index) {
@@ -65,7 +75,11 @@ void SelectWazaButton(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int3
             if (btn->fields._isSelected && btn->fields._onSelected != nullptr)
                 btn->fields._onSelected->Invoke();
 
-            ((UnityEngine::Component::Object*)GetWazaButtonBackgroundRoot(btn))->get_gameObject()->SetActive(btn->fields._isSelected);
+            ((UnityEngine::Component::Object*)GetWazaButtonArrowRoot(btn))->get_gameObject()->SetActive(btn->fields._isSelected);
+            GetWazaButtonBackgroundRoot(btn)->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent)
+                ->virtual_set_color(btn->fields._isSelected ? SELECTED_MOVE_BACKGROUND_COLOR : NOT_SELECTED_MOVE_BACKGROUND_COLOR);
+
+            btn->fields._text->virtual_set_color(btn->fields._isSelected ? SELECTED_MOVE_TEXT_COLOR : NOT_SELECTED_MOVE_TEXT_COLOR);
         }
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
@@ -338,11 +352,18 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
 
         if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Submit waza\n");
-            wazaList->OnSubmit();
-            if (wazaList->fields._IsValid_k__BackingField) {
-                Logger::log("[BUIActionList$$OnUpdate] Fight\n");
-                SubmitActionButton(__this, 0);
-                return;
+            if (wazaList->fields._CurrentIndex_k__BackingField >= 0 && wazaList->fields._CurrentIndex_k__BackingField < wazaList->fields._wazaCount)
+            {
+                wazaList->OnSubmit();
+                if (wazaList->fields._IsValid_k__BackingField) {
+                    Logger::log("[BUIActionList$$OnUpdate] Fight\n");
+                    SubmitActionButton(__this, 0);
+                    return;
+                }
+            }
+            else
+            {
+                battleViewCore->fields._UISystem_k__BackingField->PlaySe(AK_EVENTS_UI_COMMON_BEEP);
             }
         }
 
@@ -369,6 +390,41 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(BUIActionList$$OnSubmitPokeBall) {
+    static void Callback(Dpr::Battle::View::UI::BUIActionList::Object* __this) {
+        Logger::log("[BUIActionList$$OnSubmitPokeBall] we're in\n");
+
+        if (__this->fields._IsFocus_k__BackingField && __this->fields._isBallEnable && !__this->fields.isButtonAction)
+        {
+            Orig(__this);
+
+            Logger::log("[BUIActionList$$OnSubmitPokeBall] custom stuff\n");
+            Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+            auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+            ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)battleViewCore->fields._UISystem_k__BackingField->fields._wazaList)->Hide(false, nullptr);
+        }
+    }
+};
+
+
+HOOK_DEFINE_TRAMPOLINE(BUIPokeBallList$$OnCancel) {
+    static void Callback(Dpr::Battle::View::UI::BUIPokeBallList::Object* __this) {
+        Logger::log("[BUIPokeBallList$$OnCancel] we're in\n");
+
+        if (__this->fields.isAction) {
+            return;
+        }
+
+        Orig(__this);
+
+        Logger::log("[BUIPokeBallList$$OnCancel] custom stuff\n");
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)battleViewCore->fields._UISystem_k__BackingField->fields._wazaList)->Show(nullptr);
+    }
+};
+
+
 HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this, float deltatime) {
         // Do nothing, the OnUpdate is done in BUIActionList$$OnUpdate
@@ -383,8 +439,6 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnShow) {
         __this->fields._IsFocus_k__BackingField = false;
         __this->fields._IsShow_k__BackingField = true;
         __this->fields._animationState_k__BackingField = 2;
-
-        SelectWazaButton(__this, 0, false);
 
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
         battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(false);
@@ -404,6 +458,11 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$Initialize) {
             SetGimmickIconBackgroundActive(__this, i, false);
 
         UnityEngine::UI::LayoutRebuilder::ForceRebuildLayoutImmediate((UnityEngine::RectTransform::Object*)GetGimmickRoot(__this));
+
+        if (__this->fields._CurrentIndex_k__BackingField < 0 || __this->fields._CurrentIndex_k__BackingField >= __this->fields._wazaCount)
+            SelectWazaButton(__this, 0, false);
+        else
+            SelectWazaButton(__this, __this->fields._CurrentIndex_k__BackingField, false);
     }
 };
 
@@ -646,6 +705,8 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_Wait) {
             __this->fields._targetSelect->fields._IsValid_k__BackingField = false;
             __this->fields._wazaList->OnCancel();
         }
+
+        // TODO: Situation Detail cancel
         return true;
     }
 };
@@ -676,6 +737,9 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit) {
 
 void exl_madrid_ui_main() {
     BUIActionList$$OnUpdate::InstallAtOffset(0x01e8bdb0);
+    BUIActionList$$OnSubmitPokeBall::InstallAtOffset(0x01e8c1b0);
+
+    BUIPokeBallList$$OnCancel::InstallAtOffset(0x01d221b0);
 
     BUIWazaList$$OnUpdate::InstallAtOffset(0x01d2c490);
     BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);

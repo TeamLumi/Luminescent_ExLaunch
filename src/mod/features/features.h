@@ -151,6 +151,9 @@ void exl_sounds_main();
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 
+// Changes the defaulkt text color for dialog boxes.
+void exl_text_color_main();
+
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();
 
