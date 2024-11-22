@@ -248,9 +248,19 @@ void SetGimmickIconsFromFlags(Dpr::Battle::View::UI::BUIWazaList::Object* wazaLi
     for (int32_t i=0; i<GIMMICK_COUNT; i++)
         SetGimmickIconActive(wazaList, i, false);
 
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Mega Evolution"), !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE));
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Ultra Burst"), true);
-    // TODO: Add flags to other gimmicks
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Mega Evolution"),
+                         !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE) ||
+                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Mega Evolution Gimmick Flag")));
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Z-Move"),
+                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Z-Move Gimmick Flag")));
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Ultra Burst"),
+                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Ultra Burst Gimmick Flag")));
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Dynamax"),
+                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Dynamax Gimmick Flag")));
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Terastallization"),
+                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Terastallization Gimmick Flag")));
+
+    // TODO: Add proper flags to other gimmicks
 }
 
 void SetGimmickIconBackgroundActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index, bool state) {
