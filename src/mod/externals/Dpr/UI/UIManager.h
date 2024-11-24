@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Dpr/UI/UIModelViewController.h"
 #include "externals/Dpr/UI/UIWazaManage.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
@@ -14,6 +15,7 @@
 #include "externals/XLSXContent/UIDatabase.h"
 
 namespace Dpr::UI {
+    struct Keyguide;
     struct ShopBoutiqueChange;
     struct UIZukanRegister;
 }
@@ -99,6 +101,14 @@ namespace Dpr::UI {
 
         inline XLSXContent::UIDatabase::SheetPokemonIcon::Object* GetPokemonIconData(int32_t monsNo, uint16_t formNo, Pml::Sex sex, Pml::PokePara::RareType rareType, bool isEgg) {
             return external<XLSXContent::UIDatabase::SheetPokemonIcon::Object*>(0x017c1250, this, monsNo, formNo, sex, rareType, isEgg);
+        }
+
+        inline Dpr::UI::Keyguide* GetKeyguide(UnityEngine::Transform::Object* transform, bool isCreate) {
+            return external<Dpr::UI::Keyguide*>(0x017a8ce0, this, transform, isCreate);
+        }
+
+        static inline Dpr::Message::MessageEnumData::MsgLangId GetCurrentLangId() {
+            return external<Dpr::Message::MessageEnumData::MsgLangId>(0x017be8c0);
         }
     };
 }

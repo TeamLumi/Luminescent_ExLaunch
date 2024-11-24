@@ -14,6 +14,7 @@ void migrateToReLease(PlayerWork::Object* playerWork) {
     save->playerColorVariation.Initialize();
     save->dexForms.Initialize();
     save->ayou.Initialize();
+    save->settings.Initialize();
 
     // Set player color to the one in the vanilla save
     save->playerColorVariation.playerColorID = myStatus.body_type;
@@ -36,6 +37,9 @@ void migrateToReLease(PlayerWork::Object* playerWork) {
 
     // Set amount of boxes unlocked to 80
     playerWork->fields._saveData.fields.boxData.fields.trayMax = Re_Lease_BoxCount;
+
+    // Set text speed to fast
+    playerWork->fields._saveData.fields.playerData.fields.config.fields.msg_speed = DPData::MSGSPEED::MSGSPEED_FAST;
 
     Logger::log("Migration from Vanilla to Re:Lease done!\n");
 }

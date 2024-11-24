@@ -44,6 +44,10 @@ namespace Dpr::UI {
         inline void Setup(int32_t configId, int32_t selectIndex, System::String* descMessageLabel, UnityEngine::Events::UnityAction::Object* onValueChanged) {
             external<void>(0x01d3ee30, this, configId, selectIndex, descMessageLabel, onValueChanged);
         }
+
+        inline bool SetSelectIndex(int32_t selectIndex, bool isEqualChecked, bool isCallbacked) {
+            return external<bool>(0x01d3f1a0, this, selectIndex, isEqualChecked, isCallbacked);
+        }
     };
 }
 
@@ -51,6 +55,7 @@ namespace System::Collections::Generic {
     struct List$$SettingMenuItem : List<List$$SettingMenuItem, Dpr::UI::SettingMenuItem> {
 
         static inline StaticILMethod<0x04c89908> Method$$Add {};
+        static inline StaticILMethod<0x04c89910> Method$$Clear {};
 
         void insert(Dpr::UI::SettingMenuItem* elem, int32_t pos) {
             this->Add(elem);

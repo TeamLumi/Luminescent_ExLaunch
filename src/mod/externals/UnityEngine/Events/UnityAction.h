@@ -13,6 +13,7 @@ namespace UnityEngine::Events {
         static const inline long bool_String_TypeInfo = 0x04c5ee10;
         static const inline long void_TypeInfo = 0x04c57230;
         static const inline long Sprite_TypeInfo = 0x04c5e1a0;
+        static const inline long SettingMenuItem_TypeInfo = 0x04c62420;
 
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {
@@ -30,6 +31,10 @@ namespace UnityEngine::Events {
 
         inline void Invoke(Il2CppObject* arg0) {
             external<void>(0x0253ded0, this, arg0);
+        }
+
+        inline void Invoke(int32_t arg0, int32_t arg1) {
+            external<void>(0x0253fe60, this, arg0, arg1);
         }
 
         inline void ctor() {
