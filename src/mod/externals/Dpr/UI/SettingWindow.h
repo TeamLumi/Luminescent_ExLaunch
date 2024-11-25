@@ -75,6 +75,10 @@ namespace Dpr::UI {
             return external<bool>(0x01d41700, this, selectIndex, isInitialize);
         }
 
+        inline bool SetSelectValue(int32_t selectValue) {
+            return external<bool>(0x01d41a70, this, selectValue);
+        }
+
         inline void OpenDescriptionMessageWindow() {
             external<void>(0x01d41c30, this);
         }

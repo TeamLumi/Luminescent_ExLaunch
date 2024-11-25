@@ -1,11 +1,13 @@
 #pragma once
 
 #include "externals/il2cpp.h"
+
+#include "externals/Dpr/UI/UIText.h"
+#include "externals/System/String.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/RectTransform.h"
 #include "externals/UnityEngine/UI/Image.h"
-#include "externals/System/String.h"
-#include "externals/Dpr/UI/UIText.h"
+#include "externals/UnityEngine/UI/Slider.h"
 
 namespace Dpr::UI {
     struct SettingMenuItem : ILClass<SettingMenuItem> {
@@ -14,28 +16,61 @@ namespace Dpr::UI {
                 int32_t selectIndex;
             };
 
+            static inline StaticILMethod<0x04c7fbd0> Method$$SetSelectIndex_b0 {};
+
             inline void ctor() {
                 external<void>(0x01d3fec0, this);
             }
         };
 
+        struct SelectorParam : ILClass<SelectorParam> {
+            struct Fields {
+                UnityEngine::Color::Array* textColors;
+            };
+        };
+
+        struct WindowSelectorParam : ILClass<WindowSelectorParam> {
+            struct Fields {
+                UnityEngine::UI::Image::Array* arrows;
+                UnityEngine::Color::Array* textColors;
+                UnityEngine::Color::Array* arrowColors;
+            };
+        };
+
+        struct GaugeSelectorParam : ILClass<GaugeSelectorParam> {
+            struct Fields {
+                UnityEngine::UI::Image::Object* gaugeBg;
+                UnityEngine::UI::Image::Object* gauge;
+                UnityEngine::UI::Image::Object* handle;
+                UnityEngine::Color::Array* gaugeBgColors;
+                UnityEngine::Color::Array* gaugeColors;
+                UnityEngine::Sprite::Array* spriteHandles;
+                UnityEngine::Color::Array* textColors;
+            };
+        };
+
+        enum class ItemType : int32_t {
+            Selector = 0,
+            Gauge = 1,
+            WindowSelector = 2,
+        };
+
         struct Fields : UnityEngine::MonoBehaviour::Fields {
-            int32_t _itemType;
+            ItemType _itemType;
             UnityEngine::RectTransform::Object* _contentRoot;
             UnityEngine::UI::Image::Object* _selectBg;
-            void* _selectorParam;
-            void* _windowSelectorParam;
-            void* _gaugeSelectorParam;
+            SelectorParam::Object* _selectorParam;
+            WindowSelectorParam::Object* _windowSelectorParam;
+            GaugeSelectorParam::Object* _gaugeSelectorParam;
             UnityEngine::Events::UnityAction::Object* _onValueChanged;
             int32_t _configId;
             System::String::Object* _descMessagelabel;
             UnityEngine::RectTransform::Object* _content;
             int32_t _selectIndex;
             System::Collections::Generic::List$$UIText::Object* _texts;
-            void* _slider;
+            UnityEngine::UI::Slider::Object* _slider;
             Dpr::UI::UIText::Object* _sliderText;
         };
-
 
         inline void ctor() {
             external<void>(0x01d3fed0, this);
