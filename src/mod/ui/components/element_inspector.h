@@ -35,7 +35,7 @@ namespace ui {
                     ImGui::TreePop();
                 }
 
-                auto manager = Dpr::UI::UIManager::instance();
+                auto manager = Dpr::UI::UIManager::get_Instance();
                 drawElement(manager->fields._activeRoot);
             }
         }

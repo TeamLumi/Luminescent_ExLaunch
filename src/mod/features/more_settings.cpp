@@ -373,7 +373,7 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                 window->cast<Dpr::UI::UIWindow>()->OnOpen(__this->fields.prevWindowId);
 
                 Dpr::UI::UIManager::getClass()->initIfNeeded();
-                auto keyguide = Dpr::UI::UIManager::instance()->GetKeyguide(nullptr, true)->instance();
+                auto keyguide = Dpr::UI::UIManager::get_Instance()->GetKeyguide(nullptr, true)->instance();
                 keyguide->cast<UnityEngine::Component>()->get_transform()->SetParent(
                         window->cast<UnityEngine::Component>()->get_transform(), false);
 

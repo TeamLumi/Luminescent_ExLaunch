@@ -29,7 +29,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
     if (args->max_length >= 7) {
         if (azukariyaSeq == 0) {
             SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
-            auto uiManager = Dpr::UI::UIManager::instance();
+            auto uiManager = Dpr::UI::UIManager::get_Instance();
             Dpr::UI::UIZukanRegister::Object* uiZukanReg = uiManager->CreateUIWindow(
                     UIWindowID::ZUKAN_REGISTER, Dpr::UI::UIManager::Method$$CreateUIWindow_UIZukanRegister_);
 

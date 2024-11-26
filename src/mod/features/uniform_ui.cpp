@@ -92,7 +92,7 @@ HOOK_DEFINE_REPLACE(ContestPlayerEntity$$AppendLoadPokemonIcon) {
         system_load_typeinfo(0x2fc3);
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
-        auto uiManager = Dpr::UI::UIManager::instance();
+        auto uiManager = Dpr::UI::UIManager::get_Instance();
         auto param = __this->fields.playerData->fields.pokemonInfo->fields.pokeParam;
 
         auto callback = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::Sprite_TypeInfo)
