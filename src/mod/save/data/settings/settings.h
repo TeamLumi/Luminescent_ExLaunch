@@ -47,14 +47,14 @@ struct ExtraSettingsSaveData {
         };
     }
 
-    void FromJson(const nn::json& ayou) {
+    void FromJson(const nn::json& settings) {
         Initialize();
-        expShareEnabled = ayou["expShareEnabled"].get<bool>();
-        affectionEnabled = ayou["affectionEnabled"].get<bool>();
-        levelCapEnabled = ayou["levelCapEnabled"].get<bool>();
-        shinyEggsEnabled = ayou["shinyEggsEnabled"].get<bool>();
-        gameMode = ayou["gameMode"].get<GameMode>();
-        randomTeamMode = ayou["randomTeamMode"].get<RandomTeamMode>();
+        expShareEnabled = settings["expShareEnabled"].get<bool>();
+        affectionEnabled = settings["affectionEnabled"].get<bool>();
+        levelCapEnabled = settings["levelCapEnabled"].get<bool>();
+        shinyEggsEnabled = settings["shinyEggsEnabled"].get<bool>();
+        gameMode = settings["gameMode"].get<GameMode>();
+        randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
     }
 };
 
