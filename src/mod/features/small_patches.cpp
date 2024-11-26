@@ -7,25 +7,22 @@
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 #include "externals/Dpr/Demo/Demo_Evolve.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
-#include "externals/FlagWork.h"
-#include "externals/Dpr/Message/MessageManager.h"
-#include "externals/Dpr/Message/MessageWordSetHelper.h"
 
 #include "features/activated_features.h"
-#include "features/commands/utils/utils.h"
 #include "logger/logger.h"
+#include "save/save.h"
 
 using namespace Dpr::Battle::Logic;
 
 HOOK_DEFINE_TRAMPOLINE(FriendshipFlag) {
     static bool Callback(MainModule::Object* _this, BTL_POKEPARAM::Object* bpp) {
-        return Orig(_this, bpp) && !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION);
+        return getCustomSaveData()->settings.affectionEnabled && Orig(_this, bpp);
     }
 };
 
 HOOK_DEFINE_REPLACE(ExpShareFlag) {
     static bool Callback() {
-        return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE);
+        return getCustomSaveData()->settings.expShareEnabled;
     }
 };
 

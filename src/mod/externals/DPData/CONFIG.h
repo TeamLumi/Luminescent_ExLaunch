@@ -1,12 +1,13 @@
 #pragma once
 
-#include <cstdint>
 #include "externals/il2cpp-api.h"
+
+#include "externals/DPData/MSGSPEED.h"
 
 namespace DPData {
     struct CONFIG : ILStruct<CONFIG> {
         struct Fields {
-            int32_t msg_speed;
+            MSGSPEED msg_speed;
             int32_t msg_lang_id;
             bool is_kanji;
             int32_t window_type;
@@ -26,12 +27,18 @@ namespace DPData {
             uint8_t voice_volume;
         };
 
+        static_assert(offsetof(Fields, voice_volume) == 0x33);
+
         inline int32_t GetValue(int32_t key) {
             return external<int32_t>(0x02299720, this, key);
         }
 
         inline bool IsEqualValue(int32_t configId, DPData::CONFIG::Object* t) {
             return external<bool>(0x022998a0, this, configId, t);
+        }
+
+        inline void SetValue(int32_t configId, int32_t value) {
+            external<void>(0x022997d0, this, configId, value);
         }
     };
 }

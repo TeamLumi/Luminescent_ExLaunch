@@ -31,7 +31,7 @@ void SetEggGroupIcons(Dpr::UI::TypePanel::Object* panel1, Dpr::UI::TypePanel::Ob
     Dpr::Message::MessageManager::getClass()->initIfNeeded();
 
     if (langId == 11)
-        langId = Dpr::Message::MessageManager::instance()->get_UserLanguageID();
+        langId = Dpr::Message::MessageManager::get_Instance()->get_UserLanguageID();
 
     if (panel1 != nullptr)
     {

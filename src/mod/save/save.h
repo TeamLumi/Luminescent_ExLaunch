@@ -6,6 +6,7 @@
 #include "save/data/color_variation/color_variation.h"
 #include "save/data/dex_form/dex_form.h"
 #include "save/data/main/main.h"
+#include "save/data/settings/settings.h"
 
 #include "logger/logger.h"
 
@@ -27,6 +28,7 @@ struct CustomSaveData {
     ColorVariationSaveData playerColorVariation;
     DexFormSaveData<DexSize> dexForms;
     AYouSaveData ayou;
+    ExtraSettingsSaveData settings;
 };
 
 CustomSaveData* getCustomSaveData();

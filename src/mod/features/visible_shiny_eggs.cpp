@@ -1,10 +1,11 @@
 #include "exlaunch.hpp"
-#include "externals/il2cpp-api.h"
+
 #include "externals/GameData/DataManager.h"
-#include "externals/FlagWork.h"
-#include "externals/FlagWork_Enums.h"
+
 #include "data/utils.h"
 #include "data/species.h"
+
+#include "save/save.h"
 
 HOOK_DEFINE_REPLACE(UniqueID) {
     static int32_t Callback(int32_t monsNo, int32_t formNo, uint8_t sex, uint8_t rareType, bool isEgg) {
@@ -13,12 +14,10 @@ HOOK_DEFINE_REPLACE(UniqueID) {
         GameData::DataManager::getClass()->initIfNeeded();
 
         if (isEgg) {
-            bool shinyEggsEnabled = !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_VISIBLE_SHINY_EGGS);
-            if (monsNo == array_index(SPECIES, "Manaphy")) {
-                return rareType && shinyEggsEnabled ? 121 : 120;
-
-            }
-            return rareType && shinyEggsEnabled ? 21 : 20;
+            if (monsNo == array_index(SPECIES, "Manaphy"))
+                return rareType && getCustomSaveData()->settings.shinyEggsEnabled ? 121 : 120;
+            else
+                return rareType && getCustomSaveData()->settings.shinyEggsEnabled ? 21 : 20;
         }
 
         auto notEggID = static_cast<int32_t>(

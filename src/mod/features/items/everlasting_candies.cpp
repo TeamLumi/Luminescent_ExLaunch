@@ -1,18 +1,19 @@
 #include "exlaunch.hpp"
-#include "externals/Dpr/Item/ItemInfo.h"
-#include "externals/Dpr/UI/UIBag.h"
-#include "externals/PlayerWork.h"
-#include "externals/FlagWork.h"
+
 #include "data/utils.h"
 #include "data/items.h"
 #include "data/features.h"
+
+#include "externals/Dpr/Item/ItemInfo.h"
+#include "externals/Dpr/UI/UIBag.h"
+
 #include "features/activated_features.h"
 #include "romdata/romdata.h"
+#include "save/save.h"
 
 uint32_t isValidRareCandy(uint32_t level, Dpr::UI::UIBag::Object *bagRef) {
-    // Is Level Cap enabled
-    if (!IsActivatedFeature(array_index(FEATURES, "Level Cap")) ||
-        !PlayerWork::GetBool((int32_t) FlagWork_Flag::FLAG_DISABLE_LEVEL_CAP)) {
+    // Return normally if level cap is disabled
+    if (!IsActivatedFeature(array_index(FEATURES, "Level Cap")) || !getCustomSaveData()->settings.levelCapEnabled) {
         return 100 - level;
     }
 
