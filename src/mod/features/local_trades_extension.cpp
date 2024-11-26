@@ -62,7 +62,7 @@ Pml::PokePara::PokemonParam::Object* CreateTradePokeParam(int32_t npcindex, Dpr:
     auto pokeParam = Pml::PokePara::PokemonParam::newInstance(spec);
     auto coreParam = (Pml::PokePara::CoreParam::Object*)pokeParam;
 
-    auto messageManager = Dpr::Message::MessageManager::instance();
+    auto messageManager = Dpr::Message::MessageManager::get_Instance();
 
     coreParam->SetNickName(messageManager->GetNameMessage(System::String::Create("dp_scenario3"), data->fields.nickname_label));
     coreParam->SetParentName(messageManager->GetNameMessage(System::String::Create("dp_scenario3"), data->fields.name_label));

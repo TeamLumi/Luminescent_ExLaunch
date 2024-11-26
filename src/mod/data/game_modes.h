@@ -7,9 +7,9 @@ static constexpr const char* GAME_MODES[] = {
 };
 
 static constexpr const char* GAME_MODE_LABELS[] = {
-    "SS_option_117", // 493 Mode
-    "SS_option_118", // NatDex Mode
-    "SS_option_119"  // Challenge Mode
+    "SS_option_GameMode_01",
+    "SS_option_GameMode_02",
+    "SS_option_GameMode_03",
 };
 
 constexpr int GAME_MODE_COUNT = sizeof(GAME_MODES) / sizeof(GAME_MODES[0]);

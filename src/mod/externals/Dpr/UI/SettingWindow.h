@@ -39,6 +39,12 @@ namespace Dpr::UI {
             const MethodInfo* method;
         };
 
+        struct VirtualInvokeData_OpenMessageWindow {
+            typedef System::Collections::IEnumerator::Object*(*Il2CppMethodPointer)(SettingWindow::Object*, Dpr::MsgWindow::MsgWindowParam::Object*, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VTable {
             VirtualInvokeData _0_Equals;
             VirtualInvokeData _1_Finalize;
@@ -55,7 +61,7 @@ namespace Dpr::UI {
             VirtualInvokeData _12_OpPlayCloseWindowAnimationAndWaiting;
             VirtualInvokeData _13_EnableMainCameraByUiMode;
             VirtualInvokeData _14_OnCloseKeyguide;
-            VirtualInvokeData _15_OpenMessageWindow;
+            VirtualInvokeData_OpenMessageWindow _15_OpenMessageWindow;
             VirtualInvokeData _16_CloseMessageWindow;
             VirtualInvokeData _17_IsActiveMessageWindow;
             VirtualInvokeData _18_CreateContextMenuYesNo;
@@ -69,6 +75,11 @@ namespace Dpr::UI {
         inline System::Collections::IEnumerator::Object* virtual_OpPlayOpenWindowAnimation(int32_t prevWindowId, UnityEngine::Events::UnityAction::Object* onOpend) {
             return (*(this->instance()->klass->vtable)._10_OpPlayOpenWindowAnimation.methodPtr)
                     (this->instance(), prevWindowId, onOpend, this->instance()->klass->vtable._10_OpPlayOpenWindowAnimation.method);
+        }
+
+        inline void virtual_OpenMessageWindow(Dpr::MsgWindow::MsgWindowParam::Object* messageParam) {
+            (*(this->instance()->klass->vtable)._15_OpenMessageWindow.methodPtr)
+                    (this->instance(), messageParam, this->instance()->klass->vtable._15_OpenMessageWindow.method);
         }
 
         inline bool SetSelectIndex(int32_t selectIndex, bool isInitialize) {

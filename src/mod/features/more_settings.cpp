@@ -7,6 +7,9 @@
 #include "data/window_frames.h"
 
 #include "externals/ConfigWork.h"
+#include "externals/Dpr/Message/MessageManager.h"
+#include "externals/Dpr/Message/MessageWordSetHelper.h"
+#include "externals/Dpr/MsgWindow/MsgWindowParam.h"
 #include "externals/Dpr/UI/Keyguide.h"
 #include "externals/Dpr/UI/SettingWindow.h"
 #include "externals/Dpr/UI/UIManager.h"
@@ -14,6 +17,7 @@
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
 #include "externals/UnityEngine/Mathf.h"
+#include "romdata/romdata.h"
 #include "save/save.h"
 
 #include "logger/logger.h"
@@ -40,7 +44,7 @@ void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSett
         case array_index(SETTINGS, "Visible Shiny Eggs"):
             extraSettings->shinyEggsEnabled = value != 0;
             break;
-        case array_index(SETTINGS, "Game Mode"):
+        case array_index(SETTINGS, "Trainer Sets"):
             extraSettings->gameMode = (ExtraSettingsSaveData::GameMode)value;
             break;
         case array_index(SETTINGS, "Team Randomization"):
@@ -62,7 +66,7 @@ int32_t GetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraS
             return extraSettings->levelCapEnabled ? 1 : 0;
         case array_index(SETTINGS, "Visible Shiny Eggs"):
             return extraSettings->shinyEggsEnabled ? 1 : 0;
-        case array_index(SETTINGS, "Game Mode"):
+        case array_index(SETTINGS, "Trainer Sets"):
             return (int32_t)extraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return (int32_t)extraSettings->randomTeamMode;
@@ -81,7 +85,7 @@ bool IsEqualValue(DPData::CONFIG::Object* config, DPData::CONFIG::Object* otherC
             return extraSettings->levelCapEnabled == otherExtraSettings->levelCapEnabled;
         case array_index(SETTINGS, "Visible Shiny Eggs"):
             return extraSettings->shinyEggsEnabled == otherExtraSettings->shinyEggsEnabled;
-        case array_index(SETTINGS, "Game Mode"):
+        case array_index(SETTINGS, "Trainer Sets"):
             return extraSettings->gameMode == otherExtraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return extraSettings->randomTeamMode == otherExtraSettings->randomTeamMode;
@@ -143,7 +147,7 @@ int32_t MaxWindowSelectorValue(int32_t configId) {
         default:
             return WINDOW_FRAME_COUNT - 1;
 
-        case array_index(SETTINGS, "Game Mode"):
+        case array_index(SETTINGS, "Trainer Sets"):
             return GAME_MODE_COUNT - 1;
 
         case array_index(SETTINGS, "Team Randomization"):
@@ -226,6 +230,97 @@ HOOK_DEFINE_REPLACE(SettingWindow$$AcceptSettings) {
     }
 };
 
+HOOK_DEFINE_REPLACE(SettingWindow$$UpdateSelectValue) {
+    static bool Callback(Dpr::UI::SettingWindow::Object* __this, float deltaTime) {
+        system_load_typeinfo(0x7c5e);
+        system_load_typeinfo(0x7c46);
+
+        auto item = __this->fields._activeItems->fields._items->m_Items[__this->fields._selectIndex];
+
+        int32_t maxValue;
+        switch (item->fields._itemType) {
+            case Dpr::UI::SettingMenuItem::ItemType::Selector:
+                if (item->fields._texts->fields._size == 0)
+                    return false;
+
+                maxValue = item->fields._texts->fields._size - 1;
+                break;
+
+            case Dpr::UI::SettingMenuItem::ItemType::Gauge:
+                maxValue = 10;
+                break;
+
+            case Dpr::UI::SettingMenuItem::ItemType::WindowSelector:
+            default:
+                maxValue = MaxWindowSelectorValue(item->fields._configId);
+                break;
+        }
+
+        int32_t newValue;
+        Dpr::UI::UIManager::getClass()->initIfNeeded();
+        UnityEngine::Mathf::getClass()->initIfNeeded();
+        if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, false))
+        {
+            switch (item->fields._itemType) {
+                case Dpr::UI::SettingMenuItem::ItemType::Gauge:
+                    newValue = UnityEngine::Mathf::Min(item->fields._selectIndex + 1,maxValue);
+                    break;
+
+                default:
+                    newValue = Dpr::UI::UIManager::Repeat(item->fields._selectIndex + 1, 0, maxValue);
+                    break;
+            }
+        }
+        else if (__this->cast<Dpr::UI::UIWindow>()->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, false))
+        {
+            newValue = UnityEngine::Mathf::Min(item->fields._selectIndex + 1,maxValue);
+        }
+        else if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, false))
+        {
+            switch (item->fields._itemType) {
+                case Dpr::UI::SettingMenuItem::ItemType::Gauge:
+                    newValue = UnityEngine::Mathf::Max(item->fields._selectIndex - 1,0);
+                    break;
+
+                default:
+                    newValue = Dpr::UI::UIManager::Repeat(item->fields._selectIndex - 1, 0, maxValue);
+                    break;
+            }
+        }
+        else if (__this->cast<Dpr::UI::UIWindow>()->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, false))
+        {
+            newValue = UnityEngine::Mathf::Max(item->fields._selectIndex - 1,0);
+        }
+        else
+        { // No valid input
+            return false;
+        }
+
+        __this->SetSelectValue(newValue);
+        return true;
+    }
+};
+
+HOOK_DEFINE_REPLACE(SettingWindow$$OpenDescriptionMessageWindow) {
+    static void Callback(Dpr::UI::SettingWindow::Object* __this) {
+        system_load_typeinfo(0x7c50);
+
+        auto param = Dpr::MsgWindow::MsgWindowParam::newInstance();
+        param->fields.useMsgFile = Dpr::Message::MessageManager::get_Instance()->GetMsgFile(System::String::Create("ss_option"));
+        param->fields.labelName = __this->fields._activeItems->fields._items->m_Items[__this->fields._selectIndex]->fields._descMessagelabel;
+        param->fields.inputEnabled = true;
+        param->fields.inputCloseEnabled = false;
+
+        switch (__this->fields._activeItems->fields._items->m_Items[__this->fields._selectIndex]->fields._configId) {
+            case array_index(SETTINGS, "Level Cap"):
+                Dpr::Message::MessageWordSetHelper::SetDigitWord(0, (int32_t)GetLevelCapLevel(GetLevelCapIndex()));
+                break;
+        }
+
+        __this->virtual_OpenMessageWindow(param);
+    }
+};
+
 HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_CONFIG$$IsEqual) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto __this = (DPData::CONFIG::Object*) ctx->X[0]; // PlayerWork's config
@@ -239,6 +334,30 @@ HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_CONFIG$$IsEqual) {
         }
 
         ctx->W[0] = true;
+    }
+};
+
+HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_ResetString) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        ctx->X[1] = (uint64_t)System::String::Create("SS_option_Reset");
+    }
+};
+
+HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_AcceptString) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        ctx->X[1] = (uint64_t)System::String::Create("SS_option_ConfirmSave");
+    }
+};
+
+HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_CancelString) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        ctx->X[1] = (uint64_t)System::String::Create("SS_option_CancelSave");
+    }
+};
+
+HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_SavedString) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        ctx->X[1] = (uint64_t)System::String::Create("SS_option_DoneSave");
     }
 };
 
@@ -380,7 +499,7 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
                         __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(WINDOW_FRAME_LABELS[__this->fields._selectIndex]));
                         break;
 
-                    case array_index(SETTINGS, "Game Mode"):
+                    case array_index(SETTINGS, "Trainer Sets"):
                         __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(GAME_MODE_LABELS[__this->fields._selectIndex]));
                         break;
 
@@ -402,77 +521,6 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
     }
 };
 
-HOOK_DEFINE_REPLACE(SettingWindow$$UpdateSelectValue) {
-    static bool Callback(Dpr::UI::SettingWindow::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x7c5e);
-        system_load_typeinfo(0x7c46);
-
-        auto item = __this->fields._activeItems->fields._items->m_Items[__this->fields._selectIndex];
-
-        int32_t maxValue;
-        switch (item->fields._itemType) {
-            case Dpr::UI::SettingMenuItem::ItemType::Selector:
-                if (item->fields._texts->fields._size == 0)
-                    return false;
-
-                maxValue = item->fields._texts->fields._size - 1;
-                break;
-
-            case Dpr::UI::SettingMenuItem::ItemType::Gauge:
-                maxValue = 10;
-                break;
-
-            case Dpr::UI::SettingMenuItem::ItemType::WindowSelector:
-            default:
-                maxValue = MaxWindowSelectorValue(item->fields._configId);
-                break;
-        }
-
-        int32_t newValue;
-        Dpr::UI::UIManager::getClass()->initIfNeeded();
-        UnityEngine::Mathf::getClass()->initIfNeeded();
-        if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, false))
-        {
-            switch (item->fields._itemType) {
-                case Dpr::UI::SettingMenuItem::ItemType::Gauge:
-                    newValue = UnityEngine::Mathf::Min(item->fields._selectIndex + 1,maxValue);
-                    break;
-
-                default:
-                    newValue = Dpr::UI::UIManager::Repeat(item->fields._selectIndex + 1, 0, maxValue);
-                    break;
-            }
-        }
-        else if (__this->cast<Dpr::UI::UIWindow>()->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, false))
-        {
-            newValue = UnityEngine::Mathf::Min(item->fields._selectIndex + 1,maxValue);
-        }
-        else if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, false))
-        {
-            switch (item->fields._itemType) {
-                case Dpr::UI::SettingMenuItem::ItemType::Gauge:
-                    newValue = UnityEngine::Mathf::Max(item->fields._selectIndex - 1,maxValue);
-                    break;
-
-                default:
-                    newValue = Dpr::UI::UIManager::Repeat(item->fields._selectIndex - 1, 0, maxValue);
-                    break;
-            }
-        }
-        else if (__this->cast<Dpr::UI::UIWindow>()->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, false))
-        {
-            newValue = UnityEngine::Mathf::Max(item->fields._selectIndex - 1,maxValue);
-        }
-        else
-        { // No valid input
-            return false;
-        }
-
-        __this->SetSelectValue(newValue);
-        return true;
-    }
-};
-
 void exl_settings_main() {
     CONFIG$$GetValue::InstallAtOffset(0x02299720);
 
@@ -483,8 +531,15 @@ void exl_settings_main() {
     SettingWindow$$RevertSettings::InstallAtOffset(0x01d411b0);
     SettingWindow$$AcceptSettings::InstallAtOffset(0x01d414d0);
     SettingWindow$$UpdateSelectValue::InstallAtOffset(0x01d40ec0);
+    SettingWindow$$OpenDescriptionMessageWindow::InstallAtOffset(0x01d41c30);
 
     SettingWindow$$OnUpdate_CONFIG$$IsEqual::InstallAtOffset(0x01d40624);
+    SettingWindow$$OnUpdate_ResetString::InstallAtOffset(0x01d40930);
+    SettingWindow$$OnUpdate_AcceptString::InstallAtOffset(0x01d40754);
+    SettingWindow$$OnUpdate_CancelString::InstallAtOffset(0x01d40800);
+    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(0x01d41ffc);
+    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(0x01d4223c);
+    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(0x01d4247c);
 
     SettingWindow_OpOpen$$MoveNext::InstallAtOffset(0x01d42830);
 

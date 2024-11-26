@@ -15,7 +15,7 @@ namespace Dpr::Message {
             void* wordDataPool; //Dpr_Message_MessageWordDataPool_o*
         };
 
-        static inline Dpr::Message::MessageManager::Object* instance() {
+        static inline Dpr::Message::MessageManager::Object* get_Instance() {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$MessageManager$$get_Instance);
         }
 
