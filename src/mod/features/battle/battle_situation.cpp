@@ -175,7 +175,7 @@ HOOK_DEFINE_TRAMPOLINE(BUISituationButton_Initialize) {
         auto coreParam = (Pml::PokePara::CoreParam::Object*)btlParam->GetSrcData();
         MethodInfo* mi = Dpr::UI::PokemonIcon::getMethod$$BUISituationLoadIcon((Il2CppMethodPointer) &LoadSpriteToImage);
         auto onLoad = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::Sprite_TypeInfo)->newInstance(__this->fields._pokeIcon, mi);
-        auto uiManager = Dpr::UI::UIManager::instance();
+        auto uiManager = Dpr::UI::UIManager::get_Instance();
 
         uiManager->LoadSpritePokemon(coreParam->GetMonsNo(), coreParam->GetFormNo(), coreParam->GetSex(), coreParam->GetRareType(), coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG), onLoad);
         Logger::log("BUISituationButton_Initialize END\n");

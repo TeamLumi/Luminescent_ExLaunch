@@ -22,7 +22,7 @@ namespace ui {
                         system_load_typeinfo(0x1e84);
                         system_load_typeinfo(0x1e8d);
 
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
                         auto unityObj = (UnityEngine::_Object::Object*)go;
                         Logger::log("GameObject %s\n", unityObj->GetName()->asCString().c_str());
@@ -86,7 +86,7 @@ namespace ui {
                         system_load_typeinfo(0x1e84);
                         system_load_typeinfo(0x1e8d);
 
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
                         auto renderers = go->GetComponentsInChildren(false, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
 
@@ -125,7 +125,7 @@ namespace ui {
                         system_load_typeinfo(0x1e84);
                         system_load_typeinfo(0x1e8d);
 
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
                         auto renderers = go->GetComponentsInChildren(false, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
 
@@ -174,7 +174,7 @@ namespace ui {
                         system_load_typeinfo(0x1e84);
                         system_load_typeinfo(0x1e8d);
 
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
                         auto renderers = go->GetComponentsInChildren(false, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
 
@@ -213,7 +213,7 @@ namespace ui {
                         system_load_typeinfo(0x1e84);
                         system_load_typeinfo(0x1e8d);
 
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
                         auto renderers = go->GetComponentsInChildren(false, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
 
