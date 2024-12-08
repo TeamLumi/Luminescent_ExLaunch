@@ -1,13 +1,38 @@
 #include "fsHelper.h"
+#include "externals/Dpr/NX/UserAccount.h"
+#include "nn/fs/fs_errorrange.hpp"
 #include "diag/assert.hpp"
 #include "init.h"
 #include "logger/logger.h"
+#include "fs/fs_mount.hpp"
+#include "externals/Dpr/NX/SaveSystem.h"
+#include "nn/fs/fs_types.hpp"
 #include "imgui.h"
+#include "nn/account.h"
+#include "externals/Dpr/NX/UserAccount.h"
+
+static constexpr int64_t VANILLA_SAVE_SIZE = 4194304;
+static constexpr int64_t VANILLA_JOURNAL_SIZE = 4194304;
+
 
 namespace FsHelper {
     LoadData::~LoadData() {
         if(buffer != nullptr)
             nn_free(buffer);
+    }
+
+    nn::Result ErrorRangeChecker(nn::Result result) {
+
+        if (nn::fs::ErrorRange::Includes<nn::fs::ResultPathNotFound>(result))
+            Logger::log("ResultPathNotFound.\n");
+        else if(nn::fs::ErrorRange::Includes<nn::fs::ResultPathAlreadyExists>(result))
+            Logger::log("ResultPathAlreadyExists.\n");
+        else if(nn::fs::ErrorRange::Includes<nn::fs::ResultUsableSpaceNotEnough>(result))
+            Logger::log("ResultUsableSpaceNotEnough.\n");
+        else
+            Logger::log("Unknown Error.\n");
+
+        return 1;
     }
 
     nn::Result writeFileToPath(void *buf, size_t size, const char *path) {
@@ -18,9 +43,11 @@ namespace FsHelper {
             nn::fs::DeleteFile(path); // remove previous file
         }
 
-        if (nn::fs::CreateFile(path, size)) {
+// 0x100000011D90000
+
+        if (Result result = nn::fs::CreateFile(path, size)) {
             Logger::log("Failed to Create File.\n");
-            return 1;
+            return ErrorRangeChecker(result);
         }
 
         if (nn::fs::OpenFile(&handle, path, nn::fs::OpenMode_Write)) {
@@ -28,7 +55,7 @@ namespace FsHelper {
             return 1;
         }
 
-        if (nn::fs::WriteFile(handle, 0, buf, size, nn::fs::WriteOption::CreateOption(nn::fs::WriteOptionFlag_Flush))) {
+        if (nn::fs::WriteFile(handle, 0, buf, size, nn::fs::WriteOption::CreateOption(nn::fs::WriteOptionFlag::WriteOptionFlag_Flush))) {
             Logger::log("Failed to Write to File.\n");
             return 1;
         }

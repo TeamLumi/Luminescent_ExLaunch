@@ -2,8 +2,24 @@
 
 #include "fs_types.hpp"
 #include "types.h"
+#include "nn/account.h"
+
+
 
 namespace nn::fs {
+
+    /// SaveDataSpaceId
+    typedef enum {
+        FsSaveDataSpaceId_System           = 0,    ///< System
+        FsSaveDataSpaceId_User             = 1,    ///< User
+        FsSaveDataSpaceId_SdSystem         = 2,    ///< SdSystem
+        FsSaveDataSpaceId_Temporary        = 3,    ///< [3.0.0+] Temporary
+        FsSaveDataSpaceId_SdUser           = 4,    ///< [4.0.0+] SdUser
+        FsSaveDataSpaceId_ProperSystem     = 100,  ///< [3.0.0+] ProperSystem
+        FsSaveDataSpaceId_SafeMode         = 101,  ///< [3.0.0+] SafeMode
+
+        FsSaveDataSpaceId_All              = -1,   ///< Pseudo value for fsOpenSaveDataInfoReader().
+    } SaveDataSpaceId;
 
     struct FileTimeStamp {
         u64 mTime1; // date created

@@ -21,6 +21,12 @@ namespace exl::hook::impl {
             hook::Hook(util::modules::GetTargetStart() + address, Derived::Callback);
         }
 
+        static ALWAYS_INLINE void InstallAtSDKOffset(ptrdiff_t address) {
+            _HOOK_STATIC_CALLBACK_ASSERT();
+
+            hook::Hook(util::modules::GetSDKStart() + address, Derived::Callback);
+        }
+
         template<typename R, typename ...A>
         static ALWAYS_INLINE void InstallAtFuncPtr(util::GenericFuncPtr<R, A...> ptr) {
             _HOOK_STATIC_CALLBACK_ASSERT();

@@ -1,4 +1,5 @@
 #pragma once
+#define INSERT_PADDING_BYTES(size) char _padding_##__COUNTER__[size]
 
 #include <nn/nn_common.hpp>
 #include <exlaunch/nx/types.h>
@@ -57,6 +58,7 @@ namespace nn::fs {
     };
 
     enum WriteOptionFlag {
+        WriteOptionFlag_None = 0 << 0,
         WriteOptionFlag_Flush = 1 << 0,
     };
 
@@ -69,4 +71,19 @@ namespace nn::fs {
             };
         }
     };
+
+    struct SaveDataExtraData {
+        char attr[0x40];
+        u64 owner_id;
+        s64 timestamp;
+        u32 flags;
+        char padding1[4];
+        s64 available_size;
+        s64 journal_size;
+        s64 commit_id;
+        char padding2[0x190];
+    };
+    static_assert(sizeof(SaveDataExtraData) == 0x200, "SaveDataExtraData has invalid size.");
+    static_assert(std::is_trivially_copyable_v<SaveDataExtraData>,
+                  "Data type must be trivially copyable.");
 }; // namespace nn::fs

@@ -2,6 +2,8 @@
 #include "externals/il2cpp-api.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/Action.h"
+#include "nn/result.h"
+#include "nn/account.h"
 
 namespace Dpr::NX {
     struct SaveSystem : ILClass<SaveSystem, 0x04c600b8> {

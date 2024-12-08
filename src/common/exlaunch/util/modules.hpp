@@ -17,4 +17,12 @@ namespace exl::util::modules {
         return GetTargetOffset(0);
     }
 
+    inline uintptr_t GetSDKOffset(uintptr_t offset) {
+        return GetSdkModuleInfo().m_Total.m_Start + offset;
+    }
+
+    inline uintptr_t GetSDKStart() {
+        return GetSDKOffset(0);
+    }
+
 }

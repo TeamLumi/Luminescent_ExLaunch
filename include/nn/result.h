@@ -18,6 +18,14 @@ struct Result
         return !isSuccess();
     }
 
+    inline int32_t GetModule() const {
+        return static_cast<int32_t>(value & 0x1ff);
+    }
+
+    inline int32_t GetDescription() const {
+        return static_cast<int32_t>(value >> 9 & 0x1fff);
+    }
+
     u32 value;
 
     bool operator==(int other) const {
