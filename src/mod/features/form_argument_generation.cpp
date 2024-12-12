@@ -4,6 +4,7 @@
 #include "data/utils.h"
 
 #include "externals/DPData/Form_Enums.h"
+#include "externals/Dpr/UI/ZukanInfo.h"
 #include "externals/GFL.h"
 #include "externals/PlayerWork.h"
 #include "externals/Pml/Personal/GrowTableExtensions.h"
@@ -133,7 +134,16 @@ HOOK_DEFINE_INLINE(EggGenerator$$CreateEgg_CoreParam_Variants) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(ZukanInfo$$GetCurrentPokemonParam) {
+    static Pml::PokePara::PokemonParam::Object* Callback(Dpr::UI::ZukanInfo::Object* __this) {
+        auto param = Orig(__this);
+        param->fields.m_accessor->SetMultiPurposeWork(0); // Hardcode the variant to 0 in the dex
+        return param;
+    }
+};
+
 void exl_form_arg_generation_main() {
     Factory$$InitCoreData::InstallAtOffset(0x02054140);
     EggGenerator$$CreateEgg_CoreParam_Variants::InstallAtOffset(0x0204e28c);
+    ZukanInfo$$GetCurrentPokemonParam::InstallAtOffset(0x01bb04e0);
 }
