@@ -104,6 +104,9 @@ void exl_madrid_ui_main();
 //
 void exl_mega_evolution_main();
 
+// Fixes bugs with specific UI elements not matching the player's language.
+void exl_language_ui_fixes_main();
+
 // Uniformizes local trades across languages and allows extending the table in RomFS.
 void exl_local_trades_main();
 

@@ -39,6 +39,13 @@ HOOK_DEFINE_INLINE(DoEvolve_ItemCancelCheck) {
     }
 };
 
+HOOK_DEFINE_INLINE(BoxSearchPanel_CreateSearchDataListCore_MonIcon) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto str = (System::String::Object*)ctx->X[0];
+        ctx->X[0] = (uint64_t)str->Substring(str->LastIndexOf('_') + 1);
+    }
+};
+
 void exl_patches_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
@@ -65,4 +72,5 @@ void exl_patches_main() {
 
     GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns first boot language as English
     DoEvolve_ItemCancelCheck::InstallAtOffset(0x0177f16c); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
+    BoxSearchPanel_CreateSearchDataListCore_MonIcon::InstallAtOffset(0x01caf0b8); // Box Search checks all characters after "_" to get monsno and not just the last 3
 }
