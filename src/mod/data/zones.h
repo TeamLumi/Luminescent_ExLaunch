@@ -663,6 +663,18 @@ static constexpr const char *ZONES[] = {
     "Sinjoh Ruins - Cabin",
     "Sinjoh Ruins - Mystri Stage",
     "Distortion World 1",
+    "Battle Hall",
+    "Battle Hall - Hallway",
+    "Battle Hall - Arena",
+    "Battle Factory",
+    "Battle Factory - Hallway",
+    "Battle Factory - Arena",
+    "Battle Castle",
+    "Battle Castle - Hallway",
+    "Battle Castle - Arena",
+    "Battle Arcade",
+    "Battle Arcade - Hallway",
+    "Battle Arcade - Arena",
 };
 
 static constexpr const char *ZONE_CODES[] = {
@@ -1328,6 +1340,18 @@ static constexpr const char *ZONE_CODES[] = {
     "SINJOHR0101",
     "SINJOHR0201",
     "DISTORTION1",
+    "D31R0301",
+    "D31R0302",
+    "D31R0303",
+    "D31R0401",
+    "D31R0402",
+    "D31R0403",
+    "D31R0501",
+    "D31R0502",
+    "D31R0503",
+    "D31R0601",
+    "D31R0602",
+    "D31R0603",
 };
 
 constexpr int ZONE_COUNT = sizeof(ZONES) / sizeof(ZONES[0]);
