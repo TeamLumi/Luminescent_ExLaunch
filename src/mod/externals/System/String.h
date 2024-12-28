@@ -48,6 +48,14 @@ namespace System {
             return external<String::Object*>(0x026f4560, this, startIndex, length);
         }
 
+        inline String::Object* Substring(int32_t startIndex) {
+            return external<String::Object*>(0x026f46d0, this, startIndex);
+        }
+
+        inline int32_t LastIndexOf(uint16_t value) {
+            return external<int32_t>(0x026f6ef0, this, value);
+        }
+
         inline String::Object* Truncate(int32_t maxLength) {
             String::Object* str = this->instance();
             if (IsNullOrEmpty(str))

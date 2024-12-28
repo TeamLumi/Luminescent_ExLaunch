@@ -59,7 +59,7 @@ namespace Dpr::UI {
             void* _comparerPlaceName; // Dpr_UI_UIManager_ComparerPlaceName_o*
         };
 
-        static inline Dpr::UI::UIManager::Object* instance() {
+        static inline Dpr::UI::UIManager::Object* get_Instance() {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$UIManager$$get_Instance);
         }
 

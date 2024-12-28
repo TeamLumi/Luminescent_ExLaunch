@@ -114,7 +114,7 @@ HOOK_DEFINE_REPLACE(PoketchWindow_OnUpdate) {
             return;
         }
 
-        auto uiManager = Dpr::UI::UIManager::instance();
+        auto uiManager = Dpr::UI::UIManager::get_Instance();
         auto currentWindow = (UnityEngine::_Object::Object *)uiManager->GetCurrentUIWindow<Dpr::UI::UIWindow>(Dpr::UI::UIManager::Method$$GetCurrentUIWindow_UIWindow_);
         bool isCurrentWindowPoketch = !UnityEngine::_Object::op_Inequality(currentWindow, (UnityEngine::_Object::Object *)__this);
         if (isCurrentWindowPoketch)

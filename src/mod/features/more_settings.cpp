@@ -33,16 +33,16 @@ void OnValueChanged(int32_t configId, int32_t value) {
 void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSettings, int32_t configId, int32_t value) {
     switch (configId) {
         case array_index(SETTINGS, "EXP Share"):
-            extraSettings->expShareEnabled = value != 0;
+            extraSettings->expShareEnabled = value == 0; // Index 0 is "On" and index 1 is "Off"
             break;
         case array_index(SETTINGS, "Affection"):
-            extraSettings->affectionEnabled = value != 0;
+            extraSettings->affectionEnabled = value == 0; // Index 0 is "On" and index 1 is "Off"
             break;
         case array_index(SETTINGS, "Level Cap"):
-            extraSettings->levelCapEnabled = value != 0;
+            extraSettings->levelCapEnabled = value == 0; // Index 0 is "On" and index 1 is "Off"
             break;
         case array_index(SETTINGS, "Visible Shiny Eggs"):
-            extraSettings->shinyEggsEnabled = value != 0;
+            extraSettings->shinyEggsEnabled = value == 0; // Index 0 is "On" and index 1 is "Off"
             break;
         case array_index(SETTINGS, "Trainer Sets"):
             extraSettings->gameMode = (ExtraSettingsSaveData::GameMode)value;
@@ -59,13 +59,13 @@ void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSett
 int32_t GetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSettings, int32_t configId) {
     switch (configId) {
         case array_index(SETTINGS, "EXP Share"):
-            return extraSettings->expShareEnabled ? 1 : 0;
+            return extraSettings->expShareEnabled ? 0 : 1; // Index 0 is "On" and index 1 is "Off"
         case array_index(SETTINGS, "Affection"):
-            return extraSettings->affectionEnabled ? 1 : 0;
+            return extraSettings->affectionEnabled ? 0 : 1; // Index 0 is "On" and index 1 is "Off"
         case array_index(SETTINGS, "Level Cap"):
-            return extraSettings->levelCapEnabled ? 1 : 0;
+            return extraSettings->levelCapEnabled ? 0 : 1; // Index 0 is "On" and index 1 is "Off"
         case array_index(SETTINGS, "Visible Shiny Eggs"):
-            return extraSettings->shinyEggsEnabled ? 1 : 0;
+            return extraSettings->shinyEggsEnabled ? 0 : 1; // Index 0 is "On" and index 1 is "Off"
         case array_index(SETTINGS, "Trainer Sets"):
             return (int32_t)extraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
@@ -373,7 +373,7 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                 window->cast<Dpr::UI::UIWindow>()->OnOpen(__this->fields.prevWindowId);
 
                 Dpr::UI::UIManager::getClass()->initIfNeeded();
-                auto keyguide = Dpr::UI::UIManager::instance()->GetKeyguide(nullptr, true)->instance();
+                auto keyguide = Dpr::UI::UIManager::get_Instance()->GetKeyguide(nullptr, true)->instance();
                 keyguide->cast<UnityEngine::Component>()->get_transform()->SetParent(
                         window->cast<UnityEngine::Component>()->get_transform(), false);
 
