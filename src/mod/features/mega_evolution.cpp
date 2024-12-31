@@ -254,8 +254,14 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
 
 HOOK_DEFINE_INLINE(CMD_ChangeForm_Start) {
     static void Callback(exl::hook::nx64::InlineCtx *ctx) {
-//        Dpr::Battle::View::BattleViewCore::instance()->fields._UISystem_k__BackingField->fields.
-        reinterpret_cast<Dpr::Battle::View::Systems::BattleViewSystem::Object*>(ctx->X[19])->fields.m_subSequence = 20;
+        auto viewSystem = reinterpret_cast<Dpr::Battle::View::Systems::BattleViewSystem::Object*>(ctx->X[19]);
+        auto wazaList = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField->fields._wazaList;
+        auto destActionParam = wazaList->fields._destActionParam->fields.value;
+        if (get_mega_flag(destActionParam) || get_ultraBurst_flag(destActionParam)) {
+            viewSystem->fields.m_subSequence = 20;
+        } else {
+            viewSystem->fields.m_subSequence = static_cast<int32_t>(ctx->W[8]);
+        }
     }
 };
 
