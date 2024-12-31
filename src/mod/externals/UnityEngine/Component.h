@@ -24,6 +24,7 @@ namespace Dpr::UI {
     struct SelectLanguageItem;
     struct SettingMenuItem;
     struct UIText;
+    struct PokemonIcon;
 }
 
 namespace TMPro {
@@ -58,6 +59,7 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c66fc0, FieldCharacterEntity> Method$$FieldCharacterEntity$$GetComponent {};
         static inline StaticILMethod<0x04c66840, PokemonCustomNodeAnim> Method$$PokemonCustomNodeAnim$$GetComponent {};
         static inline StaticILMethod<0x04c669c0, XMenuTopItem> Method$$XMenuTopItem$$GetComponent {};
+        static inline StaticILMethod<0x04c66790, Dpr::UI::PokemonIcon> Method$$PokemonIcon$$GetComponent {};
 
         static inline StaticILMethod<0x04c66a18, Dpr::UI::UIText> Method$$UIText$$GetComponentInChildren {};
 

@@ -82,6 +82,36 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(AYouName(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION:
                     return HandleCmdStepper(GetCaughtLocation(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_SUB_LOCAL_BTL_CALL:
+                    return HandleCmdStepper(FTR_SUB_LOCAL_BTL_CALL(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SET_RANK:
+                    return HandleCmdStepper(FTR_HALL_SET_RANK(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_GET_NOW_ROUND:
+                    return HandleCmdStepper(FTR_HALL_GET_NOW_ROUND(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_POOL_REMOVE:
+                    return HandleCmdStepper(FTR_HALL_POOL_REMOVE(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_INC_ROUND:
+                    return HandleCmdStepper(FTR_HALL_INC_ROUND(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SET_STREAK_MON:
+                    return HandleCmdStepper(FTR_HALL_SET_STREAK_MON(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_GET_STREAK_MON:
+                    return HandleCmdStepper(FTR_HALL_GET_STREAK_MON(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_STREAK_MON_NAME:
+                    return HandleCmdStepper(FTR_HALL_STREAK_MON_NAME(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SELECTED_MON_NAME:
+                    return HandleCmdStepper(FTR_HALL_SELECTED_MON_NAME(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_RANK_NUM_NAME:
+                    return HandleCmdStepper(FTR_HALL_RANK_NUM_NAME(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SELECTOR_SET_PROC:
+                    return HandleCmdStepper(FTR_HALL_SELECTOR_SET_PROC(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SELECTOR_SEAL_UI_WAIT:
+                    return HandleCmdStepper(FTR_HALL_SELECTOR_SEAL_UI_WAIT(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_FACTORY_SELECTOR_SET_PROC:
+                    return HandleCmdStepper(FTR_FACTORY_SELECTOR_SET_PROC(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_FACTORY_SELECTOR_SEAL_UI_WAIT:
+                    return HandleCmdStepper(FTR_FACTORY_SELECTOR_SEAL_UI_WAIT(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_FTR_SET_CURRENT_FACILITY:
+                    return HandleCmdStepper(FTR_SET_CURRENT_FACILITY(__this));
                 default:
                     break;
             }
@@ -124,4 +154,19 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_AYOU_NAME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_AYOU_NAME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_SUB_LOCAL_BTL_CALL);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SET_RANK);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_GET_NOW_ROUND);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_POOL_REMOVE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_INC_ROUND);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SET_STREAK_MON);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_GET_STREAK_MON);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_STREAK_MON_NAME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SELECTED_MON_NAME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_RANK_NUM_NAME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SELECTOR_SET_PROC);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_HALL_SELECTOR_SEAL_UI_WAIT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_FACTORY_SELECTOR_SET_PROC);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_FACTORY_SELECTOR_SEAL_UI_WAIT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FTR_SET_CURRENT_FACILITY);
 }

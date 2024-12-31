@@ -48,6 +48,9 @@ void exl_battle_camera_fix_main();
 // Defaults to flag 2591, as Luminescent does it.
 void exl_battle_escape_flag_main();
 
+// Activates the battle frontier and all its bells and whistles.
+void exl_battle_frontier_main();
+
 // Makes the battle menu scroll instead of the cursor.
 void exl_battle_revolver_main();
 
@@ -183,3 +186,6 @@ void exl_wild_forms_main();
 // Rewrites the method that sets a wild Pokémon's held item to use consistent rates (50% / 5% / 45%).
 // Also adds "Frisk" as an ability that raises wild Pokémon's held item rate.
 void exl_wild_held_items_main();
+
+
+void exl_custom_ui_main();

@@ -17,5 +17,9 @@ namespace Dpr::Battle::Logic {
             int32_t shadowResolution;
             XLSXContent::BattleSetupEffectLots::SheetArenaEffTable::Object* arenaEffTable;
         };
+
+        inline void SetUpBgComponentData(int32_t id) {
+            external<void>(0x0188a6c0, this, id);
+        }
     };
 }

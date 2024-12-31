@@ -4,7 +4,6 @@
 
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Dpr/UI/UIModelViewController.h"
-#include "externals/Dpr/UI/UIWazaManage.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/SpriteAtlasID.h"
 #include "externals/System/Action.h"
@@ -13,15 +12,33 @@
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "externals/UnityEngine/Transform.h"
 #include "externals/XLSXContent/UIDatabase.h"
+#include "externals/UnityEngine/Sprite.h"
 
 namespace Dpr::UI {
     struct Keyguide;
     struct ShopBoutiqueChange;
     struct UIZukanRegister;
+    struct PokemonStatusWindow;
+    struct ContextMenuWindow;
+    struct BoxWindow;
+    struct UIWindow;
+    struct UIWazaManage;
+
 }
 
 namespace Dpr::UI {
     struct UIManager : ILClass<UIManager, 0x04c5cc28> {
+        struct UIInstance : ILClass<UIInstance> {
+            struct Fields {
+                UIWindow* _uiWindow;
+                UIWindowID _windowId;
+            };
+
+            inline int32_t get_windowId() {
+                return external<int32_t>(0x01a0e370, this);
+            }
+        };
+
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             UnityEngine::Transform::Object* _activeRoot;
             Dpr::UI::UIModelViewController::Object* _modelView;
@@ -66,6 +83,12 @@ namespace Dpr::UI {
         static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow_ShopBoutiqueChange_ {};
         static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow_UIWazaManage_ {};
 
+        static inline StaticILMethod<0x04c8ff30, Dpr::UI::BoxWindow> Method$$CreateUIWindow_BoxWindow_ {};
+
+        static inline StaticILMethod<0x04c8ff48, Dpr::UI::ContextMenuWindow> Method$$CreateUIWindow_ContextMenuWindow_ {};
+
+        static inline StaticILMethod<0x04c8ff98, Dpr::UI::PokemonStatusWindow> Method$$CreateUIWindow_PokemonStatusWindow_ {};
+
         static inline StaticILMethod<0x04c900a8, Dpr::UI::UIZukanRegister> Method$$CreateUIWindow_UIZukanRegister_ {};
         static inline StaticILMethod<0x04c90130, Dpr::UI::UIWindow> Method$$GetCurrentUIWindow_UIWindow_ {};
 
@@ -79,6 +102,10 @@ namespace Dpr::UI {
             return external<typename T::Object*>(0x01cfa100, this, *method);
         }
 
+        inline void _ReleaseUIWindow(UIWindow* window) {
+            external<void>(0x017a58a0, this, window);
+        }
+
         static inline int32_t Repeat(int32_t value, int32_t start, int32_t end) {
             return external<int32_t>(0x017c4990, value, start, end);
         }
@@ -89,6 +116,10 @@ namespace Dpr::UI {
 
         inline void LoadSpritePokemon(Pml::PokePara::PokemonParam::Object* pokemonParam, UnityEngine::Events::UnityAction::Object* onComplete) {
             external<void>(0x017c3e40, this, pokemonParam, onComplete);
+        }
+
+        inline void LoadSpriteItem(uint16_t itemNo, UnityEngine::Events::UnityAction::Object* onComplete) {
+            external<void>(0x017c48b0, this, itemNo, onComplete);
         }
 
         inline UnityEngine::Sprite::Object* GetSpritePokemonTypeZukan(int32_t typeNo, int32_t langId) {

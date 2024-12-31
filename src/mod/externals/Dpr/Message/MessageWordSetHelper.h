@@ -40,6 +40,10 @@ namespace Dpr::Message {
             external<void>(0x01f9c410, index, msbtName, labelIndex);
         }
 
+        static inline void SetWazaTypeWord(int32_t tagIndex, uint8_t pokeTypeNo) {
+            external<void>(0x01f9a7a0, tagIndex, pokeTypeNo);
+        }
+
         static inline void SetStringWordFromMsgFile(int32_t index, Dpr::Message::MessageMsgFile::Object* msgFile,
                                                     int32_t labelIndex) {
             external<void>(0x01f9f8e0, index, msgFile, labelIndex);

@@ -33,5 +33,9 @@ namespace Audio {
         inline UnityEngine::Transform::Object* PlaySe(uint32_t playEventId, void *onFinished) {
             return external<UnityEngine::Transform::Object*>(0x021eb8d0, this, playEventId, onFinished);
         }
+
+        inline void SetBgmEvent(uint32_t eventId, bool isThroughSameEvent) {
+            external<void>(0x021eb840, this, eventId, isThroughSameEvent);
+        }
     };
 }

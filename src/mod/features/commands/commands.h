@@ -149,3 +149,61 @@ bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] Location: The work in which to put the location index in.
 //   [Work, Number] index: The index that points to the given Pokémon.
 bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool FTR_SUB_LOCAL_BTL_CALL(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool FTR_HALL_SET_RANK(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool FTR_HALL_POOL_REMOVE(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the current set's round based on total round count between 0-9.
+// Arguments:
+//   [Work] result: The work in which to put the result in.
+bool FTR_HALL_GET_NOW_ROUND(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool FTR_HALL_INC_ROUND(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool FTR_SET_CURRENT_FACILITY(Dpr::EvScript::EvDataManager::Object* manager);
+
+bool FTR_HALL_SET_STREAK_MON(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Compares the saved streak MonsNo and places the result into a work.
+// Arguments:
+//   [Work] result: The work in which to put the result in.
+bool FTR_HALL_GET_STREAK_MON(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Inserts the string of the current streak Pokémon into a message label.
+// Arguments:
+//   [Number] tagIndex: The value of the tagIndex in the message label to insert the string into.
+bool FTR_HALL_STREAK_MON_NAME(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Inserts the string of the current selected Pokémon into a message label.
+// Arguments:
+//   [Number] tagIndex: The value of the tagIndex in the message label to insert the string into.
+bool FTR_HALL_SELECTED_MON_NAME(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the current rank of the specified type.
+// Arguments:
+//   [Number] typeIndex: The index of the type to retrieve.
+//   [Number] tagIndex: The value of the tagIndex in the message label to insert the string into.
+bool FTR_HALL_RANK_NUM_NAME(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Opens the custom Battle Hall Type Selector UI.
+// Arguments:
+//   None.
+bool FTR_HALL_SELECTOR_SET_PROC(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Waits for Battle Hall Type Selector UI to be finished before resuming execution.
+// Arguments:
+//   None.
+bool FTR_HALL_SELECTOR_SEAL_UI_WAIT(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Opens the custom Battle Factory Selector UI.
+// Arguments:
+//   None.
+bool FTR_FACTORY_SELECTOR_SET_PROC(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Waits for Battle Factory Selector UI to be finished before resuming execution.
+// Arguments:
+//   None.
+bool FTR_FACTORY_SELECTOR_SEAL_UI_WAIT(Dpr::EvScript::EvDataManager::Object* manager);

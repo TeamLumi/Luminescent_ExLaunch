@@ -26,6 +26,7 @@ struct KeyguideItem : ILClass<KeyguideItem> {
 
 namespace System::Collections::Generic {
     struct List$$KeyguideItem_Param : List<List$$KeyguideItem_Param, KeyguideItem::Param> {
-        static inline StaticILMethod<0x04c89d98> Method$$Add{};
+        static inline StaticILMethod<0x04c89da0> Method$$Clear {};
+        static inline StaticILMethod<0x04c89d98, KeyguideItem::Param> Method$$Add {};
     };
 }

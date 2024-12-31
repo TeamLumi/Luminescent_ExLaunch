@@ -117,3 +117,10 @@ static constexpr const char* BATTLE_FEATURES[] = {
 };
 
 constexpr int BATTLE_FEATURE_COUNT = sizeof(BATTLE_FEATURES) / sizeof(BATTLE_FEATURES[0]);
+
+static constexpr const char* FRONTIER_FEATURES[] = {
+        "Battle Hall",
+        "Battle Factory"
+};
+
+constexpr int FRONTIER_FEATURE_COUNT = sizeof(FRONTIER_FEATURES) / sizeof(FRONTIER_FEATURES[0]);

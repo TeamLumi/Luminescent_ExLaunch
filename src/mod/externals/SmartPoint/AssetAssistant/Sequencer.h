@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/UnityEngine/Coroutine.h"
+#include "externals/System/Collections/IEnumerator.h"
 
 namespace SmartPoint::AssetAssistant {
     struct Sequencer : ILClass<Sequencer, 0x04c58888> {
@@ -57,8 +58,22 @@ namespace SmartPoint::AssetAssistant {
             void* waitForEndOfFrame;
         };
 
+        static inline Sequencer::Object* instance() {
+            return SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$Sequencer$$get_Instance);
+        }
+
         static inline void Stop(UnityEngine::Coroutine::Object *coroutine) {
             external<void>(0x02bc29b0, coroutine);
         }
+
+        static inline UnityEngine::Coroutine::Object* Start(System::Collections::IEnumerator::Object* routine) {
+            return external<UnityEngine::Coroutine::Object*>(0x02bc1db0, routine);
+        }
+
+        static inline System::Collections::IEnumerator::Object* RunCoroutine(
+                System::Collections::IEnumerator::Object* routine) {
+            return external<System::Collections::IEnumerator::Object*>(0x02bc2900, routine);
+
+        };
     };
 }

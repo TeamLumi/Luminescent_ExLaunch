@@ -36,7 +36,13 @@ namespace Dpr::UI {
 }
 
 namespace System::Collections::Generic {
-    struct List$$ContextMenuItem_Param : List<List$$ContextMenuItem_Param, Dpr::UI::ContextMenuItem::Param> {
+    struct List$$ContextMenuItem_Param : List<List$$ContextMenuItem_Param, Dpr::UI::ContextMenuItem::Param, 0x04c5efb8> {
         static inline StaticILMethod<0x04c896c0, Dpr::UI::ContextMenuItem::Param> Method$$Add {};
+        static inline StaticILMethod<0x04c896b8> Method$$ctor {};
+        static inline StaticILMethod<0x04c68940> Method$$ToArray {};
+
+        inline Dpr::UI::ContextMenuItem::Param::Array* ToArray() {
+            return external<Dpr::UI::ContextMenuItem::Param::Array*>(0x02a3e720, this, *Method$$ToArray);
+        }
     };
 }

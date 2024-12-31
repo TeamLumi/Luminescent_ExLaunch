@@ -5,6 +5,7 @@
 #include "externals/Dpr/UI/SelectOpeningBase.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "externals/UnityEngine/RectTransform.h"
+#include "externals/Dpr/UI/ContextMenuItem.h"
 
 namespace Dpr::UI {
     struct SelectLanguageWindow : ILClass<SelectLanguageWindow> {
@@ -20,5 +21,8 @@ namespace Dpr::UI {
         inline bool SetSelectIndex(int32_t index, bool isInitialized) {
             return external<bool>(0x01d3c220, this, index, isInitialized);
         }
+
+        static inline StaticILMethod<0x04c7fb88> Method$$SelectLanguageWindow__OpenConfirmMessageWindow__b__18_0 {};
+        static inline StaticILMethod<0x04c6bdc0, Dpr::UI::ContextMenuItem::Object*> Method$$SelectLanguageWindow__OpenConfirmMessageWindow__b__18_1 {};
     };
 }

@@ -1782,6 +1782,9 @@ enum class FlagWork_Flag : int32_t {
 
     FLAG_CYRUS_SPEAR_PILLAR = 2770,
 
+    MATRON_EVENT_CALLBACK = 2999,
+    FLAG_FTR_HALL_MATRON_INBOUND = 3000,
+
     FLAG_END_SAVE_SIZE = 4000,
 };
 
@@ -3243,6 +3246,14 @@ enum class FlagWork_Work : int32_t {
     WK_LAST_BATTLE_TURN_COUNTER = 449,
     WK_INCENSE_SLOT = 495,
     SCWK_WK_SAVE_SIZE = 500,
+
+    WK_CURRENT_CUSTOM_UI = 550,
+
+    WK_BATTLE_HALL_CURRENT_TYPE = 3000,
+    WK_BATTLE_HALL_SELECTED_MON = 3001,
+    WK_BATTLE_FACTORY_DISPLAY_STATE = 3002,
+
+    WK_FTR_CURRENT_FACILITY = 3050,
 
     // Debug works, can be replaced at any time
     WORK_4000 = 4000,

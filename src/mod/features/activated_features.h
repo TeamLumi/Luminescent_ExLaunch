@@ -64,3 +64,6 @@ bool IsActivatedSmallPatchFeature(int feature);
 
 // Check if a given battle feature is enabled.
 bool IsActivatedBattleFeature(int feature);
+
+// Check if a given frontier feature is enabled.
+bool IsActivatedFrontierFeature(int feature);

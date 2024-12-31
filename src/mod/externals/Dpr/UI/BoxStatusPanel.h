@@ -5,6 +5,7 @@
 #include "externals/UnityEngine/UI/Image.h"
 #include "externals/Dpr/UI/UIText.h"
 #include "externals/UnityEngine/GameObject.h"
+#include "externals/Pml/PokePara/CoreParam.h"
 
 namespace Dpr::UI {
     struct BoxStatusPanel : ILClass<BoxStatusPanel> {
@@ -35,12 +36,18 @@ namespace Dpr::UI {
             float _closePosX;
         };
 
-        struct DisplayClass35_0 : ILClass <DisplayClass35_0> {
+        struct DisplayClass35_0 : ILClass <DisplayClass35_0, 0x04c61768> {
             struct Fields {
                 Pml::PokePara::CoreParam * pokemonParam;
                 int32_t zukanNo;
                 uint16_t haveItem;
             };
+
+            static inline StaticILMethod<0x04c7e940> Method$$__SetUp__b__1 {};
+
+            inline void ctor() {
+                external<void>(0x01cb1bd0, this);
+            }
         };
     };
 }

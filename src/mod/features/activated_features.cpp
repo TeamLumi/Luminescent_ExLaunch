@@ -9,6 +9,7 @@ static bool ACTIVATED_KEY_ITEM_FEATURES[KEY_ITEM_FEATURE_COUNT];
 static bool ACTIVATED_SAVE_FEATURES[SAVE_FEATURE_COUNT];
 static bool ACTIVATED_SMALL_PATCH_FEATURES[SMALL_PATCH_FEATURE_COUNT];
 static bool ACTIVATED_BATTLE_FEATURES[BATTLE_FEATURE_COUNT];
+static bool ACTIVATED_FRONTIER_FEATURES[FRONTIER_FEATURE_COUNT];
 
 void DisableFeatures()
 {
@@ -122,4 +123,9 @@ bool IsActivatedSmallPatchFeature(int feature)
 bool IsActivatedBattleFeature(int feature)
 {
     return ACTIVATED_BATTLE_FEATURES[feature];
+}
+
+bool IsActivatedFrontierFeature(int feature)
+{
+    return ACTIVATED_FRONTIER_FEATURES[feature];
 }

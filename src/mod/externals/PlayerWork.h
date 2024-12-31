@@ -54,6 +54,7 @@
 #include "externals/Dpr/BallDeco/SaveSealData.h"
 #include "externals/DPData/CON_PHOTO_EXT_DATA.h"
 #include "externals/DPData/GMS_POINT_HISTORY_EXT_DATA.h"
+#include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 
 struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     struct SaveData : ILStruct<SaveData> {
@@ -346,5 +347,9 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
         external<void>(0x02cf0fd0, value);
+    }
+
+    static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
+        return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object *>(0x02ce2a00);
     }
 };

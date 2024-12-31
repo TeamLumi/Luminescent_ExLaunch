@@ -10,6 +10,7 @@
 #include "externals/Pml/PokePara/EvolveSituation.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/System/Primitives.h"
+#include "externals/Dpr/Battle/Logic/BattleEffectComponentData.h"
 
 namespace Dpr::Battle::Logic {
     struct BATTLE_SETUP_PARAM : ILClass<BATTLE_SETUP_PARAM> {
@@ -18,7 +19,7 @@ namespace Dpr::Battle::Logic {
             BtlRule rule;
             void* raidBattleParam; // Dpr_Battle_Logic_RaidBattleParam_o*
             void* fieldSituation; // Dpr_Battle_Logic_BTL_FIELD_SITUATION_o*
-            void* btlEffComponent; // Dpr_Battle_Logic_BattleEffectComponentData_o*
+            BattleEffectComponentData::Object* btlEffComponent; // Dpr_Battle_Logic_BattleEffectComponentData_o*
             Pml::PokePara::EvolveSituation::Object* evolveSituation;
             uint8_t commMode;
             uint8_t multiMode;
@@ -85,5 +86,9 @@ namespace Dpr::Battle::Logic {
             void* pokeMemoryResult; // Dpr_Battle_Logic_PokeMemoryResult_o*
             int32_t _throwBallNum_k__BackingField;
         };
+
+        inline void Clear() {
+            external<void>(0x01ac3ac0, this);
+        }
     };
 }

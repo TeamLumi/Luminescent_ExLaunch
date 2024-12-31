@@ -7,6 +7,8 @@
 #include "save/data/dex_form/dex_form.h"
 #include "save/data/main/main.h"
 #include "save/data/settings/settings.h"
+#include "save/data/frontier/battle_hall.h"
+#include "save/data/frontier/battle_factory.h"
 
 #include "logger/logger.h"
 
@@ -29,6 +31,8 @@ struct CustomSaveData {
     DexFormSaveData<DexSize> dexForms;
     AYouSaveData ayou;
     ExtraSettingsSaveData settings;
+    HallSaveData battleHall;
+    FactorySaveData battleFactory;
 };
 
 CustomSaveData* getCustomSaveData();

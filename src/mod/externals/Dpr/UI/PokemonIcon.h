@@ -13,6 +13,8 @@ namespace Dpr::UI {
             UnityEngine::UI::Image::Object* _imageBallDecoIcon;
         };
 
+        static inline StaticILMethod<0x04c7f458> Method$$__Load__b__9_0 {};
+        static inline StaticILMethod<0x04c7f450> Method$$__Load__b__10_1 {};
         static inline StaticILMethod<0x04c7f448, UnityEngine::Sprite> Method$$Load_10_0 {};
 
         static inline MethodInfo* Method$$BUISituationLoadIcon = nullptr;

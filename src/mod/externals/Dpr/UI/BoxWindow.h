@@ -1,10 +1,17 @@
 #pragma once
 #include "externals/il2cpp-api.h"
-#include "externals/Dpr/UI/UIWindow.h"
 #include "BoxStatusPanel.h"
 #include "BoxTray.h"
 #include "externals/DG/Tweening/Tween.h"
 #include "externals/System/Action.h"
+#include "externals/UnityEngine/Material.h"
+#include "externals/Dpr/UI/Cursor.h"
+#include "externals/Dpr/UI/ContextMenuWindow.h"
+#include "externals/Dpr/UI/PokemonStatusWindow.h"
+#include "Keyguide.h"
+#include "externals/System/Collections/IEnumerator.h"
+#include "externals/System/Func.h"
+
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
@@ -14,6 +21,31 @@ namespace Dpr::UI {
                 int32_t trayNum;
                 UnityEngine::Events::UnityAction::Object* __9__11;
             };
+
+            static inline StaticILMethod<0x04c7ea18> Method$$__OpOpen__b__1 {};
+        };
+
+        struct __c__DisplayClass204_0 : ILClass<__c__DisplayClass204_0, 0x04c619b0> {
+            struct Fields {
+                bool isModelClosed;
+            };
+
+            inline void ctor() {
+                external<void>(0x01a212d0, this);
+            }
+        };
+
+        struct __c__DisplayClass296_0 : ILClass<__c__DisplayClass296_0, 0x04c61880> {
+            struct Fields {
+                UnityEngine::Events::UnityAction::Object* onClosed;
+                BoxWindow::Object* __4__this;
+            };
+
+            static inline StaticILMethod<0x04c7eaf0> Method$$__OpenContextMenu__b__0 {};
+
+            inline void ctor() {
+                external<void>(0x01a22910, this);
+            }
         };
 
         struct __OpOpen_d__200 : ILClass<__OpOpen_d__200> {
@@ -25,6 +57,77 @@ namespace Dpr::UI {
                 __c__DisplayClass200_0::Object* __8__1;
             };
         };
+
+        struct __OpClose_d__204 : ILClass<__OpClose_d__204, 0x04c617d0> {
+            struct Fields {
+                int32_t __1__state;
+                Il2CppObject* __2__current;
+                BoxWindow::Object* __4__this;
+                __c__DisplayClass204_0::Object* __8__1;
+                int32_t nextWindowId;
+                UnityEngine::Events::UnityAction::Object* onClosed_;
+            };
+
+            inline void ctor(int32_t __1__state) {
+                external<void>(0x01a252d0, this, __1__state);
+            }
+        };
+
+        struct NaviParam : ILClass<NaviParam, 0x04c616f8> {
+            struct Fields {
+                int32_t itemType;
+                int32_t index;
+            };
+
+            inline void ctor() {
+                external<void>(0x01a27540, this);
+            }
+        };
+
+        struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
+            struct Fields {
+                int32_t dispMode;
+                int32_t tray;
+                int32_t index;
+                int32_t teamIndex;
+                bool isSelectParty;
+                int32_t openType;
+                int32_t selectCount;
+                int32_t targetLevel;
+                bool isEnableDying;
+                bool isEnableEgg;
+                bool isEnableTeam;
+                bool isEnableParty;
+                bool isShowSelectCount;
+                bool isEnableKeyboard;
+                bool isOpenFromBattleTeam;
+                bool isDisableUseful;
+                bool isDisableDuplicate;
+                bool isDontDuckOffBGM;
+                bool isExternalTrade;
+                bool isGMS;
+                System::Int32_array* targetsPokeNo;
+                System::Int32_array* selectNgPokeNos;
+                System::String::Object* tradeName;
+                void* selected;
+                void* searchData;
+            };
+
+            inline void ctor() {
+                external<void>(0x01a27970, this);
+            }
+        };
+
+        struct __c__DisplayClass282_0 : ILClass<__c__DisplayClass282_0> {
+            struct Fields {
+                BoxWindow::Object* __4__this;
+                BoxWindow::OpenParam::Object* reopenParam;
+                PokemonStatusWindow::Object* statusParams;
+            };
+        };
+
+        static inline StaticILMethod<0x04c7ecf0> Method$$Dpr_UI_BoxWindow_OnUpdate {};
+        static inline StaticILMethod<0x04c6bd48, Dpr::UI::ContextMenuItem::Object*> Method$$Dpr_UI_BoxWindow_OnContextMenu {};
 
         struct Fields : Dpr::UI::UIWindow::Fields {
             UnityEngine::UI::Image::Object* _displayTitle; // 0x70
@@ -53,7 +156,7 @@ namespace Dpr::UI {
             void* _boxListPanel; // 0x128 // Todo Implement Dpr::UI::BoxListPanel::Object*
             void* _swapRootPrefab; // 0x130
             UnityEngine::RectTransform::Object* _contextMenuRoot; // 0x138
-            void* _cursor; // 0x140
+            Dpr::UI::Cursor::Object* _cursor; // 0x140
             UnityEngine::Transform::Object* _cursorBody; // 0x148
             UnityEngine::UI::Image::Object* _rangeCursor; // 0x150
             UnityEngine::UI::Image::Object* _rangePlate; // 0x158
@@ -130,7 +233,7 @@ namespace Dpr::UI {
             UnityEngine::Material::Object* _matSearchButton; // 0x358
             UnityEngine::Material::Object* _matBoxButton; // 0x360
             void* _twSequence; // 0x368
-            void* _contextMenu; // 0x370
+            Dpr::UI::ContextMenuWindow::Object* _contextMenu; // 0x370
             float _waitSave; // 0x378
             void* _formChangeEffectInstance; // 0x380
             bool isCancelFormChange; // 0x388
@@ -154,5 +257,70 @@ namespace Dpr::UI {
             bool _isControlEnable; // 0x3DC
             bool _isForceClosing; // 0x3DD
         };
+
+        static_assert(offsetof(Fields, _isForceClosing) == 0x3CD);
+
+        struct VirtualInvokeData_OpPlayOpenWindowAnimation {
+            typedef System::Collections::IEnumerator::Object*(*Il2CppMethodPointer)(UIWindow::Object*,
+                                                                                    int32_t, UnityEngine::Events::UnityAction::Object*, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VTable {
+            VirtualInvokeData _0_Equals;
+            VirtualInvokeData _1_Finalize;
+            VirtualInvokeData _2_GetHashCode;
+            VirtualInvokeData _3_ToString;
+            VirtualInvokeData _4_OnCreate;
+            VirtualInvokeData _5_OnDestroy;
+            VirtualInvokeData _6_OnTransition;
+            VirtualInvokeData _7_OnTransitionComplete;
+            VirtualInvokeData _8_OnOpen;
+            VirtualInvokeData _9_PlayOpenWindowAnimation;
+            VirtualInvokeData_OpPlayOpenWindowAnimation _10_OpPlayOpenWindowAnimation;
+            VirtualInvokeData _11_GetWindowAnimationConnectId;
+            VirtualInvokeData _12_OpPlayCloseWindowAnimationAndWaiting;
+            VirtualInvokeData _13_EnableMainCameraByUiMode;
+            VirtualInvokeData _14_OnCloseKeyGuide;
+            VirtualInvokeData _15_OpenMessageWindow;
+            VirtualInvokeData _16_CloseMessageWindow;
+            VirtualInvokeData _17_IsActiveMessageWindow;
+            VirtualInvokeData _18_CreateContextMenuYesNo;
+            VirtualInvokeData _19_CreateContextMenuYesNo;
+            VirtualInvokeData _20_OnAddContextMenuYesNoItemParams;
+        };
+
+        static_assert(sizeof(VTable) == 0x150, "Size of VTable is not 0x150\n");
+        static_assert(offsetof(VTable, _10_OpPlayOpenWindowAnimation) == 0xa0,
+                      "Offset of _10_OpPlayOpenWindowAnimation is not 0xa0\n");
+
+        inline void Open(int32_t prevWindowId, bool isDuckOn) {
+            external<void>(0x01cb6080, this, prevWindowId, isDuckOn);
+        }
+
+        inline void Close(UnityEngine::Events::UnityAction::Object* onClosed, int32_t nextWindowId) {
+            external<void>(0x01cb5cc0, this, onClosed, nextWindowId);
+        }
+
+        inline void Awake() {
+            external<void>(0x01cb6020, this);
+        }
+
+        inline void SetupKeyguide() {
+            external<void>(0x01cb7e30, this);
+        }
+
+        inline void OpenStatusWindow(Dpr::UI::PokemonStatusWindow::Param::Object* statusParams,
+                                     Dpr::UI::BoxWindow::OpenParam::Object* reopenParams) {
+            external<void>(0x01cc5ad0, this, statusParams, reopenParams);
+        }
+
+        inline void OpenContextMenu(System::Collections::Generic::List$$ContextMenuItem_Param::Object* menuItems,
+                                    System::Func::Object* onClicked, UnityEngine::Events::UnityAction::Object* onClosed,
+                                    int32_t selectIndex, uint32_t seDecide) {
+            external<void>(0x01cc4ab0, this, menuItems, onClicked, onClosed, selectIndex, seDecide);
+
+        }
     };
 }
