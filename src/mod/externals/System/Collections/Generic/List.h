@@ -63,11 +63,11 @@ namespace System::Collections::Generic {
         static inline StaticILMethod<0x04c8a3b8> Method$$Clear {};
 
         inline void Add(int32_t item) {
-            external<void>(0x02a70aa0, this, item, Method$$Add);
+            external<void>(0x02a70aa0, this, item, *Method$$Add);
         }
 
         inline void Clear() {
-            external<void>(0x02a70e40, this, Method$$Clear);
+            external<void>(0x02a70e40, this, *Method$$Clear);
         }
     };
 }

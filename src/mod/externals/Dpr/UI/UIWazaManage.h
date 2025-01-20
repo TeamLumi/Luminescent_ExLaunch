@@ -13,6 +13,17 @@
 
 namespace Dpr::UI {
     struct UIWazaManage : ILClass<UIWazaManage> {
+        struct __c__DisplayClass39_0 : ILClass<__c__DisplayClass39_0> {
+            struct Fields {
+                int32_t selectWazaNo;
+                int32_t learnWazaNo;
+                int32_t unlearnWazaNo;
+                Dpr::UI::UIWazaManage::Object* __4__this;
+                System::Action::Object* __9__4;
+                System::Action::Object* __9__3;
+            };
+        };
+
         struct Param : ILStruct<Param> {
             struct Fields {
                 int32_t BootType;
@@ -47,6 +58,8 @@ namespace Dpr::UI {
             int32_t selectTabIndex;
             Dpr::UI::UIWazaManage::Param::Object param;
         };
+
+        static inline StaticILMethod<0x04c80cc8> Method$$OnUpdate$$b__39_0 {};
 
         inline void Open(Dpr::UI::UIWazaManage::Param::Object param, MethodInfo* method) {
             external<void>(0x01dd3d80, this, param, method);

@@ -149,3 +149,19 @@ bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] Location: The work in which to put the location index in.
 //   [Work, Number] index: The index that points to the given Pokémon.
 bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Checks if a specific species learns the specified move by tutor.
+// Arguments:
+//   [Work, Number] monsno: ID of the species to look up.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] move: ID of the move to check.
+//   [Work] result: The work in which to put the result in, where 0 is no and 1 is yes.
+bool CheckTutorMove(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Opens a Move Tutor UI of the given table using the same UI as the move relearner.
+// Arguments:
+//   [Work] result: The work in which to put the ID of the move that was learned in.
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] table: The Move Tutor table to use.
+bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager);

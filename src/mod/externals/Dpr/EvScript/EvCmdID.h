@@ -1263,6 +1263,8 @@ namespace Dpr::EvScript {
             _SET_AYOU_NAME = 1253,
             _AYOU_NAME = 1254,
             _GET_CAUGHT_LOCATION = 1255,
+            _CHECK_TUTOR_MOVE = 1256,
+            _MOVE_TUTOR_UI = 1257,
 
             CUSTOM_CMD_END = 1500,
         };

@@ -8,6 +8,7 @@
 #include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/System/Action.h"
 #include "externals/System/MulticastDelegate.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
@@ -356,6 +357,7 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c7cf70, bool, System::String::Object*>    Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
         static inline StaticILMethod<0x04c7cfd0>                                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
         static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
+        static inline StaticILMethod<0x04c7d040, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {
@@ -427,6 +429,10 @@ namespace Dpr::EvScript {
 
         inline void SetBattleReturn() {
             external<void>(0x02c45c90, this);
+        }
+
+        inline bool CallWazaUICommon(int32_t bootType, Pml::PokePara::PokemonParam::Object* pokemonParam, System::Action::Object* resultCallback, int32_t oshieWazaNo) {
+            return external<bool>(0x02c92530, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {
