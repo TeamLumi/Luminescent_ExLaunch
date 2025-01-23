@@ -7,7 +7,7 @@
 
 bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    Logger::log("_MOVE_TUTOR_UI\n");
+    //Logger::log("_MOVE_TUTOR_UI\n");
 
     system_load_typeinfo(0x43ef);
     EvData::Aregment::Array* args = manager->fields._evArg;

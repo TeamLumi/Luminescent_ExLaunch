@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/System/Collections/Generic/List.h"
 #include "externals/System/String.h"
 #include "externals/TMPro/TextMeshProUGUI.h"
@@ -11,7 +12,6 @@
 namespace Dpr::UI {
     struct UIText : ILClass<UIText> {
         struct Fields : TMPro::TextMeshProUGUI::Fields {
-            // TODO: The class this inherits from has misaligned fields because of missing classes/structs. Do not use the below fields until this is fixed.
             int32_t _sizeId;
             bool _useMessage;
             System::String::Object* _messageFile;
@@ -23,6 +23,9 @@ namespace Dpr::UI {
             void* _msgFile;
             int32_t _messageIndex;
         };
+
+        static_assert(offsetof(Fields, _useMessage) == 0x76c);
+        static_assert(offsetof(Fields, _messageIndex) == 0x798);
 
         struct VirtualInvokeData_set_color {
             typedef void(*Il2CppMethodPointer)(UIText::Object*, UnityEngine::Color::Fields, const MethodInfo*);
@@ -207,6 +210,10 @@ namespace Dpr::UI {
 
         inline void SetFormattedText(UnityEngine::Events::UnityAction::Object* onSet, System::String::Object* messageFile, System::String::Object* messageId) {
             external<void>(0x01dc76c0, this, onSet, messageFile, messageId);
+        }
+
+        inline void UpdateMessage(bool isForce, Dpr::Message::MessageEnumData::MsgLangId langId) {
+            external<void>(0x01dd1480, this, isForce, langId);
         }
     };
 }
