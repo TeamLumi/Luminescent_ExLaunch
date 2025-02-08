@@ -45,6 +45,17 @@ namespace ui {
             auto name = element->cast<UnityEngine::_Object>()->GetName();
             auto str = prefix + name->asCString();
             auto childCount = element->get_childCount();
+
+            // Checks if Object is a character and displays its coordinates
+            auto parentName = (element->GetParent() != nullptr && element->GetParent()->cast<UnityEngine::_Object>() != nullptr)
+                              ? element->GetParent()->cast<UnityEngine::_Object>()->GetName()
+                              : nullptr;
+            if (parentName != nullptr && strcmp(parentName->asCString().c_str(),  "Character Objects") == 0) {
+                auto position = element->get_localPosition();
+                auto positionStr = " | X: " + nn::to_string(position.fields.x) + " Z: " + nn::to_string(position.fields.z);
+                str += positionStr;
+            }
+
             if (ImGui::TreeNodeEx(str.c_str(), ImGuiTreeNodeFlags_DefaultOpen * (childCount < 3))) {  // Default open if the element has less than 3 children
                 auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
                 System::RuntimeTypeHandle::Object handle{};
