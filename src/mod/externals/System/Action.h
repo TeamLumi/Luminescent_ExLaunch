@@ -30,7 +30,7 @@ namespace System {
         }
 
         inline void Invoke(Pml::WazaNo arg0, Pml::WazaNo arg1) {
-            external<void>(0x023feb50, this, arg0, arg1);
+            external<void>(0x0263da30, this, arg0, arg1);
         }
     };
 }

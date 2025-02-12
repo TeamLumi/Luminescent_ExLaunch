@@ -77,6 +77,8 @@ namespace Dpr::UI {
             Dpr::UI::UIWazaManage::Param::Object param;
         };
 
+        static_assert(offsetof(Fields, param) == 0x100);
+
         static inline StaticILMethod<0x04c80ca0> Method$$OnUpdate$$b__2 {};
         static inline StaticILMethod<0x04c80cc8> Method$$OnUpdate$$b__39_0 {};
         static inline StaticILMethod<0x04c80cd0> Method$$OnUpdate$$b__39_1 {};
