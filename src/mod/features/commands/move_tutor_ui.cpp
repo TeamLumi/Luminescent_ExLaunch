@@ -16,7 +16,10 @@ void LearnMoveAfterMoveTutor_Callback(Dpr::EvScript::EvDataManager::DisplayClass
 
     // User decided to not learn the move
     if (learnWazaNo == 0 || unlearnWazaNo == 0)
+    {
+        SetWorkToValue(__this->fields.__4__this->fields._evArg->m_Items[1], 0);
         return;
+    }
 
     __this->fields.__4__this->LearnWaza(__this->fields.param, learnWazaNo, unlearnWazaNo);
     SetWorkToValue(__this->fields.__4__this->fields._evArg->m_Items[1], learnWazaNo);
@@ -36,6 +39,7 @@ void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::Object *__this, int32_t 
     if (learnWazaNo == 0)
     {
         tutorSequence = 2;
+        SetWorkToValue(__this->fields._evArg->m_Items[1], 0);
         return;
     }
 
@@ -48,6 +52,7 @@ void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::Object *__this, int32_t 
     if (pokeParam->cast<Pml::PokePara::CoreParam>()->AddWazaIfEmptyExist(learnWazaNo) == 0)
     {
         tutorSequence = 2;
+        SetWorkToValue(args->m_Items[1], learnWazaNo);
         return;
     }
 
