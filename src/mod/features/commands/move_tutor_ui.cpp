@@ -27,34 +27,35 @@ void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::Object *__this, int32_t 
     Logger::log("MoveTutorUI_Callback\n");
 
     system_load_typeinfo(0x31aa);
+    system_load_typeinfo(0x43f0);
 
     tutorSequence = 1;
 
     // unlearnWazaNo is always zero, because we're just selecting the move to tutor
     // learnWazaNo is zero if we canceled
     if (learnWazaNo == 0)
+    {
+        tutorSequence = 2;
         return;
-
-    Logger::log("[MoveTutorUI_Callback] Let's find the mon\n");
+    }
 
     EvData::Aregment::Array* args = __this->fields._evArg;
     int32_t index = GetWorkOrIntValue(args->m_Items[2]);
     int32_t trayIndex = GetWorkOrIntValue(args->m_Items[3]);
     auto pokeParam = __this->GetPokemonParam(trayIndex, index);
 
-    Logger::log("[MoveTutorUI_Callback] pokeParam = %08X\n", pokeParam);
-
     // Already learned the move because you had less than 4 moves
     if (pokeParam->cast<Pml::PokePara::CoreParam>()->AddWazaIfEmptyExist(learnWazaNo) == 0)
+    {
+        tutorSequence = 2;
         return;
+    }
 
     auto evDataManagerDispClass = Dpr::EvScript::EvDataManager::DisplayClass1544_0::newInstance();
     evDataManagerDispClass->fields.__4__this = __this;
     evDataManagerDispClass->fields.param = pokeParam;
     evDataManagerDispClass->fields.tray = 0;
     evDataManagerDispClass->fields.idx = 0;
-
-    Logger::log("[MoveTutorUI_Callback] evDataManagerDispClass = %08X\n", evDataManagerDispClass);
 
     MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdCallWazaOshieUiTutor((Il2CppMethodPointer)&LearnMoveAfterMoveTutor_Callback);
     System::Action::Object* resultCallback = System::Action::getClass(System::Action::WazaNo_WazaNo_TypeInfo)->newInstance(evDataManagerDispClass, mi);
