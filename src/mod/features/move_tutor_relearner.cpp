@@ -10,8 +10,6 @@
 
 HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
     static void Callback(Dpr::UI::UIWazaManage::Object* __this) {
-        Logger::log("[UIWazaManage$$SetupPokemonInfo] START\n");
-
         system_load_typeinfo(0x9e21);
 
         Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
@@ -83,7 +81,6 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
 
             case 3:
             {
-                Logger::log("[UIWazaManage$$SetupPokemonInfo] Setting up moves!\n");
                 selectIndex = -1;
                 list->Clear();
 
@@ -112,15 +109,11 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
         }
 
         __this->fields.statusPanelCondition->Setup(__this->fields.param.fields.PokemonParam);
-
-        Logger::log("[UIWazaManage$$SetupPokemonInfo] END\n");
     }
 };
 
 HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
     static void Callback(Dpr::UI::UIWazaManage::Object* __this, float deltaTime) {
-        //Logger::log("UIWazaManage$$OnUpdate\n");
-
         system_load_typeinfo(0x9e1b);
         system_load_typeinfo(0x9752);
         system_load_typeinfo(0x9753);
@@ -141,20 +134,11 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
 
         if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, false))
         {
-            Logger::log("[UIWazaManage$$OnUpdate] Pressed A!\n");
-            Logger::log("[UIWazaManage$$OnUpdate] currWindow = %08X\n", currWindow);
-            Logger::log("[UIWazaManage$$OnUpdate] __this = %08X\n", __this);
-            Logger::log("[UIWazaManage$$OnUpdate] __this.msgWindowController = %08X\n", __this->fields.msgWindowController);
-
             auto disp = Dpr::UI::UIWazaManage::__c__DisplayClass39_0::newInstance();
             disp->fields.__4__this = __this;
             disp->fields.learnWazaNo = 0;
             disp->fields.unlearnWazaNo = 0;
             disp->fields.selectWazaNo = __this->fields.wazaStatusPanels->m_Items[__this->fields.selectTabIndex]->GetSelectedWazaNo();
-
-            Logger::log("[UIWazaManage$$OnUpdate] disp = %08X\n", disp);
-            Logger::log("[UIWazaManage$$OnUpdate] selected wazaStatusPanels = %08X\n", __this->fields.wazaStatusPanels->m_Items[__this->fields.selectTabIndex]);
-            Logger::log("[UIWazaManage$$OnUpdate] selectWazaNo = %d\n", disp->fields.selectWazaNo);
 
             System::String::Object* labelName = nullptr;
             switch (__this->fields.param.fields.BootType)
@@ -219,15 +203,11 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
                     return; // End here
             }
 
-            Logger::log("[UIWazaManage$$OnUpdate] labelName = %08X (%s)\n", labelName, labelName->asCString().c_str());
-
             auto onFinished = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(disp, *Dpr::UI::UIWazaManage::Method$$OnUpdate$$b__2);
             __this->fields.msgWindowController->OpenMsgWindow(3, labelName, true, false, onFinished, nullptr);
 
             Audio::AudioManager::getClass()->initIfNeeded();
             Audio::AudioManager::instance()->PlaySe(0x5d95f820, nullptr);
-
-            Logger::log("[UIWazaManage$$OnUpdate] Method$$OnUpdate$$b__2 = %08X\n", *Dpr::UI::UIWazaManage::Method$$OnUpdate$$b__2);
         }
         else if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, false))
         {
@@ -272,37 +252,10 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
             Audio::AudioManager::getClass()->initIfNeeded();
             Audio::AudioManager::instance()->PlaySe(0xa4eb827e, nullptr);
         }
-
-        //Logger::log("UIWazaManage$$OnUpdate END\n");
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(UIWazaManage$$OnUpdate_b2) {
-    static void Callback(Dpr::UI::UIWazaManage::__c__DisplayClass39_0::Object* __this) {
-        Logger::log("[UIWazaManage$$OnUpdate_b2] START\n");
-
-        Logger::log("[UIWazaManage$$OnUpdate_b2] __this = %08X\n", __this);
-        Orig(__this);
-
-        Logger::log("[UIWazaManage$$OnUpdate_b2] END\n");
-    }
-};
-
-HOOK_DEFINE_TRAMPOLINE(UIWazaManage$$OnUpdate_b3) {
-    static void Callback(Dpr::UI::UIWazaManage::__c__DisplayClass39_0::Object* __this, int32_t index) {
-        Logger::log("[UIWazaManage$$OnUpdate_b3] START\n");
-
-        Logger::log("[UIWazaManage$$OnUpdate_b3] __this = %08X\n", __this);
-        Logger::log("[UIWazaManage$$OnUpdate_b3] index = %d\n", index);
-        Orig(__this, index);
-
-        Logger::log("[UIWazaManage$$OnUpdate_b3] END\n");
     }
 };
 
 void exl_move_tutor_relearner_main() {
     UIWazaManage$$SetupPokemonInfo::InstallAtOffset(0x01dd40e0);
     UIWazaManage$$OnUpdate::InstallAtOffset(0x01dd4ae0);
-    UIWazaManage$$OnUpdate_b2::InstallAtOffset(0x01a34590);
-    UIWazaManage$$OnUpdate_b3::InstallAtOffset(0x01a34650);
 }
