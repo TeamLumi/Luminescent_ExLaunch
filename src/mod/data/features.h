@@ -52,6 +52,7 @@ static constexpr const char* FEATURES[] = {
     "Pokédex Form Flags",
     "Dialog Text Color",
     "Language UI Fixes",
+    "Move Tutor Relearner",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

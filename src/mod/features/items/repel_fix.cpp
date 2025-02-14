@@ -10,7 +10,7 @@ HOOK_DEFINE_INLINE(RepelInventoryOverride){
     static void Callback(exl::hook::nx64::InlineCtx* ctx)
     {
         auto evDataManager = (Dpr::EvScript::EvDataManager::Object*)ctx->X[0];
-        if (evDataManager->fields._eventListIndex == 0xFFFFFFFF)
+        if (evDataManager->fields._eventListIndex == -1)
         {
             auto label = (System::String::Object*)ctx->X[1];
             auto callback = (Dpr::EvScript::EvDataManager::EventEndDelegate::Object*)ctx->X[2];

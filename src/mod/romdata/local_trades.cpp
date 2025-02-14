@@ -15,17 +15,17 @@ void LogLocalTradeData(const RomData::LocalTrade& t)
     Logger::log("CURRENT LOCAL TRADE\n");
 
     Logger::log("IVs: ");
-    for (int i=0; i<t.ivs.size(); i++)
+    for (uint64_t i=0; i<t.ivs.size(); i++)
         Logger::log("%d ", t.ivs[i]);
     Logger::log("\n");
 
     Logger::log("EVs: ");
-    for (int i=0; i<t.evs.size(); i++)
+    for (uint64_t i=0; i<t.evs.size(); i++)
         Logger::log("%d ", t.evs[i]);
     Logger::log("\n");
 
     Logger::log("Contest Stats: ");
-    for (int i=0; i<t.contestStats.size(); i++)
+    for (uint64_t i=0; i<t.contestStats.size(); i++)
         Logger::log("%d ", t.contestStats[i]);
     Logger::log("\n");
 

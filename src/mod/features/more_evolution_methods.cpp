@@ -141,11 +141,13 @@ AlcremieCream GetAlcremieCream(Pml::PokePara::CoreParam::Object* poke)
     {
         if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::RUBY_CREAM;
         else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::SALTED_CREAM;
+        else return AlcremieCream::RUBY_CREAM;
     }
     else if (poke->fields.m_accessor->GetBeautiful() >= 170)
     {
         if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::RUBY_SWIRL;
         else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::MINT_CREAM;
+        else return AlcremieCream::RUBY_SWIRL;
     }
     else if (poke->fields.m_accessor->GetCute() >= 170)
     {
@@ -155,11 +157,13 @@ AlcremieCream GetAlcremieCream(Pml::PokePara::CoreParam::Object* poke)
     {
         if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::VANILLA_CREAM;
         else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::MATCHA_CREAM;
+        else return AlcremieCream::VANILLA_CREAM;
     }
     else if (poke->fields.m_accessor->GetStrong() >= 170)
     {
         if (extraEvoData.currentEvolutionSituation.isMorningOrNoon) return AlcremieCream::CARAMEL_SWIRL;
         else if (extraEvoData.currentEvolutionSituation.isNight) return AlcremieCream::LEMON_CREAM;
+        else return AlcremieCream::CARAMEL_SWIRL;
     }
     else return AlcremieCream::VANILLA_CREAM;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
 #include "externals/System/Primitives.h"
 
 namespace System::Collections::Generic {

@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Pml/WazaNo.h"
 #include "externals/System/MulticastDelegate.h"
 
 namespace System {
@@ -26,6 +27,10 @@ namespace System {
 
         inline void Invoke() {
             external<void>(0x023feb50, this);
+        }
+
+        inline void Invoke(Pml::WazaNo arg0, Pml::WazaNo arg1) {
+            external<void>(0x0263da30, this, arg0, arg1);
         }
     };
 }

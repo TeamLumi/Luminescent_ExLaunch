@@ -46,7 +46,7 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                         for (uint64_t i=0; i<renderers->max_length; i++)
                         {
                             renderer = (UnityEngine::Renderer::Object*)renderers->m_Items[i];
-                            if (((UnityEngine::_Object::Object*)renderer)->GetName()->asCString().find("Patcheel") != -1)
+                            if (((UnityEngine::_Object::Object*)renderer)->GetName()->asCString().find("Patcheel") != nn::string::npos)
                                 break;
                         }
                     }
@@ -70,8 +70,8 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork();
                     Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
 
-                    for (int i=0; i<__this->fields.UVDatas->max_length; i++)
-                        ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_enabled(i == id);
+                    for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
+                        ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_enabled(i == (uint64_t)id);
                 }
                 break;
             }

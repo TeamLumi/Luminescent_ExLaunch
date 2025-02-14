@@ -30,6 +30,10 @@ namespace Dpr::UI {
         inline void CloseMsgWindow() {
             external<void>(0x01a13610, this);
         }
+
+        inline bool OnUpdate(float deltaTime) {
+            return external<bool>(0x01a13de0, this, deltaTime);
+        }
     };
 }
 
