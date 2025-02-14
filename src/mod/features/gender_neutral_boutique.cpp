@@ -48,7 +48,8 @@ void exl_gender_neutral_boutique_main() {
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
         { 0x0202f120, Movz(X0, 0) }, // Remove bike outfit override for battles on cycling road
-        { 0x02cf3d38, Movz(W21, 1) }, // Reindex Dawn default outfit for intro
+        { 0x02cf3cf4, Movz(W21, array_index(OUTFITS, "Platinum Style Masculine")) }, // Change Lucas default outfit in intro to platinum outfit
+        { 0x02cf3d38, Movz(W21, array_index(OUTFITS, "Platinum Style Feminine")) },  // Change Dawn default outfit in intro to platinum outfit
     };
     p.WriteInst(inst);
 };

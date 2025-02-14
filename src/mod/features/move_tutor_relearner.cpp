@@ -89,7 +89,8 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
 
                 for (uint64_t i=0; i<moves.size(); i++)
                 {
-                    if (IsMoveLearnableByTutor(monsno, formno, moves[i]))
+                    if (IsMoveLearnableByTutor(monsno, formno, moves[i]) &&
+                        !__this->fields.param.fields.PokemonParam->cast<Pml::PokePara::CoreParam>()->HaveWaza(moves[i]))
                         list->Add(moves[i]);
                 }
             }
