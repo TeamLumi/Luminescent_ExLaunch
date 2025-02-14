@@ -53,9 +53,9 @@ void EvDataManager_EvCmdCallWazaOshieUi_b__0(Dpr::EvScript::EvDataManager::Displ
     __this->fields.__4__this->LearnWaza(__this->fields.param, learnWazaNo, unlearnWazaNo);
 }
 
-void EvDataManager_EvCmdCallWazaOmoidashiUi_b__1539_0(Dpr::EvScript::EvDataManager::Object *__this, int32_t learnWazaNo, int32_t unlearnWazaNo)
+void EvDataManager_EvCmdCallWazaOmoidashiUi_b__1542_0(Dpr::EvScript::EvDataManager::Object *__this, int32_t learnWazaNo, int32_t unlearnWazaNo)
 {
-    Logger::log("EvDataManager_EvCmdCallWazaOmoidashiUi_b__1539_0\n");
+    Logger::log("EvDataManager_EvCmdCallWazaOmoidashiUi_b__1542_0\n");
 
     // unlearnWazaNo is always zero, because this is just selecting the move to learn.
     if (learnWazaNo == 0)
@@ -107,7 +107,7 @@ void createMoveRelearnerWindow(Dpr::UI::PokemonWindow::DisplayClass25_0::Object 
 
     Dpr::EvScript::EvDataManager::Object * evDataManager = Dpr::EvScript::EvDataManager::get_Instanse();
 
-    MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdCallWazaOmoidashiUiParty((Il2CppMethodPointer)&EvDataManager_EvCmdCallWazaOmoidashiUi_b__1539_0);
+    MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdCallWazaOmoidashiUiParty((Il2CppMethodPointer)&EvDataManager_EvCmdCallWazaOmoidashiUi_b__1542_0);
     System::Action::Object* resultCallback = System::Action::getClass(System::Action::WazaNo_WazaNo_TypeInfo)->newInstance(evDataManager, mi);
 
     sPokemonParam = dispClass->fields.pokemonParam;

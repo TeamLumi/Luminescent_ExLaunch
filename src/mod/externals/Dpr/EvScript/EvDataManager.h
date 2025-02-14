@@ -366,11 +366,25 @@ namespace Dpr::EvScript {
             return Method$$EvCmdCallWazaOmoidashiUiParty;
         };
 
+        static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiTutor = nullptr;
+        static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiTutor(Il2CppMethodPointer method) {
+            if (Method$$EvCmdCallWazaOmoidashiUiTutor == nullptr)
+                Method$$EvCmdCallWazaOmoidashiUiTutor = (*PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi)->copyWith(method);
+            return Method$$EvCmdCallWazaOmoidashiUiTutor;
+        };
+
         static inline MethodInfo* Method$$EvCmdCallWazaOshieUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOshieUiParty(Il2CppMethodPointer method) {
             if (Method$$EvCmdCallWazaOshieUiParty == nullptr)
                 Method$$EvCmdCallWazaOshieUiParty = (*PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith(method);
             return Method$$EvCmdCallWazaOshieUiParty;
+        };
+
+        static inline MethodInfo* Method$$EvCmdCallWazaOshieUiTutor = nullptr;
+        static MethodInfo* getMethod$$EvCmdCallWazaOshieUiTutor(Il2CppMethodPointer method) {
+            if (Method$$EvCmdCallWazaOshieUiTutor == nullptr)
+                Method$$EvCmdCallWazaOshieUiTutor = (*PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith(method);
+            return Method$$EvCmdCallWazaOshieUiTutor;
         };
 
         static inline MethodInfo* Method$$EvCmdNameInPoke_OnCompleteAYou = nullptr;
