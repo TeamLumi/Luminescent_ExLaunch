@@ -54,8 +54,8 @@ nn::vector<int32_t> GetActivatedLanguages();
 // Checks if a given language is available on the language select screen.
 bool IsLanguageActivated(int32_t langID);
 
-// Returns the available Color Variation presets in the intro.
-nn::vector<int32_t> GetIntroColorVariationPresets();
+// Returns the data about the professor's Pokémon in the intro.
+RomData::ProfessorMon GetProfessorMon();
 
 // Returns the extra arena data.
 RomData::Arena GetExtraArenaData(int32_t arena);

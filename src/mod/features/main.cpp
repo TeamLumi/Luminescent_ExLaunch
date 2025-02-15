@@ -116,6 +116,8 @@ void CallFeatureHooks()
         exl_move_tutor_relearner_main();
     if (IsActivatedFeature(array_index(FEATURES, "Player Select")))
         exl_player_select_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Intro Professor Pokémon")))
+        exl_intro_professor_pokemon_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
