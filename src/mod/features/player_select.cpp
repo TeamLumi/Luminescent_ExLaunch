@@ -1,17 +1,19 @@
 #include "exlaunch.hpp"
 
+#include "data/outfits.h"
+#include "data/utils.h"
+
 #include "externals/Audio/AudioManager.h"
-#include "externals/Dpr/UI/SelectLanguageWindow.h"
+#include "externals/Dpr/UI/SelectPlayerVisualWindow.h"
 #include "externals/Dpr/UI/UIManager.h"
-#include "externals/UnityEngine/GameObject.h"
+#include "externals/OpeningController.h"
 #include "externals/UnityEngine/Mathf.h"
 
-#include "romdata/romdata.h"
 #include "utils/utils.h"
 
-void SelectGridIndex(Dpr::UI::SelectLanguageWindow::Object* window, int32_t hSelection, int32_t vSelection, int32_t vCount)
+void SelectGridIndex(Dpr::UI::SelectPlayerVisualWindow::Object* window, int32_t hSelection, int32_t vSelection, int32_t hCount)
 {
-    if (window->SetSelectIndex(hSelection * vCount + vSelection, false))
+    if (window->SetSelectIndex(vSelection * hCount + hSelection, false))
     {
         Audio::AudioManager::getClass()->initIfNeeded();
         auto audioManager = Audio::AudioManager::instance();
@@ -19,30 +21,9 @@ void SelectGridIndex(Dpr::UI::SelectLanguageWindow::Object* window, int32_t hSel
     }
 }
 
-HOOK_DEFINE_INLINE(LanguageSelect_Add) {
-    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto languageWindow = (Dpr::UI::SelectLanguageWindow::Object*)ctx->X[19];
-        auto content = (UnityEngine::Transform::Object*)languageWindow->fields._content;
-
-        for (int32_t i=0; i<content->get_childCount(); i++)
-        {
-            UnityEngine::Transform::Object* child = content->GetChild(i);
-            auto component = (UnityEngine::Component::Object*)child;
-
-            Dpr::UI::SelectLanguageItem::Object* item = component->GetComponent(UnityEngine::Component::Method$$SelectLanguageItem$$GetComponent);
-
-            UnityEngine::GameObject::Object* go = component->get_gameObject()->instance();
-            bool active = IsLanguageActivated(item->fields._langId);
-            go->SetActive(active);
-
-            if (active) languageWindow->fields._items->Add(item);
-        }
-    }
-};
-
-HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
-    static void Callback(Dpr::UI::SelectLanguageWindow::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x79c0);
+HOOK_DEFINE_REPLACE(SelectPlayerVisualWindow_UpdateSelect) {
+    static void Callback(Dpr::UI::SelectPlayerVisualWindow::Object* __this, float deltaTime) {
+        system_load_typeinfo(0x79d0);
         using namespace Dpr::UI;
         UIManager::getClass()->initIfNeeded();
         UnityEngine::Mathf::getClass()->initIfNeeded();
@@ -65,41 +46,38 @@ HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
 
         int32_t selection = __this->fields._selectIndex;
 
-        // NOTE: This would probably break with more than 2 columns
-        // If you want more columns, re-arrange the UI bundle so that it's ordered
-        // and change the math to match the one for player selection
         int32_t totalCount = __this->fields._items->fields._size;
-        int32_t hCount = 2; // Amount of columns
+        int32_t hCount = 8; // Amount of columns
         int32_t vCount = (totalCount - 1) / hCount + 1; // Amount of rows
         int32_t lasthCount = totalCount % hCount; // Amount of columns in the last row
         if (totalCount < hCount) hCount = totalCount;
         if (lasthCount == 0) lasthCount = hCount;
 
-        int32_t hSelection = selection / vCount; // The internal list goes up->down THEN left->right
-        int32_t vSelection = selection % vCount;
+        int32_t hSelection = selection % hCount; // The internal list goes left->right THEN up->down
+        int32_t vSelection = selection / hCount;
 
         // Horizontal movement
         if (rightPush)
         {
             hSelection++;
             hSelection = HorizontalRepeat(hSelection, hCount, vSelection, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
         else if (rightRepeat)
         {
             hSelection = HorizontalClamp(hSelection + 1, hCount, vSelection, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
         else if (leftPush)
         {
             hSelection--;
             hSelection = HorizontalRepeat(hSelection, hCount, vSelection, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
         else if (leftRepeat)
         {
             hSelection = HorizontalClamp(hSelection - 1, hCount, vSelection, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
 
         // Vertical movement
@@ -107,36 +85,54 @@ HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
         {
             vSelection++;
             vSelection = VerticalRepeat(hSelection, hCount, vSelection, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
         else if (downRepeat)
         {
             vSelection = VerticalClamp(hSelection, hCount, vSelection + 1, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
         else if (upPush)
         {
             vSelection--;
             vSelection = VerticalRepeat(hSelection, hCount, vSelection, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
         else if (upRepeat)
         {
             vSelection = VerticalClamp(hSelection , hCount, vSelection - 1, vCount, lasthCount);
-            SelectGridIndex(__this, hSelection, vSelection, vCount);
+            SelectGridIndex(__this, hSelection, vSelection, hCount);
         }
     }
 };
 
-void exl_language_select_main() {
-    LanguageSelect_Add::InstallAtOffset(0x01d3ce48);
-    SelectLanguageWindow_UpdateSelect::InstallAtOffset(0x01d3ba50);
+HOOK_DEFINE_REPLACE(SelectPlayerVisualItem_Awake_Nop) {
+    static void Callback(Dpr::UI::SelectPlayerVisualItem::Object* __this) {
+        // Do nothing, we don't want to overwrite the values
+        // Bad ILCA
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(OpeningController_OpenKeyboardByPlayerName_b__10_Log) {
+    static void Callback(OpeningController::Object* __this, bool isSuccess, System::String::Object* resultText) {
+        auto sex = __this->fields._selectPlayerVisualItem->fields.sex;
+        auto colorID = __this->fields._selectPlayerVisualItem->fields.colorId;
+        Logger::log("Selected %s with color ID %d\n", sex ? "Lucas" : "Dawn", colorID);
+        Orig(__this, isSuccess, resultText);
+    }
+};
+
+void exl_player_select_main() {
+    SelectPlayerVisualWindow_UpdateSelect::InstallAtOffset(0x01d3db80);
+    SelectPlayerVisualItem_Awake_Nop::InstallAtOffset(0x01d3d480);
+    OpeningController_OpenKeyboardByPlayerName_b__10_Log::InstallAtOffset(0x01e124e0);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01d3ce4c, Branch(0x54) },
+        { 0x02cf3cf4, Movz(W21, array_index(OUTFITS, "Platinum Style Masculine")) }, // Change Lucas default outfit in intro to platinum outfit
+        { 0x02cf3d38, Movz(W21, array_index(OUTFITS, "Platinum Style Feminine")) },  // Change Dawn default outfit in intro to platinum outfit
     };
     p.WriteInst(inst);
 }

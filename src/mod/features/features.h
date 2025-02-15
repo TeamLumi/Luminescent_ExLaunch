@@ -119,6 +119,9 @@ void exl_npc_collision_audio_main();
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
 
+// Allows configuring the controls on the player select screen.
+void exl_player_select_main();
+
 // Fixes Poké Radar bugs and improves chain rates.
 void exl_poke_radar_fixes_main();
 
