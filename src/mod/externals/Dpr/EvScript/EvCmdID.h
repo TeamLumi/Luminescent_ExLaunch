@@ -1265,6 +1265,7 @@ namespace Dpr::EvScript {
             _GET_CAUGHT_LOCATION = 1255,
             _CHECK_TUTOR_MOVE = 1256,
             _MOVE_TUTOR_UI = 1257,
+            _GET_HIGHEST_RADAR_STREAK = 1258,
 
             CUSTOM_CMD_END = 1500,
         };

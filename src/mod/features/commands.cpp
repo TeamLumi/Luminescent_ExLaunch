@@ -86,6 +86,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(CheckTutorMove(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_MOVE_TUTOR_UI:
                     return HandleCmdStepper(MoveTutorUI(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_HIGHEST_RADAR_STREAK:
+                    return HandleCmdStepper(GetHighestRadarStreak(__this));
                 default:
                     break;
             }
@@ -130,4 +132,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHECK_TUTOR_MOVE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MOVE_TUTOR_UI);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_HIGHEST_RADAR_STREAK);
 }
