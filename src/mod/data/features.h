@@ -53,6 +53,8 @@ static constexpr const char* FEATURES[] = {
     "Dialog Text Color",
     "Language UI Fixes",
     "Move Tutor Relearner",
+    "Player Select",
+    "Intro Professor Pokémon",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

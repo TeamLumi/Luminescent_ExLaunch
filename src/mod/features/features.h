@@ -92,6 +92,9 @@ void exl_gender_neutral_boutique_main();
 // Replaces every instance of Hidden Power being shown as "Normal" type with its actual type for the Pokémon.
 void exl_hidden_power_ui_main();
 
+// Allows configuring Rowan's Pokémon in the intro.
+void exl_intro_professor_pokemon_main();
+
 // Allows configuring the available languages on the language select screen.
 void exl_language_select_main();
 
@@ -118,6 +121,9 @@ void exl_npc_collision_audio_main();
 
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
+
+// Allows configuring the controls on the player select screen.
+void exl_player_select_main();
 
 // Fixes Poké Radar bugs and improves chain rates.
 void exl_poke_radar_fixes_main();

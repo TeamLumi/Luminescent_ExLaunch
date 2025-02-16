@@ -1,5 +1,8 @@
 #include "exlaunch.hpp"
 
+#include "data/species.h"
+#include "data/utils.h"
+
 #include "helpers.h"
 #include "memory/json.h"
 #include "memory/string.h"
@@ -44,7 +47,7 @@ bool IsLanguageActivated(int32_t langID)
     return false;
 }
 
-nn::vector<int32_t> GetIntroColorVariationPresets()
+RomData::ProfessorMon GetProfessorMon()
 {
     nn::string filePath(introFolderPath);
     filePath.append("intro.json");
@@ -55,13 +58,18 @@ nn::vector<int32_t> GetIntroColorVariationPresets()
         RomData::IntroData introData = {};
         introData = j.get<RomData::IntroData>();
 
-        return introData.colorVariations;
+        return introData.professorMon;
     }
     else
     {
         Logger::log("Error when parsing Intro data!\n");
     }
 
-    // Default - Vanilla variations
-    return { 0, 1, 2, 3 };
+    // Default - Vanilla Munchlax
+    return {
+        .monsno = array_index(SPECIES, "Munchlax"),
+        .formno = 0,
+        .sex = 0,
+        .shiny = false,
+    };
 }
