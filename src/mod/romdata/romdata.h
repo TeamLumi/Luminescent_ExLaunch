@@ -75,4 +75,13 @@ nn::vector<uint32_t> GetVariantRates(int32_t monsno, int32_t formno, int32_t zon
 // Rolls for a variant based on the form rates for the given Pokémon at the given zoneID.
 int32_t RollForVariant(int32_t monsno, int32_t formno, int32_t zoneID);
 
+// Returns the full Move Tutor move list of the given Pokémon.
+nn::vector<int32_t> GetMoveTutorLearnset(int32_t monsno, int32_t formno);
+
+// Checks if a given move is available to be learned by Move Tutor for the given Pokémon.
+bool IsMoveLearnableByTutor(int32_t monsno, int32_t formno, int32_t move);
+
+// Returns the full move list of the given tutor.
+nn::vector<int32_t> GetMoveTutorTable(int32_t id);
+
 void LoadFeaturesFromJSON(nn::json j);

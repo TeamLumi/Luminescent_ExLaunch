@@ -8,7 +8,6 @@
 namespace TMPro {
     struct TextMeshProUGUI : ILClass<TextMeshProUGUI, 0x04c59018> {
         struct Fields : TMPro::TMP_Text::Fields {
-            // TODO: Insert missing classes/structs so that the rest below are aligned.
             bool m_hasFontAssetChanged;
             void* m_subTextObjects; //TMPro_TMP_SubMeshUI_array*
             float m_previousLossyScaleY;
@@ -19,8 +18,8 @@ namespace TMPro {
             int32_t m_max_characters;
             void* m_baseMaterial; //UnityEngine_Material_o*
             bool m_isScrollRegionSet;
-            void* m_maskOffset; //UnityEngine_Vector4_o
-            void* m_EnvMapMatrix; //UnityEngine_Matrix4x4_o
+            UnityEngine::Vector4::Object m_maskOffset;
+            UnityEngine::Matrix4x4::Object m_EnvMapMatrix; //UnityEngine_Matrix4x4_o
             bool m_isRegisteredForEvents;
             bool m_isRebuildingLayout;
             UnityEngine::Coroutine::Object* m_DelayedGraphicRebuild;
@@ -29,6 +28,8 @@ namespace TMPro {
             bool m_ValidRect;
             void* OnPreRenderText; //System_Action_TMP_TextInfo__o*
         };
+
+        static_assert(offsetof(Fields, OnPreRenderText) == 0x760);
 
         struct VirtualInvokeData_get_color {
             typedef UnityEngine::Color::Fields(*Il2CppMethodPointer)(TMPro::TextMeshProUGUI::Object* __this, const MethodInfo*);

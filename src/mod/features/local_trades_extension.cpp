@@ -86,7 +86,7 @@ Pml::PokePara::PokemonParam::Object* CreateTradePokeParam(int32_t npcindex, Dpr:
             coreParam->SetCondition(Pml::PokePara::Condition::FUR, extraData.evs[5]);
     }
 
-    for (int32_t i=0; i<data->fields.waza->max_length && i<4; i++)
+    for (uint64_t i=0; i<data->fields.waza->max_length && i<4; i++)
         coreParam->SetWaza(i, data->fields.waza->m_Items[i]);
 
     poketool::poke_memo::poketool_poke_memo::ClearPlaceTime(coreParam, poketool::poke_memo::DATA_TYPE_EGG_TAKEN);

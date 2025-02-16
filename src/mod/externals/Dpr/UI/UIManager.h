@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Dpr/UI/UIModelViewController.h"
 #include "externals/Dpr/UI/UIWazaManage.h"
@@ -109,6 +110,22 @@ namespace Dpr::UI {
 
         static inline Dpr::Message::MessageEnumData::MsgLangId GetCurrentLangId() {
             return external<Dpr::Message::MessageEnumData::MsgLangId>(0x017be8c0);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpritePokemonSex(Pml::Sex sex) {
+            return external<UnityEngine::Sprite::Object*>(0x017c11f0, this, sex);
+        }
+
+        static inline Dpr::Battle::Logic::BTL_POKEPARAM::Object* ToBattlePokemonParam(Pml::PokePara::PokemonParam::Object* pokemonParam) {
+            return external<Dpr::Battle::Logic::BTL_POKEPARAM::Object*>(0x017c2ea0, pokemonParam);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpritePokemonLanguage(Dpr::Message::MessageEnumData::MsgLangId langId) {
+            return external<UnityEngine::Sprite::Object*>(0x017c2720, this, langId);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpriteMonsterBall(uint8_t ballId) {
+            return external<UnityEngine::Sprite::Object*>(0x017c2300, this, ballId);
         }
     };
 }

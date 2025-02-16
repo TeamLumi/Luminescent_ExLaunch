@@ -95,8 +95,14 @@ void exl_hidden_power_ui_main();
 // Allows configuring the available languages on the language select screen.
 void exl_language_select_main();
 
+// Fixes bugs with specific UI elements not matching the player's language.
+void exl_language_ui_fixes_main();
+
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
+
+// Uniformizes local trades across languages and allows extending the table in RomFS.
+void exl_local_trades_main();
 
 //
 void exl_madrid_ui_main();
@@ -104,11 +110,8 @@ void exl_madrid_ui_main();
 //
 void exl_mega_evolution_main();
 
-// Fixes bugs with specific UI elements not matching the player's language.
-void exl_language_ui_fixes_main();
-
-// Uniformizes local trades across languages and allows extending the table in RomFS.
-void exl_local_trades_main();
+// Adds an extra type of move relearner UI that loads a specific tutor table.
+void exl_move_tutor_relearner_main();
 
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();

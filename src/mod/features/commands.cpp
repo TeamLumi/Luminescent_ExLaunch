@@ -82,6 +82,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(AYouName(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION:
                     return HandleCmdStepper(GetCaughtLocation(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CHECK_TUTOR_MOVE:
+                    return HandleCmdStepper(CheckTutorMove(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_MOVE_TUTOR_UI:
+                    return HandleCmdStepper(MoveTutorUI(__this));
                 default:
                     break;
             }
@@ -124,4 +128,6 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_AYOU_NAME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_AYOU_NAME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_CAUGHT_LOCATION);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHECK_TUTOR_MOVE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MOVE_TUTOR_UI);
 }

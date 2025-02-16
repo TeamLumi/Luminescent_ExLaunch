@@ -112,6 +112,8 @@ void CallFeatureHooks()
         exl_text_color_main();
     if (IsActivatedFeature(array_index(FEATURES, "Language UI Fixes")))
         exl_language_ui_fixes_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Move Tutor Relearner")))
+        exl_move_tutor_relearner_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
