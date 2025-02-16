@@ -165,3 +165,8 @@ bool CheckTutorMove(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
 //   [Work, Number] table: The Move Tutor table to use.
 bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the value of the highest PokeRadar streak and sets it into a work.
+// Arguments:
+//   [Work] result: The work in which to put the value of the highest radar streak.
+bool GetHighestRadarStreak(Dpr::EvScript::EvDataManager::Object* manager);

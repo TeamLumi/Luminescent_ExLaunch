@@ -347,4 +347,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
         external<void>(0x02cf0fd0, value);
     }
+
+    static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
+        return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
+    }
 };
