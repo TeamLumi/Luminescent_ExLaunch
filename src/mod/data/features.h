@@ -55,6 +55,7 @@ static constexpr const char* FEATURES[] = {
     "Move Tutor Relearner",
     "Player Select",
     "Intro Professor Pokémon",
+    "Pushable Entities",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

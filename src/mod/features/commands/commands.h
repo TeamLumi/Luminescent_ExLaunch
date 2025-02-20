@@ -170,3 +170,11 @@ bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work] result: The work in which to put the value of the highest radar streak.
 bool GetHighestRadarStreak(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the attribute data of a specified tile.
+// Arguments:
+//   [Work, Number] x: The x position of the tile to check.
+//   [Work, Number] z: The z position of the tile to check.
+//   [Work] code: The work in which to put the tile's code attribute.
+//   [Work] stop: The work in which to put the tile's stop attribute.
+bool GetTileAttribute(Dpr::EvScript::EvDataManager::Object* manager);

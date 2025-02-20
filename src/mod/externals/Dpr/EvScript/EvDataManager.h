@@ -19,6 +19,10 @@
 #include "externals/UnityEngine/Vector2Int.h"
 #include "externals/UnityEngine/Vector3.h"
 
+namespace System::Collections::Generic {
+    struct List$$FieldObjectEntity;
+}
+
 namespace Dpr::EvScript {
     struct EvDataManager : ILClass<EvDataManager, 0x04c59c50> {
         struct WorpEventData : ILStruct<WorpEventData> {
@@ -337,7 +341,7 @@ namespace Dpr::EvScript {
             bool isSpBtlAruseus;
             void * Debug_01_DebugLabel;
             void * DebugSceneEventLabel;
-            void * _fieldObjectEntity;
+            System::Collections::Generic::List$$FieldObjectEntity* _fieldObjectEntity;
             void * _FieldKinomiGrowEntity;
             void * _AssetReqOpeList;
             void * _loadObjectList;

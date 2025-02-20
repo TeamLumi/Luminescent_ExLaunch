@@ -113,8 +113,12 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         bool isSwampLoopEffect;
     };
 
-    inline void set_colorID(int32_t value) {
+    static inline void set_colorID(int32_t value) {
         external<void>(0x02cef870, value);
+    }
+
+    inline void GetInputVector(UnityEngine::Vector2::Object* stickL, float* stickPowerSq, float deltatime, bool* analogstick) {
+        external<void>(0x01dabb10, this, stickL, stickPowerSq, deltatime, analogstick);
     }
 
     static_assert(offsetof(Fields, _hatRenderers) == 0x198);

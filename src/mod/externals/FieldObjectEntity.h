@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/BaseEntity.h"
+#include "externals/DIR.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/UnityEngine/Vector2Int.h"
 #include "externals/UnityEngine/Vector3.h"
@@ -30,4 +31,18 @@ struct FieldObjectEntity : ILClass<FieldObjectEntity> {
     inline UnityEngine::Vector2Int::Object get_gridPosition() {
         return external<UnityEngine::Vector2Int::Object>(0x01d50aa0, this);
     }
+
+    inline float get_Height() {
+        return external<float>(0x01d549e0, this);
+    }
+
+    static inline DIR GetDir(float dir) {
+        return external<DIR>(0x01d55140, dir);
+    }
 };
+
+namespace System::Collections::Generic {
+    struct List$$FieldObjectEntity : List<List$$FieldObjectEntity, FieldObjectEntity> {
+
+    };
+}

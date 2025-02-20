@@ -132,8 +132,11 @@ void exl_poke_radar_fixes_main();
 // Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
 
-// Replaces pickup ranges with new ranges abiding by Lumi level caps
+// Replaces pickup ranges with new ranges abiding by Lumi level caps.
 void exl_pickup_main();
+
+// Allows making pushable entities (placedata) which stop at a specific attribute.
+void exl_pushable_entities_main();
 
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();

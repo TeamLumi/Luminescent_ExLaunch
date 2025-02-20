@@ -118,6 +118,8 @@ void CallFeatureHooks()
         exl_player_select_main();
     if (IsActivatedFeature(array_index(FEATURES, "Intro Professor Pokémon")))
         exl_intro_professor_pokemon_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Pushable Entities")))
+        exl_pushable_entities_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
