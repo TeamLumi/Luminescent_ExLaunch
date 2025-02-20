@@ -12,21 +12,21 @@
 
 const static int32_t MATTR_RAIL = 237;
 const static int32_t MATTR_RAIL_STOP = 238;
-const static int32_t PUNCHINGBAG_OGI = 70;
-const static int32_t TIRES_OGI = 71;
+const static int32_t PUNCHINGBAG_OGI = 570;
+const static int32_t TIRES_OGI = 571;
 const static int32_t ParamIndx_Kairiki_PushTime = 259;
+
+static int32_t punchingBagObjIndex = -1;
+static float punchingBagPushTime;
 
 void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
     system_load_typeinfo(0x4a4e);
     system_load_typeinfo(0x4989);
 
-    if (__this->fields.KairikiPushObjectIndex != -1)
-        return;
-
-    auto oldPushTime = __this->fields.KairikiPushTime;
-    auto oldPushObj = __this->fields.KairikiPushObjectIndex;
-    __this->fields.KairikiPushObjectIndex = -1;
-    __this->fields.KairikiPushTime = 0.0f;
+    auto oldPushTime = punchingBagPushTime;
+    auto oldPushObj = punchingBagObjIndex;
+    punchingBagObjIndex = -1;
+    punchingBagPushTime = 0.0f;
 
     Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
     if (Dpr::EvScript::EvDataManager::get_Instanse()->IsRunningEvent())
@@ -80,12 +80,14 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
 
                 // TODO: Add rail attribute check here
                 if (stop != 128) {
-                    __this->fields.KairikiPushObjectIndex = i;
-                    __this->fields.KairikiPushTime = oldPushTime + deltaTime;
+                    punchingBagObjIndex = i;
+                    punchingBagPushTime = oldPushTime + deltaTime;
+
+                    Logger::log("Pushing, not stop att with old = %d, i = %d!\n", oldPushObj, i);
 
                     if (oldPushObj == i) {
                         GameData::DataManager::getClass()->initIfNeeded();
-                        if (GameData::DataManager::GetFieldCommonParam(ParamIndx_Kairiki_PushTime) <= __this->fields.KairikiPushTime) {
+                        if (GameData::DataManager::GetFieldCommonParam(ParamIndx_Kairiki_PushTime) <= punchingBagPushTime) {
                             Logger::log("Pushing new punching bag!\n");
 
                             __this->fields._isCrossUpdate = false;
@@ -102,7 +104,7 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
                         }
                     }
                     else {
-                        __this->fields.KairikiPushTime = 0.0f;
+                        punchingBagPushTime = 0.0f;
                     }
                 }
             }

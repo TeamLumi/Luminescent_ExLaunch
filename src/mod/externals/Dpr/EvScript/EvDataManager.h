@@ -19,6 +19,8 @@
 #include "externals/UnityEngine/Vector2Int.h"
 #include "externals/UnityEngine/Vector3.h"
 
+struct FieldObjectEntity;
+
 namespace System::Collections::Generic {
     struct List$$FieldObjectEntity;
 }
@@ -451,6 +453,10 @@ namespace Dpr::EvScript {
 
         inline bool CallWazaUICommon(int32_t bootType, Pml::PokePara::PokemonParam::Object* pokemonParam, System::Action::Object* resultCallback, int32_t oshieWazaNo) {
             return external<bool>(0x02c92530, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
+        }
+
+        inline FieldObjectEntity* GetFieldObject(int32_t id) {
+            return external<FieldObjectEntity*>(0x02c491c0, this, id);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {

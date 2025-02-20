@@ -178,3 +178,14 @@ bool GetHighestRadarStreak(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] code: The work in which to put the tile's code attribute.
 //   [Work] stop: The work in which to put the tile's stop attribute.
 bool GetTileAttribute(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Plays an animation clip on a FieldEventEntity at the specified index.
+// Arguments:
+//   [Work, Number] entity: The index of the entity to play a clip on.
+//   [Work, Number] clip: The index of the clip to play.
+bool EventEntityClipPlayByIndex(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Waits for an animation clip on a FieldEventEntity at the specified index to be finished.
+// Arguments:
+//   [Work, Number] entity: The index of the entity to wait for.
+bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
