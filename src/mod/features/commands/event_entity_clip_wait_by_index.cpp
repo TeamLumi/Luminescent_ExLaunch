@@ -6,7 +6,7 @@
 
 bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    Logger::log("_EVENT_ENTITY_CLIP_WAIT_BY_INDEX\n");
+    //Logger::log("_EVENT_ENTITY_CLIP_WAIT_BY_INDEX\n");
 
     system_load_typeinfo(0x442a);
     system_load_typeinfo(0x45dc);

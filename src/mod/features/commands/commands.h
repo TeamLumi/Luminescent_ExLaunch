@@ -189,3 +189,12 @@ bool EventEntityClipPlayByIndex(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] entity: The index of the entity to wait for.
 bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Moves an entity by an amount of tiles over an amount of frames.
+// Arguments:
+//   [Work, Number, Label] entity: The ID or index of the entity to move.
+//   [Work, Number] x: Amount of tiles to move on the x axis.
+//   [Work, Number] y: Amount of tiles to move on the y axis.
+//   [Work, Number] z: Amount of tiles to move on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager);

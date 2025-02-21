@@ -459,6 +459,10 @@ namespace Dpr::EvScript {
             return external<FieldObjectEntity*>(0x02c491c0, this, id);
         }
 
+        inline FieldObjectEntity* Find_fieldObjectEntity(System::String::Object* id) {
+            return external<FieldObjectEntity*>(0x02c48c00, this, id);
+        }
+
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {
             return external<Dpr::EvScript::EvDataManager::Object*>(0x02c3d4d0);
         }

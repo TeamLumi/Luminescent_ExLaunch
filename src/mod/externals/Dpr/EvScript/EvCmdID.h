@@ -1269,6 +1269,7 @@ namespace Dpr::EvScript {
             _GET_TILE_ATTRIBUTE = 1259,
             _EVENT_ENTITY_CLIP_PLAY_BY_INDEX = 1260,
             _EVENT_ENTITY_CLIP_WAIT_BY_INDEX = 1261,
+            _ENTITY_MOVE = 1262,
 
             CUSTOM_CMD_END = 1500,
         };
