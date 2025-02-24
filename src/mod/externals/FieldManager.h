@@ -85,4 +85,8 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
     inline void EventWildBattle(int32_t mons, int32_t level, bool isCaptureDemo, bool isSymbol, bool isMitu, uint8_t talentVNum, bool isCantUseBall, int32_t formNo, bool tokusei3rd) {
         external<void>(0x0179f720, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
     }
+
+    inline int32_t get_areaID() {
+        return external<int32_t>(0x01797f90, this);
+    }
 };
