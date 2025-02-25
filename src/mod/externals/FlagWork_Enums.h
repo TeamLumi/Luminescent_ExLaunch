@@ -3246,6 +3246,7 @@ enum class FlagWork_Work : int32_t {
     WK_PUNCHINGBAG_OBJ_ID = 502,
     WK_PUNCHINGBAG_OBJ_DIR = 503,
     WK_PUNCHINGBAG_OBJ_TILES = 504,
+    WK_PUNCHINGBAG_HIT_OBJ_ID = 505,
 
     // Debug works, can be replaced at any time
     WORK_4000 = 4000,
