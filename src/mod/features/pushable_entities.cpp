@@ -232,17 +232,6 @@ HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity$$KairikiPushObject) {
     }
 };
 
-HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_SetOGI) {
-    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        auto entity = (FieldObjectEntity::Object*)ctx->X[22];
-        auto ogi = (int32_t)ctx->W[19];
-
-        entity->fields.EventParams->fields.CharacterGraphicsIndex = ogi;
-        ctx->X[3] = 0;
-    }
-};
-
 void exl_pushable_entities_main() {
     FieldPlayerEntity$$KairikiPushObject::InstallAtOffset(0x01da6500);
-    EvDataManager$$LoadObjectCreate_Asset_SetOGI::InstallAtOffset(0x02ca4160);
 }

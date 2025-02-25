@@ -7,6 +7,7 @@
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 #include "externals/Dpr/Demo/Demo_Evolve.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
+#include "externals/FieldObjectEntity.h"
 
 #include "features/activated_features.h"
 #include "logger/logger.h"
@@ -46,6 +47,16 @@ HOOK_DEFINE_INLINE(BoxSearchPanel_CreateSearchDataListCore_MonIcon) {
     }
 };
 
+HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_SetOGI) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto entity = (FieldObjectEntity::Object*)ctx->X[22];
+        auto ogi = (int32_t)ctx->W[19];
+
+        entity->fields.EventParams->fields.CharacterGraphicsIndex = ogi;
+        ctx->X[3] = 0;
+    }
+};
+
 void exl_patches_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
@@ -73,4 +84,5 @@ void exl_patches_main() {
     GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns first boot language as English
     DoEvolve_ItemCancelCheck::InstallAtOffset(0x0177f16c); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
     BoxSearchPanel_CreateSearchDataListCore_MonIcon::InstallAtOffset(0x01caf0b8); // Box Search checks all characters after "_" to get monsno and not just the last 3
+    EvDataManager$$LoadObjectCreate_Asset_SetOGI::InstallAtOffset(0x02ca4160); // Always sets the "CharacterGraphicsIndex" on a FieldObjectEntity to the OGI, not just for characters
 }
