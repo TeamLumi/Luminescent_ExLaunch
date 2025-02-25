@@ -116,7 +116,7 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
                                 break;
                         }
                         tiles *= -1;
-                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X, .m_Y = outgrid.fields.m_Y + tiles - 1, } };
+                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X, .m_Y = outgrid.fields.m_Y + tiles, } };
                     }
                     break;
 
@@ -128,7 +128,7 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
                             if (!PunchingBagAttributeCheck(nextTile, &tiles))
                                 break;
                         }
-                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X, .m_Y = outgrid.fields.m_Y + tiles + 1, } };
+                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X, .m_Y = outgrid.fields.m_Y + tiles, } };
                     }
                     break;
 
@@ -140,7 +140,7 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
                             if (!PunchingBagAttributeCheck(nextTile, &tiles))
                                 break;
                         }
-                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X + tiles + 1, .m_Y = outgrid.fields.m_Y, } };
+                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X - tiles, .m_Y = outgrid.fields.m_Y, } };
                     }
                     break;
 
@@ -153,7 +153,7 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
                                 break;
                         }
                         tiles *= -1;
-                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X + tiles - 1, .m_Y = outgrid.fields.m_Y, } };
+                        breakableGrid = { .fields { .m_X = outgrid.fields.m_X - tiles, .m_Y = outgrid.fields.m_Y, } };
                     }
                     break;
 
@@ -173,18 +173,17 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
                     auto brokenEntity = Dpr::EvScript::EvDataManager::get_Instanse()->fields._fieldObjectEntity->instance()->fields._items->m_Items[j];
                     if (!UnityEngine::_Object::op_Equality(brokenEntity->cast<UnityEngine::_Object>(), nullptr) &&
                         brokenEntity->fields.EventParams->fields.CharacterGraphicsIndex == TIRES_OGI &&
+                        brokenEntity->cast<UnityEngine::Component>()->get_gameObject()->get_activeSelf() &&
                         UnityEngine::Vector2Int::op_Equality(brokenEntity->get_gridPosition(), breakableGrid))
                     {
                         tires = j;
                     }
                 }
 
-                Logger::log("Pushing, proper atts with old = %d, i = %d!\n", oldPushObj, i);
-
                 if (oldPushObj == i) {
                     GameData::DataManager::getClass()->initIfNeeded();
                     if (GameData::DataManager::GetFieldCommonParam(ParamIndx_Kairiki_PushTime) <= punchingBagPushTime) {
-                        Logger::log("Pushing new punching bag!\n");
+                        Logger::log("Pushing punching bag with obj index %d!\n", i);
 
                         __this->fields._isCrossUpdate = false;
                         __this->fields._crossInputDir = -1;
