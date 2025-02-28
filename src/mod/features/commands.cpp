@@ -88,6 +88,14 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(MoveTutorUI(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_HIGHEST_RADAR_STREAK:
                     return HandleCmdStepper(GetHighestRadarStreak(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_TILE_ATTRIBUTE:
+                    return HandleCmdStepper(GetTileAttribute(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_PLAY_BY_INDEX:
+                    return HandleCmdStepper(EventEntityClipPlayByIndex(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_WAIT_BY_INDEX:
+                    return HandleCmdStepper(EventEntityClipWaitByIndex(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE:
+                    return HandleCmdStepper(EntityMove(__this));
                 default:
                     break;
             }
@@ -133,4 +141,8 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHECK_TUTOR_MOVE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MOVE_TUTOR_UI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_HIGHEST_RADAR_STREAK);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_TILE_ATTRIBUTE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_PLAY_BY_INDEX);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_WAIT_BY_INDEX);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE);
 }

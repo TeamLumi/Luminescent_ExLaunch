@@ -1266,6 +1266,10 @@ namespace Dpr::EvScript {
             _CHECK_TUTOR_MOVE = 1256,
             _MOVE_TUTOR_UI = 1257,
             _GET_HIGHEST_RADAR_STREAK = 1258,
+            _GET_TILE_ATTRIBUTE = 1259,
+            _EVENT_ENTITY_CLIP_PLAY_BY_INDEX = 1260,
+            _EVENT_ENTITY_CLIP_WAIT_BY_INDEX = 1261,
+            _ENTITY_MOVE = 1262,
 
             CUSTOM_CMD_END = 1500,
         };

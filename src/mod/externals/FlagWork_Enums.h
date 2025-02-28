@@ -3238,11 +3238,15 @@ enum class FlagWork_Work : int32_t {
     WK_TV_STR_DATA041_USE_GENDER = 435,
     WK_DAILY_RANDOM = 436,
     SCWK_WK_END = 437,
+    SCWK_WK_SAVE_SIZE = 500,
 
     // Luminescent Works
     WK_LAST_BATTLE_TURN_COUNTER = 449,
     WK_INCENSE_SLOT = 495,
-    SCWK_WK_SAVE_SIZE = 500,
+    WK_PUNCHINGBAG_OBJ_ID = 502,
+    WK_PUNCHINGBAG_OBJ_DIR = 503,
+    WK_PUNCHINGBAG_OBJ_TILES = 504,
+    WK_PUNCHINGBAG_HIT_OBJ_ID = 505,
 
     // Debug works, can be replaced at any time
     WORK_4000 = 4000,

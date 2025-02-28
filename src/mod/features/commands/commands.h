@@ -170,3 +170,31 @@ bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work] result: The work in which to put the value of the highest radar streak.
 bool GetHighestRadarStreak(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the attribute data of a specified tile.
+// Arguments:
+//   [Work, Number] x: The x position of the tile to check.
+//   [Work, Number] z: The z position of the tile to check.
+//   [Work] code: The work in which to put the tile's code attribute.
+//   [Work] stop: The work in which to put the tile's stop attribute.
+bool GetTileAttribute(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Plays an animation clip on a FieldEventEntity at the specified index.
+// Arguments:
+//   [Work, Number] entity: The index of the entity to play a clip on.
+//   [Work, Number] clip: The index of the clip to play.
+bool EventEntityClipPlayByIndex(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Waits for an animation clip on a FieldEventEntity at the specified index to be finished.
+// Arguments:
+//   [Work, Number] entity: The index of the entity to wait for.
+bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Moves an entity by an amount of tiles over an amount of frames.
+// Arguments:
+//   [Work, Number, Label] entity: The ID or index of the entity to move.
+//   [Work, Number] x: Amount of tiles to move on the x axis.
+//   [Work, Number] y: Amount of tiles to move on the y axis.
+//   [Work, Number] z: Amount of tiles to move on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager);

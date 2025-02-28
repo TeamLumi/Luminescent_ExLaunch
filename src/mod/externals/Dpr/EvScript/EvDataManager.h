@@ -19,6 +19,12 @@
 #include "externals/UnityEngine/Vector2Int.h"
 #include "externals/UnityEngine/Vector3.h"
 
+struct FieldObjectEntity;
+
+namespace System::Collections::Generic {
+    struct List$$FieldObjectEntity;
+}
+
 namespace Dpr::EvScript {
     struct EvDataManager : ILClass<EvDataManager, 0x04c59c50> {
         struct WorpEventData : ILStruct<WorpEventData> {
@@ -337,7 +343,7 @@ namespace Dpr::EvScript {
             bool isSpBtlAruseus;
             void * Debug_01_DebugLabel;
             void * DebugSceneEventLabel;
-            void * _fieldObjectEntity;
+            System::Collections::Generic::List$$FieldObjectEntity* _fieldObjectEntity;
             void * _FieldKinomiGrowEntity;
             void * _AssetReqOpeList;
             void * _loadObjectList;
@@ -447,6 +453,14 @@ namespace Dpr::EvScript {
 
         inline bool CallWazaUICommon(int32_t bootType, Pml::PokePara::PokemonParam::Object* pokemonParam, System::Action::Object* resultCallback, int32_t oshieWazaNo) {
             return external<bool>(0x02c92530, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
+        }
+
+        inline FieldObjectEntity* GetFieldObject(int32_t id) {
+            return external<FieldObjectEntity*>(0x02c491c0, this, id);
+        }
+
+        inline FieldObjectEntity* Find_fieldObjectEntity(System::String::Object* id) {
+            return external<FieldObjectEntity*>(0x02c48c00, this, id);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {
