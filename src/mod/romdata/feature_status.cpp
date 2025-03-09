@@ -64,4 +64,18 @@ void LoadFeaturesFromJSON(nn::json j) {
             }
         }
     }
+
+    if (j.contains("FrontierFeatures")) {
+        for (int i = 0; i < FRONTIER_FEATURE_COUNT; i++) {
+            if (j.at("FrontierFeatures").contains(FRONTIER_FEATURES[i])) {
+                if (j.at("FrontierFeatures")[FRONTIER_FEATURES[i]].get<bool>()) {
+                    SetActivatedFrontierFeature(i);
+                }
+            }
+        }
+    }
+
+    else {
+        Logger::log("[Feature Status] WARNING: FrontierFeatures section not included in features.json");
+    }
 }

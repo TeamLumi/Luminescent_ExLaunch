@@ -1,8 +1,6 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
-
-#include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/Transform.h"
 #include "externals/UnityEngine/Vector2Int.h"

@@ -2,6 +2,11 @@
 #include "externals/Dpr/EvScript/EvCmdID.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/FlagWork.h"
+#include "features/commands/utils/utils.h"
+#include "externals/UnityEngine/GameObject.h"
+#include "externals/XLSXContent/PlaceData.h"
+#include "data/areas.h"
+#include "data/utils.h"
 
 #include "features/commands/commands.h"
 
@@ -122,8 +127,32 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
     }
 };
 
+HOOK_DEFINE_INLINE(EvDataManager$$RequestAssetSetup) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto placeDataObject = reinterpret_cast<XLSXContent::PlaceData::SheetData::Object*>(ctx->X[25]);
+        auto objectGraphicIndex = placeDataObject->fields.ObjectGraphicIndex;
+
+        auto manager = reinterpret_cast<Dpr::EvScript::EvDataManager::Object*>(ctx->X[19]);
+        switch (manager->fields._areaID) {
+            case array_index(AREAS, "Battle Hall - Arena"): {
+                if (strcmp(placeDataObject->fields.ID->asCString().c_str(), "HALL_PLAYER_10_01") == 0) {
+                    objectGraphicIndex = 153;
+                }
+                break;
+            }
+
+            default: {
+                // Do nothing. Continue normal execution.
+                break;
+            }
+        }
+        ctx->W[24] = objectGraphicIndex;
+    }
+};
+
 void exl_commands_main() {
     RunEvCmdCustom::InstallAtOffset(0x02c5b290);
+    EvDataManager$$RequestAssetSetup::InstallAtOffset(0x019b0ac8);
 
     // Select which new commands/overrides are activated
     for (bool & i : ACTIVATED_COMMANDS)

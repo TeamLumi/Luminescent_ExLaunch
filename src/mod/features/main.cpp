@@ -112,6 +112,8 @@ void CallFeatureHooks()
         exl_text_color_main();
     if (IsActivatedFeature(array_index(FEATURES, "Language UI Fixes")))
         exl_language_ui_fixes_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Custom UI")))
+        exl_custom_ui_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
@@ -119,6 +121,7 @@ void CallFeatureHooks()
     exl_save_data_expansion_main();
     exl_patches_main();
     exl_battle_features_main();
+    exl_battle_frontier_main();
 }
 
 void MountRomAndReadJSON() {
@@ -161,6 +164,7 @@ void exl_features_main() {
     DisableSaveFeatures();
     DisableSmallPatchFeatures();
     DisableBattleFeatures();
+    DisableFrontierFeatures();
 
     MountRomAndReadJSON();
 

@@ -5,6 +5,7 @@
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/SkinnedMeshRenderer.h"
 #include "externals/UnityEngine/Vector2.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 
 namespace Dpr {
     struct PatcheelPattern : ILClass<PatcheelPattern> {

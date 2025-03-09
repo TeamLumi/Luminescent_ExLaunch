@@ -5,6 +5,7 @@
 
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/Pml/Sex.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "logger/logger.h"
 

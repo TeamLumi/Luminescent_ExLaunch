@@ -13,6 +13,9 @@
 #include "externals/UnityEngine/Transform.h"
 #include "externals/XLSXContent/UIDatabase.h"
 #include "externals/UnityEngine/Sprite.h"
+#include "externals/Pml/Sex.h"
+#include "externals/Pml/PokePara/RareType.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 
 namespace Dpr::UI {
     struct Keyguide;

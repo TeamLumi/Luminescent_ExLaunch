@@ -3255,6 +3255,8 @@ enum class FlagWork_Work : int32_t {
 
     WK_FTR_CURRENT_FACILITY = 3050,
 
+    WK_SCENE_D31R0302 = 3070,
+
     // Debug works, can be replaced at any time
     WORK_4000 = 4000,
     WORK_4001 = 4001,

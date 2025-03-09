@@ -53,6 +53,12 @@ void DisableBattleFeatures()
         i = false;
 }
 
+void DisableFrontierFeatures()
+{
+    for (bool & i : ACTIVATED_FRONTIER_FEATURES)
+        i = false;
+}
+
 
 void SetActivatedFeature(int feature)
 {
@@ -87,6 +93,11 @@ void SetActivatedSmallPatchFeature(int feature)
 void SetActivatedBattleFeature(int feature)
 {
     ACTIVATED_BATTLE_FEATURES[feature] = true;
+}
+
+void SetActivatedFrontierFeature(int feature)
+{
+    ACTIVATED_FRONTIER_FEATURES[feature] = true;
 }
 
 

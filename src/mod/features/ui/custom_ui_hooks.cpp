@@ -1,6 +1,7 @@
 #include "exlaunch.hpp"
 #include "logger/logger.h"
 #include "helpers/uiHelper.h"
+#include "externals/Dpr/EvScript/EvDataManager.h"
 
 HOOK_DEFINE_TRAMPOLINE(BoxWindow$$OpOpenMoveNext) {
     static bool Callback(Dpr::UI::BoxWindow::__OpOpen_d__200::Object* __this) {

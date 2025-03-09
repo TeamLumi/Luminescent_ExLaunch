@@ -21,6 +21,9 @@ void DisableSmallPatchFeatures();
 // Disables all battle features.
 void DisableBattleFeatures();
 
+// Disables all frontier features.
+void DisableFrontierFeatures();
+
 
 // Activate a given feature.
 void SetActivatedFeature(int feature);
@@ -42,6 +45,9 @@ void SetActivatedSmallPatchFeature(int feature);
 
 // Activate a given battle feature.
 void SetActivatedBattleFeature(int feature);
+
+// Activate a given Frontier feature.
+void SetActivatedFrontierFeature(int feature);
 
 
 // Check if a given feature is enabled.
