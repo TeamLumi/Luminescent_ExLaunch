@@ -696,6 +696,7 @@ static constexpr const char *AREAS[] = {
     "Route 228 - Regirock Room",
     "Galactic HQ - Speech Room",
     "Distortion World 2",
+    "Veilstone - Department Store B1F",
 };
 
 static constexpr const char *AREA_CODES[] = {
@@ -1394,6 +1395,7 @@ static constexpr const char *AREA_CODES[] = {
     "R228R0401",
     "D26R0109",
     "DISTORTIONR0102",
+    "C07R0207",
 };
 
 constexpr int AREA_COUNT = sizeof(AREAS) / sizeof(AREAS[0]);

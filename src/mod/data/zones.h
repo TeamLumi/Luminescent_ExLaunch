@@ -680,6 +680,7 @@ static constexpr const char *ZONES[] = {
     "Route 228 - Regirock Room",
     "Galactic HQ - Speech Room",
     "Distortion World 2",
+    "Veilstone - Department Store B1F",
 };
 
 static constexpr const char *ZONE_CODES[] = {
@@ -1362,6 +1363,7 @@ static constexpr const char *ZONE_CODES[] = {
     "R228R0401",
     "D26R0109",
     "DISTORTIONR0102",
+    "C07R0207",
 };
 
 constexpr int ZONE_COUNT = sizeof(ZONES) / sizeof(ZONES[0]);
