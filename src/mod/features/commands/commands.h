@@ -210,3 +210,19 @@ bool MultWork(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] work: The work to divide.
 //   [Work, Number] value: The value to divide the work by.
 bool DivWork(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Compares an entity's XZ coordinates to the given XZ coordinates, then jumps to a script if they are equal.
+// Arguments:
+// [String, Work, Number] entity: The entity ID or index to check for.
+// [Work, Number] x: The x coordinate to compare against.
+// [Work, Number] z: The z coordinate to compare against.
+// [String] script: The script to jump to.
+bool IfCoordsJump(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Compares an entity's XZ coordinates to the given XZ coordinates, then calls a script if they are equal.
+// Arguments:
+// [String, Work, Number] entity: The entity ID or index to check for.
+// [Work, Number] x: The x coordinate to compare against.
+// [Work, Number] z: The z coordinate to compare against.
+// [String] script: The script to call.
+bool IfCoordsCall(Dpr::EvScript::EvDataManager::Object* manager);

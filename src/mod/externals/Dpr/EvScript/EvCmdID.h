@@ -1272,6 +1272,8 @@ namespace Dpr::EvScript {
             _ENTITY_MOVE = 1262,
             _MULT_WK = 1263,
             _DIV_WK = 1264,
+            _IFCOORDS_JUMP = 1265,
+            _IFCOORDS_CALL = 1266,
 
             CUSTOM_CMD_END = 1500,
         };

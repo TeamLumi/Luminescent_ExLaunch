@@ -100,6 +100,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(MultWork(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_DIV_WK:
                     return HandleCmdStepper(DivWork(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_JUMP:
+                    return HandleCmdStepper(IfCoordsJump(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL:
+                    return HandleCmdStepper(IfCoordsCall(__this));
                 default:
                     break;
             }
@@ -151,4 +155,6 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MULT_WK);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DIV_WK);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_JUMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL);
 }
