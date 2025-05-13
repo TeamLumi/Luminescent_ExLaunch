@@ -198,3 +198,15 @@ bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] z: Amount of tiles to move on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Multiplies the given work by the given value.
+// Arguments:
+//   [Work] work: The work to multiply.
+//   [Work, Number] value: The value to multiply the work by.
+bool MultWork(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Divides the given work by the given value. If that value is 0, does nothing.
+// Arguments:
+//   [Work] work: The work to divide.
+//   [Work, Number] value: The value to divide the work by.
+bool DivWork(Dpr::EvScript::EvDataManager::Object* manager);

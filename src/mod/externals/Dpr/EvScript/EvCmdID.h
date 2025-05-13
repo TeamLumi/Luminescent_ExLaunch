@@ -1270,6 +1270,8 @@ namespace Dpr::EvScript {
             _EVENT_ENTITY_CLIP_PLAY_BY_INDEX = 1260,
             _EVENT_ENTITY_CLIP_WAIT_BY_INDEX = 1261,
             _ENTITY_MOVE = 1262,
+            _MULT_WK = 1263,
+            _DIV_WK = 1264,
 
             CUSTOM_CMD_END = 1500,
         };

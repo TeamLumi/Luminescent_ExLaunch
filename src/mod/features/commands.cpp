@@ -96,6 +96,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(EventEntityClipWaitByIndex(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE:
                     return HandleCmdStepper(EntityMove(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_MULT_WK:
+                    return HandleCmdStepper(MultWork(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_DIV_WK:
+                    return HandleCmdStepper(DivWork(__this));
                 default:
                     break;
             }
@@ -145,4 +149,6 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_PLAY_BY_INDEX);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_WAIT_BY_INDEX);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MULT_WK);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DIV_WK);
 }
