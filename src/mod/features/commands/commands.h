@@ -226,3 +226,8 @@ bool IfCoordsJump(Dpr::EvScript::EvDataManager::Object* manager);
 // [Work, Number] z: The z coordinate to compare against.
 // [String] script: The script to call.
 bool IfCoordsCall(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Adds the given Move Tutor table to the list in memory to later use when opening the Move Tutor UI.
+// Arguments:
+// [Work, Number] table: The table to store.
+bool LoadMoveTutorTable(Dpr::EvScript::EvDataManager::Object* manager);

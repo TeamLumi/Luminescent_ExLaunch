@@ -7,6 +7,7 @@
 
 #include "logger/logger.h"
 #include "romdata/romdata.h"
+#include "utils/utils.h"
 
 HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
     static void Callback(Dpr::UI::UIWazaManage::Object* __this) {
@@ -84,14 +85,16 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
                 selectIndex = -1;
                 list->Clear();
 
-                int32_t table = __this->fields.param.fields.LearnWazaNo;
-                auto moves = GetMoveTutorTable(table);
-
-                for (uint64_t i=0; i<moves.size(); i++)
+                for (uint64_t i=0; i<GetGTutorTables()->size(); i++)
                 {
-                    if (IsMoveLearnableByTutor(monsno, formno, moves[i]) &&
-                        !__this->fields.param.fields.PokemonParam->cast<Pml::PokePara::CoreParam>()->HaveWaza(moves[i]))
-                        list->Add(moves[i]);
+                    auto moves = GetMoveTutorTable((*GetGTutorTables())[i]);
+
+                    for (uint64_t j=0; j<moves.size(); j++)
+                    {
+                        if (IsMoveLearnableByTutor(monsno, formno, moves[j]) &&
+                            !__this->fields.param.fields.PokemonParam->cast<Pml::PokePara::CoreParam>()->HaveWaza(moves[j]))
+                            list->Add(moves[j]);
+                    }
                 }
             }
             break;

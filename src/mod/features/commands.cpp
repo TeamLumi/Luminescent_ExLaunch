@@ -104,6 +104,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(IfCoordsJump(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL:
                     return HandleCmdStepper(IfCoordsCall(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_LOAD_MOVE_TUTOR_TABLE:
+                    return HandleCmdStepper(LoadMoveTutorTable(__this));
                 default:
                     break;
             }
@@ -157,4 +159,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DIV_WK);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_JUMP);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_MOVE_TUTOR_TABLE);
 }

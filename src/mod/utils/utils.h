@@ -18,3 +18,7 @@ int32_t VerticalRepeat(int32_t hSelection, int32_t hCount, int32_t vSelection, i
 
 // Moves the selection vertically, and stops when hitting the edge of the grid.
 int32_t VerticalClamp(int32_t hSelection, int32_t hCount, int32_t vSelection, int32_t vCount, int32_t lasthCount);
+
+
+// Stored Move Tutor tables vector.
+nn::vector<int32_t>* GetGTutorTables();

@@ -1,7 +1,7 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/FlagWork.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
 bool DivWork(Dpr::EvScript::EvDataManager::Object* manager) {
