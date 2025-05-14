@@ -108,6 +108,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(LoadMoveTutorTable(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_DEX_STATUS:
                     return HandleCmdStepper(GetDexStatus(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_DEBUG_LOG:
+                    return HandleCmdStepper(DebugLogCommand(__this));
                 default:
                     break;
             }
@@ -163,4 +165,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_MOVE_TUTOR_TABLE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_DEX_STATUS);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DEBUG_LOG);
 }

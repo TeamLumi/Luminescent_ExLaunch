@@ -237,3 +237,10 @@ bool LoadMoveTutorTable(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] monsno: The ID of the species to look up.
 //   [Work] result: The work in which to put the result.
 bool GetDexStatus(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Logs the given arguments to the debug console.
+// Arguments:
+//   [Work, Number, Flag, SysFlag, Label] arg1: The first data to log in the debug console.
+//   [Work, Number, Flag, SysFlag, Label] arg2: The second data to log in the debug console.
+//   ... up to arg16
+bool DebugLogCommand(Dpr::EvScript::EvDataManager::Object* manager);
