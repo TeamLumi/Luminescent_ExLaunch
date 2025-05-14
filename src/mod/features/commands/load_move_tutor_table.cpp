@@ -10,7 +10,6 @@ bool LoadMoveTutorTable(Dpr::EvScript::EvDataManager::Object* manager) {
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     int32_t table = GetWorkOrIntValue(args->m_Items[1]);
-    Logger::log("Loading table %d\n", table);
     GetGTutorTables()->push_back(table);
 
     return true;

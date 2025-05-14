@@ -1275,6 +1275,7 @@ namespace Dpr::EvScript {
             _IFCOORDS_JUMP = 1265,
             _IFCOORDS_CALL = 1266,
             _LOAD_MOVE_TUTOR_TABLE = 1267,
+            _GET_DEX_STATUS = 1268,
 
             CUSTOM_CMD_END = 1500,
         };

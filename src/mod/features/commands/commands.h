@@ -213,21 +213,27 @@ bool DivWork(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Compares an entity's XZ coordinates to the given XZ coordinates, then jumps to a script if they are equal.
 // Arguments:
-// [String, Work, Number] entity: The entity ID or index to check for.
-// [Work, Number] x: The x coordinate to compare against.
-// [Work, Number] z: The z coordinate to compare against.
-// [String] script: The script to jump to.
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] x: The x coordinate to compare against.
+//   [Work, Number] z: The z coordinate to compare against.
+//   [String] script: The script to jump to.
 bool IfCoordsJump(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Compares an entity's XZ coordinates to the given XZ coordinates, then calls a script if they are equal.
 // Arguments:
-// [String, Work, Number] entity: The entity ID or index to check for.
-// [Work, Number] x: The x coordinate to compare against.
-// [Work, Number] z: The z coordinate to compare against.
-// [String] script: The script to call.
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] x: The x coordinate to compare against.
+//   [Work, Number] z: The z coordinate to compare against.
+//   [String] script: The script to call.
 bool IfCoordsCall(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Adds the given Move Tutor table to the list in memory to later use when opening the Move Tutor UI.
 // Arguments:
-// [Work, Number] table: The table to store.
+//   [Work, Number] table: The table to store.
 bool LoadMoveTutorTable(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the caught status of a specific Pokémon species and sets it into a work.
+// Arguments:
+//   [Work, Number] monsno: The ID of the species to look up.
+//   [Work] result: The work in which to put the result.
+bool GetDexStatus(Dpr::EvScript::EvDataManager::Object* manager);
