@@ -57,7 +57,7 @@ bool PartyBoxRelease(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Toggles a BoxCollider of the given name on the current map.
 // Arguments:
-//   [Label] label: The name of the BoxCollider to toggle.
+//   [String] label: The name of the BoxCollider to toggle.
 bool ToggleCollisionBox(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Sets the given work to 69. Acts as a check for a proper installation.
@@ -114,7 +114,7 @@ bool GetCostumeGender(Dpr::EvScript::EvDataManager::Object* manager);
 // Compares the value of the variable given to the last _SWITCH command ran to another value, then calls a script if they are equal.
 // Arguments:
 //   [Work, Number] Value: Value to compare to.
-//   [Label] Script: Script to call.
+//   [String] Script: Script to call.
 bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Gives a Pokémon to the Player.
@@ -158,12 +158,11 @@ bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] result: The work in which to put the result in, where 0 is no and 1 is yes.
 bool CheckTutorMove(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Opens a Move Tutor UI of the given table using the same UI as the move relearner.
+// Opens a Move Tutor UI of the stored tables using the same UI as the move relearner.
 // Arguments:
 //   [Work] result: The work in which to put the ID of the move that was learned in.
 //   [Work, Number] index: The index that points to the given Pokémon.
 //   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
-//   [Work, Number] table: The Move Tutor table to use.
 bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Retrieves the value of the highest PokeRadar streak and sets it into a work.
@@ -192,7 +191,7 @@ bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Moves an entity by an amount of tiles over an amount of frames.
 // Arguments:
-//   [Work, Number, Label] entity: The ID or index of the entity to move.
+//   [Work, Number, String] entity: The ID or index of the entity to move.
 //   [Work, Number] x: Amount of tiles to move on the x axis.
 //   [Work, Number] y: Amount of tiles to move on the y axis.
 //   [Work, Number] z: Amount of tiles to move on the z axis.
@@ -240,8 +239,8 @@ bool GetDexStatus(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Logs the given arguments to the debug console.
 // Arguments:
-//   [Work, Number, Flag, SysFlag, Label] arg1: The first data to log in the debug console.
-//   [Work, Number, Flag, SysFlag, Label] arg2: The second data to log in the debug console.
+//   [Work, Number, Flag, SysFlag, String] arg1: The first data to log in the debug console.
+//   [Work, Number, Flag, SysFlag, String] arg2: The second data to log in the debug console.
 //   ... up to arg16
 bool DebugLogCommand(Dpr::EvScript::EvDataManager::Object* manager);
 
