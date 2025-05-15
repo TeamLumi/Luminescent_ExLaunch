@@ -1277,6 +1277,7 @@ namespace Dpr::EvScript {
             _LOAD_MOVE_TUTOR_TABLE = 1267,
             _GET_DEX_STATUS = 1268,
             _DEBUG_LOG = 1269,
+            _DOOR_EXIT_LABEL_SET = 1270,
 
             CUSTOM_CMD_END = 1500,
         };

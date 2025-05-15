@@ -7,6 +7,7 @@
 #include "externals/Effect/EffectInstance.h"
 #include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
+#include "externals/LocalKoukan.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/Action.h"
 #include "externals/System/MulticastDelegate.h"
@@ -19,6 +20,7 @@
 #include "externals/UnityEngine/Vector2Int.h"
 #include "externals/UnityEngine/Vector3.h"
 
+struct FieldEventEntity;
 struct FieldObjectEntity;
 
 namespace System::Collections::Generic {
@@ -133,6 +135,16 @@ namespace Dpr::EvScript {
 
             inline void ctor() {
                 external<void>(0x019ae530, this);
+            }
+        };
+
+        struct DisplayClass1624_0 : ILClass<DisplayClass1624_0, 0x04c5f050> {
+            struct Fields {
+                LocalKoukan::Operation::Object* op;
+            };
+
+            inline void ctor() {
+                external<void>(0x019ae820, this);
             }
         };
 
@@ -461,6 +473,10 @@ namespace Dpr::EvScript {
 
         inline FieldObjectEntity* Find_fieldObjectEntity(System::String::Object* id) {
             return external<FieldObjectEntity*>(0x02c48c00, this, id);
+        }
+
+        inline FieldEventEntity* FindEventDoorEntity(System::String::Object* name) {
+            return external<FieldEventEntity*>(0x02c88930, this, name);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {

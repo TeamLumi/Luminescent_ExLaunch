@@ -244,3 +244,9 @@ bool GetDexStatus(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number, Flag, SysFlag, Label] arg2: The second data to log in the debug console.
 //   ... up to arg16
 bool DebugLogCommand(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the given door entity's Exit Label.
+// Arguments:
+//   [Work, Number] entity: The ID of the door entity to edit.
+//   [Work, Number] label: The Exit Label to set the door entity to.
+bool DoorExitLabelSet(Dpr::EvScript::EvDataManager::Object* manager);
