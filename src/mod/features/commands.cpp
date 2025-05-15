@@ -112,6 +112,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(DebugLogCommand(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_DOOR_EXIT_LABEL_SET:
                     return HandleCmdStepper(DoorExitLabelSet(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GIVE_POFFIN:
+                    return HandleCmdStepper(GivePoffin(__this));
                 default:
                     break;
             }
@@ -169,4 +171,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_DEX_STATUS);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DEBUG_LOG);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DOOR_EXIT_LABEL_SET);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GIVE_POFFIN);
 }

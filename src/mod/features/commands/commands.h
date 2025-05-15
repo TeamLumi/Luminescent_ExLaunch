@@ -250,3 +250,15 @@ bool DebugLogCommand(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] entity: The ID of the door entity to edit.
 //   [Work, Number] label: The Exit Label to set the door entity to.
 bool DoorExitLabelSet(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives the player a poffin with the given stats.
+// Arguments:
+//   [Work, Number] nameid: The ID of the name to use for the poffin.
+//   [Work, Number] level: The level of the poffin.
+//   [Work, Number] spicy: The spicy level of the poffin.
+//   [Work, Number] dry: The dry level of the poffin.
+//   [Work, Number] sweet: The sweet level of the poffin.
+//   [Work, Number] bitter: The bitter level of the poffin.
+//   [Work, Number] sour: The sour level of the poffin.
+//   [Work, Number] smoothness: The smoothness of the poffin.
+bool GivePoffin(Dpr::EvScript::EvDataManager::Object* manager);

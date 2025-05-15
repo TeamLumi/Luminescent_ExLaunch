@@ -1278,6 +1278,7 @@ namespace Dpr::EvScript {
             _GET_DEX_STATUS = 1268,
             _DEBUG_LOG = 1269,
             _DOOR_EXIT_LABEL_SET = 1270,
+            _GIVE_POFFIN = 1271,
 
             CUSTOM_CMD_END = 1500,
         };
