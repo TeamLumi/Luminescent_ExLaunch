@@ -246,7 +246,7 @@ bool DebugLogCommand(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Sets the given door entity's Exit Label.
 // Arguments:
-//   [Work, Number] entity: The ID of the door entity to edit.
+//   [String] entity: The ID of the door entity to edit.
 //   [Work, Number] label: The Exit Label to set the door entity to.
 bool DoorExitLabelSet(Dpr::EvScript::EvDataManager::Object* manager);
 
