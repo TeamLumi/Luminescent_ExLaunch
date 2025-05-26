@@ -3,7 +3,7 @@
 #include "externals/FlagWork.h"
 #include "externals/FlagWork_Enums.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
 bool GetHighestRadarStreak(Dpr::EvScript::EvDataManager::Object* manager) {

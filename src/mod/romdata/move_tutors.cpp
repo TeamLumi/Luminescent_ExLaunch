@@ -41,7 +41,7 @@ nn::vector<int32_t> GetMoveTutorLearnset(int32_t monsno, int32_t formno)
     {
         RomData::MoveTutor moveTutor = {};
         moveTutor = j.get<RomData::MoveTutor>();
-        LogMoveTutorData(moveTutor, monsno, formno);
+        //LogMoveTutorData(moveTutor, monsno, formno);
         return moveTutor.moves;
     }
     else
@@ -75,7 +75,7 @@ nn::vector<int32_t> GetMoveTutorTable(int32_t id)
     {
         RomData::MoveTutor moveTutor = {};
         moveTutor = j.get<RomData::MoveTutor>();
-        LogMoveTutorData(moveTutor, id);
+        //LogMoveTutorData(moveTutor, id);
         return moveTutor.moves;
     }
     else

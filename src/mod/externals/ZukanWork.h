@@ -34,4 +34,8 @@ struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
     static inline void ZenkokuON() {
         external<void>(0x017db310);
     }
+
+    static inline DPData::GET_STATUS GetStatus(uint32_t monsno) {
+        return external<DPData::GET_STATUS>(0x017dcbd0, monsno);
+    }
 };

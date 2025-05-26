@@ -96,6 +96,24 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(EventEntityClipWaitByIndex(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE:
                     return HandleCmdStepper(EntityMove(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_MULT_WK:
+                    return HandleCmdStepper(MultWork(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_DIV_WK:
+                    return HandleCmdStepper(DivWork(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_JUMP:
+                    return HandleCmdStepper(IfCoordsJump(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL:
+                    return HandleCmdStepper(IfCoordsCall(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_LOAD_MOVE_TUTOR_TABLE:
+                    return HandleCmdStepper(LoadMoveTutorTable(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_DEX_STATUS:
+                    return HandleCmdStepper(GetDexStatus(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_DEBUG_LOG:
+                    return HandleCmdStepper(DebugLogCommand(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_DOOR_EXIT_LABEL_SET:
+                    return HandleCmdStepper(DoorExitLabelSet(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GIVE_POFFIN:
+                    return HandleCmdStepper(GivePoffin(__this));
                 default:
                     break;
             }
@@ -145,4 +163,13 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_PLAY_BY_INDEX);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_EVENT_ENTITY_CLIP_WAIT_BY_INDEX);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ENTITY_MOVE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MULT_WK);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DIV_WK);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_JUMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IFCOORDS_CALL);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_MOVE_TUTOR_TABLE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_DEX_STATUS);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DEBUG_LOG);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DOOR_EXIT_LABEL_SET);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GIVE_POFFIN);
 }

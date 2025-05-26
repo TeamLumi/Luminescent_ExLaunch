@@ -1270,6 +1270,15 @@ namespace Dpr::EvScript {
             _EVENT_ENTITY_CLIP_PLAY_BY_INDEX = 1260,
             _EVENT_ENTITY_CLIP_WAIT_BY_INDEX = 1261,
             _ENTITY_MOVE = 1262,
+            _MULT_WK = 1263,
+            _DIV_WK = 1264,
+            _IFCOORDS_JUMP = 1265,
+            _IFCOORDS_CALL = 1266,
+            _LOAD_MOVE_TUTOR_TABLE = 1267,
+            _GET_DEX_STATUS = 1268,
+            _DEBUG_LOG = 1269,
+            _DOOR_EXIT_LABEL_SET = 1270,
+            _GIVE_POFFIN = 1271,
 
             CUSTOM_CMD_END = 1500,
         };

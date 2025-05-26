@@ -57,7 +57,7 @@ bool PartyBoxRelease(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Toggles a BoxCollider of the given name on the current map.
 // Arguments:
-//   [Label] label: The name of the BoxCollider to toggle.
+//   [String] label: The name of the BoxCollider to toggle.
 bool ToggleCollisionBox(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Sets the given work to 69. Acts as a check for a proper installation.
@@ -114,7 +114,7 @@ bool GetCostumeGender(Dpr::EvScript::EvDataManager::Object* manager);
 // Compares the value of the variable given to the last _SWITCH command ran to another value, then calls a script if they are equal.
 // Arguments:
 //   [Work, Number] Value: Value to compare to.
-//   [Label] Script: Script to call.
+//   [String] Script: Script to call.
 bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Gives a Pokémon to the Player.
@@ -158,12 +158,11 @@ bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] result: The work in which to put the result in, where 0 is no and 1 is yes.
 bool CheckTutorMove(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Opens a Move Tutor UI of the given table using the same UI as the move relearner.
+// Opens a Move Tutor UI of the stored tables using the same UI as the move relearner.
 // Arguments:
 //   [Work] result: The work in which to put the ID of the move that was learned in.
 //   [Work, Number] index: The index that points to the given Pokémon.
 //   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
-//   [Work, Number] table: The Move Tutor table to use.
 bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Retrieves the value of the highest PokeRadar streak and sets it into a work.
@@ -192,9 +191,73 @@ bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Moves an entity by an amount of tiles over an amount of frames.
 // Arguments:
-//   [Work, Number, Label] entity: The ID or index of the entity to move.
+//   [Work, Number, String] entity: The ID or index of the entity to move.
 //   [Work, Number] x: Amount of tiles to move on the x axis.
 //   [Work, Number] y: Amount of tiles to move on the y axis.
 //   [Work, Number] z: Amount of tiles to move on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Multiplies the given work by the given value.
+// Arguments:
+//   [Work] work: The work to multiply.
+//   [Work, Number] value: The value to multiply the work by.
+bool MultWork(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Divides the given work by the given value. If that value is 0, does nothing.
+// Arguments:
+//   [Work] work: The work to divide.
+//   [Work, Number] value: The value to divide the work by.
+bool DivWork(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Compares an entity's XZ coordinates to the given XZ coordinates, then jumps to a script if they are equal.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] x: The x coordinate to compare against.
+//   [Work, Number] z: The z coordinate to compare against.
+//   [String] script: The script to jump to.
+bool IfCoordsJump(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Compares an entity's XZ coordinates to the given XZ coordinates, then calls a script if they are equal.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] x: The x coordinate to compare against.
+//   [Work, Number] z: The z coordinate to compare against.
+//   [String] script: The script to call.
+bool IfCoordsCall(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Adds the given Move Tutor table to the list in memory to later use when opening the Move Tutor UI.
+// Arguments:
+//   [Work, Number] table: The table to store.
+bool LoadMoveTutorTable(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the caught status of a specific Pokémon species and sets it into a work.
+// Arguments:
+//   [Work, Number] monsno: The ID of the species to look up.
+//   [Work] result: The work in which to put the result.
+bool GetDexStatus(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Logs the given arguments to the debug console.
+// Arguments:
+//   [Work, Number, Flag, SysFlag, String] arg1: The first data to log in the debug console.
+//   [Work, Number, Flag, SysFlag, String] arg2: The second data to log in the debug console.
+//   ... up to arg16
+bool DebugLogCommand(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the given door entity's Exit Label.
+// Arguments:
+//   [String] entity: The ID of the door entity to edit.
+//   [Work, Number] label: The Exit Label to set the door entity to.
+bool DoorExitLabelSet(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives the player a poffin with the given stats.
+// Arguments:
+//   [Work, Number] nameid: The ID of the name to use for the poffin.
+//   [Work, Number] level: The level of the poffin.
+//   [Work, Number] spicy: The spicy level of the poffin.
+//   [Work, Number] dry: The dry level of the poffin.
+//   [Work, Number] sweet: The sweet level of the poffin.
+//   [Work, Number] bitter: The bitter level of the poffin.
+//   [Work, Number] sour: The sour level of the poffin.
+//   [Work, Number] smoothness: The smoothness of the poffin.
+bool GivePoffin(Dpr::EvScript::EvDataManager::Object* manager);
