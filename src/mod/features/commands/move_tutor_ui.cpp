@@ -49,7 +49,10 @@ void LearnMoveAfterMoveTutor_Callback(Dpr::EvScript::EvDataManager::DisplayClass
 
     __this->fields.__4__this->LearnWaza(__this->fields.param, learnWazaNo, unlearnWazaNo);
     SetWorkToValue(args->m_Items[1], learnWazaNo);
-    Dpr::Box::BoxPokemonWork::UpdatePokemon(__this->fields.param, trayIndex, index);
+
+    // Update boxed mon
+    if (trayIndex > -1)
+        Dpr::Box::BoxPokemonWork::UpdatePokemon(__this->fields.param, trayIndex, index);
 }
 
 void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::DisplayClass1544_0::Object *__this, int32_t learnWazaNo, int32_t unlearnWazaNo)
@@ -78,7 +81,11 @@ void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::DisplayClass1544_0::Obje
     {
         tutorSequence = 2;
         SetWorkToValue(args->m_Items[1], learnWazaNo);
-        Dpr::Box::BoxPokemonWork::UpdatePokemon(__this->fields.param, trayIndex, index);
+
+        // Update boxed mon
+        if (trayIndex > -1)
+            Dpr::Box::BoxPokemonWork::UpdatePokemon(__this->fields.param, trayIndex, index);
+
         return;
     }
 
