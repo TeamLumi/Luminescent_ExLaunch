@@ -1309,8 +1309,8 @@ static constexpr const char* ITEMS[] = {
     "Infinite Repel", // ★Psc437
     "Old Mewtwo Armor", // ★Psc8773
     "Vintage GS Ball", // ★Lep1865
+    "Partner's Bandana", // ★Lep1829
 
-    "★Lep1829",
     "★Boo5340",
     "★Boo5506",
     "★Boo5435",
