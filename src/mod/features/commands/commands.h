@@ -261,3 +261,8 @@ bool DoorExitLabelSet(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] sour: The sour level of the poffin.
 //   [Work, Number] smoothness: The smoothness of the poffin.
 bool GivePoffin(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Opens the Poffin Case UI to select one of the player's poffins.
+// Arguments:
+//   [Work] result: The index of the selected poffin. -1 if none was selected.
+bool SelectPoffinUI(Dpr::EvScript::EvDataManager::Object* manager);

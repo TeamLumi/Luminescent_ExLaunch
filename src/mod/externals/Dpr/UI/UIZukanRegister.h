@@ -1,5 +1,7 @@
 #pragma once
+
 #include "externals/il2cpp-api.h"
+
 #include "externals/Dpr/UI/UIWindow.h"
 #include "externals/Dpr/UI/ZukanDescriptionPanel.h"
 #include "externals/UnityEngine/RectTransform.h"
@@ -12,7 +14,6 @@ namespace Dpr::UI {
             Box = 1,
             Cancel = 2
         };
-
 
         struct Fields : Dpr::UI::UIWindow::Fields {
             int32_t _animStateIn;
@@ -30,7 +31,10 @@ namespace Dpr::UI {
             int32_t addMemberResult;
             System::Action::Object* OnComplete;
         };
+
         static_assert(offsetof(Fields, OnComplete) == 0xa0);
+
+        static inline StaticILMethod<0x04c900a8, Dpr::UI::UIZukanRegister> Method$$CreateUIWindow {};
 
         inline void add_OnComplete(System::Action::Object* value) {
             external<void>(0x01a3cb30, this, value);
