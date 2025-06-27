@@ -3,7 +3,6 @@
 #include "externals/Dpr/UI/UIPofinCase.h"
 #include "externals/FlagWork.h"
 
-#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
 bool SelectPoffinUI(Dpr::EvScript::EvDataManager::Object* manager) {

@@ -264,5 +264,18 @@ bool GivePoffin(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Opens the Poffin Case UI to select one of the player's poffins.
 // Arguments:
-//   [Work] result: The index of the selected poffin. -1 if none was selected.
+//   [Work] result: The work in which to put the index of the selected poffin. -1 if none was selected.
 bool SelectPoffinUI(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the flavor name ID of the poffin at the given index in the player's Poffin Case.
+// Arguments:
+//   [Work, Number] index: The poffin's index in the player's Poffin Case.
+//   [Work] result: The work in which to put the result.
+bool GetPoffinFlavorName(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the value for a specific flavor of the poffin at the given index in the player's Poffin Case.
+// Arguments:
+//   [Work, Number] index: The poffin's index in the player's Poffin Case.
+//   [Work, Number] flavorIndex: The index of the flavor to get the value of.
+//   [Work] result: The work in which to put the result.
+bool GetPoffinFlavor(Dpr::EvScript::EvDataManager::Object* manager);

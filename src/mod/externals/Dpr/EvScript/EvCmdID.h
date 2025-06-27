@@ -1280,6 +1280,8 @@ namespace Dpr::EvScript {
             _DOOR_EXIT_LABEL_SET = 1270,
             _GIVE_POFFIN = 1271,
             _SELECT_POFFIN_UI = 1272,
+            _GET_POFFIN_FLAVOR_NAME = 1273,
+            _GET_POFFIN_FLAVOR = 1274,
 
             CUSTOM_CMD_END = 1500,
         };

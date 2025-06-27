@@ -116,6 +116,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(GivePoffin(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SELECT_POFFIN_UI:
                     return HandleCmdStepper(SelectPoffinUI(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR_NAME:
+                    return HandleCmdStepper(GetPoffinFlavorName(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR:
+                    return HandleCmdStepper(GetPoffinFlavor(__this));
                 default:
                     break;
             }
@@ -175,4 +179,6 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DOOR_EXIT_LABEL_SET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GIVE_POFFIN);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SELECT_POFFIN_UI);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR_NAME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR);
 }

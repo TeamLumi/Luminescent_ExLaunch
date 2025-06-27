@@ -1,30 +1,45 @@
 #include "exlaunch.hpp"
 
 #include "externals/Audio/AudioManager.h"
+#include "externals/DPData/PoffinSaveData.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/UI/ContextMenuWindow.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/UIPofinCase.h"
 #include "externals/FlagWork.h"
+#include "externals/PlayerWork.h"
+#include "externals/System/Array.h"
 
 #include "logger/logger.h"
 
 static int32_t poffinCaseType = 0;
 
 bool OnClickedContextMenu(Dpr::UI::UIPofinCase::DisplayClass35_0::Object* __this, Dpr::UI::ContextMenuItem::Object* item) {
+    system_load_typeinfo(0x6c65);
     system_load_typeinfo(0x971f);
     system_load_typeinfo(0x9720);
+    system_load_typeinfo(0x9cb0);
 
     switch (item->fields._param->fields.menuId)
     {
         case ContextMenuID::POFFINCASE_GIVE:
         {
+            auto poffin = __this->fields.__4__this->fields.poffinDatas->m_Items[__this->fields.__4__this->fields.selectedIndex];
+
+            auto disp = DPData::PoffinSaveData::DisplayClass5_0::getClass()->newInstance();
+            disp->fields.poffin = poffin;
+            auto predicate = System::Predicate::getClass(System::Predicate::PoffinData__TypeInfo)
+                    ->newInstance(disp, *DPData::PoffinSaveData::DisplayClass5_0::Method$$DelPoffin_b__0);
+
+            PlayerWork::getClass()->initIfNeeded();
+            auto index = System::Array::FindIndex(PlayerWork::get_poffinSaveData().GetHavePoffins(), predicate);
+
             Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
             auto manager = Dpr::EvScript::EvDataManager::get_Instanse();
             EvData::Aregment::Array* args = manager->fields._evArg;
-            FlagWork::SetWork(args->m_Items[1].fields.data, __this->fields.__4__this->fields.selectedIndex);
+            FlagWork::SetWork(args->m_Items[1].fields.data, index);
 
-            Logger::log("Selected index %d\n", __this->fields.__4__this->fields.selectedIndex);
+            //Logger::log("Selected index %d\n", index);
 
             __this->fields.__4__this->Close(__this->fields.__4__this->fields.onClosed, __this->fields.__4__this->fields._prevWindowId);
 
@@ -121,7 +136,7 @@ HOOK_DEFINE_TRAMPOLINE(UIPofinCase$$Open) {
     static void Callback(Dpr::UI::UIPofinCase::Object* __this, int32_t prevWindowId) {
         if (prevWindowId == -3) {
             // It's a Select-only Poffin Case
-            Logger::log("Open Poffin Case in Select-only Mode\n");
+            //Logger::log("Open Poffin Case in Select-only Mode\n");
             prevWindowId = -2;
             poffinCaseType = 1;
         }
@@ -152,7 +167,7 @@ HOOK_DEFINE_INLINE(UIPofinCase$$InputUpdate_Close) {
                 EvData::Aregment::Array* args = manager->fields._evArg;
                 FlagWork::SetWork(args->m_Items[1].fields.data, -1);
 
-                Logger::log("Cancelled, so selected index -1\n");
+                //Logger::log("Cancelled, so selected index -1\n");
 
                 __this->Close(onClosed_, nextWindowId);
                 break;
