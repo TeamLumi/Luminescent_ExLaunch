@@ -120,6 +120,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(GetPoffinFlavorName(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR:
                     return HandleCmdStepper(GetPoffinFlavor(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_DEL_POFFIN:
+                    return HandleCmdStepper(DelPoffin(__this));
                 default:
                     break;
             }
@@ -181,4 +183,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SELECT_POFFIN_UI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR_NAME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DEL_POFFIN);
 }

@@ -34,5 +34,9 @@ namespace DPData {
         inline DPData::PoffinData::Array* GetHavePoffins() {
             return external<DPData::PoffinData::Array*>(0x0229b430, this);
         }
+
+        inline bool DelPoffin(DPData::PoffinData::Object poffin) {
+            return external<bool>(0x0229b540, this, poffin);
+        }
     };
 }

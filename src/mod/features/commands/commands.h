@@ -279,3 +279,9 @@ bool GetPoffinFlavorName(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] flavorIndex: The index of the flavor to get the value of.
 //   [Work] result: The work in which to put the result.
 bool GetPoffinFlavor(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Deletes the poffin at the given index in the player's Poffin Case.
+// Arguments:
+//   [Work, Number] index: The poffin's index in the player's Poffin Case.
+//   [Work] result: The work in which to put if the poffin was successfully deleted.
+bool DelPoffin(Dpr::EvScript::EvDataManager::Object* manager);

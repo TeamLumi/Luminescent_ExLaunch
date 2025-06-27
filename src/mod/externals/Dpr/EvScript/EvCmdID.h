@@ -1282,6 +1282,7 @@ namespace Dpr::EvScript {
             _SELECT_POFFIN_UI = 1272,
             _GET_POFFIN_FLAVOR_NAME = 1273,
             _GET_POFFIN_FLAVOR = 1274,
+            _DEL_POFFIN = 1275,
 
             CUSTOM_CMD_END = 1500,
         };
