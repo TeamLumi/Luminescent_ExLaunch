@@ -19,7 +19,7 @@ bool DelPoffin(Dpr::EvScript::EvDataManager::Object* manager) {
         auto result = PlayerWork::get_poffinSaveData().DelPoffin(poffin);
 
         if (args->max_length >= 3)
-            FlagWork::SetWork(args->m_Items[2].fields.data, result);
+            SetWorkToValue(args->m_Items[2], result);
     }
 
     return true;

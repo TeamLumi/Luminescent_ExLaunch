@@ -144,10 +144,11 @@ bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] tagIndex: The tagIndex where the string will be set into.
 bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Retrieves the place ID of the selected mons index.
+// Retrieves the place ID of the Pokémon at the given index and tray index.
 // Arguments:
-//   [Work] Location: The work in which to put the location index in.
 //   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work] result: The work in which to put the result in.
 bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Checks if a specific species learns the specified move by tutor.
