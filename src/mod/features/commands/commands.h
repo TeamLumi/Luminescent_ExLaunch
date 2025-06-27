@@ -286,3 +286,8 @@ bool GetPoffinFlavor(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] index: The poffin's index in the player's Poffin Case.
 //   [Work] result: The work in which to put if the poffin was successfully deleted.
 bool DelPoffin(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the amount of trainers whose trainer flag has been set for the current mode.
+// Arguments:
+//   [Work] result: The work in which to put the result in.
+bool TrainerDefeatedCount(Dpr::EvScript::EvDataManager::Object* manager);
