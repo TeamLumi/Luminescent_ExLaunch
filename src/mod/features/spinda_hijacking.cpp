@@ -73,13 +73,7 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     if (__this->fields.UVDatas->max_length > 0)
                     {
                         auto materials = ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[0]->fields.renderer)->get_materials();
-                        UnityEngine::Color::Object color = { .fields = {
-                                .r = (float)((id & 0x00FF0000) >> 16) / 255.0f,
-                                .g = (float)((id & 0x0000FF00) >> 8)  / 255.0f,
-                                .b = (float) (id & 0x000000FF)        / 255.0f,
-                                .a = 1.0f,
-                        } };
-                        materials->m_Items[0]->SetColor(System::String::Create("_ConstantColor0"), color);
+                        materials->m_Items[0]->SetColor(System::String::Create("_ConstantColor0"), UnityEngine::Color::CreateFromRGB((int32_t)id));
                     }
                 }
                 break;

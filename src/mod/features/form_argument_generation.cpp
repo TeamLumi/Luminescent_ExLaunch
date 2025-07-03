@@ -100,7 +100,7 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         {
             case array_index(SPECIES, "Smeargle"):
             {
-                accessor->SetMultiPurposeWork(UnityEngine::Random::Range(0, 0x1000000));
+                accessor->SetMultiPurposeWork(RollForSmeargleColor(PlayerWork::get_zoneID()));
             }
             break;
 

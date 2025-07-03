@@ -7,6 +7,7 @@
 #include "romdata/data/IntroData.h"
 #include "romdata/data/LocalTrade.h"
 #include "romdata/data/ShinyRates.h"
+#include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
 #include "romdata/data/UnbreakablePokeItem.h"
@@ -83,5 +84,11 @@ bool IsMoveLearnableByTutor(int32_t monsno, int32_t formno, int32_t move);
 
 // Returns the full move list of the given tutor.
 nn::vector<int32_t> GetMoveTutorTable(int32_t id);
+
+// Returns the Smeargle color data for the given zoneID.
+RomData::SmeargleColor GetSmeargleColorData(int32_t zoneID);
+
+// Rolls a Smeargle color based on the data for the given zoneID.
+int32_t RollForSmeargleColor(int32_t zoneID);
 
 void LoadFeaturesFromJSON(nn::json j);
