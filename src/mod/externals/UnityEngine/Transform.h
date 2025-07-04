@@ -4,6 +4,7 @@
 
 #include "externals/System/String.h"
 #include "externals/UnityEngine/Component.h"
+#include "externals/UnityEngine/Vector2.h"
 #include "externals/UnityEngine/Vector3.h"
 
 namespace UnityEngine {
@@ -82,6 +83,12 @@ namespace UnityEngine {
         inline void set_localScale(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
             external<void>(0x0299e000, this, valueProxy);
+        }
+
+        inline UnityEngine::Vector2::Object get_sizeDelta() {
+            return {
+                .fields = external<UnityEngine::Vector2::Fields>(0x02696610, this)
+            };
         }
 
         // utility functions

@@ -92,7 +92,7 @@ void EvDataManager_EvCmdCallWazaOmoidashiUi_b__1542_0(Dpr::EvScript::EvDataManag
 
     SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
     auto uiManager = Dpr::UI::UIManager::get_Instance();
-    auto uiWazaManage = (Dpr::UI::UIWazaManage::Object *) uiManager->CreateUIWindow(UIWindowID::WAZA_MANAGE, Dpr::UI::UIManager::Method$$CreateUIWindow_UIWazaManage_);
+    auto uiWazaManage = uiManager->CreateUIWindow<Dpr::UI::UIWazaManage>(UIWindowID::WAZA_MANAGE);
 
     // nullptr on the MethodInfo here doesn't crash somehow
     uiWazaManage->Open(param, nullptr);
@@ -124,7 +124,7 @@ void createMoveRelearnerWindow(Dpr::UI::PokemonWindow::DisplayClass25_0::Object 
 
     SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
     auto uiManager = Dpr::UI::UIManager::get_Instance();
-    auto uiWazaManage = uiManager->CreateUIWindow<Dpr::UI::UIWazaManage>(UIWindowID::WAZA_MANAGE, Dpr::UI::UIManager::Method$$CreateUIWindow_UIWazaManage_);
+    auto uiWazaManage = uiManager->CreateUIWindow<Dpr::UI::UIWazaManage>(UIWindowID::WAZA_MANAGE);
 
     // nullptr on the MethodInfo here doesn't crash somehow
     uiWazaManage->Open(param, nullptr);

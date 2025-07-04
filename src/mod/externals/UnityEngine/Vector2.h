@@ -9,6 +9,10 @@ namespace UnityEngine {
             float y;
         };
 
+        inline void ctor(float x, float y) {
+            external<void>(0x029a1350, x, y);
+        }
+
         static inline Vector2::Object get_zero() {
             return {
                 .fields = external<Vector2::Fields>(0x029a1670)

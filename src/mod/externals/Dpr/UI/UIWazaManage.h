@@ -83,6 +83,8 @@ namespace Dpr::UI {
         static inline StaticILMethod<0x04c80cc8> Method$$OnUpdate$$b__39_0 {};
         static inline StaticILMethod<0x04c80cd0> Method$$OnUpdate$$b__39_1 {};
 
+        static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow {};
+
         inline void Open(Dpr::UI::UIWazaManage::Param::Object param, MethodInfo* method) {
             external<void>(0x01dd3d80, this, param, method);
         }

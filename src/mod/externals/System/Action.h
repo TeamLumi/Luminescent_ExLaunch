@@ -32,5 +32,9 @@ namespace System {
         inline void Invoke(Pml::WazaNo arg0, Pml::WazaNo arg1) {
             external<void>(0x0263da30, this, arg0, arg1);
         }
+
+        inline void Invoke(Il2CppObject* obj) {
+            external<void>(0x02630500, this, obj);
+        }
     };
 }

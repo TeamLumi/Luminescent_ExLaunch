@@ -26,7 +26,7 @@ namespace Audio {
             int32_t _configVoice;
         };
 
-        static inline Audio::AudioManager::Object* instance() {
+        static inline Audio::AudioManager::Object* get_Instance() {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$AudioManager$$get_Instance);
         }
 

@@ -148,6 +148,9 @@ void exl_relumi_dex_ui();
 // Remaps the controls.
 void exl_remap_main();
 
+// Adds an extra type of Poffin Case UI that allows selecting a Poffin for other purposes.
+void exl_select_poffin_case_main();
+
 // Adds support for new settings.
 void exl_settings_main();
 

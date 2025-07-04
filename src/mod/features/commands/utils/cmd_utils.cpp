@@ -80,10 +80,11 @@ void SetWorkToValue(EvData::Aregment::Object arg, int32_t value)
     }
 }
 
-bool IsNullOrEgg(Pml::PokePara::PokemonParam::Object * param)
+bool IsNullOrEgg(Pml::PokePara::PokemonParam::Object* param)
 {
-    Pml::PokePara::CoreParam::Object * coreParam = (Pml::PokePara::CoreParam::Object *)param;
-    return coreParam == nullptr || coreParam->IsNull() || coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG);
+    return param == nullptr ||
+           param->cast<Pml::PokePara::CoreParam>()->IsNull() ||
+           param->cast<Pml::PokePara::CoreParam>()->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG);
 }
 
 bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t maxedIVs, uint16_t itemno)

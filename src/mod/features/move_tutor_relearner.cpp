@@ -211,7 +211,7 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
             __this->fields.msgWindowController->OpenMsgWindow(3, labelName, true, false, onFinished, nullptr);
 
             Audio::AudioManager::getClass()->initIfNeeded();
-            Audio::AudioManager::instance()->PlaySe(0x5d95f820, nullptr);
+            Audio::AudioManager::get_Instance()->PlaySe(0x5d95f820, nullptr);
         }
         else if (__this->cast<Dpr::UI::UIWindow>()->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, false))
         {
@@ -254,7 +254,7 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
             }
 
             Audio::AudioManager::getClass()->initIfNeeded();
-            Audio::AudioManager::instance()->PlaySe(0xa4eb827e, nullptr);
+            Audio::AudioManager::get_Instance()->PlaySe(0xa4eb827e, nullptr);
         }
     }
 };

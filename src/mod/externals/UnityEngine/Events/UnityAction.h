@@ -14,6 +14,7 @@ namespace UnityEngine::Events {
         static const inline long void_TypeInfo = 0x04c57230;
         static const inline long Sprite_TypeInfo = 0x04c5e1a0;
         static const inline long SettingMenuItem_TypeInfo = 0x04c62420;
+        static const inline long UIWindow_TypeInfo = 0x04c59e60;
 
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {

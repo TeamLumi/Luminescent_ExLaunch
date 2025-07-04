@@ -30,8 +30,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
         if (azukariyaSeq == 0) {
             SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
             auto uiManager = Dpr::UI::UIManager::get_Instance();
-            Dpr::UI::UIZukanRegister::Object* uiZukanReg = uiManager->CreateUIWindow(
-                    UIWindowID::ZUKAN_REGISTER, Dpr::UI::UIManager::Method$$CreateUIWindow_UIZukanRegister_);
+            auto uiZukanReg = uiManager->CreateUIWindow<Dpr::UI::UIZukanRegister>(UIWindowID::ZUKAN_REGISTER);
 
             MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdAddPokemonUIExtra((Il2CppMethodPointer) &EvCmdAddPokemonUIExtra);
             auto onComplete = System::Action::getClass(
