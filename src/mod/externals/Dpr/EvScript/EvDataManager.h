@@ -4,6 +4,7 @@
 
 #include "externals/Dpr/EvScript/EvScriptData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
+#include "externals/Dpr/UI/UIWindow.h"
 #include "externals/Effect/EffectInstance.h"
 #include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
@@ -376,6 +377,7 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c7cfd0>                                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
         static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
         static inline StaticILMethod<0x04c7d040, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
+        static inline StaticILMethod<0x04c7d1e0, Dpr::UI::UIWindow::Object*>       Method$$EvDataManager_EvCmd_USE_SPECIAL_ITEM_b__1719_0 {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {

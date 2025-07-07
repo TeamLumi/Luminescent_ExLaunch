@@ -144,10 +144,11 @@ bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] tagIndex: The tagIndex where the string will be set into.
 bool AYouName(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Retrieves the place ID of the selected mons index.
+// Retrieves the place ID of the Pokémon at the given index and tray index.
 // Arguments:
-//   [Work] Location: The work in which to put the location index in.
 //   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work] result: The work in which to put the result in.
 bool GetCaughtLocation(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Checks if a specific species learns the specified move by tutor.
@@ -261,3 +262,32 @@ bool DoorExitLabelSet(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] sour: The sour level of the poffin.
 //   [Work, Number] smoothness: The smoothness of the poffin.
 bool GivePoffin(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Opens the Poffin Case UI to select one of the player's poffins.
+// Arguments:
+//   [Work] result: The work in which to put the index of the selected poffin. -1 if none was selected.
+bool SelectPoffinUI(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the flavor name ID of the poffin at the given index in the player's Poffin Case.
+// Arguments:
+//   [Work, Number] index: The poffin's index in the player's Poffin Case.
+//   [Work] result: The work in which to put the result.
+bool GetPoffinFlavorName(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the value for a specific flavor of the poffin at the given index in the player's Poffin Case.
+// Arguments:
+//   [Work, Number] index: The poffin's index in the player's Poffin Case.
+//   [Work, Number] flavorIndex: The index of the flavor to get the value of.
+//   [Work] result: The work in which to put the result.
+bool GetPoffinFlavor(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Deletes the poffin at the given index in the player's Poffin Case.
+// Arguments:
+//   [Work, Number] index: The poffin's index in the player's Poffin Case.
+//   [Work] result: The work in which to put if the poffin was successfully deleted.
+bool DelPoffin(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the amount of trainers whose trainer flag has been set for the current mode.
+// Arguments:
+//   [Work] result: The work in which to put the result in.
+bool TrainerDefeatedCount(Dpr::EvScript::EvDataManager::Object* manager);

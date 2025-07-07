@@ -1279,6 +1279,11 @@ namespace Dpr::EvScript {
             _DEBUG_LOG = 1269,
             _DOOR_EXIT_LABEL_SET = 1270,
             _GIVE_POFFIN = 1271,
+            _SELECT_POFFIN_UI = 1272,
+            _GET_POFFIN_FLAVOR_NAME = 1273,
+            _GET_POFFIN_FLAVOR = 1274,
+            _DEL_POFFIN = 1275,
+            _TRAINER_DEFEATED_COUNT = 1276,
 
             CUSTOM_CMD_END = 1500,
         };

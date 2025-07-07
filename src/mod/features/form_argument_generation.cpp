@@ -16,6 +16,7 @@
 #include "externals/Pml/PokePara/EggParam.h"
 #include "externals/Pml/PokePara/InitialSpec.h"
 #include "externals/Pml/PokePara/Parents.h"
+#include "externals/UnityEngine/Random.h"
 
 #include "logger/logger.h"
 #include "romdata/romdata.h"
@@ -97,6 +98,12 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         // Form Argument
         switch (spec->fields.monsno)
         {
+            case array_index(SPECIES, "Smeargle"):
+            {
+                accessor->SetMultiPurposeWork(RollForSmeargleColor(PlayerWork::get_zoneID()));
+            }
+            break;
+
             case array_index(SPECIES, "Vivillon"):
             {
                 accessor->SetMultiPurposeWork(accessor->GetFormNo());

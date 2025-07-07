@@ -16,7 +16,7 @@ void SelectGridIndex(Dpr::UI::SelectPlayerVisualWindow::Object* window, int32_t 
     if (window->SetSelectIndex(vSelection * hCount + hSelection, false))
     {
         Audio::AudioManager::getClass()->initIfNeeded();
-        auto audioManager = Audio::AudioManager::instance();
+        auto audioManager = Audio::AudioManager::get_Instance();
         audioManager->PlaySe(0xb7533038, nullptr);
     }
 }

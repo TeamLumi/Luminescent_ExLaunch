@@ -53,12 +53,27 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
 
                     if (renderer != nullptr)
                     {
-                        auto patcheelMats = renderer->get_sharedMaterials();
+                        auto patcheelMats = renderer->get_materials();
                         uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork() % patcheelMats->max_length;
                         Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
 
                         for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
-                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_sharedMaterial(patcheelMats->m_Items[id]);
+                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id]);
+                    }
+                }
+                break;
+
+                case array_index(SPECIES, "Smeargle"):
+                {
+                    Logger::log("[PatcheelPattern$$SetPattern] Smeargle\n");
+
+                    uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork();
+                    Logger::log("[PatcheelPattern$$SetPattern] Using variant %06X\n", id);
+
+                    if (__this->fields.UVDatas->max_length > 0)
+                    {
+                        auto materials = ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[0]->fields.renderer)->get_materials();
+                        materials->m_Items[0]->SetColor(System::String::Create("_ConstantColor0"), UnityEngine::Color::CreateFromRGB((int32_t)id));
                     }
                 }
                 break;

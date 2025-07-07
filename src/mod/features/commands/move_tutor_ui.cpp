@@ -9,7 +9,7 @@
 #include "romdata/romdata.h"
 #include "utils/utils.h"
 
-int32_t tutorSequence = 0;
+static int32_t tutorSequence = 0;
 
 bool CanAnyMoveBeLearned(Pml::PokePara::PokemonParam::Object* pokemonParam)
 {
@@ -104,7 +104,7 @@ void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::DisplayClass1544_0::Obje
 
     SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
     auto uiManager = Dpr::UI::UIManager::get_Instance();
-    auto uiWazaManage = (Dpr::UI::UIWazaManage::Object *) uiManager->CreateUIWindow(UIWindowID::WAZA_MANAGE, Dpr::UI::UIManager::Method$$CreateUIWindow_UIWazaManage_);
+    auto uiWazaManage = uiManager->CreateUIWindow<Dpr::UI::UIWazaManage>(UIWindowID::WAZA_MANAGE);
     uiWazaManage->Open(param, nullptr);
 }
 

@@ -64,15 +64,16 @@ namespace Dpr::UI {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$UIManager$$get_Instance);
         }
 
-        static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow_ShopBoutiqueChange_ {};
-        static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow_UIWazaManage_ {};
-
-        static inline StaticILMethod<0x04c900a8, Dpr::UI::UIZukanRegister> Method$$CreateUIWindow_UIZukanRegister_ {};
         static inline StaticILMethod<0x04c90130, Dpr::UI::UIWindow> Method$$GetCurrentUIWindow_UIWindow_ {};
 
         template <typename T>
         inline T::Object* CreateUIWindow(UIWindowID windowId, ILMethod<T>& method) {
             return external<typename T::Object*>(0x01cf9f20, this, (int32_t)windowId, *method);
+        }
+
+        template <typename T>
+        inline T::Object* CreateUIWindow(UIWindowID windowId) {
+            return external<typename T::Object*>(0x01cf9f20, this, (int32_t)windowId, *T::Method$$CreateUIWindow);
         }
 
         template <typename T>
