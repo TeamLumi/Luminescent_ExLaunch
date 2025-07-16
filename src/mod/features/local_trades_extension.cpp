@@ -5,6 +5,8 @@
 
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Dpr/Message/MessageManager.h"
+#include "externals/Dpr/UI/BoxWindow.h"
+#include "externals/Dpr/UI/UIManager.h"
 #include "externals/GameData/DataManager.h"
 #include "externals/LocalKoukan.h"
 #include "externals/PlayerWork.h"
@@ -143,8 +145,46 @@ HOOK_DEFINE_REPLACE(LocalKoukan_CreateOperation) {
     }
 };
 
+HOOK_DEFINE_REPLACE(BoxWindow$$Open_BoxOpenParam_LocalTradeFix) {
+    static void Callback(Dpr::UI::BoxWindow::Object* __this, int32_t openType, System::Action::Object* onSelected, int32_t prevWindowId) {
+        system_load_typeinfo(0x2672);
+
+        auto openParam = Dpr::UI::BoxWindow::OpenParam::newInstance();
+
+        Dpr::UI::UIManager::getClass()->initIfNeeded();
+        auto boxOpenParam = Dpr::UI::UIManager::get_Instance()->GetBoxOpenData(openType);
+        auto extraBoxOpenParam = GetExtraBoxOpenParamData(openType);
+
+        openParam->fields.openType = boxOpenParam->fields.IsTrade ? 2 : 1;
+        openParam->fields.selectCount = boxOpenParam->fields.SelectCount;
+        openParam->fields.targetLevel = boxOpenParam->fields.Level;
+        openParam->fields.isEnableDying = boxOpenParam->fields.IsEnableDying;
+        openParam->fields.isEnableEgg = true;
+        openParam->fields.isEnableParty = boxOpenParam->fields.IsEnableParty;
+        openParam->fields.targetsPokeNo = boxOpenParam->fields.MonsNo->m_Items[0] != 0 ? boxOpenParam->fields.MonsNo : nullptr;
+
+        auto tradeId = extraBoxOpenParam.tradeId;
+        if (tradeId >= 0 && boxOpenParam->fields.IsTrade)
+        {
+            auto data = LocalKoukan::GetTargetData(tradeId, Dpr::Message::MessageEnumData::MsgLangId::Num); // Language doesn't matter
+
+            Dpr::Message::MessageManager::getClass()->initIfNeeded();
+            openParam->fields.tradeName = Dpr::Message::MessageManager::get_Instance()
+                ->GetMsgFile(System::String::Create("dp_scenario3"))
+                ->GetNameDataModel(data->fields.name_label)
+                ->GetName();
+        }
+
+        openParam->fields.isExternalTrade = boxOpenParam->fields.IsTrade;
+
+        __this->Open(openParam, onSelected, prevWindowId);
+    }
+};
+
 void exl_local_trades_main() {
     LocalKoukan_GetIndex::InstallAtOffset(0x01af3390);
     LocalKoukan_GetTargetData::InstallAtOffset(0x01af32a0);
     LocalKoukan_CreateOperation::InstallAtOffset(0x01af3420);
+
+    BoxWindow$$Open_BoxOpenParam_LocalTradeFix::InstallAtOffset(0x01cb62d0);
 }
