@@ -12,6 +12,7 @@
 
 #include "logger/logger.h"
 
+// Punching bag
 const static int32_t MATTR_RAIL = 237;
 const static int32_t MATTR_RAIL_STOP = 238;
 const static int32_t PUNCHINGBAG_OGI = 570;
@@ -20,6 +21,49 @@ const static int32_t ParamIndx_Kairiki_PushTime = 259;
 
 static int32_t punchingBagObjIndex = -1;
 static float punchingBagPushTime;
+
+
+// Contact script call
+const static int32_t CONTACTABLE_OGI = 556;
+
+static int32_t contactableObjIndex = -1;
+static float contactablePushTime;
+
+
+bool IsPlayerAbleToPush(FieldPlayerEntity::Object* player) {
+    Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
+    if (Dpr::EvScript::EvDataManager::get_Instanse()->IsRunningEvent())
+        return false;
+
+    FieldManager::getClass()->initIfNeeded();
+    if (FieldManager::getClass()->static_fields->_Instance_k__BackingField->fields._IsMenuOpen_k__BackingField ||
+        FieldManager::getClass()->static_fields->_Instance_k__BackingField->fields._isMenuOpenRequest)
+        return false;
+
+    PlayerWork::getClass()->initIfNeeded();
+    if (!PlayerWork::get_isPlayerInputActive())
+        return false;
+
+    player->fields.UpdateInputAngleDisable = true;
+
+    UnityEngine::Vector2::Object stick {};
+    float stickPower = 0.0f;
+    bool analog = false;
+    player->GetInputVector(&stick, &stickPower, 0.0f, &analog);
+
+    player->fields.UpdateInputAngleDisable = false;
+
+    if (stickPower <= 0.0f)
+        return false;
+
+    GameController::getClass()->initIfNeeded();
+    if (!analog &&
+        player->fields.InputMoveVector.fields.x * GameController::getClass()->static_fields->digitalPad.fields.x >= 0.0f &&
+        player->fields.InputMoveVector.fields.z * GameController::getClass()->static_fields->digitalPad.fields.y >= 0.0f)
+        return false;
+
+    return true;
+}
 
 bool PunchingBagAttributeCheck(UnityEngine::Vector2Int::Object grid, int* count) {
     int32_t code = 0;
@@ -59,35 +103,7 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
     punchingBagObjIndex = -1;
     punchingBagPushTime = 0.0f;
 
-    Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->IsRunningEvent())
-        return;
-
-    FieldManager::getClass()->initIfNeeded();
-    if (FieldManager::getClass()->static_fields->_Instance_k__BackingField->fields._IsMenuOpen_k__BackingField ||
-        FieldManager::getClass()->static_fields->_Instance_k__BackingField->fields._isMenuOpenRequest)
-        return;
-
-    PlayerWork::getClass()->initIfNeeded();
-    if (!PlayerWork::get_isPlayerInputActive())
-        return;
-
-    __this->fields.UpdateInputAngleDisable = true;
-
-    UnityEngine::Vector2::Object stick {};
-    float stickPower = 0.0f;
-    bool analog = false;
-    __this->GetInputVector(&stick, &stickPower, 0.0f, &analog);
-
-    __this->fields.UpdateInputAngleDisable = false;
-
-    if (stickPower <= 0.0f)
-        return;
-
-    GameController::getClass()->initIfNeeded();
-    if (!analog &&
-        __this->fields.InputMoveVector.fields.x * GameController::getClass()->static_fields->digitalPad.fields.x >= 0.0f &&
-        __this->fields.InputMoveVector.fields.z * GameController::getClass()->static_fields->digitalPad.fields.y >= 0.0f)
+    if (!IsPlayerAbleToPush(__this))
         return;
 
     auto dir = FieldObjectEntity::GetDir(__this->fields.yawAngle);
@@ -225,10 +241,84 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
     }
 }
 
+void ContactLabelCallOnPush(FieldPlayerEntity::Object* __this, float deltaTime) {
+    system_load_typeinfo(0x4a4e);
+    system_load_typeinfo(0x4989);
+
+    auto oldPushTime = contactablePushTime;
+    auto oldPushObj = contactableObjIndex;
+    contactableObjIndex = -1;
+    contactablePushTime = 0.0f;
+
+    if (!IsPlayerAbleToPush(__this))
+        return;
+
+    auto dir = FieldObjectEntity::GetDir(__this->fields.yawAngle);
+
+    for (int32_t i=0; i<Dpr::EvScript::EvDataManager::get_Instanse()->fields._fieldObjectEntity->instance()->fields._size; i++) {
+        auto entity = Dpr::EvScript::EvDataManager::get_Instanse()->fields._fieldObjectEntity->instance()->fields._items->m_Items[i];
+
+        UnityEngine::_Object::getClass()->initIfNeeded();
+        if (!UnityEngine::_Object::op_Equality(entity->cast<UnityEngine::_Object>(), nullptr) &&
+            entity->fields.EventParams->fields.CharacterGraphicsIndex == CONTACTABLE_OGI)
+        {
+            UnityEngine::Vector2Int::Object outgrid {};
+            UnityEngine::Vector2Int::Object breakableGrid {};
+            bool hit = false;
+            bool pushed = Dpr::Field::WA_Kairiki::PushEntity(__this, dir, entity, &outgrid, &hit);
+
+            if (pushed) {
+                contactableObjIndex = i;
+                contactablePushTime = oldPushTime + deltaTime;
+
+                if (oldPushObj == i) {
+                    GameData::DataManager::getClass()->initIfNeeded();
+                    if (GameData::DataManager::GetFieldCommonParam(ParamIndx_Kairiki_PushTime) <= contactablePushTime) {
+                        Logger::log("Contact with obj index %d!\n", i);
+
+                        __this->fields._isCrossUpdate = false;
+                        __this->fields._crossInputDir = -1;
+                        __this->fields._crossInputVectol = { .fields = { .x = 0.0f, .y = 0.0f } };
+                        __this->fields._bicOldAcceleration = 0.0f;
+                        __this->fields._bicAccelerationTime = 0.0f;
+
+                        FlagWork::SetWork(FlagWork_Work::WK_CONTACTABLE_OBJ_ID, i);
+                        FlagWork::SetWork(FlagWork_Work::WK_CONTACTABLE_OBJ_DIR, (int32_t)dir);
+
+                        Dpr::EvScript::EvDataManager::get_Instanse()->JumpLabel(entity->fields.EventParams->fields.TalkLabel, nullptr);
+                    }
+                }
+                else {
+                    contactablePushTime = 0.0f;
+                }
+            }
+            else {
+                if (hit) {
+                    switch (dir) {
+                        case DIR::DIR_UP:
+                        case DIR::DIR_DOWN:
+                            __this->fields.moveVector.fields.z = 0.0f;
+                            break;
+
+                        case DIR::DIR_LEFT:
+                        case DIR::DIR_RIGHT:
+                            __this->fields.moveVector.fields.x = 0.0f;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity$$KairikiPushObject) {
     static void Callback(FieldPlayerEntity::Object* __this, float deltaTime) {
         Orig(__this, deltaTime);
         PunchingBagPushObject(__this, deltaTime);
+        ContactLabelCallOnPush(__this, deltaTime);
     }
 };
 
