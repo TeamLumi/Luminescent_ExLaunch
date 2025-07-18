@@ -1,10 +1,12 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
+#include "externals/Dpr/UI/UIText.h"
+#include "externals/Pml/PokePara/CoreParam.h"
+#include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/UI/Image.h"
-#include "externals/Dpr/UI/UIText.h"
-#include "externals/UnityEngine/GameObject.h"
 
 namespace Dpr::UI {
     struct BoxStatusPanel : ILClass<BoxStatusPanel> {

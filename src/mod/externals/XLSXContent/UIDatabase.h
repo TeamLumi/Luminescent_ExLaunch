@@ -33,6 +33,17 @@ namespace XLSXContent {
             };
         };
 
+        struct SheetBoxOpenParam : ILClass<SheetBoxOpenParam> {
+            struct Fields {
+                System::Int32_array* MonsNo;
+                int32_t SelectCount;
+                int32_t Level;
+                bool IsTrade;
+                bool IsEnableParty;
+                bool IsEnableDying;
+            };
+        };
+
         struct Fields : UnityEngine::ScriptableObject::Fields {
             void* UIWindow; // XLSXContent_UIDatabase_SheetUIWindow_array*
             void* Transition; // XLSXContent_UIDatabase_SheetTransition_array*
@@ -63,7 +74,7 @@ namespace XLSXContent {
             void* HideWazaName; // XLSXContent_UIDatabase_SheetHideWazaName_array*
             void* HideTokusei; // XLSXContent_UIDatabase_SheetHideTokusei_array*
             void* ZukanRating; // XLSXContent_UIDatabase_SheetZukanRating_array*
-            void* BoxOpenParam; // XLSXContent_UIDatabase_SheetBoxOpenParam_array*
+            SheetBoxOpenParam::Array* BoxOpenParam;
             void* SealTemplate; // XLSXContent_UIDatabase_SheetSealTemplate_array*
             void* RankingDisplay; // XLSXContent_UIDatabase_SheetRankingDisplay_array*
         };

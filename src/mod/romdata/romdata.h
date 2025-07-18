@@ -1,6 +1,7 @@
 #pragma once
 
 #include "romdata/data/Arena.h"
+#include "romdata/data/BoxOpenParam.h"
 #include "romdata/data/ColorSet.h"
 #include "romdata/data/FormHeldItemMon.h"
 #include "romdata/data/HoneyTreeEncounters.h"
@@ -90,5 +91,8 @@ RomData::SmeargleColor GetSmeargleColorData(int32_t zoneID);
 
 // Rolls a Smeargle color based on the data for the given zoneID.
 int32_t RollForSmeargleColor(int32_t zoneID);
+
+// Returns the extra BoxOpenParam data.
+RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
 
 void LoadFeaturesFromJSON(nn::json j);

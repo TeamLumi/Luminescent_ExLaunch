@@ -128,6 +128,10 @@ namespace Dpr::UI {
         inline UnityEngine::Sprite::Object* GetSpriteMonsterBall(uint8_t ballId) {
             return external<UnityEngine::Sprite::Object*>(0x017c2300, this, ballId);
         }
+
+        inline XLSXContent::UIDatabase::SheetBoxOpenParam::Object* GetBoxOpenData(int32_t type) {
+            return external<XLSXContent::UIDatabase::SheetBoxOpenParam::Object*>(0x017c2bd0, this, type);
+        }
     };
 }
 
