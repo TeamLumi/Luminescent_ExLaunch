@@ -291,3 +291,10 @@ bool DelPoffin(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work] result: The work in which to put the result in.
 bool TrainerDefeatedCount(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Attaches the given GameObject to the given parent transform.
+// Arguments:
+//   [String] entity: The name of the GameObject to attach. "HERO" will refer to the player.
+//   [String] parent: The name of the GameObject that will be the new parent. "HERO" will refer to the player.
+//   [Work, Number] keepWorldPosition: If the child GameObject should keep its current world position. 0 is false and 1 is true.
+bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager);

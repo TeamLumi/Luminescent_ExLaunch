@@ -1284,6 +1284,7 @@ namespace Dpr::EvScript {
             _GET_POFFIN_FLAVOR = 1274,
             _DEL_POFFIN = 1275,
             _TRAINER_DEFEATED_COUNT = 1276,
+            _ATTACH_TRANSFORM = 1277,
 
             CUSTOM_CMD_END = 1500,
         };

@@ -263,7 +263,6 @@ void ContactLabelCallOnPush(FieldPlayerEntity::Object* __this, float deltaTime) 
             entity->fields.EventParams->fields.CharacterGraphicsIndex == CONTACTABLE_OGI)
         {
             UnityEngine::Vector2Int::Object outgrid {};
-            UnityEngine::Vector2Int::Object breakableGrid {};
             bool hit = false;
             bool pushed = Dpr::Field::WA_Kairiki::PushEntity(__this, dir, entity, &outgrid, &hit);
 
