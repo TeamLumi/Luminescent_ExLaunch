@@ -298,3 +298,12 @@ bool TrainerDefeatedCount(Dpr::EvScript::EvDataManager::Object* manager);
 //   [String] parent: The name of the GameObject that will be the new parent. "HERO" will refer to the player.
 //   [Work, Number] keepWorldPosition: If the child GameObject should keep its current world position. 0 is false and 1 is true.
 bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Rotates a GameObject over an amount of frames.
+// Arguments:
+//   [String] gameObject: The name of the GameObject to rotate.
+//   [Work, Number] x: Degrees to rotate on the x axis.
+//   [Work, Number] y: Degrees to rotate on the y axis.
+//   [Work, Number] z: Degrees to rotate on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);

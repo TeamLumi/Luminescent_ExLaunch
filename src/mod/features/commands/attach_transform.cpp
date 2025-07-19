@@ -5,20 +5,6 @@
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
-UnityEngine::Transform::Object* FindTransform(System::String::Object* name)
-{
-    EntityManager::getClass()->initIfNeeded();
-
-    auto go = System::String::op_Equality(name, System::String::Create("HERO")) ?
-              EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField->cast<UnityEngine::Component>()->get_gameObject()->instance() :
-              UnityEngine::GameObject::Find(name);
-
-    if (go == nullptr)
-        return nullptr;
-    else
-        return go->get_transform();
-}
-
 bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("_ATTACH_TRANSFORM\n");
 

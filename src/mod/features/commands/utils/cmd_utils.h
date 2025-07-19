@@ -31,3 +31,8 @@ bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t m
 // Returns the string from the provided argument if its type is string.
 // Returns "" otherwise.
 System::String::Object* GetStringText(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg);
+
+// Finds a specific transform in the scene.
+// A value of "HERO" will return the active player's transform.
+// Returns null if it can't find it.
+UnityEngine::Transform::Object* FindTransform(System::String::Object* name);
