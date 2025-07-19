@@ -307,3 +307,11 @@ bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] z: Degrees to rotate on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Makes the player ledge jump with the given parameters.
+// Arguments:
+//   [Work, Number] moveDistance: The amount of tiles to jump. (Default 2.0)
+//   [Work, Number] relativeHeight: Unknown. (Default is 0.75)
+//   [Work, Number] relativeLower: Unknown. (Default is -0.5)
+//   [Work, Number] duration: Unknown. (Default is 0.5)
+bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager);

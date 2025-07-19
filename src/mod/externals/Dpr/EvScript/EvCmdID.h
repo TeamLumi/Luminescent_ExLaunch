@@ -1286,6 +1286,7 @@ namespace Dpr::EvScript {
             _TRAINER_DEFEATED_COUNT = 1276,
             _ATTACH_TRANSFORM = 1277,
             _GAMEOBJECT_ROTATE = 1278,
+            _LEDGE_JUMP = 1279,
 
             CUSTOM_CMD_END = 1500,
         };
