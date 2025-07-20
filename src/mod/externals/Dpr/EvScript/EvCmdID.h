@@ -1287,6 +1287,7 @@ namespace Dpr::EvScript {
             _ATTACH_TRANSFORM = 1277,
             _GAMEOBJECT_ROTATE = 1278,
             _LEDGE_JUMP = 1279,
+            _JUMP_AND_ROTATE = 1280,
 
             CUSTOM_CMD_END = 1500,
         };

@@ -11,6 +11,7 @@ bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager) {
     system_load_typeinfo(0x3f9a);
     system_load_typeinfo(0x4af3);
     system_load_typeinfo(0x5a55);
+    system_load_typeinfo(0x9412);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 
@@ -20,6 +21,10 @@ bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager) {
 
     if (objTF != nullptr && parentTF != nullptr)
     {
+        auto fieldObject = objTF->cast<UnityEngine::Component>()->GetComponent(UnityEngine::Component::Method$$FieldObjectEntity$$GetComponent);
+        if (fieldObject != nullptr)
+            fieldObject->fields.isLanding = false;
+
         if (!worldPositionStays)
             objTF->set_localPosition({ .fields = { .x = 0.0f, .y = 0.0f, .z = 0.0f } });
         objTF->SetParent(parentTF, worldPositionStays);

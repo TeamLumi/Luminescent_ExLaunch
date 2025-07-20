@@ -44,6 +44,7 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
             }
 
             player->PlayJumpEnd();
+            player->fields.isLanding = true;
 
             initializedJump = false;
             return true;
@@ -60,8 +61,7 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
 
         initializedJump = true;
 
-        Logger::log("_LEDGE_JUMP with moveDistance = %f, relativeHeight = %f, relativeLower = %f, duration = %f\n", moveDistance, relativeHeight, relativeLower, duration);
-
+        player->fields.isLanding = false;
         player->fields._path->Startup(player->cast<BaseEntity>()->get_transform(), moveDistance, relativeHeight, relativeLower, duration);
 
         FieldManager::getClass()->initIfNeeded();

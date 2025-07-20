@@ -5,6 +5,8 @@
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
+static bool rot_startedRotating = false;
+
 static float origRotX = 0.0f;
 static float origRotY = 0.0f;
 static float origRotZ = 0.0f;
@@ -32,14 +34,16 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager)
     float currDeltaY = deltaY * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
     float currDeltaZ = deltaZ * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
 
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait == 0.0f) {
+    if (!rot_startedRotating && Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait == 0.0f) {
         auto origPos = objTF->get_localEulerAngles();
         origRotX = origPos.fields.x;
         origRotY = origPos.fields.y;
         origRotZ = origPos.fields.z;
-    }
 
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait <= totalTime) {
+        rot_startedRotating = true;
+        return false;
+    }
+    else if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait <= totalTime) {
         Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait += Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime;
 
         auto currRot = objTF->get_localEulerAngles();
@@ -57,6 +61,7 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager)
         currRot.fields.z = origRotZ + deltaZ;
         objTF->set_localEulerAngles(currRot);
 
+        rot_startedRotating = false;
         return true;
     }
 }
