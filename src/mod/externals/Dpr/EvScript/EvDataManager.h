@@ -174,7 +174,7 @@ namespace Dpr::EvScript {
             void * _se_datas;
             void * _voice_datas;
             UnityEngine::Vector2Int::Object _eventEndPosition;
-            void * _posEventLabelReserve;
+            System::String::Object* _posEventLabelReserve;
             void * _entityParamList;
             void * _stopRoot;
             bool _isInitFirstMap;
@@ -479,6 +479,14 @@ namespace Dpr::EvScript {
 
         inline FieldEventEntity* FindEventDoorEntity(System::String::Object* name) {
             return external<FieldEventEntity*>(0x02c88930, this, name);
+        }
+
+        inline void PlayerInputActive(bool active, bool animation) {
+            external<void>(0x02c45e10, this, active, animation);
+        }
+
+        inline int32_t SetupHeroMoveGridCenterFrontDir(UnityEngine::RectInt::Object* stopGridArea, UnityEngine::Vector2Int::Object* nowGrid, UnityEngine::Vector2Int::Object* oldGrid) {
+            return external<int32_t>(0x02c47760, this, stopGridArea, nowGrid, oldGrid);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {

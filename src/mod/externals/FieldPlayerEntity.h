@@ -138,6 +138,10 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         return external<bool>(0x01da7c70, this);
     }
 
+    inline void StopCrossInputAndBicycle() {
+        external<void>(0x01da4ed0, this);
+    }
+
     static_assert(offsetof(Fields, _hatRenderers) == 0x198);
     static_assert(offsetof(Fields, _path) == 0x1F8);
     static_assert(sizeof(Fields) == 0x3e8);
