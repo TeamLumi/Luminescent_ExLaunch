@@ -27,12 +27,8 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_EvScript_EvDataManager$$OnEventEnter) {
             __this->fields._embankmentEntity == nullptr &&
             __this->fields._doorEntity == nullptr) {
 
-            Logger::log("[Fake StopData] Not any specific type\n");
-
             // Starts with "STOPDATA_"
             if (eventEntity->fields._enityName->StartsWith(System::String::Create("STOPDATA_"))) {
-
-                Logger::log("[Fake StopData] Starts with \"STOPDATA_\"\n");
 
                 // Grab the script name after the prefix
                 auto script = eventEntity->fields._enityName->Substring(9);
@@ -41,19 +37,6 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_EvScript_EvDataManager$$OnEventEnter) {
                 if ((eventEntity->fields.locatorIndex == 500 || FlagWork::GetWork(eventEntity->fields.locatorIndex) == eventEntity->fields.clipIndex) &&
                     !System::String::IsNullOrEmpty(script)) {
 
-                    Logger::log("[Fake StopData] Work is good\n");
-                    Logger::log("[Fake StopData] checkHeight is %d\n", eventEntity->fields.checkHeight);
-
-                    __this->PlayerInputActive(false, false);
-                    /*UnityEngine::RectInt::Object rect = { .fields = {
-                            .m_XMin =   (int32_t)-eventEntity->cast<UnityEngine::Component>()->get_transform()->get_position().fields.x,
-                            .m_YMin =   (int32_t)eventEntity->cast<UnityEngine::Component>()->get_transform()->get_position().fields.z - 1,
-                            .m_Width =  (int32_t)eventEntity->fields.size.fields.x,
-                            .m_Height = (int32_t)eventEntity->fields.size.fields.y,
-                        }
-                    };
-                    auto playerNowGrid = FieldObjectEntity::PositionToGrid(player->fields.worldPosition);
-                    __this->fields._heroMoveGridCenterFrontDir = __this->SetupHeroMoveGridCenterFrontDir(&rect, &playerNowGrid, &player->fields._oldGridPosition_k__BackingField);*/
                     player->StopCrossInputAndBicycle();
                     __this->JumpLabel(script, nullptr);
 
