@@ -24,7 +24,7 @@ static float punchingBagPushTime;
 
 
 // Contact script call
-const static int32_t CONTACTABLE_OGI = 556;
+const static int32_t CONTACTABLE_OGI = 578;
 
 static int32_t contactableObjIndex = -1;
 static float contactablePushTime;
