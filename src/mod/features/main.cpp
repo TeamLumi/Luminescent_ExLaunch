@@ -122,6 +122,8 @@ void CallFeatureHooks()
         exl_pushable_entities_main();
     if (IsActivatedFeature(array_index(FEATURES, "Select Poffin Case")))
         exl_select_poffin_case_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Fake StopData")))
+        exl_fake_stopdata_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

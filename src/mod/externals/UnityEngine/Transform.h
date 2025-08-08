@@ -91,6 +91,12 @@ namespace UnityEngine {
             };
         }
 
+        inline void RotateAround(UnityEngine::Vector3::Object point, UnityEngine::Vector3::Object axis, float angle) {
+            UnityEngine::Vector3::Fields pointProxy = { .x = point.fields.x, .y = point.fields.y, .z = point.fields.z };
+            UnityEngine::Vector3::Fields axisProxy = { .x = axis.fields.x, .y = axis.fields.y, .z = axis.fields.z };
+            external<void>(0x0299ec40, this, pointProxy, axisProxy, angle);
+        }
+
         // utility functions
         UnityEngine::Transform::Object* GetChild(std::initializer_list<std::int32_t> index) {
             UnityEngine::Transform* transform = this;

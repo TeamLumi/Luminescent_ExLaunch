@@ -1,5 +1,6 @@
 #include "externals/il2cpp-api.h"
 
+#include "externals/EntityManager.h"
 #include "externals/EvData.h"
 #include "externals/FieldPoketch.h"
 #include "externals/PlayerWork.h"
@@ -115,4 +116,18 @@ bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t m
     }
 
     return added;
+}
+
+UnityEngine::Transform::Object* FindTransform(System::String::Object* name)
+{
+    EntityManager::getClass()->initIfNeeded();
+
+    auto go = System::String::op_Equality(name, System::String::Create("HERO")) ?
+              EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField->cast<UnityEngine::Component>()->get_gameObject()->instance() :
+              UnityEngine::GameObject::Find(name);
+
+    if (go == nullptr)
+        return nullptr;
+    else
+        return go->get_transform();
 }

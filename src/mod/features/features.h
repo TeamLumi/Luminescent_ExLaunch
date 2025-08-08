@@ -76,6 +76,9 @@ void exl_evolution_methods_main();
 // Redirects TM learnsets to external JSON files that contain more data.
 void exl_extended_tm_learnsets_main();
 
+// Allows using FieldEventEntity components in a map prefab to simulate stopdata.
+void exl_fake_stopdata_main();
+
 // Allows dynamically changing Pokémon icons based on the Pokémon's Form Argument.
 void exl_form_arg_icons_main();
 

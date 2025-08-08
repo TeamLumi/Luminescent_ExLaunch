@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Effect/EffectInstance.h"
+#include "externals/FieldObjectEntity.h"
 #include "externals/System/Action.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/Material.h"
@@ -88,5 +89,13 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     inline int32_t get_areaID() {
         return external<int32_t>(0x01797f90, this);
+    }
+
+    inline void RequestAttributeEffect(FieldObjectEntity::Object* entity, int32_t attri) {
+        external<void>(0x017a0090, this, entity, attri);
+    }
+
+    inline void RequestAttributeSE(FieldObjectEntity::Object* entity, int32_t attri) {
+        external<void>(0x017a0130, this, entity, attri);
     }
 };

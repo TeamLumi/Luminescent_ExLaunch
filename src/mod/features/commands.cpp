@@ -124,6 +124,14 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(DelPoffin(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TRAINER_DEFEATED_COUNT:
                     return HandleCmdStepper(TrainerDefeatedCount(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ATTACH_TRANSFORM:
+                    return HandleCmdStepper(AttachTransform(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE:
+                    return HandleCmdStepper(GameObjectRotate(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_LEDGE_JUMP:
+                    return HandleCmdStepper(LedgeJump(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE:
+                    return HandleCmdStepper(JumpAndRotate(__this));
                 default:
                     break;
             }
@@ -187,4 +195,8 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_POFFIN_FLAVOR);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_DEL_POFFIN);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TRAINER_DEFEATED_COUNT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ATTACH_TRANSFORM);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LEDGE_JUMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE);
 }

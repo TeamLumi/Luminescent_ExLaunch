@@ -1284,6 +1284,10 @@ namespace Dpr::EvScript {
             _GET_POFFIN_FLAVOR = 1274,
             _DEL_POFFIN = 1275,
             _TRAINER_DEFEATED_COUNT = 1276,
+            _ATTACH_TRANSFORM = 1277,
+            _GAMEOBJECT_ROTATE = 1278,
+            _LEDGE_JUMP = 1279,
+            _JUMP_AND_ROTATE = 1280,
 
             CUSTOM_CMD_END = 1500,
         };

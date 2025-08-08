@@ -697,6 +697,18 @@ static constexpr const char *AREAS[] = {
     "Galactic HQ - Speech Room",
     "Distortion World 2",
     "Veilstone - Department Store B1F",
+    "Sunyshore - Regieleki Room",
+    "Route 210 - Regidrago Room (North)",
+    "Eterna Forest - Grotto",
+    "Route 212 - Grotto (South)",
+    "Route 214 - Grotto",
+    "Route 217 - Grotto",
+    "Oldlore Town",
+    "Oldlore - Large House",
+    "Oldlore - House 1 (West)",
+    "Oldlore - House 2 (Center)",
+    "Oldlore - House 3 (South)",
+    "Ilex Forest",
 };
 
 static constexpr const char *AREA_CODES[] = {
@@ -1396,6 +1408,18 @@ static constexpr const char *AREA_CODES[] = {
     "D26R0109",
     "DISTORTIONR0102",
     "C07R0207",
+    "C08R0901",
+    "R210BR0201",
+    "GROTTOR0101",
+    "GROTTOR0201",
+    "GROTTOR0301",
+    "GROTTOR0401",
+    "T08",
+    "T08R0101",
+    "T08R0201",
+    "T08R0301",
+    "T08R0401",
+    "JOHTOD01R0101",
 };
 
 constexpr int AREA_COUNT = sizeof(AREAS) / sizeof(AREAS[0]);

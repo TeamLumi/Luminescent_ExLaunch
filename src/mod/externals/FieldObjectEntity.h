@@ -39,6 +39,11 @@ struct FieldObjectEntity : ILClass<FieldObjectEntity> {
     static inline DIR GetDir(float dir) {
         return external<DIR>(0x01d55140, dir);
     }
+
+    static inline UnityEngine::Vector2Int::Object PositionToGrid(UnityEngine::Vector3::Object position) {
+        UnityEngine::Vector3::Fields positionProxy = { .x = position.fields.x, .y = position.fields.y, .z = position.fields.z };
+        return external<UnityEngine::Vector2Int::Object>(0x01d54ae0, positionProxy);
+    }
 };
 
 namespace System::Collections::Generic {
