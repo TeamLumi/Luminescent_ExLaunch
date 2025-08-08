@@ -29,6 +29,14 @@ bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager) {
             objTF->set_localPosition({ .fields = { .x = 0.0f, .y = 0.0f, .z = 0.0f } });
         objTF->SetParent(parentTF, worldPositionStays);
     }
+    else
+    {
+        if (objTF == nullptr)
+            Logger::log("Could not find object %s???\n", GetStringText(manager, args->m_Items[1])->asCString().c_str());
+
+        if (parentTF == nullptr)
+            Logger::log("Could not find parent %s???\n", GetStringText(manager, args->m_Items[2])->asCString().c_str());
+    }
 
     return true;
 }
