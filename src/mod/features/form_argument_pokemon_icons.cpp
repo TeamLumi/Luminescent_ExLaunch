@@ -8,6 +8,18 @@
 #include "externals/UnityEngine/Events/UnityAction.h"
 #include "logger/logger.h"
 
+System::String::Object* GetEggSpriteName(Pml::PokePara::CoreParam::Object* coreParam, System::String::Object* baseName)
+{
+    uint8_t type = coreParam->GetType1();
+    return System::String::Concat(baseName, System::String::Create("_" + nn::to_string(type, "%02d")));
+}
+
+System::String::Object* GetVariantSpriteName(Pml::PokePara::CoreParam::Object* coreParam, System::String::Object* baseName)
+{
+    uint32_t formArg = coreParam->GetMultiPurposeWork();
+    return System::String::Concat(baseName, System::String::Create("_" + nn::to_string(formArg, "%02d")));
+}
+
 HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
     static void Callback(Dpr::UI::UIManager::Object* __this, Pml::PokePara::PokemonParam::Object* pokemonParam, UnityEngine::Events::UnityAction::Object* onComplete) {
         system_load_typeinfo(0x9c0b);
@@ -29,14 +41,26 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
             //case array_index(SPECIES, "Gyarados"): TODO: Eventually add Gyarados icons to this
             case array_index(SPECIES, "Alcremie"):
             {
-                uint32_t formArg = coreParam->GetMultiPurposeWork();
-                assetName = System::String::Concat(data->fields.AssetName, System::String::Create("_" + nn::to_string(formArg, "%02d")));
+                if (isEgg)
+                    assetName = GetEggSpriteName(coreParam, data->fields.AssetName);
+                else
+                    assetName = GetVariantSpriteName(coreParam, data->fields.AssetName);
+            }
+            break;
+
+            case array_index(SPECIES, "Manaphy"):
+            {
+                // Don't do the special egg type logic
+                assetName = data->fields.AssetName;
             }
             break;
 
             default:
             {
-                assetName = data->fields.AssetName;
+                if (isEgg)
+                    assetName = GetEggSpriteName(coreParam, data->fields.AssetName);
+                else
+                    assetName = data->fields.AssetName;
             }
             break;
         }

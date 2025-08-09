@@ -18,6 +18,9 @@ namespace Dpr::UI {
             int32_t _PreState_k__BackingField;
         };
 
+        static_assert(offsetof(Fields, _PreState_k__BackingField) == 0x30);
+        static_assert(sizeof(Fields) == 0x38);
+
         inline void OnUpdate(bool isAppControlEnable, Dpr::UI::PoketchButton::Object* currentButton, int32_t currentState) {
             external<void>(0x019ffa60, this, isAppControlEnable, currentButton, currentState);
         }

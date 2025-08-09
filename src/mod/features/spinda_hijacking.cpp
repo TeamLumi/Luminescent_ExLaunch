@@ -4,11 +4,18 @@
 #include "data/utils.h"
 
 #include "externals/BattlePokemonEntity.h"
+#include "externals/Dpr/Battle/View/Objects/BOPokemon.h"
 #include "externals/Dpr/PatcheelPattern.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/PokemonCustomNodeAnim.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "logger/logger.h"
+
+// Workaround to simplify the assembly to write
+void PatcheelPattern_Timeline_Tweak(Dpr::PatcheelPattern::Object* __this, uint32_t personalRand, Dpr::Battle::View::Objects::BOPokemon::Object* boPokemon)
+{
+    __this->SetPattern(personalRand, boPokemon->fields._param);
+}
 
 HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
     // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
@@ -20,6 +27,34 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
         {
             Logger::log("[PatcheelPattern$$SetPattern] Did not receive a PokemonParam...\n");
             Orig(__this, personalRand, nullptr);
+        }
+        else if (param->cast<Pml::PokePara::CoreParam>()->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG))
+        {
+            Logger::log("[PatcheelPattern$$SetPattern] Egg\n");
+
+            auto go = ((UnityEngine::Component::Object *) __this)->get_gameObject()->instance();
+            auto renderers = go->GetComponentsInChildren(true, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
+
+            UnityEngine::Renderer::Object* renderer = nullptr;
+            if (renderers != nullptr)
+            {
+                for (uint64_t i=0; i<renderers->max_length; i++)
+                {
+                    renderer = (UnityEngine::Renderer::Object*)renderers->m_Items[i];
+                    if (((UnityEngine::_Object::Object*)renderer)->GetName()->asCString().find("Patcheel") != nn::string::npos)
+                        break;
+                }
+            }
+
+            if (renderer != nullptr)
+            {
+                auto patcheelMats = renderer->get_materials();
+                uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetType1() % patcheelMats->max_length;
+                Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
+
+                for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
+                    ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id]);
+            }
         }
         else
         {
@@ -102,7 +137,7 @@ HOOK_DEFINE_REPLACE(BattlePokemonEntity$$SetPatcheelPattern) {
         UnityEngine::_Object::getClass()->initIfNeeded();
 
         if (UnityEngine::_Object::op_Inequality((UnityEngine::_Object::Object*)__this->fields._patcheelPattern_k__BackingField, nullptr))
-            __this->fields._patcheelPattern_k__BackingField->SetPatcheelPattern(rand, param);
+            __this->fields._patcheelPattern_k__BackingField->SetPattern(rand, param);
     }
 };
 
@@ -129,4 +164,9 @@ void exl_spinda_hijacking_main() {
         { 0x018d6068, LdrRegisterImmediate(X2, X8, 0x2 /*X8 + 0x10*/) }, // UgMainProc.<>c__DisplayClass9_0$$<CreatePoke>b__0
     };
     p.WriteInst(inst);
+
+    // TimeLineMotion$$Update
+    p.Seek(0x019afe40);
+    p.WriteInst(LdrRegisterImmediate(X2, X19, 0x5 /*X19 + 0x28*/));
+    p.BranchLinkInst((void*)&PatcheelPattern_Timeline_Tweak);
 }
