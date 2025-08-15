@@ -5,17 +5,13 @@
 
 #include "externals/BattlePokemonEntity.h"
 #include "externals/Dpr/Battle/View/Objects/BOPokemon.h"
+#include "externals/Dpr/Demo/Demo_Hatch.h"
 #include "externals/Dpr/PatcheelPattern.h"
+#include "externals/Dpr/SubContents/TimeLineMotion.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/PokemonCustomNodeAnim.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "logger/logger.h"
-
-// Workaround to simplify the assembly to write
-void PatcheelPattern_Timeline_Tweak(Dpr::PatcheelPattern::Object* __this, uint32_t personalRand, Dpr::Battle::View::Objects::BOPokemon::Object* boPokemon)
-{
-    __this->SetPattern(personalRand, boPokemon->fields._param);
-}
 
 HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
     // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
@@ -147,10 +143,56 @@ HOOK_DEFINE_REPLACE(PatcheelPattern$$Awake) {
     }
 };
 
+HOOK_DEFINE_INLINE(TimeLineBinder$$Bind_b__30_0) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto pokeParam = (Pml::PokePara::PokemonParam::Object*)ctx->X[0];
+        auto motion = (Dpr::SubContents::TimeLineMotion::Object*)ctx->X[20];
+
+        // Sneak a PokemonParam in there :)
+        motion->fields.boPokemon = (Dpr::Battle::View::Objects::BOPokemon::Object*)pokeParam;
+
+        ctx->W[0] = pokeParam->cast<Pml::PokePara::CoreParam>()->GetPersonalRnd();
+    }
+};
+
+HOOK_DEFINE_INLINE(TimeLineMotion$$Update) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto patcheel = (Dpr::PatcheelPattern::Object*)ctx->X[0];
+        auto __this = (Dpr::SubContents::TimeLineMotion::Object*)ctx->X[19];
+        patcheel->SetPattern(__this->fields.Pattern, (Pml::PokePara::PokemonParam::Object*)__this->fields.boPokemon);
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(Demo_Hatch_DisplayClass9_0$$Enter_b__2) {
+    // Setting the pattern for the egg
+    static void Callback(Dpr::Demo::Demo_Hatch::DisplayClass9_0::Object* __this, UnityEngine::_Object::Object* asset) {
+        Orig(__this, asset);
+
+        system_load_typeinfo(0x98bd);
+
+        if (System::String::op_Equality(asset->get_Name(), __this->fields.tamagoCatalog->fields.AssetBundleName)) {
+            auto pokeParam = __this->fields.__4__this->fields.param;
+            auto go = (UnityEngine::GameObject::Object*)asset;
+            auto patcheel = go->GetComponent(UnityEngine::GameObject::Method$$PatcheelPattern$$GetComponent);
+            if (UnityEngine::_Object::op_Inequality(patcheel->cast<UnityEngine::_Object>(), nullptr)) {
+                auto eggPokeParam = Pml::PokePara::PokemonParam::newInstance(pokeParam);
+                eggPokeParam->cast<Pml::PokePara::CoreParam>()->ChangeEgg();
+                patcheel->SetPattern(pokeParam->cast<Pml::PokePara::CoreParam>()->GetPersonalRnd(), eggPokeParam);
+            }
+        }
+    }
+};
+
 void exl_spinda_hijacking_main() {
     PatcheelPattern$$SetPattern::InstallAtOffset(0x01bcb200);
     BattlePokemonEntity$$SetPatcheelPattern::InstallAtOffset(0x01d77990);
     PatcheelPattern$$Awake::InstallAtOffset(0x01bcb1f0);
+
+    TimeLineBinder$$Bind_b__30_0::InstallAtOffset(0x0186687c);
+    TimeLineMotion$$Update::InstallAtOffset(0x01869978);
+
+    // Egg in hatching Demo
+    Demo_Hatch_DisplayClass9_0$$Enter_b__2::InstallAtOffset(0x01ad8260);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
@@ -164,9 +206,4 @@ void exl_spinda_hijacking_main() {
         { 0x018d6068, LdrRegisterImmediate(X2, X8, 0x2 /*X8 + 0x10*/) }, // UgMainProc.<>c__DisplayClass9_0$$<CreatePoke>b__0
     };
     p.WriteInst(inst);
-
-    // TimeLineMotion$$Update
-    p.Seek(0x019afe40);
-    p.WriteInst(LdrRegisterImmediate(X2, X19, 0x5 /*X19 + 0x28*/));
-    p.BranchLinkInst((void*)&PatcheelPattern_Timeline_Tweak);
 }
