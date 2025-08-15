@@ -153,7 +153,7 @@ ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* var
 
 void UpdateColorVariation(ColorVariation::Object* variation) {
     auto name = variation->cast<UnityEngine::Component>()->get_gameObject()->cast<UnityEngine::_Object>()->get_Name()->asCString();
-    Logger::log("Setting variation %d for %s...\n", variation->fields.ColorIndex, name.c_str());
+    //Logger::log("Setting variation %d for %s...\n", variation->fields.ColorIndex, name.c_str());
 
     system_load_typeinfo(0x2c09);
     ColorVariation::Property::Array* properties = GetEditedProperty00(variation, variation->fields.ColorIndex);

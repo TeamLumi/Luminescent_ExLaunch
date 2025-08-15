@@ -45,11 +45,11 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
             if (renderer != nullptr)
             {
                 auto patcheelMats = renderer->get_materials();
-                uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetType1() % patcheelMats->max_length;
+                uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetType1() % (patcheelMats->max_length - 1);
                 Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
 
                 for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
-                    ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id]);
+                    ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id+1]);
             }
         }
         else
@@ -85,11 +85,11 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     if (renderer != nullptr)
                     {
                         auto patcheelMats = renderer->get_materials();
-                        uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork() % patcheelMats->max_length;
+                        uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork() % (patcheelMats->max_length - 1);
                         Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
 
                         for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
-                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id]);
+                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id+1]);
                     }
                 }
                 break;
