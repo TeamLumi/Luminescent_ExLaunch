@@ -151,18 +151,40 @@ ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* var
     return properties;
 }
 
+void UpdateColorVariation(ColorVariation::Object* variation) {
+    auto name = variation->cast<UnityEngine::Component>()->get_gameObject()->cast<UnityEngine::_Object>()->get_Name()->asCString();
+    Logger::log("Setting variation %d for %s...\n", variation->fields.ColorIndex, name.c_str());
+
+    system_load_typeinfo(0x2c09);
+    ColorVariation::Property::Array* properties = GetEditedProperty00(variation, variation->fields.ColorIndex);
+
+    if (variation->fields.propertyBlock != nullptr)
+    {
+        for (uint64_t i=0; i<properties->max_length; i++)
+        {
+            properties->m_Items[i].Update(variation->fields.propertyBlock);
+        }
+    }
+}
+
+void SetColorIndexFromInline(exl::hook::nx64::InlineCtx* ctx, int32_t variationRegister, int32_t indexRegister) {
+    auto variation = (ColorVariation::Object*)ctx->X[variationRegister];
+    auto index = (int32_t)ctx->W[indexRegister];
+
+    variation->fields.ColorIndex = index;
+    UpdateColorVariation(variation);
+}
+
 HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
     static void Callback(ColorVariation::Object* __this) {
-        system_load_typeinfo(0x2c09);
-        ColorVariation::Property::Array* properties = GetEditedProperty00(__this, __this->fields.ColorIndex);
+        // Do nothing, it's done in OnEnable now
+    }
+};
 
-        if (__this->fields.propertyBlock != nullptr)
-        {
-            for (uint64_t i=0; i<properties->max_length; i++)
-            {
-                properties->m_Items[i].Update(__this->fields.propertyBlock);
-            }
-        }
+HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
+    static void Callback(ColorVariation::Object* __this) {
+        Orig(__this);
+        UpdateColorVariation(__this);
     }
 };
 
@@ -208,8 +230,69 @@ HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
     }
 };
 
+HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 26, 0);
+    }
+};
+
+HOOK_DEFINE_INLINE(BattleCharacterEntity$$SetSkinColor_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 8, 19);
+    }
+};
+
+HOOK_DEFINE_INLINE(UIModelViewController$$SetupCharacterModel_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 20, 0);
+    }
+};
+
+HOOK_DEFINE_INLINE(FieldConnector_SetupOperation$$MoveNext_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 21, 0);
+    }
+};
+
+HOOK_DEFINE_INLINE(EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 21, 0);
+    }
+};
+
+HOOK_DEFINE_INLINE(TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 22, 8);
+    }
+};
+
+HOOK_DEFINE_INLINE(TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 23, 8);
+    }
+};
+
+HOOK_DEFINE_INLINE(ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 8, 23);
+    }
+};
+
+HOOK_DEFINE_INLINE(UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 8, 9);
+    }
+};
+
+HOOK_DEFINE_INLINE(UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        SetColorIndexFromInline(ctx, 8, 9);
+    }
+};
+
 void exl_color_variations_main() {
     ColorVariation_LateUpdate::InstallAtOffset(0x018ecd90);
+    ColorVariation_OnEnable::InstallAtOffset(0x018ecd20);
 
     GetColorID::InstallAtOffset(0x0203d3f0);
     GetColorID::InstallAtOffset(0x02cef820);
@@ -217,12 +300,23 @@ void exl_color_variations_main() {
     SetColorID::InstallAtOffset(0x02cef870);
     SetColorID_Inline::InstallAtOffset(0x02cf3c7c);
 
-    SetColorID_TrainerParam_StoreCore::InstallAtOffset(0x020387c4);
-
     CardModelViewController_LoadModels::InstallAtOffset(0x01a315a4);
 
+    EvDataManager$$LoadObjectCreate_Asset_InlineColorID::InstallAtOffset(0x02ca4e34);
+    BattleCharacterEntity$$SetSkinColor_InlineColorID::InstallAtOffset(0x01d68454);
+    UIModelViewController$$SetupCharacterModel_InlineColorID::InstallAtOffset(0x01a0fcb4);
+    FieldConnector_SetupOperation$$MoveNext_InlineColorID::InstallAtOffset(0x0178e98c);
+    EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID::InstallAtOffset(0x02c90dd4);
+    TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID::InstallAtOffset(0x02cb3ad0);
+    TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID::InstallAtOffset(0x02cb40a8);
+    ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x018e40fc);
+    UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID::InstallAtOffset(0x01b18728);
+    UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x019e0c4c);
+
+    // Inline edits when making a player trainer
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0x020388ac);
     p.WriteInst(Nop());
+    SetColorID_TrainerParam_StoreCore::InstallAtOffset(0x020387c4);
 }

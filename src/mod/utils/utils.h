@@ -22,3 +22,13 @@ int32_t VerticalClamp(int32_t hSelection, int32_t hCount, int32_t vSelection, in
 
 // Stored Move Tutor tables vector.
 nn::vector<int32_t>* GetGTutorTables();
+
+
+// Convert a zone ID to a zone code.
+System::String::Object* Convert_ZoneID(void* typeinfo, int32_t* zoneId);
+
+// Convert an area ID to an area code.
+System::String::Object* Convert_AreaID(void* typeinfo, int32_t* areaId);
+
+// Convert a zone ID to its arrive flag.
+int32_t ConvertZoneIDToArriveFlag(int32_t zoneId);

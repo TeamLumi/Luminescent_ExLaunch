@@ -242,5 +242,9 @@ namespace Pml::PokePara {
         inline bool HaveWaza(int32_t wazano) {
             return external<bool>(0x02045ea0, this, wazano);
         }
+
+        inline void ChangeEgg() {
+            external<void>(0x02049450, this);
+        }
     };
 }
