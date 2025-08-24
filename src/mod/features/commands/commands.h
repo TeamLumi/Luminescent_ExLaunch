@@ -334,3 +334,8 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] relativeHeight: Unknown. (Default is 0.75)
 //   [Work, Number] relativeLower: Unknown. (Default is -0.5)
 bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Waits for a specific GameObject to exist. WARNING: Will completely get stuck on this command if it cannot ever find the GameObject.
+// Arguments:
+//   [String] gameObject: The name of the GameObject to wait on.
+bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager);
