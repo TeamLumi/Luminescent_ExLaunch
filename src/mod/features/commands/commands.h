@@ -22,6 +22,12 @@ bool FirstPokeNoGet(Dpr::EvScript::EvDataManager::Object* manager);
 //   None.
 bool HoneyTreeBattleSet(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Sets an entity's yaw angle.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] angle: The value to set the angle to.
+bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Stops a Field Effect.
 // Arguments:
 //   [Work, Number] index: The index of the field effect to stop. 0-10
