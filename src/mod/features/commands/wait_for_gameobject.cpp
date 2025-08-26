@@ -6,7 +6,7 @@
 #include "logger/logger.h"
 
 bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager) {
-    Logger::log("_WAIT_FOR_GAMEOBJECT\n");
+    //Logger::log("_WAIT_FOR_GAMEOBJECT\n");
 
     system_load_typeinfo(0x4af3);
 
