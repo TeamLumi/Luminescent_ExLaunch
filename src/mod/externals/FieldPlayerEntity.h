@@ -16,7 +16,7 @@
 #include "externals/UnityEngine/Vector3.h"
 #include "externals/XLSXContent/MapAttributeTable.h"
 
-struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
+struct FieldPlayerEntity : ILClass<FieldPlayerEntity, 0x04c5ed88> {
     struct Fields : FieldCharacterEntity::Fields {
         UnityEngine::Renderer::Array* _hatRenderers;
         UnityEngine::Renderer::Array* _shoesRenderers;

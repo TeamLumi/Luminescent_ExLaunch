@@ -1,17 +1,19 @@
 #pragma once
 
 #include "romdata/data/Arena.h"
+#include "romdata/data/BodyColorSet.h"
 #include "romdata/data/BoxOpenParam.h"
-#include "romdata/data/ColorSet.h"
 #include "romdata/data/FormHeldItemMon.h"
 #include "romdata/data/HoneyTreeEncounters.h"
 #include "romdata/data/IntroData.h"
 #include "romdata/data/LocalTrade.h"
+#include "romdata/data/PlayerWearColorSet.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
 #include "romdata/data/UnbreakablePokeItem.h"
+#include "romdata/data/WearColorSet.h"
 #include "romdata/data/ZoneRates.h"
 
 // Returns the max level based on the given level cap index.
@@ -35,8 +37,14 @@ RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo);
 // Returns the honey tree Pokémon at the given zoneID and slot.
 RomData::HoneyTreeSlot GetHoneyTreeSlot(int32_t zoneID, int32_t slot);
 
-// Returns a predefined color set for color variations.
-RomData::ColorSet GetColorSet(int32_t index);
+// Returns a predefined body color set for color variations.
+RomData::BodyColorSet GetBodyColorSet(int32_t index);
+
+// Returns a predefined outfit color set for player color variations.
+RomData::PlayerWearColorSet GetPlayerWearColorSet(int32_t outfit, int32_t index);
+
+// Returns a predefined outfit color set for npc color variations.
+RomData::WearColorSet GetNPCWearColorSet(int32_t ogi, int32_t index, bool battle);
 
 // Returns the full TM learnset of the given Pokémon.
 RomData::TMLearnset GetTMLearnset(int32_t monsno, int32_t formno);

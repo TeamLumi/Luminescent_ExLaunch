@@ -17,7 +17,7 @@ bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager)
 
     if (UnityEngine::_Object::op_Inequality((UnityEngine::_Object::Object*)entity, nullptr))
     {
-        Logger::log("Setting the angle of %s to %d\n", entity->cast<UnityEngine::_Object>()->get_Name()->asCString().c_str(), angle);
+        Logger::log("Setting the angle of %s to %d\n", entity->cast<UnityEngine::_Object>()->get_name()->asCString().c_str(), angle);
         entity->cast<BaseEntity>()->SetYawAngleDirect(angle + 360);
     }
     else

@@ -18,7 +18,7 @@ namespace UnityEngine {
             return external<System::String::Object*>(0x0268a940, this);
         }
 
-        System::String::Object* get_Name() {
+        System::String::Object* get_name() {
             return external<System::String::Object*>(0x02685f80, this);
         }
 

@@ -11,16 +11,30 @@ namespace ui {
                 _.label = "Color Variation Tool";
 
                 auto *indexSelector = _.InputInt([](InputInt &_) {
-                    _.label = "Index";
+                    _.label = "Body Index";
                     _.min = -1;
                     _.max = 255;
                     _.value = 0;
                 });
 
                 _.Button([indexSelector](Button &_) {
-                    _.label = "Set Color Variation";
+                    _.label = "Set Body Color Variation";
                     _.onClick = [indexSelector]() {
                         PlayerWork::set_colorID(indexSelector->value);
+                    };
+                });
+
+                auto *wearIndexSelector = _.InputInt([](InputInt &_) {
+                    _.label = "Wear Index";
+                    _.min = -1;
+                    _.max = 255;
+                    _.value = 0;
+                });
+
+                _.Button([wearIndexSelector](Button &_) {
+                    _.label = "Set Wear Color Variation";
+                    _.onClick = [wearIndexSelector]() {
+                        getCustomSaveData()->playerColorVariation.playerWearColorID = wearIndexSelector->value;
                     };
                 });
 

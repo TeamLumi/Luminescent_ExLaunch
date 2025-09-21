@@ -6,7 +6,7 @@
 #include "externals/UnityEngine/MaterialPropertyBlock.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 
-struct ColorVariation : ILClass<ColorVariation> {
+struct ColorVariation : ILClass<ColorVariation, 0x04c5a180> {
     struct Property : ILStruct<Property> {
         struct MaskColor : ILStruct<MaskColor> {
             struct Fields {
@@ -17,7 +17,7 @@ struct ColorVariation : ILClass<ColorVariation> {
         };
 
         struct Fields {
-            void* renderer;
+            UnityEngine::Renderer::Object* renderer;
             ColorVariation::Property::MaskColor::Array* colors;
         };
 

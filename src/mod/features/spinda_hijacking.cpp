@@ -170,7 +170,7 @@ HOOK_DEFINE_TRAMPOLINE(Demo_Hatch_DisplayClass9_0$$Enter_b__2) {
 
         system_load_typeinfo(0x98bd);
 
-        if (System::String::op_Equality(asset->get_Name(), __this->fields.tamagoCatalog->fields.AssetBundleName)) {
+        if (System::String::op_Equality(asset->get_name(), __this->fields.tamagoCatalog->fields.AssetBundleName)) {
             auto pokeParam = __this->fields.__4__this->fields.param;
             auto go = (UnityEngine::GameObject::Object*)asset;
             auto patcheel = go->GetComponent(UnityEngine::GameObject::Method$$PatcheelPattern$$GetComponent);

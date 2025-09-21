@@ -17,10 +17,10 @@ void migrateToReLease(PlayerWork::Object* playerWork) {
     save->settings.Initialize();
 
     // Set player color to the one in the vanilla save
-    save->playerColorVariation.playerColorID = myStatus.body_type;
+    save->playerColorVariation.playerBodyColorID = myStatus.body_type;
 
     // Set custom player color set to the one in the vanilla save
-    auto set = GetColorSet(myStatus.body_type);
+    auto set = GetBodyColorSet(myStatus.body_type);
     save->playerColorVariation.fSkinFace =  { .fields = { set.fieldSkinFace.r, set.fieldSkinFace.g, set.fieldSkinFace.b, set.fieldSkinFace.a } };
     save->playerColorVariation.fSkinMouth = { .fields = { set.fieldSkinMouth.r, set.fieldSkinMouth.g, set.fieldSkinMouth.b, set.fieldSkinMouth.a } };
     save->playerColorVariation.fEyes =      { .fields = { set.fieldEyes.r, set.fieldEyes.g, set.fieldEyes.b, set.fieldEyes.a } };

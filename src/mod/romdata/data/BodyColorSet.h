@@ -3,18 +3,11 @@
 #include "externals/il2cpp-api.h"
 #include "memory/json.h"
 #include "memory/vector.h"
+#include "romdata/data/Color.h"
 
 namespace RomData
 {
-    struct Color
-    {
-        float r;
-        float g;
-        float b;
-        float a;
-    };
-    
-    struct ColorSet
+    struct BodyColorSet
     {
         // Field
         Color fieldSkinFace;
@@ -50,25 +43,7 @@ namespace RomData
     };
 
     JSON_TEMPLATE
-    void to_json(GENERIC_JSON& j, const Color& c) {
-        j = nn::json {
-            {"r", c.r},
-            {"g", c.g},
-            {"b", c.b},
-            {"a", c.a},
-        };
-    }
-
-    JSON_TEMPLATE
-    void from_json(const GENERIC_JSON& j, Color& c) {
-        j.at("r").get_to(c.r);
-        j.at("g").get_to(c.g);
-        j.at("b").get_to(c.b);
-        j.at("a").get_to(c.a);
-    }
-
-    JSON_TEMPLATE
-    void to_json(GENERIC_JSON& j, const ColorSet& s) {
+    void to_json(GENERIC_JSON& j, const BodyColorSet& s) {
         j = nn::json {
             {"fieldSkinFace", s.fieldSkinFace},
             {"fieldSkinMouth", s.fieldSkinMouth},
@@ -86,7 +61,7 @@ namespace RomData
     }
 
     JSON_TEMPLATE
-    void from_json(const GENERIC_JSON& j, ColorSet& s) {
+    void from_json(const GENERIC_JSON& j, BodyColorSet& s) {
         j.at("fieldSkinFace").get_to(s.fieldSkinFace);
         j.at("fieldSkinMouth").get_to(s.fieldSkinMouth);
         j.at("fieldEyes").get_to(s.fieldEyes);
