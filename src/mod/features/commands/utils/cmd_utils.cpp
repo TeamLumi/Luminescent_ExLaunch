@@ -131,3 +131,19 @@ UnityEngine::Transform::Object* FindTransform(System::String::Object* name)
     else
         return go->get_transform();
 }
+
+FieldObjectEntity::Object* FindEntity(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg)
+{
+    switch ((EvData::ArgType)arg.fields.argType)
+    {
+        case EvData::ArgType::String:
+            return manager->Find_fieldObjectEntity(GetStringText(manager, arg))->instance();
+
+        case EvData::ArgType::Float:
+        case EvData::ArgType::Work:
+            return manager->GetFieldObject(GetWorkOrIntValue(arg))->instance();
+
+        default:
+            return nullptr;
+    }
+}

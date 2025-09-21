@@ -40,6 +40,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(FirstPokeNoGet(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET:
                     return HandleCmdStepper(HoneyTreeBattleSet(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE:
+                    return HandleCmdStepper(ObjDirChange(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE:
+                    return HandleCmdStepper(ObjDirChange(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT:
                     return HandleCmdStepper(StopEffect(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO:
@@ -132,6 +136,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(LedgeJump(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE:
                     return HandleCmdStepper(JumpAndRotate(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT:
+                    return HandleCmdStepper(WaitForGameObject(__this));
                 default:
                     break;
             }
@@ -153,6 +159,8 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO);
@@ -199,4 +207,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LEDGE_JUMP);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT);
 }

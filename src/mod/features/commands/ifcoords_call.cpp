@@ -12,12 +12,7 @@ bool IfCoordsCall(Dpr::EvScript::EvDataManager::Object* manager) {
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 
-    auto id = GetStringText(manager, args->m_Items[1]);
-    FieldObjectEntity::Object* entity;
-    if (System::String::op_Equality(id, System::String::Create("")))
-        entity = Dpr::EvScript::EvDataManager::get_Instanse()->GetFieldObject(GetWorkOrIntValue(args->m_Items[1]))->instance();
-    else
-        entity = Dpr::EvScript::EvDataManager::get_Instanse()->Find_fieldObjectEntity(id)->instance();
+    FieldObjectEntity::Object* entity = FindEntity(manager, args->m_Items[1]);
 
     auto currentGrid = entity->get_gridPosition();
     int32_t currentX = currentGrid.fields.m_X;
