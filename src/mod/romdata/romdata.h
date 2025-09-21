@@ -1,5 +1,7 @@
 #pragma once
 
+#include "externals/System/String.h"
+
 #include "romdata/data/Arena.h"
 #include "romdata/data/BodyColorSet.h"
 #include "romdata/data/BoxOpenParam.h"
@@ -7,11 +9,14 @@
 #include "romdata/data/HoneyTreeEncounters.h"
 #include "romdata/data/IntroData.h"
 #include "romdata/data/LocalTrade.h"
+#include "romdata/data/PlaceData.h"
 #include "romdata/data/PlayerWearColorSet.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
+#include "romdata/data/Trainer.h"
+#include "romdata/data/TrainerType.h"
 #include "romdata/data/UnbreakablePokeItem.h"
 #include "romdata/data/WearColorSet.h"
 #include "romdata/data/ZoneRates.h"
@@ -102,5 +107,11 @@ int32_t RollForSmeargleColor(int32_t zoneID);
 
 // Returns the extra BoxOpenParam data.
 RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
+
+// Returns the extra PlaceData data.
+RomData::PlaceData GetExtraPlaceDataData(int32_t zoneID, System::String::Object* placeDataID);
+
+// Returns the extra Trainer data.
+RomData::Trainer GetExtraTrainerData(int32_t id);
 
 void LoadFeaturesFromJSON(nn::json j);

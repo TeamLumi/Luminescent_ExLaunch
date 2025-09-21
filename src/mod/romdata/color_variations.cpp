@@ -53,7 +53,6 @@ RomData::BodyColorSet GetBodyColorSet(int32_t index)
 
 RomData::PlayerWearColorSet GetPlayerWearColorSet(int32_t outfit, int32_t index)
 {
-    Logger::log("outfit = %d, index = %d\n", outfit, index);
     nn::string filePath(colorVariationWearPlayerFolderPath);
     filePath.append("outfit_" + nn::to_string(outfit) + "_set_" + nn::to_string(index) + ".json");
 

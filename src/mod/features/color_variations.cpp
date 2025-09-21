@@ -11,8 +11,8 @@
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/MaterialPropertyBlock.h"
 #include "externals/UnityEngine/UI/ListPool.h"
+#include "externals/XLSXContent/PlaceData.h"
 #include "save/save.h"
-#include "romdata/data/BodyColorSet.h"
 #include "romdata/romdata.h"
 
 #include "logger/logger.h"
@@ -283,7 +283,7 @@ ColorVariation::Property::Array* GetEditedProperty00ForBody(ColorVariation::Obje
     return properties;
 }
 
-ColorVariation::Property::Array* GetEditedProperty00ForWear(ColorVariation::Object* variation, int32_t index)
+ColorVariation::Property::Array* GetEditedProperty00ForWear(ColorVariation::Object* variation, int32_t index, int32_t outfit)
 {
     auto component = variation->cast<UnityEngine::Component>();
     auto gameObject = component->get_gameObject()->instance();
@@ -316,7 +316,10 @@ ColorVariation::Property::Array* GetEditedProperty00ForWear(ColorVariation::Obje
         }
         else if (player)
         {
-            auto fullSet = GetPlayerWearColorSet(PlayerWork::get_playerFashion(), index);
+            if (outfit == -1)
+                outfit = PlayerWork::get_playerFashion();
+
+            auto fullSet = GetPlayerWearColorSet(outfit, index);
             if (battle)
                 set = fullSet.wearBattle;
             else if (field)
@@ -324,11 +327,13 @@ ColorVariation::Property::Array* GetEditedProperty00ForWear(ColorVariation::Obje
         }
         else
         {
-            int32_t outfit = 0;
-            if (battle)
-                outfit = battleCharaEntity->fields._TrainerSimpleParam_k__BackingField.fields.trainerType;
-            else if (field)
-                outfit = fieldCharaEntity->fields.EventParams->fields.CharacterGraphicsIndex;
+            if (outfit == -1)
+            {
+                if (battle)
+                    outfit = battleCharaEntity->fields._TrainerSimpleParam_k__BackingField.fields.trainerType;
+                else if (field)
+                    outfit = fieldCharaEntity->fields.EventParams->fields.CharacterGraphicsIndex;
+            }
 
             set = GetNPCWearColorSet(outfit, index, battle);
         }
@@ -365,31 +370,31 @@ bool IsWearColorVariationComponent(ColorVariation::Object* variation)
 {
     // TODO: Replace with comparing the renderer name in Property01
     return variation->fields.Property00->m_Items[0].fields.colors->m_Items[0].fields.materialIndex == 2;
+
+    Logger::log("Renderer name \"%s\"\n", variation->fields.Property00->m_Items[0].fields.renderer->cast<UnityEngine::_Object>()->get_name()->asCString().c_str());
 }
 
-ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* variation, int32_t index)
+ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* variation, int32_t index, int32_t outfit)
 {
     system_load_typeinfo(0x2c09);
     system_load_typeinfo(0x9c60);
 
     ColorVariation::Property::Array* properties;
 
-    Logger::log("Renderer name \"%s\"\n", variation->fields.Property00->m_Items[0].fields.renderer->cast<UnityEngine::_Object>()->get_name()->asCString().c_str());
-
     if (IsWearColorVariationComponent(variation))
-        properties = GetEditedProperty00ForWear(variation, index);
+        properties = GetEditedProperty00ForWear(variation, index, outfit);
     else
         properties = GetEditedProperty00ForBody(variation, index);
 
     return properties;
 }
 
-void UpdateColorVariation(ColorVariation::Object* variation) {
+void UpdateColorVariation(ColorVariation::Object* variation, int32_t outfit) {
     auto name = variation->cast<UnityEngine::Component>()->get_gameObject()->cast<UnityEngine::_Object>()->get_name()->asCString();
     Logger::log("Setting variation %d for %s...\n", variation->fields.ColorIndex, name.c_str());
 
     system_load_typeinfo(0x2c09);
-    ColorVariation::Property::Array* properties = GetEditedProperty00(variation, variation->fields.ColorIndex);
+    ColorVariation::Property::Array* properties = GetEditedProperty00(variation, variation->fields.ColorIndex, outfit);
 
     if (variation->fields.propertyBlock != nullptr)
     {
@@ -400,11 +405,39 @@ void UpdateColorVariation(ColorVariation::Object* variation) {
     }
 }
 
+ColorVariation::Object* FindBodyColorVariation(UnityEngine::Component::Object* sibling, System::Collections::Generic::List$$Component::Object* list)
+{
+    System::RuntimeTypeHandle::Object handle{};
+    handle.fields.value = &ColorVariation::getClass()->_1.byval_arg;
+    sibling->GetComponents(System::Type::GetTypeFromHandle(handle), list);
+
+    // TODO: use the for below
+    if (list->fields._size > 0)
+        return (ColorVariation::Object*)list->fields._items->m_Items[0];
+    else
+        return nullptr;
+
+    for (int i=0; i<list->fields._size; i++)
+    {
+        auto variation = (ColorVariation::Object*)list->fields._items->m_Items[i];
+        if (!IsWearColorVariationComponent(variation))
+            return variation;
+    }
+
+    return nullptr;
+}
+
 ColorVariation::Object* FindWearColorVariation(UnityEngine::Component::Object* sibling, System::Collections::Generic::List$$Component::Object* list)
 {
     System::RuntimeTypeHandle::Object handle{};
     handle.fields.value = &ColorVariation::getClass()->_1.byval_arg;
     sibling->GetComponents(System::Type::GetTypeFromHandle(handle), list);
+
+    // TODO: use the for below
+    if (list->fields._size > 1)
+        return (ColorVariation::Object*)list->fields._items->m_Items[1];
+    else
+        return nullptr;
 
     for (int i=0; i<list->fields._size; i++)
     {
@@ -421,7 +454,7 @@ void SetColorIndexFromInline(exl::hook::nx64::InlineCtx* ctx, int32_t variationR
     auto index = (int32_t)ctx->W[indexRegister];
 
     variation->fields.ColorIndex = index;
-    UpdateColorVariation(variation);
+    UpdateColorVariation(variation, -1);
 }
 
 HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
@@ -433,7 +466,7 @@ HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
 HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
     static void Callback(ColorVariation::Object* __this) {
         Orig(__this);
-        UpdateColorVariation(__this);
+        UpdateColorVariation(__this, -1);
     }
 };
 
@@ -477,76 +510,215 @@ HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
 
         battleCharacterEntity->Initialize(trainerParam, isContest);
 
-        Logger::log("Load Card Model\n");
         auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
         auto wearVariation = FindWearColorVariation(battleCharacterEntity->cast<UnityEngine::Component>(), list);
+        auto wearIndex = getCustomSaveData()->playerColorVariation.playerWearColorID;
+
         if (wearVariation != nullptr)
         {
-            Logger::log("Set Wear to color ID: %d\n", getCustomSaveData()->playerColorVariation.playerWearColorID);
-            wearVariation->fields.ColorIndex = getCustomSaveData()->playerColorVariation.playerWearColorID;
-            UpdateColorVariation(wearVariation);
+            Logger::log("[CardModelViewController_LoadModels] Set Wear to color ID: %d\n", getCustomSaveData()->playerColorVariation.playerWearColorID);
+            wearVariation->fields.ColorIndex = wearIndex;
+            UpdateColorVariation(wearVariation, -1);
         }
+
         UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
     }
 };
 
 HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        SetColorIndexFromInline(ctx, 26, 0);
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto placeData = (XLSXContent::PlaceData::SheetData::Object*)ctx->X[24];
+        auto bodyVariation = FindBodyColorVariation(((UnityEngine::Component::Object*)ctx->X[22]), list);
+        auto wearVariation = FindWearColorVariation(((UnityEngine::Component::Object*)ctx->X[22]), list);
+        auto bodyIndex = (int32_t)ctx->W[0];
+        auto wearIndex = (int32_t)GetExtraPlaceDataData(placeData->fields.zoneID, placeData->fields.ID).wearVariation;
+
+        if (bodyVariation != nullptr)
+        {
+            Logger::log("[EvDataManager$$LoadObjectCreate_Asset_InlineColorID] Set Body to color ID: %d\n", bodyIndex);
+            bodyVariation->fields.ColorIndex = bodyIndex;
+            UpdateColorVariation(bodyVariation, -1);
+        }
+        if (wearVariation != nullptr)
+        {
+            Logger::log("[EvDataManager$$LoadObjectCreate_Asset_InlineColorID] Set Wear to color ID: %d\n", wearIndex);
+            wearVariation->fields.ColorIndex = wearIndex;
+            UpdateColorVariation(wearVariation, placeData->fields.ObjectGraphicIndex);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
     }
 };
 
 HOOK_DEFINE_INLINE(BattleCharacterEntity$$SetSkinColor_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        SetColorIndexFromInline(ctx, 8, 19);
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto battleChara = (BattleCharacterEntity::Object*)ctx->X[21];
+        auto bodyVariation = FindBodyColorVariation(((UnityEngine::Component::Object*)battleChara), list);
+        auto bodyIndex = (int32_t)ctx->W[19];
+
+        battleChara->fields._colorVariation = bodyVariation;
+        if (bodyVariation != nullptr)
+        {
+            Logger::log("[BattleCharacterEntity$$SetSkinColor_InlineColorID] Set Body to color ID: %d\n", bodyIndex);
+            bodyVariation->fields.ColorIndex = bodyIndex;
+            UpdateColorVariation(bodyVariation, -1);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
     }
 };
 
 HOOK_DEFINE_INLINE(UIModelViewController$$SetupCharacterModel_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        SetColorIndexFromInline(ctx, 20, 0);
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto bodyVariation = FindBodyColorVariation(((UnityEngine::Component::Object*)ctx->X[21]), list);
+        auto bodyIndex = (int32_t)ctx->W[0];
+
+        if (bodyVariation != nullptr)
+        {
+            Logger::log("[UIModelViewController$$SetupCharacterModel_InlineColorID] Set Body to color ID: %d\n", bodyIndex);
+            bodyVariation->fields.ColorIndex = bodyIndex;
+            UpdateColorVariation(bodyVariation, -1);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
     }
 };
 
 HOOK_DEFINE_INLINE(FieldConnector_SetupOperation$$MoveNext_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        SetColorIndexFromInline(ctx, 21, 0);
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto bodyVariation = FindBodyColorVariation(((UnityEngine::Component::Object*)ctx->X[20]), list);
+        auto wearVariation = FindWearColorVariation(((UnityEngine::Component::Object*)ctx->X[20]), list);
+        auto bodyIndex = (int32_t)ctx->W[0];
+        auto wearIndex = (int32_t)getCustomSaveData()->playerColorVariation.playerWearColorID;
+
+        if (bodyVariation != nullptr)
+        {
+            Logger::log("[FieldConnector_SetupOperation$$MoveNext_InlineColorID] Set Body to color ID: %d\n", bodyIndex);
+            bodyVariation->fields.ColorIndex = bodyIndex;
+            UpdateColorVariation(bodyVariation, -1);
+        }
+        if (wearVariation != nullptr)
+        {
+            Logger::log("[FieldConnector_SetupOperation$$MoveNext_InlineColorID] Set Wear to color ID: %d\n", wearIndex);
+            wearVariation->fields.ColorIndex = wearIndex;
+            UpdateColorVariation(wearVariation, -1);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
     }
 };
 
 HOOK_DEFINE_INLINE(EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        SetColorIndexFromInline(ctx, 21, 0);
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto bodyVariation = FindBodyColorVariation(((UnityEngine::Component::Object*)ctx->X[20]), list);
+        auto wearVariation = FindWearColorVariation(((UnityEngine::Component::Object*)ctx->X[20]), list);
+        auto bodyIndex = (int32_t)ctx->W[0];
+        auto wearIndex = (int32_t)getCustomSaveData()->playerColorVariation.playerWearColorID;
+
+        if (bodyVariation != nullptr)
+        {
+            Logger::log("[EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID] Set Body to color ID: %d\n", bodyIndex);
+            bodyVariation->fields.ColorIndex = bodyIndex;
+            UpdateColorVariation(bodyVariation, -1);
+        }
+        if (wearVariation != nullptr)
+        {
+            Logger::log("[EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID] Set Wear to color ID: %d\n", wearIndex);
+            wearVariation->fields.ColorIndex = wearIndex;
+            UpdateColorVariation(wearVariation, -1);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
     }
 };
 
+// Ignore for now, this was used in dev to record the credits
 HOOK_DEFINE_INLINE(TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         SetColorIndexFromInline(ctx, 22, 8);
     }
 };
 
+// Ignore for now, this was used in dev to record the credits
 HOOK_DEFINE_INLINE(TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         SetColorIndexFromInline(ctx, 23, 8);
     }
 };
 
+// Ignore for now, this is for online features I think
 HOOK_DEFINE_INLINE(ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         SetColorIndexFromInline(ctx, 8, 23);
     }
 };
 
+// Ignore for now, this is for online features I think
 HOOK_DEFINE_INLINE(UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         SetColorIndexFromInline(ctx, 8, 9);
     }
 };
 
+// Ignore for now, this is for online features I think
 HOOK_DEFINE_INLINE(UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         SetColorIndexFromInline(ctx, 8, 9);
+    }
+};
+
+HOOK_DEFINE_INLINE(UIModelViewController$$SetupCharacterModel_InlineWear) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto battleChara = (BattleCharacterEntity::Object*)ctx->X[0];
+        auto wearVariation = FindWearColorVariation(((UnityEngine::Component::Object*)battleChara), list);
+        auto wearIndex = getCustomSaveData()->playerColorVariation.playerWearColorID;
+
+        if (wearVariation != nullptr)
+        {
+            Logger::log("[UIModelViewController$$SetupCharacterModel_InlineWear] Set Wear to color ID: %d\n", wearIndex);
+            wearVariation->fields.ColorIndex = wearIndex;
+            UpdateColorVariation(wearVariation, -1);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
+
+        auto method = BattleCharacterEntity::getClass()->vtable._16_Initialize.method;
+        ctx->X[3] = (uint64_t)method;
+    }
+};
+
+HOOK_DEFINE_INLINE(TimeLineBinder$$Bind_b__30_0) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
+
+        auto battleChara = (BattleCharacterEntity::Object*)ctx->X[0];
+        auto wearVariation = FindWearColorVariation(((UnityEngine::Component::Object*)battleChara), list);
+        auto wearIndex = getCustomSaveData()->playerColorVariation.playerWearColorID;
+
+        if (wearVariation != nullptr)
+        {
+            Logger::log("[TimeLineBinder$$Bind_b__30_0] Set Wear to color ID: %d\n", wearIndex);
+            wearVariation->fields.ColorIndex = wearIndex;
+            UpdateColorVariation(wearVariation, -1);
+        }
+
+        UnityEngine::UI::ListPool::Release<System::Collections::Generic::List$$Component>(list, UnityEngine::UI::ListPool::Method$$Component$$Release);
+
+        auto method = BattleCharacterEntity::getClass()->vtable._16_Initialize.method;
+        ctx->X[3] = (uint64_t)method;
     }
 };
 
@@ -567,11 +739,18 @@ void exl_color_variations_main() {
     UIModelViewController$$SetupCharacterModel_InlineColorID::InstallAtOffset(0x01a0fcb4);
     FieldConnector_SetupOperation$$MoveNext_InlineColorID::InstallAtOffset(0x0178e98c);
     EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID::InstallAtOffset(0x02c90dd4);
-    TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID::InstallAtOffset(0x02cb3ad0);
-    TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID::InstallAtOffset(0x02cb40a8);
-    ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x018e40fc);
-    UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID::InstallAtOffset(0x01b18728);
-    UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x019e0c4c);
+
+    // Ignore for now, this was used in dev to record the credits I think
+    //TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID::InstallAtOffset(0x02cb3ad0);
+    //TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID::InstallAtOffset(0x02cb40a8);
+
+    // Ignore for now, these are for online features I think
+    //ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x018e40fc);
+    //UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID::InstallAtOffset(0x01b18728);
+    //UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x019e0c4c);
+
+    UIModelViewController$$SetupCharacterModel_InlineWear::InstallAtOffset(0x01a0fc2c);
+    TimeLineBinder$$Bind_b__30_0::InstallAtOffset(0x018665a0);
 
     // Inline edits when making a player trainer
     using namespace exl::armv8::inst;
