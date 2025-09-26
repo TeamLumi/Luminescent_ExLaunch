@@ -66,7 +66,7 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                 case array_index(SPECIES, "Arbok"):
                 case array_index(SPECIES, "Magikarp"):
                 {
-                    Logger::log("[PatcheelPattern$$SetPattern] Magikarp\n");
+                    Logger::log("[PatcheelPattern$$SetPattern] Arbok and Magikarp\n");
 
                     auto go = ((UnityEngine::Component::Object *) __this)->get_gameObject()->instance();
                     auto renderers = go->GetComponentsInChildren(true, UnityEngine::GameObject::Method$$SkinnedMeshRenderer$$GetComponentsInChildren);
@@ -90,6 +90,21 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
 
                         for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
                             ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_material(patcheelMats->m_Items[id+1]);
+                    }
+                }
+                break;
+
+                case array_index(SPECIES, "Pikachu"):
+                {
+                    if (param->cast<Pml::PokePara::CoreParam>()->GetFormNo() == 7)
+                    {
+                        Logger::log("[PatcheelPattern$$SetPattern] Cap Pikachu\n");
+
+                        uint32_t id = ((Pml::PokePara::CoreParam::Object*)param)->GetMultiPurposeWork();
+                        Logger::log("[PatcheelPattern$$SetPattern] Using id %d\n", id);
+
+                        for (uint64_t i=0; i<__this->fields.UVDatas->max_length; i++)
+                            ((UnityEngine::Renderer::Object*)__this->fields.UVDatas->m_Items[i]->fields.renderer)->set_enabled(i == (uint64_t)id);
                     }
                 }
                 break;

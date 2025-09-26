@@ -20,6 +20,22 @@ System::String::Object* GetVariantSpriteName(Pml::PokePara::CoreParam::Object* c
     return System::String::Concat(baseName, System::String::Create("_" + nn::to_string(formArg, "%02d")));
 }
 
+System::String::Object* GetSpriteNameForMonWithVariant(Pml::PokePara::CoreParam::Object* coreParam, System::String::Object* baseName)
+{
+    if (coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG))
+        return GetEggSpriteName(coreParam, baseName);
+    else
+        return GetVariantSpriteName(coreParam, baseName);
+}
+
+System::String::Object* GetSpriteNameForMonWithoutVariant(Pml::PokePara::CoreParam::Object* coreParam, System::String::Object* baseName)
+{
+    if (coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG))
+        return GetEggSpriteName(coreParam, baseName);
+    else
+        return baseName;
+}
+
 HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
     static void Callback(Dpr::UI::UIManager::Object* __this, Pml::PokePara::PokemonParam::Object* pokemonParam, UnityEngine::Events::UnityAction::Object* onComplete) {
         system_load_typeinfo(0x9c0b);
@@ -41,10 +57,16 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
             //case array_index(SPECIES, "Gyarados"): TODO: Eventually add Gyarados icons to this
             case array_index(SPECIES, "Alcremie"):
             {
-                if (isEgg)
-                    assetName = GetEggSpriteName(coreParam, data->fields.AssetName);
+                assetName = GetSpriteNameForMonWithVariant(coreParam, data->fields.AssetName);
+            }
+            break;
+
+            case array_index(SPECIES, "Pikachu"):
+            {
+                if (coreParam->GetFormNo() == 7)
+                    assetName = GetSpriteNameForMonWithVariant(coreParam, data->fields.AssetName);
                 else
-                    assetName = GetVariantSpriteName(coreParam, data->fields.AssetName);
+                    assetName = GetSpriteNameForMonWithoutVariant(coreParam, data->fields.AssetName);
             }
             break;
 
@@ -57,10 +79,7 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
 
             default:
             {
-                if (isEgg)
-                    assetName = GetEggSpriteName(coreParam, data->fields.AssetName);
-                else
-                    assetName = data->fields.AssetName;
+                assetName = GetSpriteNameForMonWithoutVariant(coreParam, data->fields.AssetName);
             }
             break;
         }
