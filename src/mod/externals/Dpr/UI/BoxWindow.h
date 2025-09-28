@@ -1,13 +1,51 @@
 #pragma once
+
 #include "externals/il2cpp-api.h"
-#include "externals/Dpr/UI/UIWindow.h"
-#include "BoxStatusPanel.h"
-#include "BoxTray.h"
+
 #include "externals/DG/Tweening/Tween.h"
+#include "externals/Dpr/UI/UIWindow.h"
+#include "externals/Dpr/UI/BoxStatusPanel.h"
+#include "externals/Dpr/UI/BoxTray.h"
 #include "externals/System/Action.h"
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
+        struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
+            struct Fields {
+                int32_t dispMode;
+                int32_t tray;
+                int32_t index;
+                int32_t teamIndex;
+                bool isSelectParty;
+                int32_t openType;
+                int32_t selectCount;
+                int32_t targetLevel;
+                bool isEnableDying;
+                bool isEnableEgg;
+                bool isEnableTeam;
+                bool isEnableParty;
+                bool isShowSelectCount;
+                bool isEnableKeyboard;
+                bool isOpenFromBattleTeam;
+                bool isDisableUseful;
+                bool isDisableDuplicate;
+                bool isDontDuckOffBGM;
+                bool isExternalTrade;
+                bool isGMS;
+                System::Int32_array* targetsPokeNo;
+                System::Int32_array* selectNgPokeNos;
+                System::String::Object* tradeName;
+                void* selected; // System_Collections_Generic_List_BoxWindow_SelectedPokemon__o*
+                void* searchData; // Dpr_UI_BoxWindow_SEARCH_DATA_o*
+            };
+
+            static_assert(offsetof(Fields, searchData) == 0x50);
+
+            inline void ctor() {
+                external<void>(0x01a27970, this);
+            }
+        };
+
         struct __c__DisplayClass200_0 : ILClass<__c__DisplayClass200_0> {
             struct Fields {
                 BoxWindow::Object* __4__this;
@@ -154,5 +192,11 @@ namespace Dpr::UI {
             bool _isControlEnable; // 0x3DC
             bool _isForceClosing; // 0x3DD
         };
+
+        static_assert(offsetof(Fields, _isForceClosing) == 0x3CD);
+
+        inline void Open(OpenParam::Object* param, System::Action::Object* onSelected, int32_t prevWindowId) {
+            external<void>(0x01cb64c0, this, param, onSelected, prevWindowId);
+        }
     };
 }

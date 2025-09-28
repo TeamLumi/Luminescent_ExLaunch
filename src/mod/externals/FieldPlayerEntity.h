@@ -5,6 +5,7 @@
 #include "externals/Audio/AudioInstance.h"
 #include "externals/Effect/EffectInstance.h"
 #include "externals/FieldCharacterEntity.h"
+#include "externals/JumpCalculator.h"
 #include "externals/System/Action.h"
 #include "externals/System/Func.h"
 #include "externals/UnityEngine/Color.h"
@@ -31,7 +32,7 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         int32_t _bicycleColorIndex_k__BackingField;
         bool isExtrudable;
         bool _DashFlag_k__BackingField;
-        void* _path; // JumpCalculator_o*
+        JumpCalculator::Object* _path;
         bool _setupMaterials;
         bool _hit_se_request;
         float _hit_se_wait;
@@ -113,10 +114,35 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         bool isSwampLoopEffect;
     };
 
-    inline void set_colorID(int32_t value) {
+    static inline void set_colorID(int32_t value) {
         external<void>(0x02cef870, value);
     }
 
+    inline void GetInputVector(UnityEngine::Vector2::Object* stickL, float* stickPowerSq, float deltatime, bool* analogstick) {
+        external<void>(0x01dabb10, this, stickL, stickPowerSq, deltatime, analogstick);
+    }
+
+    inline void PlayJumpStart() {
+        external<void>(0x01da7b50, this);
+    }
+
+    inline void PlayJumpLoop() {
+        external<void>(0x01da9ed0, this);
+    }
+
+    inline void PlayJumpEnd() {
+        external<void>(0x01da9fc0, this);
+    }
+
+    inline bool IsRideBicycle() {
+        return external<bool>(0x01da7c70, this);
+    }
+
+    inline void StopCrossInputAndBicycle() {
+        external<void>(0x01da4ed0, this);
+    }
+
     static_assert(offsetof(Fields, _hatRenderers) == 0x198);
+    static_assert(offsetof(Fields, _path) == 0x1F8);
     static_assert(sizeof(Fields) == 0x3e8);
 };

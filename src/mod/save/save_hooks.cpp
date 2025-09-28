@@ -5,157 +5,227 @@
 #include "save/save.h"
 #include "save/migration/save_migration.h"
 
-#include "externals/ViewerSettings.h"
-#include "externals/SmartPoint/Components/PlayerPrefsProvider.h"
+#include "memory/json.h"
+#include "fs/fs_files.hpp"
+#include "externals/Dpr/NX/SaveSystem.h"
+#include "helpers/fsHelper.h"
+#include "externals/UnityEngine/JsonUtility.h"
+#include "err.h"
+#include "externals/UnityEngine/Switch/Notification.h"
 
 static CustomSaveData* gCustomSaveData = nullptr;
-static bool onLoadInjection; // Flag to ensure injection doesn't happen more than once.
-static bool isBackup; // Stores backup status during initialization to pass into post-load PlayerWork injection.
-static bool migrationRequired; // Controls where LoadBoxes() and LinkBoxes() are called.
 
 CustomSaveData* getCustomSaveData() {
     if (gCustomSaveData == nullptr)
         gCustomSaveData = (CustomSaveData*)nn_malloc(sizeof(CustomSaveData));
-
     return gCustomSaveData;
 }
 
-HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Load) {
-    static bool Callback(PlayerWork::Object* playerWork) {
-        bool success = Orig(playerWork);
-
-        isBackup = playerWork->fields._isBackupSave;
-
-        if (success)
-        {
-            // Start as vanilla save
-            getCustomSaveData()->main.version = ModVersion::Vanilla;
-
-            // Load version data
-            loadMain(isBackup);
-
-            // Check if migration is required (Related to Box Expansion)
-            migrationRequired = getCustomSaveData()->main.version < CURRENT_VERSION;
-
-            /* Load all other data
-             * (Lumi Boxes loaded in separate function where migration is not required) */
-            loadZukan(isBackup);
-            loadWorks(isBackup);
-            loadFlags(isBackup);
-            loadSysFlags(isBackup);
-            loadTrainers(isBackup);
-            loadItems(isBackup);
-            loadBerries(isBackup);
-            loadColorVariations(isBackup);
-            if (migrationRequired) loadBoxes(isBackup);
-
-            // Perform migration loop
-            migrate(playerWork);
-
-            /* Put our custom-length data into PlayerWork for the game to access
-             * (Lumi Boxes linked in separate function where migration is not required) */
-            linkZukan(playerWork);
-            linkWorks(playerWork);
-            linkFlags(playerWork);
-            linkSysFlags(playerWork);
-            linkTrainers(playerWork);
-            linkItems(playerWork);
-            linkBerries(playerWork);
-            linkColorVariations(playerWork);
-            if (migrationRequired) linkBoxes(playerWork);
-        }
-
-        playerWork->fields._isBackupSave = false;
-
-        return success;
-    }
-};
-
-void injectPlayerWork() {
-    auto method = SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
-            ::Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance;
-    auto playerWork = (PlayerWork::Object*) SmartPoint::Components::PlayerPrefsProvider<PlayerWork>
-            ::get_Instance(method);
-    loadBoxes(isBackup);
-    linkBoxes(playerWork);
-    onLoadInjection = true; // Safeguard to prevent further injection until game is relaunched.
+nn::json LoadJSONSave(bool fromBackup) {
+    Dpr::NX::SaveSystem::getClass()->static_fields->_Instance->MountSaveData();
+    Logger::log("Loading JSON save data...\n");
+    return FsHelper::loadJsonFileFromPath(fromBackup ? CustomSaveData::backupSaveName : CustomSaveData::mainSaveName);
 }
 
-HOOK_DEFINE_TRAMPOLINE(PatchExistingSaveData__Save) {
-    static void Callback(PlayerWork::Object* playerWork, void* param_2, void* param_3, void* param_4) {
-        bool isMain = playerWork->fields._isMainSave;
-        isBackup = playerWork->fields._isBackupSave;
+bool SaveSystem_Load(PlayerWork::Object* playerWork, nn::json saveFile) {
+    if (saveFile != nullptr && !saveFile.is_discarded()) {
+        // Retrieve the PlayerWork structure from the parsed Json
+        System::String::Object* jsonString = System::String::Create(saveFile["playerWork"].dump().c_str());
 
-        // Remove the custom-length PlayerWork data with the vanilla save's
-        unlinkZukan(playerWork);
-        unlinkWorks(playerWork);
-        unlinkFlags(playerWork);
-        unlinkSysFlags(playerWork);
-        unlinkTrainers(playerWork);
-        unlinkItems(playerWork);
-        unlinkBerries(playerWork);
-        unlinkColorVariations(playerWork);
-        unlinkBoxes(playerWork);
+        System::RuntimeTypeHandle::Object handle{};
+        handle.fields.value = &PlayerWork::getClass()->_1.byval_arg;
+        auto tempPlayerWork = reinterpret_cast<PlayerWork::Object*>(UnityEngine::JsonUtility::FromJson(jsonString, System::Type::GetTypeFromHandle(handle)));
 
-#ifndef DEBUG_DISABLE_SAVE  // Allow disabling the saving to test the save migration code
-        // Save version data to file
-        saveMain(isMain, isBackup);
+        // Copy the saveData of our temporary converted PlayerWork into the real PlayerWork
+        memcpy(&playerWork->fields._saveData.fields, &tempPlayerWork->fields._saveData.fields, sizeof(PlayerWork::SaveData::Fields));
 
-        // Save rest of data to files
-        saveZukan(isMain, isBackup);
-        saveWorks(isMain, isBackup);
-        saveFlags(isMain, isBackup);
-        saveSysFlags(isMain, isBackup);
-        saveTrainers(isMain, isBackup);
-        saveItems(isMain, isBackup);
-        saveBerries(isMain, isBackup);
-        saveColorVariations(isMain, isBackup);
-        saveBoxes(isMain, isBackup);
-#endif
+        Logger::log("[SaveSystem$$Load] JSON save data loaded.\n");
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
-        // Save base save file
-        Orig(playerWork, param_2, param_3, param_4);
+bool VerifySaveData() {
+    // Don't actually verify save data for now
+    return true;
+}
 
-        // Re-replace the PlayerWork data with our custom-length one
-        relinkZukan(playerWork);
-        relinkWorks(playerWork);
-        relinkFlags(playerWork);
-        relinkSysFlags(playerWork);
-        relinkTrainers(playerWork);
-        relinkItems(playerWork);
-        relinkBerries(playerWork);
-        relinkColorVariations(playerWork);
-        relinkBoxes(playerWork);
+void FailedLoad() {
+    nn::err::ApplicationErrorArg err(nn::err::MakeErrorCode(
+            nn::err::ErrorCodeCategoryType::unk1, 0x421),
+                                     "Failed to load save file!","The save file was not parsed successfully!",
+                                     nn::settings::LanguageCode::Make(nn::settings::Language::Language_English));
+    nn::err::ShowApplicationError(err);
+    EXL_ABORT(0);
+}
+
+void LoadCustomSaveData(nn::json& saveFile) {
+    Logger::log("[LoadCustomSaveData] Loading custom data...\n");
+
+    // ADD THE LOADING OF NEW STRUCTS HERE
+    loadMainFromJson(saveFile);
+    loadPlayerColorVariationFromJson(saveFile);
+    loadDexFormsFromJson(saveFile);
+    loadAYouFromJson(saveFile);
+    loadExtraSettingsFromJson(saveFile);
+
+    Logger::log("[LoadCustomSaveData] Custom data loaded successfully.\n");
+}
+
+nn::json WriteCustomSaveData() {
+    Logger::log("[WriteCustomSaveData] Converting custom data...\n");
+    nn::json lumiObject = nn::json::object();
+
+    // ADD THE SAVING OF NEW STRUCTS HERE
+    nn::vector<nn::json> saveFunctions = {
+        getMainAsJson(),
+        getPlayerColorVariationAsJson(),
+        getDexFormsAsJson(),
+        getAYouAsJson(),
+        getExtraSettingsAsJson(),
+    };
+
+    Logger::log("[WriteCustomSaveData] Custom data converted successfully.\n");
+
+    for (const auto& jsonStructure : saveFunctions) {
+        lumiObject.update(jsonStructure);
+    }
+
+    return {{"lumi", lumiObject}};
+}
+
+HOOK_DEFINE_REPLACE(PlayerWork$$CustomLoadOperation) {
+    static bool Callback(PlayerWork::Object* playerWork) {
+        system_load_typeinfo(0x6a91);
+        system_load_typeinfo(0x6ad4);
+        Dpr::NX::SaveSystem::getClass()->initIfNeeded();
+
+        // Initialize version as "Vanilla" prior to loading.
+        getCustomSaveData()->main.Initialize();
+
+        auto saveFile = LoadJSONSave(playerWork->fields._isBackupSave);
+        bool loadResult = SaveSystem_Load(playerWork, saveFile);
+
+        if (!loadResult) {
+            if (Dpr::NX::SaveSystem::SaveDataExists()) {
+                playerWork->fields._loadResult = PlayerWork::LoadResult::FAILED;
+                FailedLoad(); // EXL_ABORT
+            }
+            else {
+                playerWork->fields._loadResult = PlayerWork::LoadResult::NOT_EXIST;
+                Logger::log("No save exists.\n");
+            }
+        }
+        else if (!VerifySaveData()) {
+            playerWork->fields._loadResult = PlayerWork::LoadResult::CORRUPTED;
+            FailedLoad(); // EXL_ABORT
+        }
+        else {
+            playerWork->fields._loadResult = PlayerWork::LoadResult::SUCCESS;
+            LoadCustomSaveData(saveFile);
+        }
+
+        migrate(playerWork);
+        playerWork->fields._isBackupSave = false;
+        return true;
     }
 };
 
-HOOK_DEFINE_REPLACE(PatchExistingSaveData__Verify) {
+HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveOperation) {
+    static bool Callback(PlayerWork::Object* playerWork) {
+        Dpr::NX::SaveSystem::Save(nullptr, playerWork->fields._isMainSave, playerWork->fields._isBackupSave);
+
+        playerWork->fields._isMainSave = true;
+        playerWork->fields._isBackupSave = false;
+        return true;
+    }
+};
+
+HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveAsyncOperation) {
+    static bool Callback(PlayerWork::Object* playerWork) {
+        system_load_typeinfo(0x6a92);
+        playerWork->OnPreSave();
+        Dpr::NX::SaveSystem::SaveAsync(nullptr, playerWork->fields._isMainSave, playerWork->fields._isBackupSave);
+
+        playerWork->fields._isMainSave = true;
+        playerWork->fields._isBackupSave = false;
+        return true;
+    }
+};
+
+HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
+    static bool Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
+        system_load_typeinfo(0x757e);
+        Dpr::NX::SaveSystem::getClass()->initIfNeeded();
+        Dpr::NX::SaveSystem::getClass()->static_fields->_Instance->MountSaveData();
+        auto playerWork = PlayerWork::get_instance();
+
+        System::String::Object* jsonData = UnityEngine::JsonUtility::ToJson(reinterpret_cast<Il2CppObject*>(playerWork), false);
+
+        // Isolate the PlayerWork section into a key to easily retrieve it.
+        nn::string writeString = {R"({"playerWork":)" + jsonData->asCString()};
+
+        // Append all Custom Data separate from the PlayerWork structure.
+        writeString.append("," + WriteCustomSaveData().dump().erase(0,1));
+
+        if (writeMain) {
+            auto result = FsHelper::writeFileToPath(writeString.data(), writeString.size(), CustomSaveData::mainSaveName);
+            if (!result.isSuccess()) {
+                Logger::log("[SaveSystem$$Save] Failed to save!\n");
+                return false;
+            }
+        }
+
+        if (writeBackup) {
+            auto result = FsHelper::writeFileToPath(writeString.data(), writeString.size(), CustomSaveData::backupSaveName);
+            if (!result.isSuccess()) {
+                Logger::log("[SaveSystem$$Save] Failed to save!\n");
+                return false;
+            }
+        }
+
+        return FsHelper::Commit(CustomSaveData::saveMountName).isSuccess();
+    }
+};
+
+HOOK_DEFINE_REPLACE(SaveSystem$$SaveAsync) {
+    static void Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
+        system_load_typeinfo(0x757c);
+        Dpr::NX::SaveSystem::getClass()->initIfNeeded();
+
+        auto saveSystem = Dpr::NX::SaveSystem::getClass()->static_fields->_Instance;
+
+        if (!saveSystem->fields._isBusy) {
+            saveSystem->fields._isBusy = true;
+            UnityEngine::Switch::Notification::EnterExitRequestHandlingSection();
+            saveSystem->fields._writeMain = writeMain;
+            saveSystem->fields._writeBackup = writeBackup;
+            saveSystem->fields._saveRequest = true;
+            saveSystem->StartThread();
+        }
+    }
+};
+
+HOOK_DEFINE_REPLACE(PlayerWork$$VerifySaveData) {
     static bool Callback(System::Byte_array* playerWork) {
         return true;
     }
 };
 
-HOOK_DEFINE_TRAMPOLINE(FieldCanvas$$Start) {
-    static void Callback(void* __this) {
-        if (!onLoadInjection && !migrationRequired) {
-            injectPlayerWork();
-        }
-        Orig(__this);
-    }
-};
-
 void exl_save_main() {
-    PatchExistingSaveData__Load::InstallAtOffset(0x02ceb850);
-    PatchExistingSaveData__Save::InstallAtOffset(0x01a8c2f0);
-    PatchExistingSaveData__Verify::InstallAtOffset(0x02ceba00);
-    FieldCanvas$$Start::InstallAtOffset(0x01784b90);
+    exl_migration_main();
 
-    // Backup save patches
-    using namespace exl::armv8::inst;
-    using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
-    auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x02ceb9dc, Nop() },
-    };
-    p.WriteInst(inst);
+    // Loading
+    PlayerWork$$CustomLoadOperation::InstallAtOffset(0x02ceb850);
+
+    // Saving
+    PlayerWork$$CustomSaveOperation::InstallAtOffset(0x02cebf00);
+    PlayerWork$$CustomSaveAsyncOperation::InstallAtOffset(0x02cec400);
+    SaveSystem$$Save::InstallAtOffset(0x01ddf3e0);
+    SaveSystem$$SaveAsync::InstallAtOffset(0x01ddf680);
+
+    // Verifying
+    PlayerWork$$VerifySaveData::InstallAtOffset(0x02ceba00);
 }

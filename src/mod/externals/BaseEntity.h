@@ -51,6 +51,15 @@ struct BaseEntity : ILClass<BaseEntity> {
         return external<UnityEngine::Transform::Object*>(0x01d66e50, this);
     }
 
+    inline void SetPositionDirect(UnityEngine::Vector3::Object pos) {
+        UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
+        external<void>(0x01d67740, this, posProxy);
+    }
+
+    inline void SetYawAngleDirect(float angle) {
+        external<void>(0x01d67790, this, angle);
+    }
+
     static_assert(sizeof(VTable) == 0xe0);
     static_assert(offsetof(VTable, _4_get_entityType) == 0x40);
     static_assert(offsetof(VTable, _5_GetAnimationPlayer) == 0x50);

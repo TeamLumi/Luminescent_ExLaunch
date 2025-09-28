@@ -32,11 +32,17 @@ void exl_alt_starters_main();
 // Overrides calls to C#'s Enum.GetName on AreaID and ZoneID enums.
 void exl_area_zone_codes_main();
 
+// Provides functionality for AYou's custom name.
+void exl_ayou_patches_main();
+
 // Swaps the badges to the Platinum order.
 void exl_badge_check_main();
 
 // Adds support for new Poké Balls.
 void exl_balls_main();
+
+// Removes the automatic switch to the default battle camera on certain actions.
+void exl_battle_camera_fix_main();
 
 // Makes it possible to set a flag to prevent escape from a wild encounter.
 // Defaults to flag 2591, as Luminescent does it.
@@ -44,9 +50,6 @@ void exl_battle_escape_flag_main();
 
 // Makes the battle menu scroll instead of the cursor.
 void exl_battle_revolver_main();
-
-// Removes the automatic switch to the default battle camera on certain actions.
-void exl_battle_camera_fix_main();
 
 // Adds support for custom color variations for player and NPCs.
 void exl_color_variations_main();
@@ -56,6 +59,9 @@ void exl_commands_main();
 
 // Adds support for contest NPCs to have alternate forms of Pokémon.
 void exl_contest_npc_forms_main();
+
+// Adds support for form flags for every species in the Pokédex.
+void exl_dex_form_flags_main();
 
 // Rewrites the methods that deal with determining a zone's encounter slots.
 // Defaults to changing slots how Luminescent does it.
@@ -69,6 +75,9 @@ void exl_evolution_methods_main();
 
 // Redirects TM learnsets to external JSON files that contain more data.
 void exl_extended_tm_learnsets_main();
+
+// Allows using FieldEventEntity components in a map prefab to simulate stopdata.
+void exl_fake_stopdata_main();
 
 // Allows dynamically changing Pokémon icons based on the Pokémon's Form Argument.
 void exl_form_arg_icons_main();
@@ -86,8 +95,14 @@ void exl_gender_neutral_boutique_main();
 // Replaces every instance of Hidden Power being shown as "Normal" type with its actual type for the Pokémon.
 void exl_hidden_power_ui_main();
 
+// Allows configuring Rowan's Pokémon in the intro.
+void exl_intro_professor_pokemon_main();
+
 // Allows configuring the available languages on the language select screen.
 void exl_language_select_main();
+
+// Fixes bugs with specific UI elements not matching the player's language.
+void exl_language_ui_fixes_main();
 
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
@@ -95,11 +110,23 @@ void exl_level_cap_main();
 // Uniformizes local trades across languages and allows extending the table in RomFS.
 void exl_local_trades_main();
 
+//
+void exl_madrid_ui_main();
+
+//
+void exl_mega_evolution_main();
+
+// Adds an extra type of move relearner UI that loads a specific tutor table.
+void exl_move_tutor_relearner_main();
+
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
 
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
+
+// Allows configuring the controls on the player select screen.
+void exl_player_select_main();
 
 // Fixes Poké Radar bugs and improves chain rates.
 void exl_poke_radar_fixes_main();
@@ -108,8 +135,11 @@ void exl_poke_radar_fixes_main();
 // Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
 
-// Replaces pickup ranges with new ranges abiding by Lumi level caps
+// Replaces pickup ranges with new ranges abiding by Lumi level caps.
 void exl_pickup_main();
+
+// Allows making pushable entities (placedata) which stop at a specific attribute.
+void exl_pushable_entities_main();
 
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
@@ -120,6 +150,9 @@ void exl_relumi_dex_ui();
 
 // Remaps the controls.
 void exl_remap_main();
+
+// Adds an extra type of Poffin Case UI that allows selecting a Poffin for other purposes.
+void exl_select_poffin_case_main();
 
 // Adds support for new settings.
 void exl_settings_main();
@@ -139,11 +172,8 @@ void exl_sounds_main();
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 
-// Deposits items obtained by thief directly into the player's bag.
-void exl_thief_patches_main();
-
-// Allows trainers to have the same color variation of the player.
-void exl_trainer_color_variations_main();
+// Changes the defaulkt text color for dialog boxes.
+void exl_text_color_main();
 
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();

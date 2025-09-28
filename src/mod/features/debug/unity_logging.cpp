@@ -74,8 +74,8 @@ HOOK_DEFINE_TRAMPOLINE(WarningLog2) {
 
 
 void exl_unity_log_main() {
-    //InfoLog::InstallAtOffset(0x026a9c10);
-    //InfoLog2::InstallAtOffset(0x026a9d50);
+    InfoLog::InstallAtOffset(0x026a9c10);
+    InfoLog2::InstallAtOffset(0x026a9d50);
     AssertionLog::InstallAtOffset(0x026a1de0);
     ErrorLog::InstallAtOffset(0x026a9ff0);
     ErrorLog2::InstallAtOffset(0x026aa130);

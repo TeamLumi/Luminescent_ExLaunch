@@ -21,11 +21,10 @@ HOOK_DEFINE_REPLACE(Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams) {
 
         for (int32_t dressId = 0; dressId < OUTFIT_COUNT; dressId++)
         {
-            if (dressId == array_index(OUTFITS, "Contest Style Masculine") ||
-                dressId == array_index(OUTFITS, "Contest Style Feminine") ||
-                dressId == array_index(OUTFITS, "Bicycle Style Masculine") ||
+            if (dressId == array_index(OUTFITS, "Bicycle Style Masculine") ||
                 dressId == array_index(OUTFITS, "Bicycle Style Feminine") ||
-                dressId == array_index(OUTFITS, "Cyber Style 2.0 Masculine"))
+                dressId == array_index(OUTFITS, "Cyber Style 2.0 Masculine")||
+                dressId == array_index(OUTFITS, "Renegade Style Feminine"))
             {
                 // Don't add these outfits
                 continue;
@@ -49,7 +48,6 @@ void exl_gender_neutral_boutique_main() {
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
         { 0x0202f120, Movz(X0, 0) }, // Remove bike outfit override for battles on cycling road
-        { 0x02cf3d38, Movz(W21, 1) }, // Reindex Dawn default outfit for intro
     };
     p.WriteInst(inst);
 };

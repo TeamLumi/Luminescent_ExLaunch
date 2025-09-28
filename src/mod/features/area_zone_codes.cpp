@@ -1,65 +1,35 @@
 #include "exlaunch.hpp"
 
-#include "data/areas.h"
-#include "data/utils.h"
-#include "data/zones.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/FlagWork.h"
-#include "externals/System/String.h"
+#include "externals/PlayerWork.h"
+#include "utils/utils.h"
 
 #include "logger/logger.h"
-
-System::String::Object* Convert_AreaID(void* typeinfo, int32_t* areaId) {
-    if (*areaId >= 0 && *areaId < AREA_COUNT)
-    {
-        return System::String::Create(AREA_CODES[*areaId]);
-    }
-    else
-    {
-        return System::String::Create("");
-    }
-}
-
-System::String::Object* Convert_ZoneID(void* typeinfo, int32_t* zoneId) {
-    if (*zoneId >= 0 && *zoneId < ZONE_COUNT)
-    {
-        return System::String::Create(ZONE_CODES[*zoneId]);
-    }
-    else
-    {
-        return System::String::Create("");
-    }
-}
-
-int32_t ConvertZoneIDToArriveFlag(int32_t zoneId) {
-    int32_t startRange1 = array_index(ZONE_CODES, "C01");
-    int32_t startRange2 = array_index(ZONE_CODES, "D10R0902");
-    int32_t startRange3 = array_index(ZONE_CODES, "D10R0601B") + 1;
-
-    if (zoneId >= startRange1 && zoneId < startRange2)
-    {
-        // First Arrive Flag section
-        int32_t adjustedZoneId = zoneId - startRange1;
-        return ((int32_t)FlagWork_SysFlag::FLAG_ARRIVE_C01) + adjustedZoneId;
-    }
-    else if (zoneId >= startRange2 && zoneId < startRange3)
-    {
-        // Second Arrive Flag section
-        int32_t adjustedZoneId = zoneId - startRange2;
-        return ((int32_t)FlagWork_SysFlag::FLAG_ARRIVE_D10R0902) + adjustedZoneId;
-    }
-    else
-    {
-        // Third Arrive Flag section (Custom)
-        int32_t adjustedZoneId = zoneId - startRange3;
-        return ((int32_t)FlagWork_SysFlag::FLAG_ARRIVE_EXTRA_000) + adjustedZoneId;
-    }
-}
 
 HOOK_DEFINE_REPLACE(EvDataManager_ARRIVEDATA_SetArriveFlag) {
     static void Callback(Dpr::EvScript::EvDataManager::Object* __this, int32_t id) {
         int32_t sysFlag = ConvertZoneIDToArriveFlag(id);
         FlagWork::SetSysFlag(sysFlag, true);
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(EvDataManager$$WarpUpdateEnd) {
+    static void Callback(Dpr::EvScript::EvDataManager::Object* __this) {
+        system_load_typeinfo(0x4672);
+
+        PlayerWork::getClass()->initIfNeeded();
+        int32_t zoneID = PlayerWork::get_zoneID();
+        auto zoneCode = Convert_ZoneID(nullptr, &zoneID)->asCString();
+        auto label = System::String::Create("SP_" + zoneCode + "_END");
+
+        // We need to clear the callback, otherwise we recursively call WarpUpdateEnd
+        __this->fields._eventEndDelegate = nullptr;
+
+        // We don't wait for the script, if a command takes more than one frame, it's over
+        __this->JumpLabel(label, nullptr);
+        __this->UpdateEvdata(0.0f, true);
+        Orig(__this);
     }
 };
 
@@ -240,8 +210,13 @@ void arrive_flag_main() {
     p.WriteInst(Branch(0x14));
 }
 
+void extra_map_script_main() {
+    EvDataManager$$WarpUpdateEnd::InstallAtOffset(0x02c4da20);
+}
+
 void exl_area_zone_codes_main() {
     area_codes_main();
     zone_codes_main();
     arrive_flag_main();
+    extra_map_script_main();
 }

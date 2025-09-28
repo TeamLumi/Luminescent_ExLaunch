@@ -50,6 +50,10 @@
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
 #include "externals/Dpr/Box/SaveBoxData.h"
+#include "externals/Dpr/Item/SaveUgItem.h"
+#include "externals/Dpr/BallDeco/SaveSealData.h"
+#include "externals/DPData/CON_PHOTO_EXT_DATA.h"
+#include "externals/DPData/GMS_POINT_HISTORY_EXT_DATA.h"
 
 struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     struct SaveData : ILStruct<SaveData> {
@@ -62,8 +66,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             int32_t zoneID;
             float timeScale;
             Dpr::Item::SaveItem::Array* saveItem;
-            void* saveUgItem;
-            void* saveItemShortcut;
+            Dpr::Item::SaveUgItem::Array* saveUgItem;
+            System::UInt16_array* saveItemShortcut;
             Pml::PokePara::SavePokeParty::Object playerParty;
             Dpr::Box::SaveBoxData::Object boxData;
             Dpr::Box::SaveBoxTrayData::Array* boxTray;
@@ -76,7 +80,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             DPData::ENC_SV_DATA::Object enc_sv_data;
             DPData::PLAYER_SAVE_DATA::Object player_save_data;
             Dpr::BallDeco::SaveBallDecoData::Object ballDecoData;
-            void* saveSeal;
+            Dpr::BallDeco::SaveSealData::Array* saveSeal;
             DPData::_RANDOM_GROUP::Object randomGroup;
             DPData::FieldGimmickSaveData::Object fieldGimmickSaveData;
             DPData::KinomiGrowSaveData::Object kinomiGrowSaveData;
@@ -88,18 +92,18 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             DPData::_DENDOU_SAVEDATA::Object dendoudata;
             DPData::BadgeSaveData::Object badgeSaveData;
             DPData::BoukenNote::Object boukenNote;
-            void* tvDataOld;
+            System::Byte_array* tvDataOld;
             DPData::UgSaveData::Object ugSaveData;
             DPData::GMS_DATA::Object gmsdata;
             DPData::PLAYER_NETWORK_DATA::Object networkdata;
             DPData::UnionSaveData::Object unionSaveData;
             DPData::CON_PHOTO_LANG_DATA::Object contstPhotoLangData;
             DPData::ZUKAN_PERSONAL_RND_DATA::Object zukanPersonalRndData;
-            void* contestPhotoExtData;
-            void* gmsPointExtData;
+            DPData::CON_PHOTO_EXT_DATA::Array* contestPhotoExtData;
+            DPData::GMS_POINT_HISTORY_EXT_DATA::Array* gmsPointExtData;
             DPData::UgCountRecord::Object ugCountRecord;
             ReBuffnameData::Object reBuffNameData;
-            void* saveDataHash;
+            System::Byte_array* saveDataHash;
             DPData::RECORD_ADD_DATA::Object recodeAddData;
             DPData::MysteryGiftSaveData::Object mysteryGiftSaveData;
             DPData::POKETCH_POKETORE_COUNT_ARRAY::Object poketoreCountArray;
@@ -110,6 +114,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
             Dpr::BallDeco::SaveBallDecoExtraData::Object ballDecoExtraData;
         };
 
+        static_assert(offsetof(Fields, systemFlags) == 0x18);
+        static_assert(sizeof(System::Boolean_array*) == 0x8);
         static_assert(offsetof(Fields, tr_battleData) == 0x220);
         static_assert(offsetof(Fields, kinomiGrowSaveData) == 0x340);
         static_assert(offsetof(Fields, poffinSaveData) == 0x350);
@@ -121,6 +127,13 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         static_assert(offsetof(Fields, ugCountRecord) == 0x590);
         static_assert(offsetof(Fields, ballDecoExtraData) == 0x7a8);
         static_assert(sizeof(Fields) == 0x7b8);
+    };
+
+    enum class LoadResult : int32_t {
+        SUCCESS = 0,
+        NOT_EXIST = 1,
+        CORRUPTED = 2,
+        FAILED = 3
     };
 
     struct StaticFields {
@@ -169,7 +182,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static_assert(offsetof(StaticFields, _SafariBallNum_k__BackingField) == 72);
 
-    struct Fields : SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::Fields {
+    struct Fields : SmartPoint::Components::PlayerPrefsProvider::Fields {
         PlayerWork::SaveData::Object _saveData;
         int32_t _transitionZoneID;
         int32_t _locatorIndex;
@@ -183,12 +196,12 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         bool _isEncount;
         bool _isDigFossil;
         bool _isGMS;
-        int32_t _loadResult;
+        LoadResult _loadResult;
         void* _battleSetupParam;
         Pml::PokeParty::Object* _playerParty;
         Pml::PokePara::PokemonParam::Object* _capturedPokemon;
         void* _evolveRequets;
-        void* _writeSrcBuffer;
+        System::Byte_array* _writeSrcBuffer;
         bool _isMainSave;
         bool _isBackupSave;
         bool _autosaveCoroutineIsBusy;
@@ -196,6 +209,12 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         void* _autosaveWindow;
         float _autosaveWindowCloseOpenTime;
     };
+
+    static_assert(offsetof(Fields, _autosaveWindowCloseOpenTime) == 0x828);
+
+    static inline StaticILMethod<0x04c81de0> Method$PlayerWork_ToBytes__PlayerWork_SaveData__ {};
+    static inline StaticILMethod<0x04c81dc8> Method$PlayerWork_LoadBytes__PlayerWork_SaveData__ {};
+    static inline StaticILMethod<0x04c90330, PlayerWork> Method$PlayerWork_get_instance {};
 
     static inline Pml::PokeParty::Object* get_playerParty() {
         return external<Pml::PokeParty::Object*>(0x02ce2b50);
@@ -303,5 +322,33 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline Dpr::Message::MessageEnumData::MsgLangId get_msgLangID() {
         return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
+    }
+
+    static inline PLAYREPORT_DATA::Object* get_playReportDataRef() {
+        return external<PLAYREPORT_DATA::Object*>(0x02cf6530);
+    }
+
+    static inline DPData::PLAYER_DATA::Object* get_playerData() {
+        return external<DPData::PLAYER_DATA::Object*>(0x02ce2a50);
+    }
+
+    static inline System::String::Object* get_rivalName() {
+        return external<System::String::Object*>(0x02cee9a0);
+    }
+
+    inline void OnPreSave() {
+        external<void>(0x02cecd90, this);
+    }
+
+    static inline PlayerWork::Object* get_instance() {
+        return SmartPoint::Components::PlayerPrefsProvider::get_instance(Method$PlayerWork_get_instance);
+    }
+
+    static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
+        external<void>(0x02cf0fd0, value);
+    }
+
+    static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
+        return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
     }
 };

@@ -42,7 +42,7 @@ namespace ui {
                 _.Button([fieldAnimationId, loopAnim](Button &_) {
                     _.label = "Play Field Animation";
                     _.onClick = [fieldAnimationId, loopAnim]() {
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         Logger::log("Playing Field Animation %s (%d)\n", FIELD_MON_CLIPS[fieldAnimationId->selected], fieldAnimationId->selected);
                         uiManager->fields._modelView->PlayAnimation(fieldAnimationId->selected, loopAnim->enabled);
                     };
@@ -51,7 +51,7 @@ namespace ui {
                 _.Button([battleAnimationId, loopAnim](Button &_) {
                     _.label = "Play Battle Animation";
                     _.onClick = [battleAnimationId, loopAnim]() {
-                        auto uiManager = Dpr::UI::UIManager::instance();
+                        auto uiManager = Dpr::UI::UIManager::get_Instance();
                         Logger::log("Playing Battle Animation %s (%d)\n", BATTLE_MON_CLIPS[battleAnimationId->selected], battleAnimationId->selected);
                         uiManager->fields._modelView->PlayAnimation(battleAnimationId->selected, loopAnim->enabled);
                     };

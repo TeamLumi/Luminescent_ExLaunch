@@ -5,7 +5,7 @@
 namespace Pml::PokePara {
     struct SavePokeParty : ILStruct<SavePokeParty> {
         struct Fields {
-            void* members;
+            Pml::PokePara::SerializedPokemonFull::Array* members;
             uint8_t memberCount;
             uint8_t markingIndex;
         };
