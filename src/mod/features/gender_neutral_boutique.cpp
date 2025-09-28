@@ -28,40 +28,28 @@ HOOK_DEFINE_REPLACE(Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams) {
 
         for (int32_t dressId = 0; dressId < OUTFIT_COUNT; dressId++)
         {
-            if (dressId == array_index(OUTFITS, "Bicycle Style Masculine") ||
-                dressId == array_index(OUTFITS, "Bicycle Style Feminine") ||
-                dressId == array_index(OUTFITS, "Cyber Style 2.0 Masculine")||
-                dressId == array_index(OUTFITS, "Renegade Style Feminine"))
-            {
-                // Don't add these outfits
-                continue;
-            }
-            else
-            {
-                auto outfitData = GetOutfitData(dressId);
-
-                if (playerSex) {
-                    if (!outfitData.forMale) {
-                        // Outfit is not marked as available for Masculine.
-                        continue;
-                    }
-                }
-
-                else {
-                    if (!outfitData.forFemale) {
-                        // Outfit is not marked as available for Feminine.
-                        continue;
-                    }
-                }
-
-                if (outfitData.isLockedByFlag && !FlagWork::GetSysFlag(outfitData.flag)) {
-                    // Outfit is not available based on current flags
+            auto outfitData = GetOutfitData(dressId);
+            if (playerSex) {
+                if (!outfitData.forMale) {
+                    // Outfit is not marked as available for Masculine.
                     continue;
                 }
-
-                // All exclusionary conditions are cleared, Outfit is available.
-                AddOutfit(itemParams, dressId);
             }
+
+            else {
+                if (!outfitData.forFemale) {
+                    // Outfit is not marked as available for Feminine.
+                    continue;
+                }
+            }
+
+            if (outfitData.isLockedByFlag && !FlagWork::GetFlag(outfitData.flag)) {
+                // Outfit is not available based on current flags
+                continue;
+            }
+
+            // All exclusionary conditions are cleared, Outfit is available.
+            AddOutfit(itemParams, dressId);
         }
 
         return 0;

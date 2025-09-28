@@ -21,5 +21,15 @@ namespace RomData
         j.at("flag").get_to(o.flag);
     }
 
+    JSON_TEMPLATE
+    void to_json(GENERIC_JSON& j, const OutfitData& o) {
+        j = nn::json {
+                {"forMale", o.forMale},
+                {"forFemale", o.forFemale},
+                {"isLockedByFlag", o.isLockedByFlag},
+                {"flag", o.flag}
+        };
+    }
+
 
 }
