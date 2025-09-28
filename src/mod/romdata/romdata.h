@@ -7,6 +7,7 @@
 #include "romdata/data/HoneyTreeEncounters.h"
 #include "romdata/data/IntroData.h"
 #include "romdata/data/LocalTrade.h"
+#include "romdata/data/OutfitData.h"
 #include "romdata/data/ShinyRates.h"
 #include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
@@ -94,5 +95,8 @@ int32_t RollForSmeargleColor(int32_t zoneID);
 
 // Returns the extra BoxOpenParam data.
 RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
+
+// Returns Outfit Availability data for the given dressID.
+RomData::OutfitData GetOutfitData(int32_t dressID);
 
 void LoadFeaturesFromJSON(nn::json j);
