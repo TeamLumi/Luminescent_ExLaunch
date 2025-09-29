@@ -1,21 +1,24 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
-#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
-#include "externals/Dpr/Battle/Logic/ServerSendData.h"
-#include "externals/Dpr/Battle/Logic/MainModule.h"
+
 #include "externals/Dpr/Battle/Logic/BattleEnv.h"
+#include "externals/Dpr/Battle/Logic/BattleViewBase.h"
 #include "externals/Dpr/Battle/Logic/BTL_ACTION.h"
+#include "externals/Dpr/Battle/Logic/BTL_ACTION_PARAM_OBJ.h"
+#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "externals/Dpr/Battle/Logic/MainModule.h"
+#include "externals/Dpr/Battle/Logic/ServerSendData.h"
 
 namespace Dpr::Battle::Logic {
     struct BTL_CLIENT : ILClass<BTL_CLIENT> {
         struct Fields {
             Dpr::Battle::Logic::MainModule::Object* m_mainModule;
             Dpr::Battle::Logic::BattleEnv::Object* m_pBattleEnv;
-            void* m_procPoke; // BTL_POKEPARAM_o*
+            Dpr::Battle::Logic::BTL_POKEPARAM::Object* m_procPoke;
             uint8_t m_actCountSum;
             int32_t m_procActionIndex;
-            Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* m_procActionUIRet;
+            Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* m_procActionUIRet;
             int32_t m_currentActionIndex;
             void* m_recData; // rec_Data_o*
             void* m_btlRecReader; // rec_Reader_o*
@@ -70,8 +73,8 @@ namespace Dpr::Battle::Logic {
             uint8_t m_myPuttablePokeCnt;
             void* m_myChangePokePos; // BtlPokePos_o*
             ushort m_returnDataSerialNumber;
-            void* m_returnDataServerSeq; // ServerSequence_o*
-            void* m_returnDataServerRequest; // ServerRequest_o*
+            uint8_t m_returnDataServerSeq;
+            uint8_t m_returnDataServerRequest;
             void* m_returnDataPtr;
             uint m_returnDataSize;
             uint* m_dummyReturnData;
@@ -92,7 +95,7 @@ namespace Dpr::Battle::Logic {
             void* _m_viewCore; // BattleViewBase_o*
             void* m_viewExpGetDesc; // BattleViewBase_ExpGetDesc_o*
             void* m_viewExpGetResult; // BattleViewBase_ExpGetResult_o*
-            void* m_actionParam; // BTL_ACTION_PARAM_o*
+            BTL_ACTION_PARAM::Array* m_actionParam;
             System::Int32_array* m_cmdArgs;
             void* m_stdVariableArgs; // BTL_CLIENT_VariableArgs_o*
             void* m_tmpVariableArgs; // BTL_CLIENT_VariableArgs_o*
@@ -109,7 +112,7 @@ namespace Dpr::Battle::Logic {
             void* m_pokeSelParam; // PokeSelParam_o*
             void* m_pokeSelResult; // PokeSelResult_o*
             void* m_scProc; // BTL_CLIENT_ServerCmdProc_o*
-            void* m_serverCmd; // ServerCommand_o*
+            uint16_t m_serverCmd;
             int32_t m_scSeq;
             void* m_deadPokePos; // BtlPokePos_o*
             bool m_isLiveRecSeedSetup;
@@ -128,9 +131,16 @@ namespace Dpr::Battle::Logic {
             int32_t scProc_ACT_FriendshipEffectMsg_msgSeq;
             uint32_t scProc_ACTOP_SwapTokusei_timer;
         };
-        
-        inline int32_t checkForbidChangeEscapeCommon(BTL_POKEPARAM *procPoke, uint8_t *pokeID, uint16_t *tokuseiID) {
+
+        static_assert(offsetof(Fields, scProc_ACTOP_SwapTokusei_timer) == 0x28C);
+        static_assert(sizeof(Fields) == 0x290);
+
+        inline int32_t checkForbidChangeEscapeCommon(BTL_POKEPARAM* procPoke, uint8_t* pokeID, uint16_t* tokuseiID) {
             return external<int32_t>(0x01f574e0, this, procPoke, pokeID, tokuseiID);
+        }
+
+        inline void setupSelectActionUIParam(BattleViewBase::SelectActionParam::Object* pViewParam, BTL_POKEPARAM* pActPoke, uint8_t actPokeIdx) {
+            external<void>(0x01f53970, this, pViewParam, pActPoke, actPokeIdx);
         }
     };
 }
