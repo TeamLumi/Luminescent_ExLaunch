@@ -11,7 +11,7 @@
 
 namespace Dpr::UI {
     struct ContextMenuItem : ILClass<ContextMenuItem, 0x04c61bc8> {
-        struct Param : ILClass<Param, 0x04c5e788> {
+        struct Param : ILClass<Param, 0x04c5e788, 0x04c5e780> {
             struct Fields {
                 ContextMenuID menuId;
                 System::String::Object* messageFile;
@@ -36,6 +36,10 @@ namespace Dpr::UI {
 }
 
 namespace System::Collections::Generic {
+    struct List$$ContextMenuItem : List<List$$ContextMenuItem, Dpr::UI::ContextMenuItem> {
+        static inline StaticILMethod<0x04c896d0, Dpr::UI::ContextMenuItem> Method$$Add {};
+    };
+
     struct List$$ContextMenuItem_Param : List<List$$ContextMenuItem_Param, Dpr::UI::ContextMenuItem::Param> {
         static inline StaticILMethod<0x04c896c0, Dpr::UI::ContextMenuItem::Param> Method$$Add {};
     };

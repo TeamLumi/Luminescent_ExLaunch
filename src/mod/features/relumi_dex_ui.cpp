@@ -23,7 +23,7 @@ UnityEngine::Sprite::Object* GetEggGroupSprite(int32_t eggGroup, int32_t langId)
     auto langStr = Dpr::Message::MessageHelper::GetLanguageVariant(langId);
     auto fullStr = System::String::Concat(prefixStr, langStr);
 
-    return Dpr::UI::UIManager::instance()->GetAtlasSprite(SpriteAtlasID::ZUKAN, fullStr);
+    return Dpr::UI::UIManager::get_Instance()->GetAtlasSprite(SpriteAtlasID::ZUKAN, fullStr);
 }
 
 void SetEggGroupIcons(Dpr::UI::TypePanel::Object* panel1, Dpr::UI::TypePanel::Object* panel2, int32_t eggGroup1, int32_t eggGroup2, int32_t getStatus, int32_t langId)
@@ -31,7 +31,7 @@ void SetEggGroupIcons(Dpr::UI::TypePanel::Object* panel1, Dpr::UI::TypePanel::Ob
     Dpr::Message::MessageManager::getClass()->initIfNeeded();
 
     if (langId == 11)
-        langId = Dpr::Message::MessageManager::instance()->get_UserLanguageID();
+        langId = Dpr::Message::MessageManager::get_Instance()->get_UserLanguageID();
 
     if (panel1 != nullptr)
     {

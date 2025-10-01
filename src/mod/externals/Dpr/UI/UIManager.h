@@ -2,6 +2,8 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Dpr/UI/UIModelViewController.h"
 #include "externals/Dpr/UI/UIWazaManage.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
@@ -14,7 +16,9 @@
 #include "externals/XLSXContent/UIDatabase.h"
 
 namespace Dpr::UI {
+    struct Keyguide;
     struct ShopBoutiqueChange;
+    struct UIZukanRegister;
 }
 
 namespace Dpr::UI {
@@ -56,18 +60,20 @@ namespace Dpr::UI {
             void* _comparerPlaceName; // Dpr_UI_UIManager_ComparerPlaceName_o*
         };
 
-        static inline Dpr::UI::UIManager::Object* instance() {
+        static inline Dpr::UI::UIManager::Object* get_Instance() {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(SmartPoint::AssetAssistant::SingletonMonoBehaviour::Method$$UIManager$$get_Instance);
         }
-
-        static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow_ShopBoutiqueChange_ {};
-        static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow_UIWazaManage_ {};
 
         static inline StaticILMethod<0x04c90130, Dpr::UI::UIWindow> Method$$GetCurrentUIWindow_UIWindow_ {};
 
         template <typename T>
         inline T::Object* CreateUIWindow(UIWindowID windowId, ILMethod<T>& method) {
             return external<typename T::Object*>(0x01cf9f20, this, (int32_t)windowId, *method);
+        }
+
+        template <typename T>
+        inline T::Object* CreateUIWindow(UIWindowID windowId) {
+            return external<typename T::Object*>(0x01cf9f20, this, (int32_t)windowId, *T::Method$$CreateUIWindow);
         }
 
         template <typename T>
@@ -97,6 +103,34 @@ namespace Dpr::UI {
 
         inline XLSXContent::UIDatabase::SheetPokemonIcon::Object* GetPokemonIconData(int32_t monsNo, uint16_t formNo, Pml::Sex sex, Pml::PokePara::RareType rareType, bool isEgg) {
             return external<XLSXContent::UIDatabase::SheetPokemonIcon::Object*>(0x017c1250, this, monsNo, formNo, sex, rareType, isEgg);
+        }
+
+        inline Dpr::UI::Keyguide* GetKeyguide(UnityEngine::Transform::Object* transform, bool isCreate) {
+            return external<Dpr::UI::Keyguide*>(0x017a8ce0, this, transform, isCreate);
+        }
+
+        static inline Dpr::Message::MessageEnumData::MsgLangId GetCurrentLangId() {
+            return external<Dpr::Message::MessageEnumData::MsgLangId>(0x017be8c0);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpritePokemonSex(Pml::Sex sex) {
+            return external<UnityEngine::Sprite::Object*>(0x017c11f0, this, sex);
+        }
+
+        static inline Dpr::Battle::Logic::BTL_POKEPARAM::Object* ToBattlePokemonParam(Pml::PokePara::PokemonParam::Object* pokemonParam) {
+            return external<Dpr::Battle::Logic::BTL_POKEPARAM::Object*>(0x017c2ea0, pokemonParam);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpritePokemonLanguage(Dpr::Message::MessageEnumData::MsgLangId langId) {
+            return external<UnityEngine::Sprite::Object*>(0x017c2720, this, langId);
+        }
+
+        inline UnityEngine::Sprite::Object* GetSpriteMonsterBall(uint8_t ballId) {
+            return external<UnityEngine::Sprite::Object*>(0x017c2300, this, ballId);
+        }
+
+        inline XLSXContent::UIDatabase::SheetBoxOpenParam::Object* GetBoxOpenData(int32_t type) {
+            return external<XLSXContent::UIDatabase::SheetBoxOpenParam::Object*>(0x017c2bd0, this, type);
         }
     };
 }

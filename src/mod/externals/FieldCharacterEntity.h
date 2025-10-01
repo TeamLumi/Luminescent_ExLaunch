@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/AnimationPlayer.h"
 #include "externals/Effect/EffectInstance.h"
 #include "externals/FieldObjectEntity.h"
 #include "externals/System/Func.h"
@@ -13,7 +14,7 @@
 struct FieldCharacterEntity : ILClass<FieldCharacterEntity, 0x04c5ece8> {
     struct Fields : FieldObjectEntity::Fields {
         float HandScale;
-        void* _animationPlayer; // AnimationPlayer_o*
+        AnimationPlayer::Object* _animationPlayer;
         void* _blinkPatterns; // CurvePatterns_o*
         void* _variations; // FieldCharacterVariation_array*
         int32_t _eyePatternIndex;

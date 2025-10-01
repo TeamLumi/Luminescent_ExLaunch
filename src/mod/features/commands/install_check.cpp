@@ -1,6 +1,6 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
 bool InstallCheck(Dpr::EvScript::EvDataManager::Object* manager)

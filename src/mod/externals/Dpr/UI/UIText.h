@@ -1,7 +1,9 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
-#include "externals/UnityEngine/UI/MaskableGraphic.h"
+
+#include "externals/Dpr/Message/MessageEnumData.h"
+#include "externals/System/Collections/Generic/List.h"
 #include "externals/System/String.h"
 #include "externals/TMPro/TextMeshProUGUI.h"
 #include "externals/System/Collections/Generic/List.h"
@@ -10,7 +12,6 @@
 namespace Dpr::UI {
     struct UIText : ILClass<UIText> {
         struct Fields : TMPro::TextMeshProUGUI::Fields {
-            // TODO: The class this inherits from has misaligned fields because of missing classes/structs. Do not use the below fields until this is fixed.
             int32_t _sizeId;
             bool _useMessage;
             System::String::Object* _messageFile;
@@ -22,6 +23,9 @@ namespace Dpr::UI {
             void* _msgFile;
             int32_t _messageIndex;
         };
+
+        static_assert(offsetof(Fields, _useMessage) == 0x76c);
+        static_assert(offsetof(Fields, _messageIndex) == 0x798);
 
         struct VirtualInvokeData_set_color {
             typedef void(*Il2CppMethodPointer)(UIText::Object*, UnityEngine::Color::Fields, const MethodInfo*);
@@ -183,6 +187,15 @@ namespace Dpr::UI {
 
         static_assert(offsetof(VTable, _66_set_text) == 0x420);
 
+        inline void virtual_set_color(UnityEngine::Color::Object value) {
+            UnityEngine::Color::Fields valueProxy = { .r = value.fields.r, .g = value.fields.g, .b = value.fields.b, .a = value.fields.a };
+            (this->instance()->klass)->vtable._23_set_color.methodPtr(((UIText::Object*)this), valueProxy, (this->instance()->klass)->vtable._23_set_color.method);
+        }
+
+        inline void virtual_set_text(System::String::Object* value) {
+            (this->instance()->klass)->vtable._66_set_text.methodPtr(((UIText::Object*)this), value, (this->instance()->klass)->vtable._66_set_text.method);
+        }
+
         inline void SetupMessage(System::String::Object* messageFile, System::String::Object* messageId) {
             external<void>(0x01dd18d0, this, messageFile, messageId);
         }
@@ -195,18 +208,12 @@ namespace Dpr::UI {
             external<void>(0x01dd19b0, this, langId);
         }
 
-        inline void SetFormattedText(UnityEngine::Events::UnityAction::Object* onSet, System::String::Object* messageFile,
-                                     System::String::Object* messageId) {
+        inline void SetFormattedText(UnityEngine::Events::UnityAction::Object* onSet, System::String::Object* messageFile, System::String::Object* messageId) {
             external<void>(0x01dc76c0, this, onSet, messageFile, messageId);
         }
 
-        inline void virtual_set_color(UnityEngine::Color::Object value) {
-            UnityEngine::Color::Fields valueProxy = { .r = value.fields.r, .g = value.fields.g, .b = value.fields.b, .a = value.fields.a };
-            (this->instance()->klass)->vtable._23_set_color.methodPtr(((UIText::Object*)this), valueProxy, (this->instance()->klass)->vtable._23_set_color.method);
-        }
-
-        inline void virtual_set_text(System::String::Object* value) {
-            (this->instance()->klass)->vtable._66_set_text.methodPtr(((UIText::Object*)this), value, (this->instance()->klass)->vtable._66_set_text.method);
+        inline void UpdateMessage(bool isForce, Dpr::Message::MessageEnumData::MsgLangId langId) {
+            external<void>(0x01dd1480, this, isForce, langId);
         }
     };
 }

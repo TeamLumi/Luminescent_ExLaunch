@@ -250,5 +250,13 @@ namespace Pml::PokePara {
         inline void EndFastMode() {
             external<void>(0x024a42a0, this);
         }
+
+        inline uint32_t GetGetPlace() {
+            return external<uint32_t>(0x024a6ee0, this);
+        }
+
+        inline uint32_t GetBirthPlace() {
+            return external<uint32_t>(0x024a6f50, this);
+        }
     };
 }

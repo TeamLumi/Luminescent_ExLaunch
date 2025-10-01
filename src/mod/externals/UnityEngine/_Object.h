@@ -18,6 +18,10 @@ namespace UnityEngine {
             return external<System::String::Object*>(0x0268a940, this);
         }
 
+        System::String::Object* get_Name() {
+            return external<System::String::Object*>(0x02685f80, this);
+        }
+
         static inline bool op_Equality(UnityEngine::_Object::Object* x, UnityEngine::_Object::Object* y) {
             return external<bool>(0x02688120, x, y);
         }

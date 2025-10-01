@@ -226,5 +226,25 @@ namespace Pml::PokePara {
         inline uint32_t GetExp() {
             return external<uint32_t>(0x02043f30, this);
         }
+
+        inline uint32_t GetMemories(int32_t memoriesKind) {
+            return external<uint32_t>(0x0204ac30, this, memoriesKind);
+        }
+
+        inline uint32_t GetGetBall() {
+            return external<uint32_t>(0x0204b830, this);
+        }
+
+        inline uint8_t GetWazaCount() {
+            return external<uint8_t>(0x02045e10, this);
+        }
+
+        inline bool HaveWaza(int32_t wazano) {
+            return external<bool>(0x02045ea0, this, wazano);
+        }
+
+        inline void ChangeEgg() {
+            external<void>(0x02049450, this);
+        }
     };
 }
