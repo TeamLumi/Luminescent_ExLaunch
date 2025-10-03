@@ -6,8 +6,8 @@
 #include "memory/json.h"
 
 struct DexFormSaveDataElement {
-    std::vector<System::Boolean> regularFlags; // Doesn't compile with nn::vector (no allocator for bool)
-    std::vector<System::Boolean> shinyFlags; // Doesn't compile with nn::vector (no allocator for bool)
+    nn::vector<uint8_t> regularFlags; // Doesn't compile with nn::vector<bool> (no allocator for bool)
+    nn::vector<uint8_t> shinyFlags; // Doesn't compile with nn::vector<bool> (no allocator for bool)
 
     void Initialize() {
         // Nothing?
@@ -22,8 +22,8 @@ struct DexFormSaveDataElement {
 
     void FromJson(const nn::json& dexForms) {
         Initialize();
-        regularFlags = dexForms["regularFlags"].get<std::vector<bool>>();
-        shinyFlags = dexForms["shinyFlags"].get<std::vector<bool>>();
+        regularFlags = dexForms["regularFlags"].get<nn::vector<uint8_t>>();
+        shinyFlags = dexForms["shinyFlags"].get<nn::vector<uint8_t>>();
     }
 
     bool getFlag(int32_t formno, bool shiny) {
