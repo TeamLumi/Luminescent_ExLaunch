@@ -58,6 +58,7 @@ static constexpr const char* FEATURES[] = {
     "Pushable Entities",
     "Select Poffin Case",
     "Fake StopData",
+    "Diploma Adjustments",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
