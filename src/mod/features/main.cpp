@@ -1,4 +1,3 @@
-#include "data/features.h"
 #include "data/utils.h"
 
 #include "features/activated_features.h"
@@ -108,6 +107,8 @@ void CallFeatureHooks()
         exl_ayou_patches_main();
     if (IsActivatedFeature(array_index(FEATURES, "Pokédex Form Flags")))
         exl_dex_form_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Diploma Adjustments")))
+        exl_diploma_adjustments_main();
     if (IsActivatedFeature(array_index(FEATURES, "Dialog Text Color")))
         exl_text_color_main();
     if (IsActivatedFeature(array_index(FEATURES, "Language UI Fixes")))

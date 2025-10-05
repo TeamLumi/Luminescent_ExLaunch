@@ -305,6 +305,14 @@ struct name##_array {                                                           
         system_array_init(array, nullptr);                                                          \
         return array;                                                                               \
     }                                                                                               \
+    inline int32_t IndexOf(name value) const {                                                      \
+        for (uint64_t i = 0; i < max_length; i++) {                                                 \
+            if (m_Items[i] == value) {                                                              \
+                return static_cast<int32_t>(i);                                                     \
+            }                                                                                       \
+        }                                                                                           \
+        return -1;                                                                                  \
+    }                                                                                               \
 };
 
 
