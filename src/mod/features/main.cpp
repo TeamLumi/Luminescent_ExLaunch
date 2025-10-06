@@ -7,6 +7,7 @@
 #include "helpers/fsHelper.h"
 #include "nn/fs/fs_mount.hpp"
 #include "nn/err.h"
+#include "data/features.h"
 
 void CallFeatureHooks()
 {
