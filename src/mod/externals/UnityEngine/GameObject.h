@@ -7,6 +7,10 @@
 #include "externals/UnityEngine/_Object.h"
 #include "externals/UnityEngine/Transform.h"
 
+namespace Dpr {
+    struct PatcheelPattern;
+}
+
 namespace UnityEngine {
     struct SkinnedMeshRenderer;
     struct Image;
@@ -18,7 +22,8 @@ namespace UnityEngine {
 
         static inline StaticILMethod<0x04c67678, UnityEngine::SkinnedMeshRenderer> Method$$SkinnedMeshRenderer$$GetComponentsInChildren {};
 
-        static inline StaticILMethod<0x04c66980, UnityEngine::Image> Method$$Image$$GetComponent {};
+        static inline StaticILMethod<0x04c66f08, Dpr::PatcheelPattern> Method$$PatcheelPattern$$GetComponent {};
+        static inline StaticILMethod<0x04c670c8, UnityEngine::Image>   Method$$Image$$GetComponent {};
 
         static inline StaticILMethod<0x04c8e9c0, UnityEngine::Component> Method$$Component$$GetComponents {};
 

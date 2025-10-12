@@ -4,6 +4,14 @@
 #include "externals/System/String.h"
 
 struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
+    struct StaticFields {
+        FieldCanvas::Object* _instance;
+        bool useLateUpdate;
+        void* demoMng; // Dpr::Demo::DemoSceneManager::Object*
+        bool isNPCTrading;
+        bool isNPCTradeEnd;
+    };
+
     static inline void OpenAreaNameWindow(System::String* labelName) {
         external<void>(0x01786970, labelName);
     }

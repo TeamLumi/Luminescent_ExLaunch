@@ -48,7 +48,16 @@ static constexpr const char* FEATURES[] = {
     "Spinda Hijacking",
     "Form Argument Pokémon Icons",
     "Form Argument Generation",
+    "AYou Patches",
     "Pokédex Form Flags",
+    "Dialog Text Color",
+    "Language UI Fixes",
+    "Move Tutor Relearner",
+    "Player Select",
+    "Intro Professor Pokémon",
+    "Pushable Entities",
+    "Select Poffin Case",
+    "Fake StopData",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
@@ -61,6 +70,11 @@ static constexpr const char* DEBUG_FEATURES[] = {
     "Unity Logging",
     "Feature Logging",
     "Pickup 100%",
+    "Mega Evolution Gimmick Flag",
+    "Z-Move Gimmick Flag",
+    "Ultra Burst Gimmick Flag",
+    "Dynamax Gimmick Flag",
+    "Terastallization Gimmick Flag",
 };
 
 constexpr int DEBUG_FEATURE_COUNT = sizeof(DEBUG_FEATURES) / sizeof(DEBUG_FEATURES[0]);

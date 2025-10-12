@@ -10,7 +10,6 @@
 #include "externals/Dpr/NX/SaveSystem.h"
 #include "helpers/fsHelper.h"
 #include "externals/UnityEngine/JsonUtility.h"
-#include "externals/GameManager.h"
 #include "err.h"
 #include "externals/UnityEngine/Switch/Notification.h"
 
@@ -64,20 +63,30 @@ void FailedLoad() {
 
 void LoadCustomSaveData(nn::json& saveFile) {
     Logger::log("[LoadCustomSaveData] Loading custom data...\n");
+
+    // ADD THE LOADING OF NEW STRUCTS HERE
     loadMainFromJson(saveFile);
     loadPlayerColorVariationFromJson(saveFile);
     loadDexFormsFromJson(saveFile);
+    loadAYouFromJson(saveFile);
+    loadExtraSettingsFromJson(saveFile);
+
     Logger::log("[LoadCustomSaveData] Custom data loaded successfully.\n");
 }
 
 nn::json WriteCustomSaveData() {
     Logger::log("[WriteCustomSaveData] Converting custom data...\n");
     nn::json lumiObject = nn::json::object();
+
+    // ADD THE SAVING OF NEW STRUCTS HERE
     nn::vector<nn::json> saveFunctions = {
         getMainAsJson(),
         getPlayerColorVariationAsJson(),
         getDexFormsAsJson(),
+        getAYouAsJson(),
+        getExtraSettingsAsJson(),
     };
+
     Logger::log("[WriteCustomSaveData] Custom data converted successfully.\n");
 
     for (const auto& jsonStructure : saveFunctions) {

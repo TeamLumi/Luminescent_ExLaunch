@@ -71,5 +71,9 @@ namespace Dpr::UI {
         inline int32_t GetAnimationIndexByClipName(System::String::Object* clipName) {
             return external<int32_t>(0x01a0e950, this, clipName);
         }
+
+        inline int32_t ResetCaches(int32_t num, bool isUnload) {
+            return external<int32_t>(0x01a0f140, this, num, isUnload);
+        }
     };
 }

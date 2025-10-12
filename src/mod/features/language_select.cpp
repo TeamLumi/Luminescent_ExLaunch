@@ -5,7 +5,19 @@
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/Mathf.h"
+
 #include "romdata/romdata.h"
+#include "utils/utils.h"
+
+void SelectGridIndex(Dpr::UI::SelectLanguageWindow::Object* window, int32_t hSelection, int32_t vSelection, int32_t vCount)
+{
+    if (window->SetSelectIndex(hSelection * vCount + vSelection, false))
+    {
+        Audio::AudioManager::getClass()->initIfNeeded();
+        auto audioManager = Audio::AudioManager::get_Instance();
+        audioManager->PlaySe(0xb7533038, nullptr);
+    }
+}
 
 HOOK_DEFINE_INLINE(LanguageSelect_Add) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
@@ -27,72 +39,6 @@ HOOK_DEFINE_INLINE(LanguageSelect_Add) {
         }
     }
 };
-
-void SelectGridIndex(Dpr::UI::SelectLanguageWindow::Object* window, int32_t hSelection, int32_t vSelection, int32_t vCount)
-{
-    if (window->SetSelectIndex(hSelection * vCount + vSelection, false))
-    {
-        Audio::AudioManager::getClass()->initIfNeeded();
-        auto audioManager = Audio::AudioManager::instance();
-        audioManager->PlaySe(0xb7533038, nullptr);
-    }
-}
-
-int32_t HorizontalRepeat(int32_t hSelection, int32_t hCount, int32_t vSelection, int32_t vCount, int32_t lasthCount)
-{
-    if (vSelection == vCount - 1)
-    {
-        // Last Row
-        return Dpr::UI::UIManager::Repeat(hSelection, 0, lasthCount - 1);
-    }
-    else
-    {
-        // Any other row
-        return Dpr::UI::UIManager::Repeat(hSelection, 0, hCount - 1);
-    }
-}
-
-int32_t HorizontalClamp(int32_t hSelection, int32_t hCount, int32_t vSelection, int32_t vCount, int32_t lasthCount)
-{
-    if (vSelection == vCount - 1)
-    {
-        // Last Row
-        return UnityEngine::Mathf::Clamp(hSelection, 0, lasthCount - 1);
-    }
-    else
-    {
-        // Any other row
-        return UnityEngine::Mathf::Clamp(hSelection, 0, hCount - 1);
-    }
-}
-
-int32_t VerticalRepeat(int32_t hSelection, int32_t hCount, int32_t vSelection, int32_t vCount, int32_t lasthCount)
-{
-    if (hSelection + 1 > lasthCount)
-    {
-        // Column with a missing item on last row
-        return Dpr::UI::UIManager::Repeat(vSelection, 0, vCount - 2);
-    }
-    else
-    {
-        // Any other column
-        return Dpr::UI::UIManager::Repeat(vSelection, 0, vCount - 1);
-    }
-}
-
-int32_t VerticalClamp(int32_t hSelection, int32_t hCount, int32_t vSelection, int32_t vCount, int32_t lasthCount)
-{
-    if (hSelection + 1 > lasthCount)
-    {
-        // Column with a missing item on last row
-        return UnityEngine::Mathf::Clamp(vSelection, 0, vCount - 2);
-    }
-    else
-    {
-        // Any other column
-        return UnityEngine::Mathf::Clamp(vSelection, 0, vCount - 1);
-    }
-}
 
 HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
     static void Callback(Dpr::UI::SelectLanguageWindow::Object* __this, float deltaTime) {
@@ -119,14 +65,17 @@ HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
 
         int32_t selection = __this->fields._selectIndex;
 
+        // NOTE: This would probably break with more than 2 columns
+        // If you want more columns, re-arrange the UI bundle so that it's ordered
+        // and change the math to match the one for player selection
         int32_t totalCount = __this->fields._items->fields._size;
-        int32_t hCount = 2;
-        int32_t vCount = (totalCount + 1) / hCount;
-        int32_t lasthCount = totalCount % hCount;
+        int32_t hCount = 2; // Amount of columns
+        int32_t vCount = (totalCount - 1) / hCount + 1; // Amount of rows
+        int32_t lasthCount = totalCount % hCount; // Amount of columns in the last row
         if (totalCount < hCount) hCount = totalCount;
         if (lasthCount == 0) lasthCount = hCount;
 
-        int32_t hSelection = selection / vCount;
+        int32_t hSelection = selection / vCount; // The internal list goes up->down THEN left->right
         int32_t vSelection = selection % vCount;
 
         // Horizontal movement

@@ -324,6 +324,10 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
     }
 
+    static inline PLAYREPORT_DATA::Object* get_playReportDataRef() {
+        return external<PLAYREPORT_DATA::Object*>(0x02cf6530);
+    }
+
     static inline DPData::PLAYER_DATA::Object* get_playerData() {
         return external<DPData::PLAYER_DATA::Object*>(0x02ce2a50);
     }
@@ -346,5 +350,9 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline void set_Enc_SV_Data(DPData::ENC_SV_DATA::Object* value) {
         external<void>(0x02cf27d0, value);
+    }
+
+    static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
+        return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
     }
 };

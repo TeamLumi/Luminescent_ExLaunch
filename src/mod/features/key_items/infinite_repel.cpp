@@ -22,7 +22,7 @@ void UseInfiniteRepel(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Display
     if (flag)
     {
         SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
-        Audio::AudioManager::Object * audioManager = Audio::AudioManager::instance();
+        Audio::AudioManager::Object * audioManager = Audio::AudioManager::get_Instance();
         audioManager->PlaySe(REPEL_SOUND_ID, nullptr);
     }
 

@@ -16,5 +16,9 @@ namespace Pml::PokePara {
         inline void ctor(Pml::PokePara::InitialSpec::Object* spec) {
             external<void>(0x02055140, this, spec);
         }
+
+        inline void ctor(PokemonParam::Object* src) {
+            external<void>(0x020546d0, this, src);
+        }
     };
 }

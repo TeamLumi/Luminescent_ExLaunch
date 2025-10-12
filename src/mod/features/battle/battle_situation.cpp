@@ -175,7 +175,7 @@ HOOK_DEFINE_TRAMPOLINE(BUISituationButton_Initialize) {
         auto coreParam = (Pml::PokePara::CoreParam::Object*)btlParam->GetSrcData();
         MethodInfo* mi = Dpr::UI::PokemonIcon::getMethod$$BUISituationLoadIcon((Il2CppMethodPointer) &LoadSpriteToImage);
         auto onLoad = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::Sprite_TypeInfo)->newInstance(__this->fields._pokeIcon, mi);
-        auto uiManager = Dpr::UI::UIManager::instance();
+        auto uiManager = Dpr::UI::UIManager::get_Instance();
 
         uiManager->LoadSpritePokemon(coreParam->GetMonsNo(), coreParam->GetFormNo(), coreParam->GetSex(), coreParam->GetRareType(), coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG), onLoad);
         Logger::log("BUISituationButton_Initialize END\n");
@@ -480,7 +480,7 @@ void exl_battle_situation_main() {
 
     //BUISituation_OnUpdate::InstallAtOffset(0x01d23280);
 
-    //BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
+    BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
 
     BUISituationDetail_ctor_fieldIDs::InstallAtOffset(0x01d26780);
     BUISituationDetail_ctor_weatherIDs::InstallAtOffset(0x01d26868);
