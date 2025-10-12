@@ -8,6 +8,7 @@
 #include "externals/XLSXContent/MonohiroiTable.h"
 #include "externals/XLSXContent/PokemonInfo.h"
 #include "externals/XLSXContent/ShopTable.h"
+#include "externals/XLSXContent/FieldCommonParam.h"
 
 namespace GameData {
     struct DataManager : ILClass<DataManager, 0x04c59d70> {
@@ -40,7 +41,7 @@ namespace GameData {
             void* TvDataTable;
             void* TvSchedule;
             void* onPostLoadData;
-            void* FieldCommonParam;
+            XLSXContent::FieldCommonParam::Object* FieldCommonParam;
             void* FieldWazaCutInParam;
             void* ZenmetuZone;
             void* MoveAfterSaveGrid;

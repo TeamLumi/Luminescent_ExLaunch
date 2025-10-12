@@ -41,4 +41,8 @@ struct EncountDataWork : ILClass<EncountDataWork> {
     static inline void MovePoke_RandomZone(int32_t monsno) {
         external<void>(0x01f09270, monsno);
     }
+
+    static inline int32_t GetMovePoke_ZoneID(int32_t index) {
+        return external<int32_t>(0x01f099b0, index);
+    }
 };

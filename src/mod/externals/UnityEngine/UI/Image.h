@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/UI/MaskableGraphic.h"
 
 namespace UnityEngine::UI {
-    struct Image : ILClass<Image> {
+    struct Image : ILClass<Image, 0, 0x04c63db8> {
         struct Fields : UnityEngine::UI::MaskableGraphic::Fields {
             Sprite::Object* m_Sprite;
             Sprite::Object* m_OverrideSprite;

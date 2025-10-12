@@ -1,6 +1,7 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+#include "externals/UnityEngine/Vector3.h"
 
 #include "externals/Effect/EffectInstance.h"
 #include "externals/FieldObjectEntity.h"
@@ -97,5 +98,9 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     inline void RequestAttributeSE(FieldObjectEntity::Object* entity, int32_t attri) {
         external<void>(0x017a0130, this, entity, attri);
+    }
+
+    inline void GetTownMapPos(int32_t* zoneid, UnityEngine::Vector3::Object* pos, bool isForcePrevious) {
+        external<void>(0x017a43b0, this, zoneid, pos, isForcePrevious);
     }
 };

@@ -529,10 +529,10 @@ void SetEncounterType(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::
     }
     else
     {
-        int32_t moveZoneId = Dpr::Field::FieldEncount::CheckMovePokeEnc();
-        if ((swayInfo == nullptr || !swayInfo->fields.Enc) && moveZoneId > -1)
+        int32_t movePokeIdx = Dpr::Field::FieldEncount::CheckMovePokeEnc();
+        if ((swayInfo == nullptr || !swayInfo->fields.Enc) && movePokeIdx > -1)
         {
-            (*encounterHolder)->fields.MP_SaveIndex = moveZoneId;
+            (*encounterHolder)->fields.MP_SaveIndex = movePokeIdx;
             (*encounterHolder)->fields.Type = Dpr::Field::EncountResult::BtlType::MovePoke;
         }
         else if (PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_SAFARI_MODE))
@@ -555,9 +555,9 @@ Dpr::Field::EncountResult::Object * ReturnRoamingPokemonEncounter(Dpr::Field::En
     Pml::PokeParty::Object *party = PlayerWork::get_playerParty();
     auto firstPokemon = (Pml::PokePara::CoreParam::Object *)party->GetMemberPointer(0);
 
-    int32_t moveZoneId = Dpr::Field::FieldEncount::CheckMovePokeEnc();
+    int32_t movePokeIdx = (*encounterHolder)->fields.MP_SaveIndex;
     DPData::MV_POKE_DATA::Object mvPokeData{}; // local_120 = 0x0, local_118 = 0x8, etc. Total size 0x28 NOTE: ALIGNMENT IS WRONG IN GHIDRA
-    EncountDataWork::GetMovePokeData(moveZoneId, &mvPokeData);
+    EncountDataWork::GetMovePokeData(movePokeIdx, &mvPokeData);
     if (spaStruct->fields.SprayCheck && mvPokeData.fields.Lv < spaStruct->fields.SpMyLv)
     {
         return nullptr;
