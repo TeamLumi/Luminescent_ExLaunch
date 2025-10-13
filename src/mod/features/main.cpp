@@ -92,10 +92,6 @@ void CallFeatureHooks()
         exl_contest_npc_forms_main();
     if (IsActivatedFeature(array_index(FEATURES, "Re:Lumi Pokédex UI")))
         exl_relumi_dex_ui();
-    if (IsActivatedFeature(array_index(FEATURES, "Madrid UI")))
-        exl_madrid_ui_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Mega Evolution")))
-        exl_mega_evolution_main();
     if (IsActivatedFeature(array_index(FEATURES, "Local Trades Extension")))
         exl_local_trades_main();
     if (IsActivatedFeature(array_index(FEATURES, "Spinda Hijacking")))
@@ -104,26 +100,8 @@ void CallFeatureHooks()
         exl_form_arg_icons_main();
     if (IsActivatedFeature(array_index(FEATURES, "Form Argument Generation")))
         exl_form_arg_generation_main();
-    if (IsActivatedFeature(array_index(FEATURES, "AYou Patches")))
-        exl_ayou_patches_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Pokédex Form Flags")))
-        exl_dex_form_flags_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Dialog Text Color")))
-        exl_text_color_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Language UI Fixes")))
-        exl_language_ui_fixes_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Move Tutor Relearner")))
-        exl_move_tutor_relearner_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Player Select")))
-        exl_player_select_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Intro Professor Pokémon")))
-        exl_intro_professor_pokemon_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Pushable Entities")))
-        exl_pushable_entities_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Select Poffin Case")))
-        exl_select_poffin_case_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Fake StopData")))
-        exl_fake_stopdata_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Trainer Color Variation")))
+        exl_trainer_color_variations_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

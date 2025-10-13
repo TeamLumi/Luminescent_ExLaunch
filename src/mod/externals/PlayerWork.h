@@ -209,7 +209,6 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         void* _autosaveWindow;
         float _autosaveWindowCloseOpenTime;
     };
-
     static_assert(offsetof(Fields, _autosaveWindowCloseOpenTime) == 0x828);
 
     static inline StaticILMethod<0x04c81de0> Method$PlayerWork_ToBytes__PlayerWork_SaveData__ {};
@@ -350,5 +349,9 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
         return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
+    }
+
+    static inline int32_t get_colorID() {
+        return external<int32_t>(0x02cef820);
     }
 };

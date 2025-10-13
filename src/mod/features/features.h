@@ -201,3 +201,6 @@ void exl_wild_forms_main();
 // Rewrites the method that sets a wild Pokémon's held item to use consistent rates (50% / 5% / 45%).
 // Also adds "Frisk" as an ability that raises wild Pokémon's held item rate.
 void exl_wild_held_items_main();
+
+//
+void exl_trainer_color_variations_main();

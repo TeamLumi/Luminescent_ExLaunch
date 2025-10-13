@@ -12,6 +12,7 @@ struct BattleCharacterEntity;
 struct FieldCharacterEntity;
 struct FieldObjectEntity;
 struct PokemonCustomNodeAnim;
+struct ColorVariation;
 
 namespace System::Collections::Generic {
     struct List$$Component;
@@ -60,6 +61,7 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c66808, FieldObjectEntity> Method$$FieldObjectEntity$$GetComponent {};
         static inline StaticILMethod<0x04c66840, PokemonCustomNodeAnim> Method$$PokemonCustomNodeAnim$$GetComponent {};
         static inline StaticILMethod<0x04c669c0, XMenuTopItem> Method$$XMenuTopItem$$GetComponent {};
+        static inline StaticILMethod<0x04c666d8, ColorVariation> Method$$ColorVariation$$GetComponent {};
 
         static inline StaticILMethod<0x04c66a18, Dpr::UI::UIText> Method$$UIText$$GetComponentInChildren {};
 
