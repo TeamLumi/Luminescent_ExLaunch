@@ -66,10 +66,10 @@ void LoadCustomSaveData(nn::json& saveFile) {
 
     // ADD THE LOADING OF NEW STRUCTS HERE
     loadMainFromJson(saveFile);
-    loadPlayerColorVariationFromJson(saveFile);
-    loadDexFormsFromJson(saveFile);
-    loadAYouFromJson(saveFile);
-    loadExtraSettingsFromJson(saveFile);
+    //loadPlayerColorVariationFromJson(saveFile);
+    //loadDexFormsFromJson(saveFile);
+    //loadAYouFromJson(saveFile);
+    //loadExtraSettingsFromJson(saveFile);
 
     Logger::log("[LoadCustomSaveData] Custom data loaded successfully.\n");
 }
@@ -81,10 +81,10 @@ nn::json WriteCustomSaveData() {
     // ADD THE SAVING OF NEW STRUCTS HERE
     nn::vector<nn::json> saveFunctions = {
         getMainAsJson(),
-        getPlayerColorVariationAsJson(),
-        getDexFormsAsJson(),
-        getAYouAsJson(),
-        getExtraSettingsAsJson(),
+        //getPlayerColorVariationAsJson(),
+        //getDexFormsAsJson(),
+        //getAYouAsJson(),
+        //getExtraSettingsAsJson(),
     };
 
     Logger::log("[WriteCustomSaveData] Custom data converted successfully.\n");

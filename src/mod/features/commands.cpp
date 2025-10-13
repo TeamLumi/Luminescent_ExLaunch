@@ -34,10 +34,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
             {
                 case Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER:
                     return HandleCmdStepper(SetWeather(__this));
-                case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC:
-                    return HandleCmdStepper(FirstPokeSelectProc(__this));
-                case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET:
-                    return HandleCmdStepper(FirstPokeNoGet(__this));
+//                case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC:
+//                    return HandleCmdStepper(FirstPokeSelectProc(__this));
+//                case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET:
+//                    return HandleCmdStepper(FirstPokeNoGet(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET:
                     return HandleCmdStepper(HoneyTreeBattleSet(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE:
