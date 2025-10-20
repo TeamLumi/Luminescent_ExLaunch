@@ -37,6 +37,8 @@ static constexpr const char *OUTFITS[] = {
     "Renegade Style Feminine",
     "Vintage Style Masculine",
     "Vintage Style Feminine",
+    "Galactic Style Masculine",
+    "Galactic Style Feminine",
 };
 
 const int OUTFIT_COUNT = sizeof(OUTFITS) / sizeof(OUTFITS[0]);

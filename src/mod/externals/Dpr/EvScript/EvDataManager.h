@@ -59,12 +59,14 @@ namespace Dpr::EvScript {
             };
         };
 
-        struct EventEndDelegate : ILClass<EventEndDelegate> {
-            struct Fields : System::MulticastDelegate::Fields {
-                void* Entity;
-                int32_t State;
-                float Time;
-            };
+        struct EventEndDelegate : ILClass<EventEndDelegate, 0x04c5ea10> {
+            struct Fields : System::MulticastDelegate::Fields {};
+
+            static inline StaticILMethod<0x04c7d2b8> PTR_Method$$EvDataManager_WarpUpdateEnd {};
+
+            inline void ctor(void* target, MethodInfo* method) {
+                external<void>(0x019b23d0, this, target, method);
+            }
         };
 
         struct EntityParam : ILClass<EntityParam> {
@@ -487,6 +489,10 @@ namespace Dpr::EvScript {
 
         inline int32_t SetupHeroMoveGridCenterFrontDir(UnityEngine::RectInt::Object* stopGridArea, UnityEngine::Vector2Int::Object* nowGrid, UnityEngine::Vector2Int::Object* oldGrid) {
             return external<int32_t>(0x02c47760, this, stopGridArea, nowGrid, oldGrid);
+        }
+
+        inline bool UpdateEvdata(float time, bool sp_script) {
+            return external<bool>(0x02c42ea0, this, time, sp_script);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {

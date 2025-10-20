@@ -6,11 +6,12 @@
 #include "memory/json.h"
 
 struct DexFormSaveDataElement {
-    std::vector<System::Boolean> regularFlags; // Doesn't compile with nn::vector (no allocator for bool)
-    std::vector<System::Boolean> shinyFlags; // Doesn't compile with nn::vector (no allocator for bool)
+    nn::vector<uint8_t> regularFlags; // Doesn't compile with nn::vector (no allocator for bool)
+    nn::vector<uint8_t> shinyFlags; // Doesn't compile with nn::vector (no allocator for bool)
 
     void Initialize() {
-        // Nothing?
+        regularFlags.clear();
+        shinyFlags.clear();
     }
 
     [[nodiscard]] nn::json ToJson() const {
@@ -20,40 +21,41 @@ struct DexFormSaveDataElement {
         };
     }
 
+    static inline void parseFlagArray(const nn::json& j, nn::vector<uint8_t>& out) {
+        out.clear();
+        if (!j.is_array()) return;
+        out.reserve(j.size());
+        for (const auto& flag : j) {
+            out.push_back(flag.get<uint8_t>());
+        }
+    }
+
     void FromJson(const nn::json& dexForms) {
         Initialize();
-        regularFlags = dexForms["regularFlags"].get<std::vector<bool>>();
-        shinyFlags = dexForms["shinyFlags"].get<std::vector<bool>>();
+        const nn::json& jReg = dexForms.contains("regularFlags") ? dexForms["regularFlags"] : nn::json::array();
+        const nn::json& jShiny = dexForms.contains("regularFlags") ? dexForms["shinyFlags"] : nn::json::array();
+        Logger::log("[Dex Forms] regularFlags: %s\n", jReg.dump().c_str());
+        Logger::log("[Dex Forms] shinyFlags: %s\n", jShiny.dump().c_str());
+        parseFlagArray(jReg, regularFlags);
+        parseFlagArray(jShiny, shinyFlags);
     }
 
     bool getFlag(int32_t formno, bool shiny) {
-        if (shiny) {
-            for (int32_t i=shinyFlags.size(); i<=formno; i++) {
-                shinyFlags.push_back(false);
-            }
-            return shinyFlags[formno];
+        if (formno < 0) return false;
+        nn::vector<uint8_t>& v = shiny ? shinyFlags : regularFlags;
+        for (int32_t i = v.size(); i <= formno; i++) {
+            v.push_back(false);
         }
-        else {
-            for (int32_t i=regularFlags.size(); i<=formno; i++) {
-                regularFlags.push_back(false);
-            }
-            return regularFlags[formno];
-        }
+        return v[formno] != false;
     }
 
     void setFlag(int32_t formno, bool shiny, bool value) {
-        if (shiny) {
-            for (int32_t i=shinyFlags.size(); i<=formno; i++) {
-                shinyFlags.push_back(false);
-            }
-            shinyFlags[formno] = value;
+        if (formno < 0) return;
+        nn::vector<uint8_t>& v = shiny ? shinyFlags : regularFlags;
+        for (int32_t i = v.size(); i <= formno; i++) {
+            v.push_back(false);
         }
-        else {
-            for (int32_t i=regularFlags.size(); i<=formno; i++) {
-                regularFlags.push_back(false);
-            }
-            regularFlags[formno] = value;
-        }
+        v[formno] = value;
     }
 };
 
@@ -81,8 +83,11 @@ struct DexFormSaveData {
 
     void FromJson(const nn::json& dexForms) {
         Initialize();
-        for (uint64_t i=0; i<size && i<dexForms.size(); i++)
+        for (uint64_t i=0; i<size && i<dexForms.size(); i++) {
+            Logger::log("[Dex Forms] elements[%d]\n", i);
             elements[i].FromJson(dexForms[i]);
+        }
+
     }
 };
 

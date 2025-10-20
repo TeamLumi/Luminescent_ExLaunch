@@ -6,6 +6,11 @@
 #include "data/utils.h"
 #include "externals/Dpr/UI/ShopBoutiqueItemItem.h"
 #include "externals/GameData/DataManager.h"
+#include "externals/FlagWork.h"
+#include "externals/FlagWork_Enums.h"
+#include "externals/PlayerWork.h"
+
+#include "romdata/romdata.h"
 
 void AddOutfit(System::Collections::Generic::List$$ShopBoutiqueItemItem_Param::Object* itemParams, int32_t dressId) {
     Dpr::UI::ShopBoutiqueItemItem::Param::Object* item = Dpr::UI::ShopBoutiqueItemItem::Param::newInstance();
@@ -19,20 +24,32 @@ HOOK_DEFINE_REPLACE(Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams) {
     static int32_t Callback(System::Collections::Generic::List$$ShopBoutiqueItemItem_Param::Object *itemParams) {
         system_load_typeinfo(0x7cbb);
 
+        bool playerSex = PlayerWork::get_playerSex();
+
         for (int32_t dressId = 0; dressId < OUTFIT_COUNT; dressId++)
         {
-            if (dressId == array_index(OUTFITS, "Bicycle Style Masculine") ||
-                dressId == array_index(OUTFITS, "Bicycle Style Feminine") ||
-                dressId == array_index(OUTFITS, "Cyber Style 2.0 Masculine")||
-                dressId == array_index(OUTFITS, "Renegade Style Feminine"))
-            {
-                // Don't add these outfits
+            auto outfitData = GetOutfitData(dressId);
+            if (playerSex) {
+                if (!outfitData.forMale) {
+                    // Outfit is not marked as available for Masculine.
+                    continue;
+                }
+            }
+
+            else {
+                if (!outfitData.forFemale) {
+                    // Outfit is not marked as available for Feminine.
+                    continue;
+                }
+            }
+
+            if (outfitData.isLockedByFlag && !FlagWork::GetFlag(outfitData.flag)) {
+                // Outfit is not available based on current flags
                 continue;
             }
-            else
-            {
-                AddOutfit(itemParams, dressId);
-            }
+
+            // All exclusionary conditions are cleared, Outfit is available.
+            AddOutfit(itemParams, dressId);
         }
 
         return 0;

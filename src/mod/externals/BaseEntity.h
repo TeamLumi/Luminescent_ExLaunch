@@ -56,6 +56,10 @@ struct BaseEntity : ILClass<BaseEntity> {
         external<void>(0x01d67740, this, posProxy);
     }
 
+    inline void SetYawAngleDirect(float angle) {
+        external<void>(0x01d67790, this, angle);
+    }
+
     static_assert(sizeof(VTable) == 0xe0);
     static_assert(offsetof(VTable, _4_get_entityType) == 0x40);
     static_assert(offsetof(VTable, _5_GetAnimationPlayer) == 0x50);
