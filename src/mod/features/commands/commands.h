@@ -328,3 +328,11 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] relativeHeight: Unknown. (Default is 0.75)
 //   [Work, Number] relativeLower: Unknown. (Default is -0.5)
 bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Makes the player ledge jump with the given parameters, while rotating a given GameObject over an amount of frames around a specific pivot.
+// Arguments:
+//   [String] gameObject: The name of the GameObject to get the position of.
+//   [Work] x: Work to store the x coordinate.
+//   [Work] y: Work to store the y coordinate.
+//   [Work] z: Work to store the z coordinate.
+bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager);

@@ -132,6 +132,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(LedgeJump(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE:
                     return HandleCmdStepper(JumpAndRotate(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_GAMEOBJECT_POSITION:
+                    return HandleCmdStepper(GetGameObjectPosition(__this));
                 default:
                     break;
             }
@@ -199,4 +201,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LEDGE_JUMP);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_GAMEOBJECT_POSITION);
 }
