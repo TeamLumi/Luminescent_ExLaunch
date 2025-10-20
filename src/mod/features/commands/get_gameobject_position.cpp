@@ -7,14 +7,12 @@
 bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_GET_GAMEOBJECT_POSITION\n");
-    // _GET_GAMEOBJECT_POSITION [ID] [X Work] [Y Work] [Z Work]
     system_load_typeinfo(0x438c);
     system_load_typeinfo(0x45dc);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     auto id = GetStringText(manager, args->m_Items[1]);
-    UnityEngine::GameObject::Object* gameObj;
-    gameObj = UnityEngine::GameObject::Find(id)->instance();
+    auto gameObj = UnityEngine::GameObject::Find(id)->instance();
 
     if (gameObj == nullptr)
         return false;
