@@ -329,10 +329,19 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] relativeLower: Unknown. (Default is -0.5)
 bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Makes the player ledge jump with the given parameters, while rotating a given GameObject over an amount of frames around a specific pivot.
+// Retrieves the positional vector of the given gameObject placed into corresponding x,y,z works.
 // Arguments:
 //   [String] gameObject: The name of the GameObject to get the position of.
 //   [Work] x: Work to store the x coordinate.
 //   [Work] y: Work to store the y coordinate.
 //   [Work] z: Work to store the z coordinate.
 bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Moves a gameObject by an amount of tiles over an amount of frames.
+// Arguments:
+//   [Work, Number, String] gameObject: The ID of the gameObject to move.
+//   [Work, Number] x: Amount of tiles to move on the x axis.
+//   [Work, Number] y: Amount of tiles to move on the y axis.
+//   [Work, Number] z: Amount of tiles to move on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager);

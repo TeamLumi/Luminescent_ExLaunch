@@ -6,7 +6,7 @@
 
 bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    //Logger::log("_GET_GAMEOBJECT_POSITION\n");
+    Logger::log("_GET_GAMEOBJECT_POSITION\n");
     // _GET_GAMEOBJECT_POSITION [ID] [X Work] [Y Work] [Z Work]
     system_load_typeinfo(0x438c);
     system_load_typeinfo(0x45dc);
@@ -19,7 +19,7 @@ bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager)
     if (gameObj == nullptr)
         return false;
 
-    auto position = gameObj->get_transform()->get_position();
+    auto position = gameObj->get_transform()->get_localPosition();
     SetWorkToValue(args->m_Items[2], position.fields.x);
     SetWorkToValue(args->m_Items[3], position.fields.y);
     SetWorkToValue(args->m_Items[4], position.fields.z);
