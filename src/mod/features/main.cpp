@@ -124,6 +124,10 @@ void CallFeatureHooks()
         exl_select_poffin_case_main();
     if (IsActivatedFeature(array_index(FEATURES, "Fake StopData")))
         exl_fake_stopdata_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Custom UI")))
+        exl_custom_ui_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Radar Patches")))
+        exl_expanded_radar_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

@@ -47,6 +47,10 @@ namespace Dpr::Field {
         static inline bool SetEncountData(Pml::PokePara::PokemonParam::Object *param, int32_t inRodType, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, MonsLv::Array *inData, int32_t location, int32_t inTarget, Dpr::Field::EncountResult::Object **outBattleParam) {
             return external<bool>(0x019b6e30, param, inRodType, inFldSpa, inData, location, inTarget, outBattleParam);
         }
+
+        static inline bool SetSwayEncountData(Pml::PokePara::PokemonParam::Object *param, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, MonsLv::Array *inData, int32_t inTarget, Dpr::Field::EncountResult::Object **outBattleParam, int32_t inMonsNo, uint32_t inLv) {
+            return external<bool>(0x019b6aa0, param, inFldSpa, inData, inTarget, outBattleParam, inMonsNo, inLv);
+        }
         
         static inline void SetSpaStruct(Pml::PokePara::PokemonParam::Object *inPokeParam, XLSXContent::FieldEncountTable::Sheettable::Object *inData, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *outSpa) {
             external<void>(0x019b3eb0, inPokeParam, inData, outSpa);

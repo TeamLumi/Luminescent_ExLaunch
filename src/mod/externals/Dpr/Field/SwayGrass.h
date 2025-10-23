@@ -9,7 +9,7 @@
 
 namespace Dpr::Field {
     struct SwayGrass : ILClass<SwayGrass, 0x04c5ac58> {
-        struct GrassData : ILClass<GrassData> {
+        struct GrassData : ILClass<GrassData, 0x04c5f238> {
             struct Fields {
                 bool enable;
                 float effectTime;
@@ -21,6 +21,10 @@ namespace Dpr::Field {
                 int32_t attricode;
                 UnityEngine::GameObject::Object* transObject;
             };
+
+            inline void ctor() {
+                external<void>(0x019bafd0, this);
+            }
         };
 
         struct StaticFields {
@@ -45,6 +49,10 @@ namespace Dpr::Field {
         static inline bool SwayGrass_CheckSpEncount(Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object *info, UnityEngine::Vector3::Object *pos, float size) {
             UnityEngine::Vector3::Fields posProxy = { .x = pos->fields.x, .y = pos->fields.y, .z = pos->fields.z };
             return external<bool>(0x019b43d0, info, &posProxy, size);
+        }
+
+        static inline int32_t RensaNum(uint32_t rensa, bool omamori) {
+            return external<int32_t>(0x019bc470, rensa, omamori);
         }
     };
 }

@@ -569,7 +569,7 @@ Dpr::Field::EncountResult::Object * ReturnRoamingPokemonEncounter(Dpr::Field::En
 }
 
 // Prepares the water encounter slots and triggers a water encounter.
-Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spaStruct, MonsLv::Array *slots, bool resetWalkEncountCount)
+Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spaStruct, MonsLv::Array *slots, bool resetWalkEncountCount, Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object* swayInfo)
 {
     Pml::PokeParty::Object *party = PlayerWork::get_playerParty();
     auto firstPokemon = (Pml::PokePara::CoreParam::Object *)party->GetMemberPointer(0);
@@ -590,6 +590,15 @@ Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResu
     }
 
     SetWaterGBASlots(slots);
+
+    if (swayInfo->fields.Enc) {
+        Dpr::Field::SwayGrass::getClass()->initIfNeeded();
+        auto rensaMons = Dpr::Field::SwayGrass::getClass()->static_fields->rensa_mons;
+        auto rensaLv = Dpr::Field::SwayGrass::getClass()->static_fields->rensa_lv;
+        bool randomWildEncounter = Dpr::Field::FieldEncount::SetSwayEncountData((Pml::PokePara::PokemonParam::Object*)firstPokemon, *spaStruct, slots, 1, encounterHolder, rensaMons, rensaLv);
+        return ReturnEncounterSlots(randomWildEncounter, encounterHolder, spaStruct, slots, true, resetWalkEncountCount);
+    }
+
     bool randomWildEncounter = Dpr::Field::FieldEncount::SetEncountData((Pml::PokePara::PokemonParam::Object*)firstPokemon, 0, *spaStruct, slots, 1, 1, encounterHolder);
     return ReturnEncounterSlots(randomWildEncounter, encounterHolder, spaStruct, slots, false, resetWalkEncountCount);
 }
@@ -691,7 +700,7 @@ HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
         }
         if (IsTileAWaterTile(entity->get_gridPosition()))
         {
-            return ReturnWaterEncounter(&encounterHolder, &spaStruct, slots, false);
+            return ReturnWaterEncounter(&encounterHolder, &spaStruct, slots, false, &swayInfo);
         }
 
         // Set slots
@@ -882,7 +891,8 @@ HOOK_DEFINE_REPLACE(SetSweetEncountEncounterSlots) {
         }
         if (IsTileAWaterTile(entity->get_gridPosition()))
         {
-            return ReturnWaterEncounter(&encounterHolder, &spaStruct, slots, true);
+            Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object swayInfo{};
+            return ReturnWaterEncounter(&encounterHolder, &spaStruct, slots, true, &swayInfo);
         }
 
         // Set slots

@@ -98,4 +98,9 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
     inline void RequestAttributeSE(FieldObjectEntity::Object* entity, int32_t attri) {
         external<void>(0x017a0130, this, entity, attri);
     }
+
+    inline void CallEffect(int32_t index, UnityEngine::Vector3::Object pos, void* loadCallback, void* eff_onFinished) {
+        UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
+        external<void>(0x017a0590, this, index, posProxy, loadCallback, eff_onFinished);
+    }
 };
