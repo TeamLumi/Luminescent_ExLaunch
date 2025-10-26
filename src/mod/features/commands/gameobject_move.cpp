@@ -23,6 +23,17 @@ bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
     int32_t deltaZ = GetWorkOrIntValue(args->m_Items[4]);
     int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
 
+    // Do the movement instantly if frames are 0 or negative
+    if (frames <= 0) {
+        auto currPos = gameObj->get_transform()->get_localPosition();
+        currPos.fields.x = origPosX + deltaX;
+        currPos.fields.y = origPosY + deltaY;
+        currPos.fields.z = origPosZ + deltaZ;
+        gameObj->get_transform()->set_localPosition(currPos);
+
+        return true;
+    }
+
     float totalTime = frames * 0.03333334;
     float currDeltaX = deltaX * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
     float currDeltaY = deltaY * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);

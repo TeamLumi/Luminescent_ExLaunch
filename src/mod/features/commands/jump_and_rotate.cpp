@@ -136,6 +136,13 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager) {
     auto pivot = FindTransform(GetStringText(manager, args->m_Items[6]));
     auto pivotPoint = pivot->get_position();
 
+    // Do the rotation instantly with no jump if frames are 0 or negative
+    if (frames <= 0) {
+        objTF->RotateAround(pivotPoint, axis, angle);
+
+        return true;
+    }
+
     float totalTime = frames * 0.03333334;
 
     float moveDistance   = args->max_length > 6 ? GetWorkOrFloatValue(args->m_Items[7]) : 2.0f;

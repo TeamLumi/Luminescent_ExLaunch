@@ -29,6 +29,17 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager)
     int32_t deltaZ = GetWorkOrIntValue(args->m_Items[4]);
     int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
 
+    // Do the rotation instantly if frames are 0 or negative
+    if (frames <= 0) {
+        auto currRot = objTF->get_localEulerAngles();
+        currRot.fields.x = origRotX + deltaX;
+        currRot.fields.y = origRotY + deltaY;
+        currRot.fields.z = origRotZ + deltaZ;
+        objTF->set_localEulerAngles(currRot);
+
+        return true;
+    }
+
     float totalTime = frames * 0.03333334;
     float currDeltaX = deltaX * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
     float currDeltaY = deltaY * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
