@@ -34,8 +34,8 @@ struct DexFormSaveDataElement {
         Initialize();
         const nn::json& jReg = dexForms.contains("regularFlags") ? dexForms["regularFlags"] : nn::json::array();
         const nn::json& jShiny = dexForms.contains("regularFlags") ? dexForms["shinyFlags"] : nn::json::array();
-        Logger::log("[Dex Forms] regularFlags: %s\n", jReg.dump().c_str());
-        Logger::log("[Dex Forms] shinyFlags: %s\n", jShiny.dump().c_str());
+        //Logger::log("[Dex Forms] regularFlags: %s\n", jReg.dump().c_str());
+        //Logger::log("[Dex Forms] shinyFlags: %s\n", jShiny.dump().c_str());
         parseFlagArray(jReg, regularFlags);
         parseFlagArray(jShiny, shinyFlags);
     }
