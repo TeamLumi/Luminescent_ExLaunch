@@ -84,7 +84,7 @@ struct DexFormSaveData {
     void FromJson(const nn::json& dexForms) {
         Initialize();
         for (uint64_t i=0; i<size && i<dexForms.size(); i++) {
-            Logger::log("[Dex Forms] elements[%d]\n", i);
+            //Logger::log("[Dex Forms] elements[%d]\n", i);
             elements[i].FromJson(dexForms[i]);
         }
 
