@@ -29,8 +29,9 @@
 #include "logger/logger.h"
 #include "helpers/fsHelper.h"
 #include "memory/json.h"
+#include "ui/madrid_battle_ui.h"
 
-/*const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
+const int32_t mega_flag_loc = 34; // Assuming the first 34 bits are used.
 const long mega_flag_mask = 1L << mega_flag_loc;
 
 const int32_t ultra_burst_flag_loc = 30;
@@ -40,11 +41,11 @@ const char* notDoingFilePath = "rom:/Data/ExtraData/NotDoing/RequiredItem.json";
 
 using Dpr::Battle::Logic::PokeActionCategory;
 
-uint8_t get_mega_flag(Dpr::Battle::Logic::BTL_ACTION::PARAM::Object __this) {
+uint8_t get_mega_flag(Dpr::Battle::Logic::BTL_ACTION_PARAM::Object __this) {
     return (*(uint64_t*)&__this.fields.raw >> 34) & 1;
 }
 
-uint8_t get_ultraBurst_flag(Dpr::Battle::Logic::BTL_ACTION::PARAM::Object __this) {
+uint8_t get_ultraBurst_flag(Dpr::Battle::Logic::BTL_ACTION_PARAM::Object __this) {
     return (*(uint64_t*)&__this.fields.raw >> 30) & 1;
 }
 
@@ -114,7 +115,7 @@ bool CanUltraBurst(Dpr::Battle::Logic::BTL_POKEPARAM::Object* param) {
     return param->GetMonsNo() == array_index(SPECIES, "Necrozma") && (param->GetFormNo() == 1 || param->GetFormNo() == 2);
 }
 
-Dpr::Battle::Logic::PokeActionCategory CanShowGimmickUI(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+Dpr::Battle::Logic::PokeActionCategory FindActiveGimmick(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
 
     auto pokeParam = __this->fields._btlPokeParam;
     PlayerWork::getClass()->initIfNeeded();
@@ -125,8 +126,9 @@ Dpr::Battle::Logic::PokeActionCategory CanShowGimmickUI(Dpr::Battle::View::UI::B
         case PokeActionCategory::Mega_Evolution: {
             return (
                            !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE) &&
-                           CanMegaEvolve(pokeParam) &&
-                           PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count > 0
+                                   GetMegaIcon(__this)->get_activeSelf() &&
+                                   CanMegaEvolve(pokeParam) &&
+                                   PlayerWork::GetItem(array_index(ITEMS, "Key Stone")).fields.Count > 0
                    ) ? PokeActionCategory::Mega_Evolution : PokeActionCategory::Null;
         }
 
@@ -254,7 +256,7 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
 
 HOOK_DEFINE_INLINE(CMD_ChangeForm_Start) {
     static void Callback(exl::hook::nx64::InlineCtx *ctx) {
-//        Dpr::Battle::View::BattleViewCore::instance()->fields._UISystem_k__BackingField->fields.
+        //ToDo: Logic required to control when sequence is overwritten
         reinterpret_cast<Dpr::Battle::View::Systems::BattleViewSystem::Object*>(ctx->X[19])->fields.m_subSequence = 20;
     }
 };
@@ -278,25 +280,20 @@ HOOK_DEFINE_INLINE(OnSubmitWazaButton) {
         auto __this = reinterpret_cast<Dpr::Battle::View::UI::BUIWazaList::Object*>(ctx->X[19]);
         auto destActionParam = __this->fields._destActionParam;
         ctx->X[8] = reinterpret_cast<u64>(destActionParam);
-        auto gimmickButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
-        auto gimmickState = gimmickButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
-        if (gimmickState->get_activeSelf()) {
-            switch(CanShowGimmickUI(__this)) {
-                case PokeActionCategory::Mega_Evolution: {
-                    destActionParam->fields.value.fields.raw |= mega_flag_mask;
-                    break;
-                }
-                case PokeActionCategory::Ultra_Burst: {
-                    destActionParam->fields.value.fields.raw |= ultra_burst_flag_mask;
-                    break;
-                }
-                default: {
-                    break;
-                }
+
+        switch(FindActiveGimmick(__this)) {
+            case PokeActionCategory::Mega_Evolution: {
+                Logger::log("[OnSubmitWazaButton] Mega conditions passed, actioning...\n");
+                destActionParam->fields.value.fields.raw |= mega_flag_mask;
+                break;
             }
-
-
-
+            case PokeActionCategory::Ultra_Burst: {
+                destActionParam->fields.value.fields.raw |= ultra_burst_flag_mask;
+                break;
+            }
+            default: {
+                break;
+            }
         }
     }
 };
@@ -335,7 +332,7 @@ HOOK_DEFINE_TRAMPOLINE(createPokeAction_FromClientInstruction) {
         system_load_typeinfo(0x78dd);
         system_load_typeinfo(0x78c7);
         auto party = reinterpret_cast<Dpr::Battle::Logic::Section::Object*>(__this)->GetPokeParty(clientID);
-        Dpr::Battle::Logic::BTL_ACTION::PARAM::Object firstInstruction{};
+        Dpr::Battle::Logic::BTL_ACTION_PARAM::Object firstInstruction{};
         firstInstruction.fields.raw = Dpr::Battle::Logic::SVCL_ACTION::Get(instructions, clientID, 0)->fields.raw;
 
         if (!get_mega_flag(firstInstruction) && !get_ultraBurst_flag(firstInstruction)) {
@@ -366,9 +363,9 @@ HOOK_DEFINE_TRAMPOLINE(createPokeAction_FromClientInstruction) {
 
 HOOK_DEFINE_TRAMPOLINE(setupPokeAction_FromClientInstruction) {
     static bool Callback(Dpr::Battle::Logic::Section_StoreActions::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction,
-                         Dpr::Battle::Logic::BTL_ACTION::PARAM::Object* clientInstruction, uint8_t clientID) {
+                         Dpr::Battle::Logic::BTL_ACTION_PARAM::Object* clientInstruction, uint8_t clientID) {
 
-        Dpr::Battle::Logic::BTL_ACTION::PARAM::Object instruction{};
+        Dpr::Battle::Logic::BTL_ACTION_PARAM::Object instruction{};
         instruction.fields.raw = clientInstruction->fields.raw;
 
         if (get_mega_flag(instruction) || get_ultraBurst_flag(instruction)) {
@@ -419,15 +416,15 @@ HOOK_DEFINE_TRAMPOLINE(CalcActionPriority$$Execute) {
     }
 };
 
-HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnShow) {
-    static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
-        auto gimmickButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
-        auto gimmickState = gimmickButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
-        if (gimmickState->get_activeSelf()) gimmickState->SetActive(false);
-        gimmickButton->cast<UnityEngine::Component>()->get_gameObject()->SetActive(CanShowGimmickUI(__this) != PokeActionCategory::Null);
-        Orig(__this);
-    }
-};
+//HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$OnShow) {
+//    static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
+//        auto gimmickButton = reinterpret_cast<UnityEngine::Component::Object*>(__this)->get_transform()->GetChild(3);
+//        auto gimmickState = gimmickButton->GetChild(0)->cast<UnityEngine::Component>()->get_gameObject();
+//        if (gimmickState->get_activeSelf()) gimmickState->SetActive(false);
+//        gimmickButton->cast<UnityEngine::Component>()->get_gameObject()->SetActive(CanShowGimmickUI(__this) != PokeActionCategory::Null);
+//        Orig(__this);
+//    }
+//};
 
 HOOK_DEFINE_TRAMPOLINE(PlaySequenceCore) {
     static void Callback(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, System::String::Object* path,
@@ -464,18 +461,18 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
 
         Orig(battleSetupParam, arenaID, mapAttrib, weatherType, rule, enemyID0, enemyID1, partnerID);
     }
-};*/
+};
 
 void exl_mega_evolution_main() {
-    /*OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
+    OnSubmitWazaButton::InstallAtOffset(0x01d2cee8);
     CalcActionPriority$$Execute::InstallAtOffset(0x021ad570);
     ProcessActionCore$$action::InstallAtOffset(0x021c0de0);
     setupPokeAction_FromClientInstruction::InstallAtOffset(0x021cdbf0);
     createPokeAction_FromClientInstruction::InstallAtOffset(0x021cdad0);
-    BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
+    //BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
     CMD_ACT_PokeChangeEffect_WaitCore::InstallAtOffset(0x01c86aa0);
     CMD_ChangeForm_Start::InstallAtOffset(0x01c86d9c);
     PlaySequenceCore::InstallAtOffset(0x01c85970);
     SetupBattleWild::InstallAtOffset(0x02c3abc0);
-    SetupBattleTrainer::InstallAtOffset(0x02c3b800);*/
+    SetupBattleTrainer::InstallAtOffset(0x02c3b800);
 }
