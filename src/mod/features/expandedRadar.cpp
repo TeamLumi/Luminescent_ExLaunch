@@ -17,6 +17,8 @@
 #include "externals/FlagWork_Enums.h"
 #include "externals/EntityManager.h"
 #include "externals/FieldManager.h"
+#include "externals/EffectFieldID.h"
+#include "externals/AttributeData/MapAttribute.h"
 
 #include "logger/logger.h"
 
@@ -304,18 +306,38 @@ HOOK_DEFINE_REPLACE(SwayGrass$$PlayEffect) {
             return;
         }
 
-        int32_t effectIndex;
-        switch (gDataPatch->fields.attricode) {
-            case 0xA9: {
-                effectIndex = 0x131;
+        EffectFieldID effectIndex;
+        switch (static_cast<AttributeData::MapAttribute>(gDataPatch->fields.attricode)) {
+            case AttributeData::MapAttribute::MATTR_E_SNOWGRASS_01: {
+                effectIndex = EffectFieldID::EF_F_GRASS_03_SHAKE_01;
                 break;
             }
-            case 0x5: {
-                effectIndex = 0x12F;
+            case AttributeData::MapAttribute::MATTR_E_KUSA_4: {
+                effectIndex = EffectFieldID::EF_F_GRASS_02_SHAKE_01;
                 break;
             }
+
+            case AttributeData::MapAttribute::MATTR_BRIDGE_GROUND_E:
+            case AttributeData::MapAttribute::MATTR_E_ZIMEN_01: {
+                effectIndex = EffectFieldID::EF_F_RADAR_RUBBLE_01_SHAKE_01;
+                break;
+            }
+
+            case AttributeData::MapAttribute::MATTR_WATERFALL_01:
+            case AttributeData::MapAttribute::MATTR_UMI_01:
+            case AttributeData::MapAttribute::MATTR_ASASE_01:
+            case AttributeData::MapAttribute::MATTR_BRIDGE_WATER:
+            case AttributeData::MapAttribute::MATTR_BRIDGEH_WATER:
+            case AttributeData::MapAttribute::MATTR_BRIDGEV_WATER:
+            case AttributeData::MapAttribute::MATTR_POOL_01:
+            case AttributeData::MapAttribute::MATTR_POOL_02: {
+                effectIndex = EffectFieldID::EF_F_RADAR_WATER_01_SPLASH_01;
+                break;
+            }
+
+
             default: {
-                effectIndex = 0x12D;
+                effectIndex = EffectFieldID::EF_F_GRASS_04_SHAKE_01;
                 break;
             }
         }
@@ -324,11 +346,11 @@ HOOK_DEFINE_REPLACE(SwayGrass$$PlayEffect) {
         auto manager = FieldManager::getClass()->static_fields->_Instance_k__BackingField->instance();
 
         if (gDataPatch->fields.random_kakure == 0) {
-            effectIndex += 1;
+            effectIndex = static_cast<EffectFieldID>(static_cast<int32_t>(effectIndex) + 1);
         }
 
         Logger::log("[PlayEffect] Calling effect %d\n", effectIndex);
-        manager->CallEffect(effectIndex, gDataPatch->fields.position, nullptr, nullptr);
+        manager->CallEffect(static_cast<int32_t>(effectIndex), gDataPatch->fields.position, nullptr, nullptr);
         Logger::log("[PlayEffect] Called effect %d\n", effectIndex);
 
         if (gDataPatch->fields.random_iro == 0)
