@@ -1291,6 +1291,7 @@ namespace Dpr::EvScript {
             _WAIT_FOR_GAMEOBJECT = 1281,
             _GET_GAMEOBJECT_POSITION = 1282,
             _GAMEOBJECT_MOVE = 1283,
+            _GAMEOBJECT_ROTATE_PIVOT = 1284,
 
             CUSTOM_CMD_END = 1500,
         };

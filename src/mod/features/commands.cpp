@@ -142,6 +142,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(GetGameObjectPosition(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_MOVE:
                     return HandleCmdStepper(GameObjectMove(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT:
+                    return HandleCmdStepper(GameObjectRotatePivot(__this));
                 default:
                     break;
             }
@@ -214,4 +216,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_GAMEOBJECT_POSITION);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_MOVE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT);
 }
