@@ -25,7 +25,10 @@ bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
     int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
 
     // NEW: Ease type from script (mapped to EFCEase)
-    int32_t easingIndex = GetWorkOrIntValue(args->m_Items[6]);
+    int32_t easingIndex = 0; // Default to Linear
+    if (args->max_length >= 7) {
+        easingIndex = GetWorkOrIntValue(args->m_Items[6]);
+    }
     EFCEase easeType = static_cast<EFCEase>(easingIndex);
 
     // Instant move if frames <= 0
