@@ -2,6 +2,7 @@
 #include "externals/UnityEngine/GameObject.h"
 
 #include "features/commands/utils/cmd_utils.h"
+#include "features/commands/utils/FCEasing.h"
 #include "logger/logger.h"
 
 static float origPosX = 0.0f;
@@ -10,7 +11,7 @@ static float origPosZ = 0.0f;
 
 bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    //Logger::log("_GAMEOBJECT_MOVE\n");
+    // Logger::log("_GAMEOBJECT_MOVE\n");
     system_load_typeinfo(0x438c);
     system_load_typeinfo(0x45dc);
     EvData::Aregment::Array* args = manager->fields._evArg;
@@ -23,47 +24,66 @@ bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
     int32_t deltaZ = GetWorkOrIntValue(args->m_Items[4]);
     int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
 
-    // Do the movement instantly if frames are 0 or negative
+    // NEW: Ease type from script (mapped to EFCEase)
+    int32_t easingIndex = 0; // Default to Linear
+    if (args->max_length >= 7) {
+        easingIndex = GetWorkOrIntValue(args->m_Items[6]);
+    }
+    EFCEase easeType = static_cast<EFCEase>(easingIndex);
+
+    // Instant move if frames <= 0
     if (frames <= 0) {
         auto currPos = gameObj->get_transform()->get_localPosition();
-        currPos.fields.x = origPosX + deltaX;
-        currPos.fields.y = origPosY + deltaY;
-        currPos.fields.z = origPosZ + deltaZ;
+        currPos.fields.x += deltaX;
+        currPos.fields.y += deltaY;
+        currPos.fields.z += deltaZ;
         gameObj->get_transform()->set_localPosition(currPos);
 
         return true;
     }
 
-    float totalTime = frames * 0.03333334;
-    float currDeltaX = deltaX * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
-    float currDeltaY = deltaY * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
-    float currDeltaZ = deltaZ * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
+    float totalTime = frames * 0.03333334f;
+    float deltaTime = Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime;
 
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait == 0.0f) {
+    // Capture initial position only on first update
+    if (manager->fields._timeWait == 0.0f) {
         auto origPos = gameObj->get_transform()->get_localPosition();
         origPosX = origPos.fields.x;
         origPosY = origPos.fields.y;
         origPosZ = origPos.fields.z;
     }
 
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait <= totalTime) {
-        Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait += Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime;
+    // Time accumulation
+    manager->fields._timeWait += deltaTime;
 
-        auto currPos = gameObj->get_transform()->get_localPosition();
-        currPos.fields.x += currDeltaX;
-        currPos.fields.y += currDeltaY;
-        currPos.fields.z += currDeltaZ;
-        gameObj->get_transform()->set_localPosition(currPos);
+    // Normalized (0–1) progress
+    float t = manager->fields._timeWait / totalTime;
+    if (t > 1.0f) t = 1.0f;
 
-        return false;
-    }
-    else {
-        auto currPos = gameObj->get_transform()->get_localPosition();
-        currPos.fields.x = origPosX + deltaX;
-        currPos.fields.y = origPosY + deltaY;
-        currPos.fields.z = origPosZ + deltaZ;
-        gameObj->get_transform()->set_localPosition(currPos);
+    // Apply easing curve (using FCEasing!)
+    float e = FCEasing::Ease(t, easeType);
 
+    // Compute eased position
+    float newX = origPosX + deltaX * e;
+    float newY = origPosY + deltaY * e;
+    float newZ = origPosZ + deltaZ * e;
+
+    auto currPos = gameObj->get_transform()->get_localPosition();
+    currPos.fields.x = newX;
+    currPos.fields.y = newY;
+    currPos.fields.z = newZ;
+    gameObj->get_transform()->set_localPosition(currPos);
+
+    // Checks if the entire animation has played out 0 to 1 == 0% to 100%
+    if (t >= 1.0f) {
+        manager->fields._timeWait = 0.0f;
+        auto endPos = gameObj->get_transform()->get_localPosition();
+        endPos.fields.x = origPosX + deltaX;
+        endPos.fields.y = origPosY + deltaY;
+        endPos.fields.z = origPosZ + deltaZ;
+        gameObj->get_transform()->set_localPosition(endPos);
         return true;
     }
+
+    return false;
 }
