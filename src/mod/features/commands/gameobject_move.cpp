@@ -11,7 +11,7 @@ static float origPosZ = 0.0f;
 
 bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    Logger::log("_GAMEOBJECT_MOVE\n");
+    // Logger::log("_GAMEOBJECT_MOVE\n");
     system_load_typeinfo(0x438c);
     system_load_typeinfo(0x45dc);
     EvData::Aregment::Array* args = manager->fields._evArg;
@@ -74,6 +74,11 @@ bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
     // Checks if the entire animation has played out 0 to 1 == 0% to 100%
     if (t >= 1.0f) {
         manager->fields._timeWait = 0.0f;
+        auto endPos = gameObj->get_transform()->get_localPosition();
+        endPos.fields.x = origPosX + deltaX;
+        endPos.fields.y = origPosY + deltaY;
+        endPos.fields.z = origPosZ + deltaZ;
+        gameObj->get_transform()->set_localPosition(endPos);
         return true;
     }
 
