@@ -26,9 +26,9 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
     // Do the movement instantly if frames are 0 or negative
     if (frames <= 0) {
         auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
-        currPos.fields.x = origPosX + deltaX;
-        currPos.fields.y = origPosY + deltaY;
-        currPos.fields.z = origPosZ + deltaZ;
+        currPos.fields.x += deltaX;
+        currPos.fields.y += deltaY;
+        currPos.fields.z += deltaZ;
         entity->cast<BaseEntity>()->SetPositionDirect(currPos);
 
         return true;

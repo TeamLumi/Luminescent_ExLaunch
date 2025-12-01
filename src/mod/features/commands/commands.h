@@ -365,4 +365,5 @@ bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] z: Degrees to rotate on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 //   [String] pivot: The name of the GameObject that will act as a pivot point.
+//   [Work, Number] easing: Type of easing function to use. Default is linear.
 bool GameObjectRotatePivot(Dpr::EvScript::EvDataManager::Object* manager);

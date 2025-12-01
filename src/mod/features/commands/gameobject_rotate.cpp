@@ -32,9 +32,9 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager)
     // Do the rotation instantly if frames are 0 or negative
     if (frames <= 0) {
         auto currRot = objTF->get_localEulerAngles();
-        currRot.fields.x = origRotX + deltaX;
-        currRot.fields.y = origRotY + deltaY;
-        currRot.fields.z = origRotZ + deltaZ;
+        currRot.fields.x += deltaX;
+        currRot.fields.y += deltaY;
+        currRot.fields.z += deltaZ;
         objTF->set_localEulerAngles(currRot);
 
         return true;
