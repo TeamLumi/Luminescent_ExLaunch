@@ -2,6 +2,7 @@
 #include "externals/FieldObjectEntity.h"
 
 #include "features/commands/utils/cmd_utils.h"
+#include "features/commands/utils/FCEasing.h"
 #include "logger/logger.h"
 
 static float origPosX = 0.0f;
@@ -23,6 +24,12 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
     int32_t deltaZ = GetWorkOrIntValue(args->m_Items[4]);
     int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
 
+    int32_t easingIndex = 0; // Default to Linear
+    if (args->max_length >= 7) {
+        easingIndex = GetWorkOrIntValue(args->m_Items[6]);
+    }
+    EFCEase easeType = static_cast<EFCEase>(easingIndex);
+
     // Do the movement instantly if frames are 0 or negative
     if (frames <= 0) {
         auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
@@ -34,30 +41,41 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
         return true;
     }
 
-    float totalTime = frames * 0.03333334;
-    float currDeltaX = deltaX * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
-    float currDeltaY = deltaY * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
-    float currDeltaZ = deltaZ * (Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime / totalTime);
+    float totalTime = frames * 0.03333334f;
+    float deltaTime = Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime;
 
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait == 0.0f) {
+    // Capture initial position only on first update
+    if (manager->fields._timeWait == 0.0f) {
         auto origPos = entity->cast<BaseEntity>()->fields.worldPosition;
         origPosX = origPos.fields.x;
         origPosY = origPos.fields.y;
         origPosZ = origPos.fields.z;
     }
 
-    if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait <= totalTime) {
-        Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait += Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime;
+    // Time accumulation
+    manager->fields._timeWait += deltaTime;
 
-        auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
-        currPos.fields.x += currDeltaX;
-        currPos.fields.y += currDeltaY;
-        currPos.fields.z += currDeltaZ;
-        entity->cast<BaseEntity>()->SetPositionDirect(currPos);
+    // Normalized (0–1) progress
+    float t = manager->fields._timeWait / totalTime;
+    if (t > 1.0f) t = 1.0f;
 
-        return false;
-    }
-    else {
+    // Apply easing curve (using FCEasing!)
+    float e = FCEasing::Ease(t, easeType);
+
+    // Compute eased position
+    float newX = origPosX + deltaX * e;
+    float newY = origPosY + deltaY * e;
+    float newZ = origPosZ + deltaZ * e;
+
+    auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
+    currPos.fields.x = newX;
+    currPos.fields.y = newY;
+    currPos.fields.z = newZ;
+    entity->cast<BaseEntity>()->SetPositionDirect(currPos);
+
+    // Checks if the entire animation has played out 0 to 1 == 0% to 100%
+    if (t >= 1.0f) {
+        manager->fields._timeWait = 0.0f;
         auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
         currPos.fields.x = origPosX + deltaX;
         currPos.fields.y = origPosY + deltaY;
@@ -66,4 +84,6 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
 
         return true;
     }
+
+    return false;
 }
