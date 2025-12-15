@@ -12,7 +12,7 @@
 
 void EvCmdAddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager, int32_t addMemberResult) {
     EvData::Aregment::Array* args = manager->fields._evArg;
-    if (args->max_length >= 7) {
+    if (args->max_length >= 8) {
         manager->fields._azukariyaSequence = -1;
         return;
     }
@@ -26,7 +26,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
     EvData::Aregment::Array* args = manager->fields._evArg;
     auto azukariyaSeq = manager->fields._azukariyaSequence;
 
-    if (args->max_length >= 7) {
+    if (args->max_length >= 8) {
         if (azukariyaSeq == 0) {
             SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
             auto uiManager = Dpr::UI::UIManager::get_Instance();
@@ -44,6 +44,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             auto item = GetWorkOrIntValue(args->m_Items[4]);
             auto maxIVs = GetWorkOrIntValue(args->m_Items[5]);
             auto ball = GetWorkOrIntValue(args->m_Items[6]);
+            auto shiny = GetWorkOrIntValue(args->m_Items[7]);
 
             Pml::PokePara::InitialSpec::Object* initialSpec = Pml::PokePara::InitialSpec::newInstance();
             initialSpec->fields.monsno = monsNo;
@@ -53,6 +54,9 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             auto coreParam = Pml::PokePara::PokemonParam::newInstance(initialSpec)->cast<Pml::PokePara::CoreParam>();
             if (item != 0) coreParam->SetItem(item);
             coreParam->SetGetBall(ball);
+            if (shiny == 1) coreParam->SetRareType(Pml::PokePara::RareType::CAPTURED);
+            if (shiny == 2) coreParam->SetRareType(Pml::PokePara::RareType::DISTRIBUTED);
+            if (shiny == 3) coreParam->SetRareType(Pml::PokePara::RareType::NOT_RARE);
 
             PlayerWork::getClass()->initIfNeeded();
             auto pMyStatus = PlayerWork::get_playerStatus();
