@@ -70,8 +70,14 @@ namespace ui {
                         setFullDex((int32_t)DPData::GET_STATUS::GET);
                     };
                 });
-            });
 
+                _.Button([](Button &_) {
+                    _.label = "Set orig Pokédex to Caught";
+                    _.onClick = []() {
+                        setOrigDex((int32_t)DPData::GET_STATUS::GET);
+                    };
+                });
+            });
             addChild(header);
         }
     };
