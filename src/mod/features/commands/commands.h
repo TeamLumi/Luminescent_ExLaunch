@@ -131,6 +131,7 @@ bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] item: ID of the item the Pokémon is to hold.
 //   [Work, Number] maxIVs: Number of max IVs the Pokémon will have.
 //   [Work, Number] ball: ID of the ball the Pokémon will reside in.
+//   [Work, Number] shiny: Determines if the Pokémon is forced to be shiny. 0 = Random, 1 = Shiny, 2 = Square Shiny, 3 = Never Shiny
 bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Inserts a string of the specified Pokémon's form name into the supplied tagIndex.
