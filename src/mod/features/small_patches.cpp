@@ -74,6 +74,27 @@ void exl_patches_main() {
         p.WriteInst(Branch(0x44));
     }
 
+    if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Town Map Extended Flags")))
+    {
+        auto townmapinst = nn::vector<exl::patch::Instruction> {
+            { 0x0184c5c8, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupHoneyTrees
+            { 0x0184c3a0, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupKinomis
+            { 0x0184d140, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap.Cell$$IsArrive
+            { 0x0184eeac, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { 0x0184ef54, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { 0x0184f12c, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+
+            { 0x0184c01c, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$SetupSymbols
+            { 0x0184d060, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsView
+            { 0x0184d104, CmpImmediate(W8, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsArrive
+            { 0x0184e634, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$PlayCellChangeSe
+            { 0x0184edc8, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapFacility$$Setup
+            { 0x0184fd78, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapSymbolName$$Setup
+            { 0x01850c58, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapWindowBase$$Fly
+        };
+        p.WriteInst(townmapinst);
+    }
+
     // Always-on Patches
     auto inst = nn::vector<exl::patch::Instruction> {
         { 0x02053b24, CmpImmediate(W8, 0x7) },          // Allow 6IV Pokémon
