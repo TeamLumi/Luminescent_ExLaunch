@@ -74,7 +74,7 @@ void exl_patches_main() {
         p.WriteInst(Branch(0x44));
     }
 
-    if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Town Map Extended Flags")))
+    if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Extended Flags Fixes")))
     {
         auto townmapinst = nn::vector<exl::patch::Instruction> {
             { 0x0184c5c8, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupHoneyTrees
@@ -93,6 +93,11 @@ void exl_patches_main() {
             { 0x01850c58, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapWindowBase$$Fly
         };
         p.WriteInst(townmapinst);
+
+        auto adventureguideinst = nn::vector<exl::patch::Instruction> {
+            { 0x0187626c, CmpImmediate(W0, FlagCount) }, // Dpr.UI.AdventureNoteWindow.<OpOpen>d__6$$MoveNext
+        };
+        p.WriteInst(adventureguideinst);
     }
 
     // Always-on Patches
