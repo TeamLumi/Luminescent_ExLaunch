@@ -61,5 +61,9 @@ namespace Dpr::UI {
             bool _IsModelViewOnly_k__BackingField;
             bool _CanSwitchLanguage_k__BackingField;
         };
+
+        inline void SetBGHead(bool isZenzoku) {
+            external<void>(0x01bb3c60, this, isZenzoku);
+        }
     };
 }

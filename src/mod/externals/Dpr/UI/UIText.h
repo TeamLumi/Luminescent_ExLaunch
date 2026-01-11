@@ -6,7 +6,7 @@
 #include "externals/System/Collections/Generic/List.h"
 #include "externals/System/String.h"
 #include "externals/TMPro/TextMeshProUGUI.h"
-#include "externals/UnityEngine/UI/MaskableGraphic.h"
+#include "externals/System/Collections/Generic/List.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
 
 namespace Dpr::UI {
