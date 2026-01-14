@@ -203,6 +203,7 @@ bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] y: Amount of tiles to move on the y axis.
 //   [Work, Number] z: Amount of tiles to move on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [Work, Number] ease: The type of easing to use for the movement.
 bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Multiplies the given work by the given value.
@@ -355,6 +356,7 @@ bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] y: Amount of tiles to move on the y axis.
 //   [Work, Number] z: Amount of tiles to move on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [Work, Number] ease: The type of easing to use for the movement.
 bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Rotates a GameObject over an amount of frames around a specific pivot.
@@ -367,3 +369,12 @@ bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager);
 //   [String] pivot: The name of the GameObject that will act as a pivot point.
 //   [Work, Number] easing: Type of easing function to use. Default is linear.
 bool GameObjectRotatePivot(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Adjust the camera's rotation offset over an amount of frames.
+// Arguments:
+//   [Work, Number] x: Degrees to rotate on the x axis.
+//   [Work, Number] y: Degrees to rotate on the y axis.
+//   [Work, Number] z: Degrees to rotate on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [Work, Number] easing: Type of easing function to use. Default is linear.
+bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);

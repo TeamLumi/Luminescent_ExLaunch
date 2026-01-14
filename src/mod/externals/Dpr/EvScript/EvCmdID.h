@@ -1292,6 +1292,7 @@ namespace Dpr::EvScript {
             _GET_GAMEOBJECT_POSITION = 1282,
             _GAMEOBJECT_MOVE = 1283,
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
+            _SET_CAMERA_OFFSET_ANGLE = 1285,
 
             CUSTOM_CMD_END = 1500,
         };

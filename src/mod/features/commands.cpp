@@ -144,6 +144,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(GameObjectMove(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT:
                     return HandleCmdStepper(GameObjectRotatePivot(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE:
+                    return HandleCmdStepper(SetCameraOffsetAngle(__this));
                 default:
                     break;
             }
@@ -217,4 +219,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_GAMEOBJECT_POSITION);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_MOVE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE);
 }
