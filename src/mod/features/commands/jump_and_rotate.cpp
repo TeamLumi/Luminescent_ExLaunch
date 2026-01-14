@@ -2,6 +2,7 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/EntityManager.h"
 #include "externals/FieldManager.h"
+#include "externals/GameManager.h"
 #include "externals/UnityEngine/GameObject.h"
 
 #include "features/commands/utils/cmd_utils.h"
@@ -11,15 +12,24 @@ static bool jar_initializedJump = false;
 static bool jar_startedRotating = false;
 
 static float jar_accumulatedAngle = 0.0f;
+static float jar_origCameraAngleX = 0.0f;
+static float jar_origCameraAngleY = 0.0f;
+static float jar_origCameraAngleZ = 0.0f;
 
 static bool jar_jumpDone = false;
 static bool jar_rotDone = false;
 
-bool JumpAndRotate_Rotate(UnityEngine::Transform::Object* objTF, float totalTime, UnityEngine::Vector3::Object axis, UnityEngine::Vector3::Object pivotPoint, float angle)
+bool JumpAndRotate_Rotate(UnityEngine::Transform::Object* objTF, float totalTime, UnityEngine::Vector3::Object axis, UnityEngine::Vector3::Object pivotPoint, float angle, FieldCamera::Object* camera, float cameraAngleX, float cameraAngleY, float cameraAngleZ)
 {
     if (!jar_startedRotating && Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait == 0.0f) {
         jar_startedRotating = true;
         jar_accumulatedAngle = 0.0f;
+
+        auto origAngle = camera->fields._offsetAngle_k__BackingField;
+        jar_origCameraAngleX = origAngle.fields.x;
+        jar_origCameraAngleY = origAngle.fields.y;
+        jar_origCameraAngleZ = origAngle.fields.z;
+
         return false;
     }
     else if (Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait <= totalTime &&
@@ -29,7 +39,20 @@ bool JumpAndRotate_Rotate(UnityEngine::Transform::Object* objTF, float totalTime
         float addedAngle = angle * Dpr::EvScript::EvDataManager::get_Instanse()->fields._deltatime;
         jar_accumulatedAngle += std::abs(addedAngle);
 
+        float t = Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait / totalTime;
+        if (t > 1.0f) t = 1.0f;
+
         objTF->RotateAround(pivotPoint, axis, addedAngle);
+
+        float newCameraX = jar_origCameraAngleX + cameraAngleX * t;
+        float newCameraY = jar_origCameraAngleY + cameraAngleY * t;
+        float newCameraZ = jar_origCameraAngleZ + cameraAngleZ * t;
+
+        auto currAngle = camera->fields._offsetAngle_k__BackingField;
+        currAngle.fields.x = newCameraX;
+        currAngle.fields.y = newCameraY;
+        currAngle.fields.z = newCameraZ;
+        camera->fields._offsetAngle_k__BackingField = currAngle;
 
         return false;
     }
@@ -40,6 +63,15 @@ bool JumpAndRotate_Rotate(UnityEngine::Transform::Object* objTF, float totalTime
             objTF->RotateAround(pivotPoint, axis, angleError);
         else
             objTF->RotateAround(pivotPoint, axis, -angleError);
+
+        auto endAngle = camera->fields._offsetAngle_k__BackingField;
+        endAngle.fields.x = jar_origCameraAngleX + cameraAngleX;
+        endAngle.fields.y = jar_origCameraAngleY + cameraAngleY;
+        endAngle.fields.z = jar_origCameraAngleZ + cameraAngleZ;
+        camera->fields._offsetAngle_k__BackingField = endAngle;
+
+        Dpr::EvScript::EvDataManager::get_Instanse()->fields._timeWait = 0.0f;
+
         jar_startedRotating = false;
         return true;
     }
@@ -109,6 +141,8 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager) {
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 
+    auto camera = GameManager::getClass()->static_fields->fieldCamera;
+
     EntityManager::getClass()->initIfNeeded();
     auto player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
     auto objTF = FindTransform(GetStringText(manager, args->m_Items[1]));
@@ -116,7 +150,12 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager) {
     int32_t deltaX = GetWorkOrIntValue(args->m_Items[2]);
     int32_t deltaY = GetWorkOrIntValue(args->m_Items[3]);
     int32_t deltaZ = GetWorkOrIntValue(args->m_Items[4]);
-    int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
+
+    float deltaCamX = GetWorkOrFloatValue(args->m_Items[5]);
+    float deltaCamY = GetWorkOrFloatValue(args->m_Items[6]);
+    float deltaCamZ = GetWorkOrFloatValue(args->m_Items[7]);
+
+    int32_t frames = GetWorkOrIntValue(args->m_Items[8]);
 
     UnityEngine::Vector3::Object axis = { .fields = { .x = 0.0f,  .y = 0.0f,  .z = 0.0f,  } };
     float angle = 0.0f;
@@ -133,24 +172,30 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager) {
         angle = (float)deltaZ;
     }
 
-    auto pivot = FindTransform(GetStringText(manager, args->m_Items[6]));
+    auto pivot = FindTransform(GetStringText(manager, args->m_Items[9]));
     auto pivotPoint = pivot->get_position();
 
     // Do the rotation instantly with no jump if frames are 0 or negative
     if (frames <= 0) {
         objTF->RotateAround(pivotPoint, axis, angle);
 
+        auto currAngle = camera->fields._offsetAngle_k__BackingField;
+        currAngle.fields.x += deltaX;
+        currAngle.fields.y += deltaY;
+        currAngle.fields.z += deltaZ;
+        camera->fields._offsetAngle_k__BackingField = currAngle;
+
         return true;
     }
 
     float totalTime = frames * 0.03333334;
 
-    float moveDistance   = args->max_length > 6 ? GetWorkOrFloatValue(args->m_Items[7]) : 2.0f;
-    float relativeHeight = args->max_length > 7 ? GetWorkOrFloatValue(args->m_Items[8]) : 0.75f;
-    float relativeLower  = args->max_length > 8 ? GetWorkOrFloatValue(args->m_Items[9]) : -0.5f;
+    float moveDistance   = args->max_length > 10 ? GetWorkOrFloatValue(args->m_Items[10]) : 2.0f;
+    float relativeHeight = args->max_length > 11 ? GetWorkOrFloatValue(args->m_Items[11]) : 0.75f;
+    float relativeLower  = args->max_length > 12 ? GetWorkOrFloatValue(args->m_Items[12]) : -0.5f;
 
     if (!jar_rotDone)
-        jar_rotDone = JumpAndRotate_Rotate(objTF, totalTime, axis, pivotPoint, angle);
+        jar_rotDone = JumpAndRotate_Rotate(objTF, totalTime, axis, pivotPoint, angle, camera, deltaCamX, deltaCamY, deltaCamZ);
     if (!jar_jumpDone)
         jar_jumpDone = JumpAndRotate_Jump(manager, player, moveDistance, relativeHeight, relativeLower, totalTime);
 

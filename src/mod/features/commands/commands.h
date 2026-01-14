@@ -323,12 +323,15 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] The time in seconds that the jump will take. (Default is 0.5)
 bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Makes the player ledge jump with the given parameters, while rotating a given GameObject over an amount of frames around a specific pivot.
+// Makes the player ledge jump with the given parameters, while rotating a given GameObject over an amount of frames around a specific pivot and also setting the camera's rotation offset.
 // Arguments:
 //   [String] gameObject: The name of the GameObject to rotate.
 //   [Work, Number] x: Degrees to rotate on the x axis.
 //   [Work, Number] y: Degrees to rotate on the y axis.
 //   [Work, Number] z: Degrees to rotate on the z axis.
+//   [Work, Number] camX: Degrees to set the camera's rotation offset to on the x axis.
+//   [Work, Number] camY: Degrees to set the camera's rotation offset to on the y axis.
+//   [Work, Number] camZ: Degrees to set the camera's rotation offset to on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 //   [String] pivot: The name of the GameObject that will act as a pivot point.
 //   [Work, Number] moveDistance: The amount of tiles to jump. (Default 2.0)
