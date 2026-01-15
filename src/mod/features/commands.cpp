@@ -46,6 +46,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(ObjDirChange(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT:
                     return HandleCmdStepper(StopEffect(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME:
+                    return HandleCmdStepper(ReleaseUmaAnime(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO:
                     return HandleCmdStepper(PartyFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO:
@@ -156,13 +158,19 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
     }
 };
 
+// Hooks for command overrides
+void exl_commands_hooks_main() {
+    if (ACTIVATED_COMMANDS[(int)Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME])
+        Hooks_LoadUmaAnime();
+}
+
 void exl_commands_main() {
     RunEvCmdCustom::InstallAtOffset(0x02c5b290);
 
-    // Select which new commands/overrides are activated
     for (bool & i : ACTIVATED_COMMANDS)
         i = false;
 
+    // Activate command overrides
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET);
@@ -170,6 +178,10 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME);
+
+    // Activate new commands
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_BOX_POKE_SEIKAKU);
@@ -220,4 +232,6 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_MOVE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE);
+
+    exl_commands_hooks_main();
 }

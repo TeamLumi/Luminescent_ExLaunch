@@ -2,6 +2,15 @@
 
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
+// HOOKS
+
+// Hooks for _LOAD_UMA_ANIME.
+// Loads an asset bundle holding animation data.
+// Arguments:
+//   [String] bundle: The asset bundle to load. Defaults to "field/animeobj/chapter111".
+void Hooks_LoadUmaAnime();
+
+
 // Sets the weather.
 // Arguments:
 //   [Work, Number] weather: The ID of the weather to change to.
@@ -34,6 +43,11 @@ bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isForce: Unknown use.
 //   [Work, Number] fadeTime: The time in seconds it takes for the effect to fade.
 bool StopEffect(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Unloads an asset bundle holding animation data.
+// Arguments:
+//   [String] bundle: The asset bundle to unload. Defaults to "field/animeobj/chapter111".
+bool ReleaseUmaAnime(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Returns the form id of the Pokémon at the given index in the party.
 // Arguments:
