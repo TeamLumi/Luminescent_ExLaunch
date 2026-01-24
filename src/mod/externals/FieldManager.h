@@ -88,7 +88,7 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         external<void>(0x0179f720, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
     }
 
-    inline void EventWildBattleParty(Pml::PokeParty::Object* pokeParty, bool isCaptureDemo, bool isSymbol, bool isMitu, bool isCantUseBall) {
+    inline void EventWildBattle(Pml::PokeParty::Object* pokeParty, bool isCaptureDemo, bool isSymbol, bool isMitu, bool isCantUseBall) {
         external<void>(0x0179f940, this, pokeParty, isCaptureDemo, isSymbol, isMitu, isCantUseBall);
     }
 

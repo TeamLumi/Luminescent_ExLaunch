@@ -16,6 +16,8 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_SP_WILD_BTL_SET_EXTRA\n");
     system_load_typeinfo(0x44d1);
+    system_load_typeinfo(0x4931);
+    system_load_typeinfo(0x497c);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 
@@ -40,12 +42,18 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         }
         if (args->max_length >= 7) {
             gender = GetWorkOrIntValue(args->m_Items[6]);
+            if (gender == -1) {
+                gender = 255;
+            }
         }
         if (args->max_length >= 8) {
             formArg = GetWorkOrIntValue(args->m_Items[7]);
         }
         if (args->max_length >= 9) {
             nature = GetWorkOrIntValue(args->m_Items[8]);
+            if (nature == -1) {
+                nature = 65535;
+            }
         }
         if (args->max_length >= 10) {
             ability = GetWorkOrIntValue(args->m_Items[9]);
@@ -57,33 +65,33 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         manager->SetBattleReturn();
         FieldManager::Object* fieldManager = FieldManager::getClass()->static_fields->_Instance_k__BackingField->instance();
 
-        system_load_typeinfo(0x4931);
         PlayerWork::getClass()->initIfNeeded();
 
         auto playerparty = PlayerWork::get_playerParty();
         auto lead = playerparty->GetMemberPointer(0);
+        auto leadCore = lead->cast<Pml::PokePara::CoreParam>();
 
-        if (!lead->IsEgg(EggType::BOTH)) {
-            switch (lead->GetTokuseiNo()) {
-                case array_index(ABILITIES, "Synchronize"): {
-                        nature = lead->GetSeikaku();
+        if (!leadCore->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG)) {
+            switch (leadCore->GetTokuseiNo()) {
+            case array_index(ABILITIES, "Synchronize"): {
+                    nature = leadCore->GetSeikaku();
+                    break;
+            }
+            case array_index(ABILITIES, "Cute Charm"): {
+                    auto rndSex = RandomGroupWork::RandomValue(3);
+                    if (rndSex < 1)
                         break;
-                    }
-                case array_index(ABILITIES, "Cute Charm"): {
-                        auto rndSex = RandomGroupWork::RandomValue(3);
-                        if (rndSex < 1)
-                            break;
-                        auto paramSex = lead->GetSex();
-                        if (paramSex == 0)
-                            gender = 1;
-                        else if (paramSex == 1)
-                            gender = 0;
-                        break;
+                    auto paramSex = leadCore->GetSex();
+                    if (paramSex == Pml::Sex::MALE)
+                        gender = 1;
+                    else if (paramSex == Pml::Sex::FEMALE)
+                        gender = 0;
+                    break;
                 }
             }
         }
 
-        Dpr::EncountTools::getClass(0x4c59e90)->initIfNeeded();
+        Dpr::EncountTools::getClass()->initIfNeeded();
 
         // Creates a party
         auto enemyparty = Dpr::EncountTools::CreateSimpleParty(monsNo, level, 0, 1, nullptr, gender, nature, 255, 65535, formNo, 0, maxIVs);
@@ -96,8 +104,7 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         if (formArg >= 0) coreParam->SetMultiPurposeWork(formArg);
         if (ability >= 0) coreParam->SetTokuseiIndex(ability);
 
-        fieldManager->EventWildBattleParty(enemyparty, false, true, false, isCantUseBall);
-
-        return true;
+        fieldManager->EventWildBattle(enemyparty, false, true, false, isCantUseBall);
     }
+    return true;
 }
