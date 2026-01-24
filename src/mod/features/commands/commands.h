@@ -344,3 +344,14 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [String] gameObject: The name of the GameObject to wait on.
 bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Starts a static wild Pokémon encounter.
+// Arguments:
+//   [Work, Number] monsNo: ID of the species.
+//   [Work, Number] level: Level of the Pokémon.
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have.
+//   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
+//   [Work, Number] formNo: (optional) ID of the form the species is in.
+//   [Work, Number] tokusei3rd: (optional) Whether or not the Pokémon will have its hidden ability.
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);

@@ -4,6 +4,7 @@
 
 #include "externals/Effect/EffectInstance.h"
 #include "externals/FieldObjectEntity.h"
+#include "externals/Pml/PokeParty.h"
 #include "externals/System/Action.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/Material.h"
@@ -85,6 +86,10 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     inline void EventWildBattle(int32_t mons, int32_t level, bool isCaptureDemo, bool isSymbol, bool isMitu, uint8_t talentVNum, bool isCantUseBall, int32_t formNo, bool tokusei3rd) {
         external<void>(0x0179f720, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
+    }
+
+    inline void EventWildBattleParty(Pml::PokeParty::Object* pokeParty, bool isCaptureDemo, bool isSymbol, bool isMitu, bool isCantUseBall) {
+        external<void>(0x0179f940, this, pokeParty, isCaptureDemo, isSymbol, isMitu, isCantUseBall);
     }
 
     inline int32_t get_areaID() {

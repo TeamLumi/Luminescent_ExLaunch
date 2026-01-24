@@ -1289,6 +1289,7 @@ namespace Dpr::EvScript {
             _LEDGE_JUMP = 1279,
             _JUMP_AND_ROTATE = 1280,
             _WAIT_FOR_GAMEOBJECT = 1281,
+            _SP_WILD_BTL_SET_EXTRA = 1282,
 
             CUSTOM_CMD_END = 1500,
         };
