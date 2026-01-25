@@ -84,6 +84,10 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         return external<uint16_t>(0x0179f560, this, mons, karana, anno);
     }
 
+    inline void GetLegendPokeEncountInfo(Pml::PokePara::PokemonParam::Object* param, System::String::Object* encSec, int32_t arenaID, System::String::Object* bgm, int32_t setupEffect) {
+        external<void>(0x0179efe0, this, param, encSec, arenaID, bgm, setupEffect);
+    }
+
     inline void EventWildBattle(int32_t mons, int32_t level, bool isCaptureDemo, bool isSymbol, bool isMitu, uint8_t talentVNum, bool isCantUseBall, int32_t formNo, bool tokusei3rd) {
         external<void>(0x0179f720, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
     }
@@ -92,8 +96,20 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         external<void>(0x0179f940, this, pokeParty, isCaptureDemo, isSymbol, isMitu, isCantUseBall);
     }
 
+    inline void EncountStart(int32_t type, int32_t trainerid1, int32_t trainerid2) {
+        external<void>(0x0179f330, this, type, trainerid1, trainerid2);
+    }
+
     inline int32_t get_areaID() {
         return external<int32_t>(0x01797f90, this);
+    }
+
+    inline int32_t GetBatleWeather() {
+        return external<int32_t>(0x0179f1a0, this);
+    }
+
+    inline void PreLoadEncEffect(System::String::Object* assetname) {
+        external<void>(0x0179e6a0, this, assetname);
     }
 
     inline void RequestAttributeEffect(FieldObjectEntity::Object* entity, int32_t attri) {

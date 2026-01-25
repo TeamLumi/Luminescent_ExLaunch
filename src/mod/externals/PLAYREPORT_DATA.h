@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "externals/il2cpp-api.h"
 
 struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA> {
     struct Fields {
@@ -36,4 +37,8 @@ struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA> {
         int64_t statue_set;
         int64_t poketch_open;
     };
+
+    static inline void StartWildBattle(int32_t type) {
+        return external<void>(0x02ce9330, type);
+    }
 };

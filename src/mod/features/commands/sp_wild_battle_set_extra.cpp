@@ -1,10 +1,15 @@
 #include <data/abilities.h>
 #include <data/utils.h>
 
+#include <externals/AttributeID.h>
+#include <externals/EntityManager.h>
+#include <externals/GameManager.h>
+#include <externals/PLAYREPORT_DATA.h>
 #include <externals/RandomGroupWork.h>
 #include <externals/Dpr/EncountTools.h>
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/FieldManager.h"
+#include "externals/FieldObjectEntity.h"
 #include "externals/PlayerWork.h"
 #include "externals/Pml/PokePara/CoreParam.h"
 
@@ -18,6 +23,8 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
     system_load_typeinfo(0x44d1);
     system_load_typeinfo(0x4931);
     system_load_typeinfo(0x497c);
+    system_load_typeinfo(0x4932);
+    system_load_typeinfo(0x3f8c);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 
@@ -33,6 +40,7 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         auto nature = 65535; // Defaults to regular nature calculation in case arg not given
         auto ability = -1; // Defaults to regular ability calculation in case arg not given
         auto isCantUseBall = 0; // Can catch statics by default
+        System::String::Object* overrideBGM = System::String::Create("");
 
         if (args->max_length >= 5) {
             maxIVs = GetWorkOrIntValue(args->m_Items[4]);
@@ -60,6 +68,9 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         }
         if (args->max_length >= 11) {
             isCantUseBall = GetWorkOrIntValue(args->m_Items[10]);
+        }
+        if (args->max_length >= 12) {
+            overrideBGM = GetStringText(manager,args->m_Items[11]);
         }
 
         manager->SetBattleReturn();
@@ -104,7 +115,67 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         if (formArg >= 0) coreParam->SetMultiPurposeWork(formArg);
         if (ability >= 0) coreParam->SetTokuseiIndex(ability);
 
-        fieldManager->EventWildBattle(enemyparty, false, true, false, isCantUseBall);
+        //fieldManager->EventWildBattle(enemyparty, false, true, false, isCantUseBall);
+
+        EntityManager::getClass()->initIfNeeded();
+
+        auto player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
+        auto playerEntity = player->cast<FieldObjectEntity>();
+        auto playerGridPos = playerEntity->get_gridPosition();
+        auto height = playerEntity->get_Height();
+
+        GameManager::getClass()->initIfNeeded();
+
+        auto code = 0;
+        auto stop = 0;
+
+        GameManager::GetAttribute(playerGridPos, &code, &stop, false);
+        auto row = GameManager::GetAttributeTable(code);
+        auto ex = GameManager::GetAttributeEx(playerGridPos, height, false);
+        auto water = AttributeID::MATR_IsWater(code);
+
+        auto zoneID = PlayerWork::get_zoneID();
+        XLSXContent::MapInfo::Object *mapInfo = GameManager::get_mapInfo();
+        auto mapInfoData = mapInfo->cast<XLSXContent::MapInfo::SheetZoneData>();
+        auto battleBG = mapInfoData->fields.BattleBg;
+        // Might need to do some kind of max length if statement here for battleBg (Line 113 in the dump). I'll come back to that if so because I am confusion. I just like getting variables and scary maths make me sad :c
+
+        auto memberPointer = enemyparty->GetMemberPointer(0);
+        System::String::Object* encSec = System::String::Create("");
+        int32_t arenaID = 0;
+        System::String::Object* bgm = System::String::Create("");
+        int32_t setupEffect = 0;
+
+        fieldManager->GetLegendPokeEncountInfo(memberPointer, encSec, arenaID, bgm, setupEffect);
+
+        if (System::String::IsNullOrEmpty(encSec)) {
+            //encSec = System::String::Create("Whatever the default is"); // Is this needed?
+        }
+        fieldManager->PreLoadEncEffect(encSec); // I think this is meant to return an int32_t ID but idk
+        if (System::String::IsNullOrEmpty(bgm)) {
+            bgm = System::String::Create("Whatever the default is"); // Is this needed?
+        }
+        if (System::String::IsNullOrEmpty(overrideBGM)) {
+        }
+        else
+            bgm = overrideBGM;
+        // The original method checks if this is the CaptureDemo and does something but idk if we need to worry about that
+
+        PLAYREPORT_DATA::StartWildBattle(1); // Double check that I put this in the right file
+
+        auto battleSetupParam = PlayerWork::get_battleSetupParam();
+        auto weatherType = fieldManager->GetBatleWeather();
+
+        Dpr::EncountTools::SetupBattleWild(battleSetupParam, enemyparty, arenaID, stop, weatherType, water, false, 0, false, 0, true, false, bgm, 0, isCantUseBall);
+        fieldManager->EncountStart(0, 0, 0);
     }
     return true;
 }
+
+// TODO:    - Get the TypeInfo stuff that is currently missing
+//          - Figure out why I have a bunch of variables that I don't use anywhere
+//          - Grab the strings that I may or may not need for encSec and bgm
+//          - Check if we need to implement that maxlength thing and how the encSecID is grabbed
+//          - Fix whatever else is broken
+//          - Cry
+//          - Celebrate once all is good
