@@ -17,6 +17,7 @@ constexpr int32_t FlagCount = 15000;
 constexpr int32_t SysFlagCount = 15000;
 constexpr int32_t TrainerCount = 10000;
 constexpr int32_t SaveItemCount = 10000;
+constexpr int32_t SaveUgItemCount = 5000;
 constexpr int32_t BerryCount = 1000;
 constexpr int32_t BoxCount = 80;
 
