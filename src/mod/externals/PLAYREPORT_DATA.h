@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "externals/il2cpp-api.h"
 
-struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA> {
+struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA, 0x04c59f30> {
     struct Fields {
         int64_t capture_symbol;
         int64_t capture_wild;

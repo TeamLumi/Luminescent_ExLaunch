@@ -8,6 +8,7 @@ namespace XLSXContent {
     struct MapAttributeExTable : ILClass<MapAttributeExTable> {
         struct SheetData : ILClass<SheetData> {
             struct Fields {
+                int32_t AttributeEx;
                 int32_t month;
                 int32_t day;
                 int32_t add_rate;

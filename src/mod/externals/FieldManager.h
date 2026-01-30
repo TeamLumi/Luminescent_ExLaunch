@@ -84,7 +84,7 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         return external<uint16_t>(0x0179f560, this, mons, karana, anno);
     }
 
-    inline void GetLegendPokeEncountInfo(Pml::PokePara::PokemonParam::Object* param, System::String::Object* encSec, int32_t arenaID, System::String::Object* bgm, int32_t setupEffect) {
+    inline void GetLegendPokeEncountInfo(Pml::PokePara::PokemonParam::Object* param, System::String::Object** encSec, int32_t* arenaID, System::String::Object** bgm, int32_t* setupEffect) {
         external<void>(0x0179efe0, this, param, encSec, arenaID, bgm, setupEffect);
     }
 

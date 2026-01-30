@@ -81,7 +81,7 @@ struct GameManager : ILClass<GameManager, 0x04c59b50> {
         return external<XLSXContent::MapAttributeTable::SheetData::Object*>(0x02cd3ed0, code);
     }
 
-    static inline XLSXContent::MapAttributeTable::SheetData::Object* GetAttributeEx(UnityEngine::Vector2Int::Object grid, float height, bool debugdraw) {
-        return external<XLSXContent::MapAttributeTable::SheetData::Object*>(0x02cd3f70, grid, height, debugdraw);
+    static inline XLSXContent::MapAttributeExTable::SheetData::Object* GetAttributeEx(UnityEngine::Vector2Int::Object grid, float height, bool debugdraw) {
+        return external<XLSXContent::MapAttributeExTable::SheetData::Object*>(0x02cd3f70, grid, height, debugdraw);
     }
 };

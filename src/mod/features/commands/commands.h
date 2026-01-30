@@ -357,4 +357,5 @@ bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have (Will be overridden by Synchronize). -1 = Random
 //   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
+//   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);

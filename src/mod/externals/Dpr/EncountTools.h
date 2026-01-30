@@ -15,7 +15,7 @@ namespace Dpr {
             return external<Pml::PokeParty::Object*>(0x02c3a940, monsNo0, level0, monsNo1, level1, party, sex, seikaku, sex1, seikaku1, form0, form1, talentVNum);
         }
 
-        static inline void SetupBattleWild(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object battleSetupParam, Pml::PokeParty::Object* iPtrEnemyParty, int32_t arenaID, int32_t mapAttrib, int32_t weatherType, bool isSwim, bool isFishing, int32_t partnerID, bool isCaptureDemo, int32_t safariBallNum, bool isSymbol, bool isMitu, System::String::Object* overlapBgm, int32_t overlapSetupEffectId, bool isCantUseBall) {
+        static inline void SetupBattleWild(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* battleSetupParam, Pml::PokeParty::Object* iPtrEnemyParty, int32_t arenaID, int32_t mapAttrib, int32_t weatherType, bool isSwim, bool isFishing, int32_t partnerID, bool isCaptureDemo, int32_t safariBallNum, bool isSymbol, bool isMitu, System::String::Object* overlapBgm, int32_t overlapSetupEffectId, bool isCantUseBall) {
             return external<void>(0x02c3abc0, battleSetupParam, iPtrEnemyParty, arenaID, mapAttrib, weatherType, isSwim, isFishing, partnerID, isCaptureDemo, safariBallNum, isSymbol, isMitu, overlapBgm, overlapSetupEffectId, isCantUseBall);
         }
 
