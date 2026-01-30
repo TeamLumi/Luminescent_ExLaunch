@@ -1,17 +1,17 @@
-#include <data/abilities.h>
-#include <data/utils.h>
+#include "data/abilities.h"
+#include "data/utils.h"
 
-#include <externals/AttributeID.h>
-#include <externals/EntityManager.h>
-#include <externals/GameManager.h>
-#include <externals/PLAYREPORT_DATA.h>
-#include <externals/RandomGroupWork.h>
-#include <externals/Dpr/EncountTools.h>
+#include "externals/AttributeID.h"
+#include "externals/Dpr/EncountTools.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
+#include "externals/EntityManager.h"
 #include "externals/FieldManager.h"
 #include "externals/FieldObjectEntity.h"
+#include "externals/GameManager.h"
 #include "externals/PlayerWork.h"
+#include "externals/PlayReportManager.h"
 #include "externals/Pml/PokePara/CoreParam.h"
+#include "externals/RandomGroupWork.h"
 
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
@@ -71,12 +71,6 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         if (args->max_length >= 12) {
             overrideBGM = GetStringText(manager,args->m_Items[11]);
         }
-        if (args->max_length >= 5)  maxIVs = GetWorkOrIntValue(args->m_Items[4]);
-        if (args->max_length >= 6)  shiny  = GetWorkOrIntValue(args->m_Items[5]);
-        if (args->max_length >= 7) {
-            gender = GetWorkOrIntValue(args->m_Items[6]);
-            if (gender == -1) gender = 255;
-        }
 
         manager->SetBattleReturn();
 
@@ -131,25 +125,18 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         GameManager::GetAttribute(playerGridPos, &code, &stop, false);
         auto attrRow = GameManager::GetAttributeTable(code);
         auto exRow = GameManager::GetAttributeEx(playerGridPos, height, false);
-        auto attributeEx = 0;
-        if (exRow) {
-            attributeEx = exRow->fields.AttributeEx;
-        }
+        int32_t attributeEx = exRow->fields.AttributeEx;
 
         // Checks if player is surfing
-        bool water = false;
-        if (attrRow) {
-            water = AttributeID::MATR_IsWater(attrRow->fields.Code);
-        }
+        bool water = AttributeID::MATR_IsWater(attrRow->fields.Code);
 
         // Gets ArenaID and ZoneID and stuff
         auto zoneID  = PlayerWork::get_zoneID();
         auto mapInfo = GameManager::get_mapInfo();
         auto zoneData = mapInfo->get_Item(zoneID);
         auto battleBg = zoneData->fields.BattleBg;
-        // Might need to do some kind of max length if statement here for battleBg (Line 113 in the dump). I'll come back to that if so because I am confusion. I just like getting variables and scary maths make me sad :c
 
-        int32_t arenaID = battleBg->m_Items[(int)water];
+        int32_t arenaID = battleBg->m_Items[water ? 1 : 0];
 
         // Checks if Pokemon is a legendary
         System::String::Object* encSec = nullptr;
@@ -166,8 +153,7 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
             bgm = overrideBGM;
         }
 
-        // The original method checks if this is the CaptureDemo and does something but idk if we need to worry about that
-        PLAYREPORT_DATA::StartWildBattle(1); // Double check that I put this in the right file
+        PlayReportManager::StartWildBattle(1);
 
         // Battle setup stuff
         auto battleSetupParam = PlayerWork::get_battleSetupParam();

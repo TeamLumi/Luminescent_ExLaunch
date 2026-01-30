@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "externals/il2cpp-api.h"
 
-struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA, 0x04c59f30> {
+struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA> {
     struct Fields {
         int64_t capture_symbol;
         int64_t capture_wild;
@@ -37,8 +37,4 @@ struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA, 0x04c59f30> {
         int64_t statue_set;
         int64_t poketch_open;
     };
-
-    static inline void StartWildBattle(int32_t type) {
-        return external<void>(0x02ce9330, type);
-    }
 };
