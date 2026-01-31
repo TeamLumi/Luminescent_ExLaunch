@@ -64,6 +64,7 @@ void PlayerWork_Initialization_ASM(exl::patch::CodePatcher p) {
             {0x02ceb094, Movz(X1, SysFlagCount)},
             {0x02ceb0ec, Movz(X1, SaveItemCount)},
             {0x02ceb110, Movz(X1, SaveUgItemCount)},
+            {0x018d1484, Movz(X1, SaveUgItemCount)},
             // Box Expansion in box_expansion.cpp
             // Dex Expansion in dex_expansion.cpp
             {0x02ceb224, Movz(X1, TrainerCount)},
