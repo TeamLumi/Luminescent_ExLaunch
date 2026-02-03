@@ -12,6 +12,7 @@
 #include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
+#include "romdata/data/TypePokeData.h"
 #include "romdata/data/UnbreakablePokeItem.h"
 #include "romdata/data/ZoneRates.h"
 
@@ -35,6 +36,12 @@ RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo);
 
 // Returns the honey tree Pokémon at the given zoneID and slot.
 RomData::HoneyTreeSlot GetHoneyTreeSlot(int32_t zoneID, int32_t slot);
+
+// Returns a random Pokémon of the given type from the TypePokes JSON data.
+RomData::TypePokeSlot GetTypePokeSlot(int32_t typeID);
+
+// Returns the number of Pokémon available for the given type in the TypePokes JSON data.
+int32_t GetTypePokeCount(int32_t typeID);
 
 // Returns a predefined color set for color variations.
 RomData::ColorSet GetColorSet(int32_t index);

@@ -1289,6 +1289,7 @@ namespace Dpr::EvScript {
             _LEDGE_JUMP = 1279,
             _JUMP_AND_ROTATE = 1280,
             _WAIT_FOR_GAMEOBJECT = 1281,
+            _GET_TYPE_POKE = 1283,
 
             CUSTOM_CMD_END = 1500,
         };

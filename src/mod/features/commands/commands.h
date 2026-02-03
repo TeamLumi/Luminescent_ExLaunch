@@ -344,3 +344,10 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [String] gameObject: The name of the GameObject to wait on.
 bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets a random Pokémon MonsNo and FormNo from the TypePokes JSON data based on input type.
+// Arguments:
+//   [Work, Number] typeID: The type ID to look up (0=Normal, 1=Fighting, 2=Flying, etc.)
+//   [Work] monsNo: The work in which to put the MonsNo result.
+//   [Work] formNo: The work in which to put the FormNo result.
+bool GetTypePoke(Dpr::EvScript::EvDataManager::Object* manager);
