@@ -48,17 +48,9 @@ bool TrainerMultiBattleSingle(Dpr::EvScript::EvDataManager::Object* manager)
         // Set the flag to indicate we want a multi battle with single opponent
         FlagWork::SetFlag(FlagWork_Flag::FLAG_MULTI_BATTLE_SINGLE, true);
 
-        // Store the opponent trainer ID in FieldManager
-        FieldManager::Object* fieldManager = FieldManager::getClass()
-            ->static_fields->_Instance_k__BackingField->instance();
-        fieldManager->fields._btl_trainerID1 = opponentID;
-        fieldManager->fields._btl_trainerID2 = 0; // No second opponent
-
-        // Set up the battle return point
-        manager->SetBattleReturn();
-
-        // Mark that we're calling a trainer battle
-        manager->fields._isCall_TrainerBtl = true;
+        // The hook in trainer_double_battle.cpp will inject the partner ID
+        // when _TRAINER_BTL_SET is called next. We just set up the state here.
+        // The script should call _TRAINER_BTL_SET(opponentID, 0) after this command.
     }
 
     return true;
