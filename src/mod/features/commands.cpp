@@ -138,6 +138,9 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(JumpAndRotate(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT:
                     return HandleCmdStepper(WaitForGameObject(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CHARA_LOOK_LOCK:
+                    CharaLookLock(__this);  // Set work variable before original runs
+                    return HandleCmdStepper(Orig(__this, index));
                 default:
                     break;
             }
@@ -208,4 +211,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LEDGE_JUMP);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CHARA_LOOK_LOCK);
 }

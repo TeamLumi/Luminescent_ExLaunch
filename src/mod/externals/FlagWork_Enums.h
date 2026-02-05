@@ -3241,6 +3241,7 @@ enum class FlagWork_Work : int32_t {
     SCWK_WK_SAVE_SIZE = 500,
 
     // Luminescent Works
+    SCWK_LOOK_TARGET_OBJID = 448,
     WK_LAST_BATTLE_TURN_COUNTER = 449,
     WK_INCENSE_SLOT = 495,
     WK_PUNCHINGBAG_OBJ_ID = 502,
