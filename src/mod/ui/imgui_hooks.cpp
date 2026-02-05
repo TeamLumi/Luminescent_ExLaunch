@@ -9,6 +9,7 @@
 #include "logger/logger.h"
 #include "ui/base/root_element.h"
 #include "memory/nn_allocator.h"
+#include "features/aspect_ratio.h"
 
 nvn::Device *nvnDevice;
 nvn::Queue *nvnQueue;
@@ -140,6 +141,7 @@ void windowBuilderSetTextures(nvn::WindowBuilder *builder, int count, nvn::Textu
         int w = tempTexGetWidthFunc(textures[0]);
 
         ImguiNvnBackend::getBackendData()->viewportSize = ImVec2(w, h);
+        patchAspectRatioFromViewport(w, h);
     }
 }
 
@@ -149,6 +151,7 @@ void setCrop(nvn::Window *window, int x, int y, int w, int h) {
     if (hasInitImGui) {
         ImguiNvnBackend::getBackendData()->viewportSize = ImVec2(w, h);
     }
+    patchAspectRatioFromViewport(w, h);
 }
 
 NVNboolean deviceInit(nvn::Device *device, const nvn::DeviceBuilder *builder) {

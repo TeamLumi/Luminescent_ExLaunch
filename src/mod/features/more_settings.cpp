@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "data/aspect_ratios.h"
 #include "data/game_modes.h"
 #include "data/random_team_modes.h"
 #include "data/settings.h"
@@ -14,9 +15,11 @@
 #include "externals/Dpr/UI/SettingWindow.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/FlagWork.h"
+#include "externals/UnityEngine/_Object.h"
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
 #include "externals/UnityEngine/Mathf.h"
+#include "features/aspect_ratio.h"
 #include "romdata/romdata.h"
 #include "save/save.h"
 
@@ -50,6 +53,9 @@ void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSett
         case array_index(SETTINGS, "Team Randomization"):
             extraSettings->randomTeamMode = (ExtraSettingsSaveData::RandomTeamMode)value;
             break;
+        case array_index(SETTINGS, "Aspect Ratio"):
+            extraSettings->aspectRatio = (ExtraSettingsSaveData::AspectRatio)value;
+            break;
         default:
             config->SetValue(configId, value);
             break;
@@ -70,6 +76,8 @@ int32_t GetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraS
             return (int32_t)extraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return (int32_t)extraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Aspect Ratio"):
+            return (int32_t)extraSettings->aspectRatio;
         default:
             return config->GetValue(configId);
     }
@@ -89,6 +97,8 @@ bool IsEqualValue(DPData::CONFIG::Object* config, DPData::CONFIG::Object* otherC
             return extraSettings->gameMode == otherExtraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return extraSettings->randomTeamMode == otherExtraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Aspect Ratio"):
+            return extraSettings->aspectRatio == otherExtraSettings->aspectRatio;
         default:
             return config->IsEqualValue(configId, otherConfig);
     }
@@ -152,6 +162,9 @@ int32_t MaxWindowSelectorValue(int32_t configId) {
 
         case array_index(SETTINGS, "Team Randomization"):
             return RANDOM_TEAM_MODE_COUNT - 1;
+
+        case array_index(SETTINGS, "Aspect Ratio"):
+            return ASPECT_RATIO_COUNT - 1;
     }
 }
 
@@ -214,6 +227,11 @@ HOOK_DEFINE_REPLACE(SettingWindow$$RevertSettings) {
                 OnValueChanged(i, GetSetting(&__this->fields._tempConfig, &tempExtraSettings, i));
             }
         }
+
+        // Revert aspect ratio to saved value
+        auto& settings = getCustomSaveData()->settings;
+        setTargetAspectRatio(aspectRatioEnumToFloat((int)settings.aspectRatio));
+        reapplyAspectRatioPatches();
     }
 };
 
@@ -225,6 +243,11 @@ HOOK_DEFINE_REPLACE(SettingWindow$$AcceptSettings) {
         memmove(PlayerWork::get_config(), &__this->fields._tempConfig, sizeof(DPData::CONFIG::Object));
 
         memmove(&getCustomSaveData()->settings, &tempExtraSettings, sizeof(ExtraSettingsSaveData));
+
+        // Apply aspect ratio setting
+        auto& settings = getCustomSaveData()->settings;
+        setTargetAspectRatio(aspectRatioEnumToFloat((int)settings.aspectRatio));
+        reapplyAspectRatioPatches();
 
         InvokeChangedValues(PlayerWork::get_config(), &getCustomSaveData()->settings);
     }
@@ -399,6 +422,15 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                 window->fields._activeItems->Clear();
 
                 auto parentTF = window->fields._scrollRect->fields.m_Content->cast<UnityEngine::Transform>();
+
+                // Clone the last child (Team Randomization) to create the Aspect Ratio entry
+                int existingCount = parentTF->get_childCount();
+                if (existingCount == SETTING_COUNT - 1) {
+                    auto lastChild = parentTF->GetChild(existingCount - 1);
+                    auto* clonedObj = UnityEngine::_Object::Instantiate(lastChild->cast<UnityEngine::Component>()->get_gameObject());
+                    clonedObj->get_transform()->SetParent(parentTF, false);
+                }
+
                 for (int i = 0; i < parentTF->get_childCount(); i++) {
                     auto child = parentTF->GetChild(i);
                     auto settingItem = child->cast<UnityEngine::Component>()->GetComponent(
@@ -505,6 +537,10 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
 
                     case array_index(SETTINGS, "Team Randomization"):
                         __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(RANDOM_TEAM_MODE_LABELS[__this->fields._selectIndex]));
+                        break;
+
+                    case array_index(SETTINGS, "Aspect Ratio"):
+                        __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(ASPECT_RATIO_LABELS[__this->fields._selectIndex]));
                         break;
                 }
 
