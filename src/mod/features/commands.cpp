@@ -54,6 +54,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxNature(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_RELEASE_BOX_POKE:
                     return HandleCmdStepper(PartyBoxRelease(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER:
+                    return HandleCmdStepper(PartyBoxGender(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY:
+                    return HandleCmdStepper(PartyBoxShiny(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TOGGLE_COLLISION_BOX:
                     return HandleCmdStepper(ToggleCollisionBox(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_INSTALL_CHECK:
@@ -166,6 +170,8 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_BOX_POKE_SEIKAKU);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RELEASE_BOX_POKE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TOGGLE_COLLISION_BOX);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_INSTALL_CHECK);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_PLAYER_COLOR_INDEX);
