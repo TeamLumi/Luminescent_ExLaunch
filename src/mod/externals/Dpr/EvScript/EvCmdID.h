@@ -1289,6 +1289,11 @@ namespace Dpr::EvScript {
             _LEDGE_JUMP = 1279,
             _JUMP_AND_ROTATE = 1280,
             _WAIT_FOR_GAMEOBJECT = 1281,
+            _TRAINER_MULTI_BTL_SINGLE = 1282,
+            _GAMEOBJECT_MOVE = 1283,
+            _GAMEOBJECT_ROTATE_PIVOT = 1284,
+            _TEMOTI_BOX_GENDER = 1285,
+            _TEMOTI_BOX_SHINY = 1286,
 
             CUSTOM_CMD_END = 1500,
         };
