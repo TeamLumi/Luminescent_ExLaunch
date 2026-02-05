@@ -344,3 +344,10 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [String] gameObject: The name of the GameObject to wait on.
 bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Hooks _CHARA_LOOK_LOCK to populate SCWK_LOOK_TARGET_OBJID with target entity index.
+// Arguments:
+//   [String] source: The entity that will look.
+//   [String] target: The entity to look at.
+// Side effect: Sets SCWK_LOOK_TARGET_OBJID (448) to target's object index.
+bool CharaLookLock(Dpr::EvScript::EvDataManager::Object* manager);
