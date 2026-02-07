@@ -2,6 +2,15 @@
 
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
+// HOOKS
+
+// Hooks for _LOAD_UMA_ANIME.
+// Loads an asset bundle holding animation data.
+// Arguments:
+//   [String] bundle: The asset bundle to load. Defaults to "field/animeobj/chapter111".
+void Hooks_LoadUmaAnime();
+
+
 // Sets the weather.
 // Arguments:
 //   [Work, Number] weather: The ID of the weather to change to.
@@ -34,6 +43,11 @@ bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isForce: Unknown use.
 //   [Work, Number] fadeTime: The time in seconds it takes for the effect to fade.
 bool StopEffect(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Unloads an asset bundle holding animation data.
+// Arguments:
+//   [String] bundle: The asset bundle to unload. Defaults to "field/animeobj/chapter111".
+bool ReleaseUmaAnime(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Returns the form id of the Pokémon at the given index in the party.
 // Arguments:
@@ -208,6 +222,7 @@ bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] y: Amount of tiles to move on the y axis.
 //   [Work, Number] z: Amount of tiles to move on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [Work, Number] ease: The type of easing to use for the movement.
 bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Multiplies the given work by the given value.
@@ -327,12 +342,15 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] The time in seconds that the jump will take. (Default is 0.5)
 bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Makes the player ledge jump with the given parameters, while rotating a given GameObject over an amount of frames around a specific pivot.
+// Makes the player ledge jump with the given parameters, while rotating a given GameObject over an amount of frames around a specific pivot and also setting the camera's rotation offset.
 // Arguments:
 //   [String] gameObject: The name of the GameObject to rotate.
 //   [Work, Number] x: Degrees to rotate on the x axis.
 //   [Work, Number] y: Degrees to rotate on the y axis.
 //   [Work, Number] z: Degrees to rotate on the z axis.
+//   [Work, Number] camX: Degrees to set the camera's rotation offset to on the x axis.
+//   [Work, Number] camY: Degrees to set the camera's rotation offset to on the y axis.
+//   [Work, Number] camZ: Degrees to set the camera's rotation offset to on the z axis.
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 //   [String] pivot: The name of the GameObject that will act as a pivot point.
 //   [Work, Number] moveDistance: The amount of tiles to jump. (Default 2.0)
@@ -344,3 +362,56 @@ bool JumpAndRotate(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [String] gameObject: The name of the GameObject to wait on.
 bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Retrieves the positional vector of the given gameObject placed into corresponding x,y,z works.
+// Arguments:
+//   [String] gameObject: The name of the GameObject to get the position of.
+//   [Work] x: Work to store the x coordinate.
+//   [Work] y: Work to store the y coordinate.
+//   [Work] z: Work to store the z coordinate.
+bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Moves a gameObject by an amount of tiles over an amount of frames.
+// Arguments:
+//   [Work, Number, String] gameObject: The ID of the gameObject to move.
+//   [Work, Number] x: Amount of tiles to move on the x axis.
+//   [Work, Number] y: Amount of tiles to move on the y axis.
+//   [Work, Number] z: Amount of tiles to move on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [Work, Number] ease: The type of easing to use for the movement.
+bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Rotates a GameObject over an amount of frames around a specific pivot.
+// Arguments:
+//   [String] gameObject: The name of the GameObject to rotate.
+//   [Work, Number] x: Degrees to rotate on the x axis.
+//   [Work, Number] y: Degrees to rotate on the y axis.
+//   [Work, Number] z: Degrees to rotate on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [String] pivot: The name of the GameObject that will act as a pivot point.
+//   [Work, Number] easing: Type of easing function to use. Default is linear.
+bool GameObjectRotatePivot(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Adjust the camera's rotation offset over an amount of frames.
+// Arguments:
+//   [Work, Number] x: Degrees to rotate on the x axis.
+//   [Work, Number] y: Degrees to rotate on the y axis.
+//   [Work, Number] z: Degrees to rotate on the z axis.
+//   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
+//   [Work, Number] easing: Type of easing function to use. Default is linear.
+bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Starts a static wild Pokémon encounter with more available args.
+// Arguments:
+//   [Work, Number] monsno: ID of the species.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] level: Level of the Pokémon.
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have.
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+//   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be (Can be overridden by Cute Charm). -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
+//   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
+//   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have (Will be overridden by Synchronize). -1 = Random
+//   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
+//   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
+//   [String] overrideBGM: (optional) Overrides the Battle Background Music.
+bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
