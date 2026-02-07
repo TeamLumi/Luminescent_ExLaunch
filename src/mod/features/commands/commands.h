@@ -415,3 +415,11 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Initiates a multi battle with one partner trainer and one opponent using two Pokemon (2v2 format).
+// The partner provides one Pokemon and the player provides one Pokemon.
+// The opponent provides two Pokemon.
+// Arguments:
+//   [Work, Number] partner: The ID of the partner trainer.
+//   [Work, Number] opponent: The ID of the opponent trainer.
+bool TrainerMultiBattleSingle(Dpr::EvScript::EvDataManager::Object* manager);
