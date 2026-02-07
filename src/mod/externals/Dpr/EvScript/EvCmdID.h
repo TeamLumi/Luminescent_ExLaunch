@@ -1293,6 +1293,7 @@ namespace Dpr::EvScript {
             _GAMEOBJECT_MOVE = 1283,
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
             _SET_CAMERA_OFFSET_ANGLE = 1285,
+            _SP_WILD_BTL_SET_EXTRA = 1286,
 
             CUSTOM_CMD_END = 1500,
         };

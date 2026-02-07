@@ -400,3 +400,18 @@ bool GameObjectRotatePivot(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 //   [Work, Number] easing: Type of easing function to use. Default is linear.
 bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Starts a static wild Pokémon encounter with more available args.
+// Arguments:
+//   [Work, Number] monsno: ID of the species.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] level: Level of the Pokémon.
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have.
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+//   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be (Can be overridden by Cute Charm). -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
+//   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
+//   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have (Will be overridden by Synchronize). -1 = Random
+//   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
+//   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
+//   [String] overrideBGM: (optional) Overrides the Battle Background Music.
+bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
