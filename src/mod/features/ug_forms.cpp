@@ -2,9 +2,8 @@
 
 #include "externals/Dpr/UnderGround/UgPokeLottery.h"
 #include "externals/Pml/Local/Random.h"
-#include "externals/System/_Object.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/Primitives.h"
-#include "externals/System/Text/StringBuilder.h"
 #include "externals/XLSXContent/UgEncount.h"
 
 #include "logger/logger.h"
@@ -38,7 +37,16 @@ HOOK_DEFINE_TRAMPOLINE(GetUgPokeData) {
     }
 };
 
+HOOK_DEFINE_REPLACE(UgMainProc$$CheckFormNo) {
+    static bool Callback(int32_t monsNo, uint16_t formNo) {
+        // Always consider this a valid form
+        return true;
+    }
+};
+
+
 void exl_ug_forms_main() {
     Dpr_UnderGround_UgPokeLottery_LotteryPoke::InstallAtOffset(0x018bfa90);
     GetUgPokeData::InstallAtOffset(0x01b1b540);
+    UgMainProc$$CheckFormNo::InstallAtOffset(0x018d4150);
 }

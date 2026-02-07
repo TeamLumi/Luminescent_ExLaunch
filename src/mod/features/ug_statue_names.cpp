@@ -62,6 +62,7 @@ HOOK_DEFINE_INLINE(UgBoxFormatNames_Append) {
     }
 };
 
+
 void exl_ug_statue_names_main() {
     UgBoxFormatNames_Load::InstallAtOffset(0x019c8fe8);
     UgBoxFormatNames_Append::InstallAtOffset(0x019daafc);

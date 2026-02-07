@@ -127,6 +127,8 @@ void CallFeatureHooks()
         exl_fake_stopdata_main();
     if (IsActivatedFeature(array_index(FEATURES, "Underground Statue Names")))
         exl_ug_statue_names_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Underground Visible Shinies")))
+        exl_ug_shinies_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

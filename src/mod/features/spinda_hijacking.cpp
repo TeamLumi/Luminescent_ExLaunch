@@ -11,6 +11,7 @@
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/PokemonCustomNodeAnim.h"
 #include "externals/UnityEngine/GameObject.h"
+
 #include "logger/logger.h"
 
 HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
@@ -198,6 +199,7 @@ HOOK_DEFINE_TRAMPOLINE(Demo_Hatch_DisplayClass9_0$$Enter_b__2) {
     }
 };
 
+
 void exl_spinda_hijacking_main() {
     PatcheelPattern$$SetPattern::InstallAtOffset(0x01bcb200);
     BattlePokemonEntity$$SetPatcheelPattern::InstallAtOffset(0x01d77990);
@@ -218,7 +220,7 @@ void exl_spinda_hijacking_main() {
         { 0x01cd94f0, MovRegister(X2, X26) }, // FieldWalkingManager.<CreatePartner>d__43$$MoveNext
         { 0x01a7fc10, LdrRegisterImmediate(X2, X19, 0x6 /*X19 + 0x30*/) }, // FureaiHiroba_PokeFactory.<AddPoke>d__10$$MoveNext
         { 0x01a104b8, MovRegister(X2, X19) }, // UIModelViewController$$_SetupPokemonModel
-        { 0x018d6068, LdrRegisterImmediate(X2, X8, 0x2 /*X8 + 0x10*/) }, // UgMainProc.<>c__DisplayClass9_0$$<CreatePoke>b__0
+        { 0x018d6068, LdrRegisterImmediate(X2, X19, 0x3 /*X8 + 0x18*/) }, // UgMainProc.<>c__DisplayClass9_0$$<CreatePoke>b__0
     };
     p.WriteInst(inst);
 }

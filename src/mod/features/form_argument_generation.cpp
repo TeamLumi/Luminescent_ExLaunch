@@ -5,7 +5,7 @@
 
 #include "externals/DPData/Form_Enums.h"
 #include "externals/Dpr/UI/ZukanInfo.h"
-#include "externals/GFL.h"
+#include "externals/Dpr/UnderGround/UgPokeLottery.h"
 #include "externals/PlayerWork.h"
 #include "externals/Pml/Personal/GrowTableExtensions.h"
 #include "externals/Pml/Personal/PersonalSystem.h"
@@ -21,6 +21,29 @@
 #include "logger/logger.h"
 #include "romdata/romdata.h"
 #include "save/save.h"
+
+void FormArgumentGeneration(Pml::PokePara::Accessor::Object* accessor, int32_t monsno, int32_t zoneID) {
+    switch (monsno)
+    {
+        case array_index(SPECIES, "Smeargle"):
+        {
+            accessor->SetMultiPurposeWork(RollForSmeargleColor(zoneID));
+        }
+        break;
+
+        case array_index(SPECIES, "Vivillon"):
+        {
+            accessor->SetMultiPurposeWork(accessor->GetFormNo());
+        }
+        break;
+
+        default:
+        {
+            accessor->SetMultiPurposeWork(RollForVariant(monsno, accessor->GetFormNo(), zoneID));
+        }
+        break;
+    }
+}
 
 HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
     static void Callback(System::Byte_array* coreData, Pml::PokePara::InitialSpec::Object* spec) {
@@ -95,27 +118,7 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         accessor->SetTalentHeight(spec->fields.height);
         accessor->SetTalentWeight(spec->fields.weight);
 
-        // Form Argument
-        switch (spec->fields.monsno)
-        {
-            case array_index(SPECIES, "Smeargle"):
-            {
-                accessor->SetMultiPurposeWork(RollForSmeargleColor(PlayerWork::get_zoneID()));
-            }
-            break;
-
-            case array_index(SPECIES, "Vivillon"):
-            {
-                accessor->SetMultiPurposeWork(accessor->GetFormNo());
-            }
-            break;
-
-            default:
-            {
-                accessor->SetMultiPurposeWork(RollForVariant(spec->fields.monsno, accessor->GetFormNo(), PlayerWork::get_zoneID()));
-            }
-            break;
-        }
+        FormArgumentGeneration(accessor, spec->fields.monsno, PlayerWork::get_zoneID());
     }
 };
 
@@ -149,8 +152,22 @@ HOOK_DEFINE_TRAMPOLINE(ZukanInfo$$GetCurrentPokemonParam) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei) {
+    static Pml::PokePara::PokemonParam::Object* Callback(Dpr::UnderGround::UgPokeLottery::Object*__this, int32_t monsNo, uint8_t rareTryCount) {
+        auto param = Orig(__this, monsNo, rareTryCount);
+
+        // Regenerate the form argument again for the room we're transitioning to in the Underground
+        FormArgumentGeneration(param->fields.m_accessor, param->cast<Pml::PokePara::CoreParam>()->GetMonsNo(), PlayerWork::get_transitionZoneID());
+
+        return param;
+    }
+};
+
+
 void exl_form_arg_generation_main() {
     Factory$$InitCoreData::InstallAtOffset(0x02054140);
     EggGenerator$$CreateEgg_CoreParam_Variants::InstallAtOffset(0x0204e28c);
     ZukanInfo$$GetCurrentPokemonParam::InstallAtOffset(0x01bb04e0);
+
+    Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei::InstallAtOffset(0x018bfea0);
 }
