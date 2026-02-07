@@ -15,7 +15,7 @@ HOOK_DEFINE_TRAMPOLINE(BagItemButton_UpdateStockCount) {
     static void Callback(Dpr::UI::BagItemButton::Object* __this) {
         Orig(__this);
 
-        if (__this->fields.item != nullptr) {
+        if (__this->fields.item != nullptr && __this->fields.stockCountLabelText != nullptr && __this->fields.stockCountValueText != nullptr) {
             int32_t category = __this->fields.item->fields._categoryType;
             // 5 = WazaMachine (TM pocket)
             if (category == 5) {
