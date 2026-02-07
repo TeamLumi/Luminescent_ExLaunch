@@ -29,5 +29,9 @@ namespace UnityEngine {
         static inline bool op_Inequality(UnityEngine::_Object::Object* x, UnityEngine::_Object::Object* y) {
             return external<bool>(0x0268b620, x, y);
         }
+
+        static inline void Destroy(UnityEngine::_Object::Object* obj) {
+            external<void>(0x0268b1f0, obj);
+        }
     };
 }

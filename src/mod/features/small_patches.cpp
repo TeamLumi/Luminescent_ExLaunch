@@ -104,6 +104,7 @@ void exl_patches_main() {
     auto inst = nn::vector<exl::patch::Instruction> {
         { 0x02053b24, CmpImmediate(W8, 0x7) },          // Allow 6IV Pokémon
         { 0x0202c140, CmpImmediate(W19, ITEM_COUNT) },  // Make the battle check for if you own balls that go past 1822 items
+        { 0x02c5b0d8, Movz(W2, 0x1)}, // Patches _VISIBLE_OBJ_PROP to always look at inactive objects.
     };
     p.WriteInst(inst);
 
