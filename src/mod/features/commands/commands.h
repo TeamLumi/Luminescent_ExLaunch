@@ -415,3 +415,11 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the player's world position with 2 decimal places of precision.
+// Coordinates are multiplied by 100 so that e.g. position 12.34 becomes 1234.
+// Arguments:
+//   [Work] x: Work to store the x coordinate * 100.
+//   [Work] y: Work to store the y coordinate * 100.
+//   [Work] z: Work to store the z coordinate * 100.
+bool GetPlayerPosPrecise(Dpr::EvScript::EvDataManager::Object* manager);
