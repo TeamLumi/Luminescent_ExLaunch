@@ -104,6 +104,7 @@ static constexpr const char* SMALL_PATCH_FEATURES[] = {
     "Global Exp. Share Toggle",
     "Catch Rate Fix",
     "Extended Flags Fixes",
+    "Disabled Time Travel Penalty",
 };
 
 constexpr int SMALL_PATCH_FEATURE_COUNT = sizeof(SMALL_PATCH_FEATURES) / sizeof(SMALL_PATCH_FEATURES[0]);

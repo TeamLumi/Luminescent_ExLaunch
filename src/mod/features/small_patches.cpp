@@ -27,6 +27,12 @@ HOOK_DEFINE_REPLACE(ExpShareFlag) {
     }
 };
 
+HOOK_DEFINE_REPLACE(SystemTimeWork$$IsPenalty) {
+    static bool Callback() {
+        return false;
+    }
+};
+
 HOOK_DEFINE_REPLACE(GetMessageLangIdFromIetfCode) {
     static int32_t Callback() {
         return static_cast<int32_t>(Dpr::Message::MessageEnumData::MsgLangId::USA);
@@ -67,6 +73,9 @@ void exl_patches_main() {
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Global Exp. Share Toggle")))
         ExpShareFlag::InstallAtOffset(0x020397f0);
+
+    if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Disabled Time Travel Penalty")))
+        SystemTimeWork$$IsPenalty::InstallAtOffset(0x02cae1c0);
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Catch Rate Fix")))
     {
