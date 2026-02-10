@@ -415,3 +415,12 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Makes an NPC entity jump with the given parameters, using the entity's facing direction.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index of the NPC.
+//   [Work, Number] moveDistance: The number of tiles to jump forward. (Default 2.0)
+//   [Work, Number] relativeHeight: The peak height of the jump arc. (Default 0.75)
+//   [Work, Number] relativeLower: The vertical offset at the end of the jump. (Default -0.5)
+//   [Work, Number] duration: The time in seconds for the jump. (Default 0.5)
+bool NpcJump(Dpr::EvScript::EvDataManager::Object* manager);
