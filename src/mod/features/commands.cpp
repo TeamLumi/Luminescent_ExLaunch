@@ -150,6 +150,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetCameraOffsetAngle(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA:
                     return HandleCmdStepper(SpWildBtlSetExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_PLAYER_POS_PRECISE:
+                    return HandleCmdStepper(GetPlayerPosPrecise(__this));
                 default:
                     break;
             }
@@ -235,6 +237,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_PLAYER_POS_PRECISE);
 
     exl_commands_hooks_main();
 }
