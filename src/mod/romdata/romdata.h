@@ -13,6 +13,7 @@
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
 #include "romdata/data/UnbreakablePokeItem.h"
+#include "romdata/data/FossilData.h"
 #include "romdata/data/ZoneRates.h"
 
 // Returns the max level based on the given level cap index.
@@ -98,5 +99,11 @@ RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
 
 // Returns Outfit Availability data for the given dressID.
 RomData::OutfitData GetOutfitData(int32_t dressID);
+
+// Returns the fossil entries from the JSON table.
+const nn::vector<RomData::FossilEntry>& GetFossilEntries();
+
+// Returns the MonsNo for the given fossil item number, or 0 if not found.
+int32_t GetMonsNoFromItemNo(int32_t itemNo);
 
 void LoadFeaturesFromJSON(nn::json j);
