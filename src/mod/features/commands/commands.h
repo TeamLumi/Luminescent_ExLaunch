@@ -401,6 +401,25 @@ bool GameObjectRotatePivot(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] easing: Type of easing function to use. Default is linear.
 bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Counts the total number of fossil items in the player's inventory.
+// Arguments:
+//   [Work] result: The work in which to put the total fossil count.
+bool KasekiCount(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Looks up a fossil item number and returns the corresponding MonsNo.
+// Arguments:
+//   [Work] result: The work in which to put the MonsNo. 0 if not found.
+//   [Work, Number] itemNo: The item number to look up.
+bool ItemNoToMonsNo(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Iterates through fossil entries counting inventory items.
+// When the accumulated count reaches the threshold, returns the item number at that point.
+// Arguments:
+//   [Work] resultItemNo: The work in which to put the item number of the fossil.
+//   [Work] resultIndex: The work in which to put the index of the fossil in the iteration.
+//   [Work, Number] threshold: The count threshold to reach before returning.
+bool KasekiItemNo(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Starts a static wild Pokémon encounter with more available args.
 // Arguments:
 //   [Work, Number] monsno: ID of the species.
