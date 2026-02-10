@@ -415,3 +415,13 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Deep-copies the current player party into temporary storage.
+// Arguments:
+//   None.
+bool SavePartyTemp(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Restores the player party from temporary storage, replacing the current party.
+// Arguments:
+//   None.
+bool RestorePartyTemp(Dpr::EvScript::EvDataManager::Object* manager);

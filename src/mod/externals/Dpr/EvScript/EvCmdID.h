@@ -1294,6 +1294,8 @@ namespace Dpr::EvScript {
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
             _SET_CAMERA_OFFSET_ANGLE = 1285,
             _SP_WILD_BTL_SET_EXTRA = 1286,
+            _SAVE_PARTY_TEMP = 1288,
+            _RESTORE_PARTY_TEMP = 1289,
 
             CUSTOM_CMD_END = 1500,
         };
