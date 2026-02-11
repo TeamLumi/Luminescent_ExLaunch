@@ -19,3 +19,6 @@ void exl_items_infinite_tms_main();
 
 // Adds support for integration between the Infinite Repel and normal repels.
 void exl_items_repel_main();
+
+// Adds Looker's Hat battle effects: 1.5x Speed and +1 crit stage for Pikachu.
+void exl_items_lookers_hat_main();

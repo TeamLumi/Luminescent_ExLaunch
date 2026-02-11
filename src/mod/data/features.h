@@ -87,6 +87,7 @@ static constexpr const char* ITEM_FEATURES[] = {
     "Infinite TMs",
     "Leek",
     "Infinite Repel",
+    "Looker's Hat",
 };
 
 constexpr int ITEM_FEATURE_COUNT = sizeof(ITEM_FEATURES) / sizeof(ITEM_FEATURES[0]);

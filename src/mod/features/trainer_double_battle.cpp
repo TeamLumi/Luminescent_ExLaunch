@@ -1,5 +1,5 @@
 #include "exlaunch.hpp"
-#include "Logger/logger.h"
+#include "logger/logger.h"
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 #include "externals/PlayerWork.h"

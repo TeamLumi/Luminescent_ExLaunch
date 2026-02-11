@@ -415,3 +415,35 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Deep-copies the current player party into temporary storage.
+// Arguments:
+//   None.
+bool SavePartyTemp(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Restores the player party from temporary storage, replacing the current party.
+// Arguments:
+//   None.
+bool RestorePartyTemp(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the battle result from the last battle.
+// Arguments:
+//   [Work] Result: 0 = win, 1 = lose, 2 = draw
+bool GetBtlResult(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Silently adds a Pokémon to the player's party without opening any UI.
+// Same parameters as _ADD_POKEMON_UI_EXTRA but synchronous.
+// Arguments:
+//   [Work, Number] monsno: Species ID.
+//   [Work, Number] formno: Form number.
+//   [Work, Number] level: Level.
+//   [Work, Number] item: Held item ID (0 = none).
+//   [Work, Number] maxIVs: Number of max IVs.
+//   [Work, Number] ball: Ball ID.
+//   [Work, Number] shiny: (optional) -1 = Random, 0 = Never, 1 = Shiny, 2 = Square.
+//   [Work, Number] gender: (optional) -1 = Random, 0 = Male, 1 = Female, 2 = Genderless.
+//   [Work, Number] formArg: (optional) -1 = Default.
+//   [Work, Number] nature: (optional) -1 = Random.
+//   [Work, Number] ability: (optional) -1 = Random, 0 = A1, 1 = A2, 2 = HA.
+//   [String] nickname: (optional) Nickname for the Pokémon.
+bool AddPokemonSilent(Dpr::EvScript::EvDataManager::Object* manager);

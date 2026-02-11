@@ -1315,7 +1315,7 @@ static constexpr const char* ITEMS[] = {
     "Clone Ball", // ★Boo5435
     "Cynthia's Rage Candy Bar", // ★Boo5602
 
-    "★Boo5733",
+    "Looker's Hat",
     "★Boo5235",
     "★Boo5351",
     "★Hya3748",
