@@ -21,6 +21,7 @@ bool SavePartyTemp(Dpr::EvScript::EvDataManager::Object* manager)
     // Allocate a temp PokeParty if we haven't already
     if (s_tempParty == nullptr) {
         s_tempParty = Pml::PokeParty::getClass()->newInstance();
+        s_tempParty->ctor();
     }
 
     // Deep copy the entire party (all 6 slots + member count)

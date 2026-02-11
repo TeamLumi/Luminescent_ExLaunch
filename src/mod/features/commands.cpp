@@ -154,6 +154,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SavePartyTemp(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_RESTORE_PARTY_TEMP:
                     return HandleCmdStepper(RestorePartyTemp(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_BTL_RESULT:
+                    return HandleCmdStepper(GetBtlResult(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_SILENT:
+                    return HandleCmdStepper(AddPokemonSilent(__this));
                 default:
                     break;
             }
@@ -241,6 +245,8 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SAVE_PARTY_TEMP);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RESTORE_PARTY_TEMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_BTL_RESULT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_SILENT);
 
     exl_commands_hooks_main();
 }
