@@ -5,15 +5,19 @@
 
 #include "externals/DPData/Form_Enums.h"
 #include "externals/Dpr/UI/ZukanInfo.h"
+#include "externals/Dpr/UnderGround/UgFieldManager.h"
 #include "externals/Dpr/UnderGround/UgPokeLottery.h"
 #include "externals/PlayerWork.h"
+#include "externals/Pml/Local/RandomGenerator.h"
 #include "externals/Pml/Personal/GrowTableExtensions.h"
 #include "externals/Pml/Personal/PersonalSystem.h"
+#include "externals/Pml/Personal/PersonalTableExtensions.h"
 #include "externals/Pml/PmlUse.h"
 #include "externals/Pml/PokePara/Accessor.h"
 #include "externals/Pml/PokePara/CalcTool.h"
 #include "externals/Pml/PokePara/EggGenerator.h"
 #include "externals/Pml/PokePara/EggParam.h"
+#include "externals/Pml/PokePara/Factory.h"
 #include "externals/Pml/PokePara/InitialSpec.h"
 #include "externals/Pml/PokePara/Parents.h"
 #include "externals/UnityEngine/Random.h"
@@ -21,6 +25,14 @@
 #include "logger/logger.h"
 #include "romdata/romdata.h"
 #include "save/save.h"
+
+int32_t GetEncounterZoneForPokemonGeneration() {
+    Dpr::UnderGround::UgFieldManager::getClass()->initIfNeeded();
+    if (Dpr::UnderGround::UgFieldManager::get_isInstantiated() && PlayerWork::get_transitionZoneID() != -1)
+        return PlayerWork::get_transitionZoneID();
+    else
+        return PlayerWork::get_zoneID();
+}
 
 void FormArgumentGeneration(Pml::PokePara::Accessor::Object* accessor, int32_t monsno, int32_t zoneID) {
     switch (monsno)
@@ -45,8 +57,57 @@ void FormArgumentGeneration(Pml::PokePara::Accessor::Object* accessor, int32_t m
     }
 }
 
+void FormGeneration(Pml::PokePara::InitialSpec::Object* initSpec, Pml::Local::RandomGenerator::Object* random) {
+    auto zone = GetEncounterZoneForPokemonGeneration();
+    if (ExistFormRates(initSpec->fields.monsno, zone)) {
+        initSpec->fields.formno = RollForForm(initSpec->fields.monsno, zone);
+    }
+    else {
+        auto data = Pml::Personal::PersonalSystem::GetPersonalData(initSpec->fields.monsno, 0);
+        auto maxForms = (uint8_t)Pml::Personal::PersonalTableExtensions::GetParam(data, 30);
+        initSpec->fields.formno = (uint16_t)Pml::PokePara::Factory::GetRandom(random, maxForms);
+    }
+}
+
+HOOK_DEFINE_INLINE(FixInitSpec_FormRolling) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        // This is only entered if the formno in the initSpec is 255
+
+        auto initSpec = (Pml::PokePara::InitialSpec::Object*)ctx->X[19];
+        auto random = (Pml::Local::RandomGenerator::Object*)ctx->X[20];
+
+        switch (initSpec->fields.monsno)
+        {
+            case array_index(SPECIES, "Toxtricity"):
+            {
+                // Roll for a Toxtricity form and then roll for a nature pre-emptively to match the form
+                initSpec->fields.formno = (uint16_t)Pml::PokePara::Factory::GetRandom(random, (uint16_t)ToxtricityForm::MAX);
+                if (initSpec->fields.formno == (uint16_t)ToxtricityForm::AMPED) {
+                    uint8_t num = 0;
+                    auto possibleSeikaku = Pml::PokePara::CalcTool::GetSeikakuHigh(&num);
+                    initSpec->fields.seikaku = (uint16_t)possibleSeikaku->m_Items[Pml::PokePara::Factory::GetRandom(random, num)];
+                }
+                else if (initSpec->fields.formno == (uint16_t)ToxtricityForm::LOW_KEY) {
+                    uint8_t num = 0;
+                    auto possibleSeikaku = Pml::PokePara::CalcTool::GetSeikakuLow(&num);
+                    initSpec->fields.seikaku = (uint16_t)possibleSeikaku->m_Items[Pml::PokePara::Factory::GetRandom(random, num)];
+                }
+            }
+            break;
+
+            default:
+            {
+                FormGeneration(initSpec, random);
+            }
+            break;
+        }
+    }
+};
+
 HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
     static void Callback(System::Byte_array* coreData, Pml::PokePara::InitialSpec::Object* spec) {
+        // This is POST FixInitSpec
+
         system_load_typeinfo(0x47e3);
         Pml::PmlUse::getClass()->initIfNeeded();
         Pml::PokePara::CalcTool::getClass()->initIfNeeded();
@@ -62,38 +123,7 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
         accessor->SetID(spec->fields.id);
         accessor->SetColorRnd(spec->fields.rareRnd);
         accessor->SetMonsNo(spec->fields.monsno);
-
-        // Form No
-        switch (spec->fields.monsno)
-        {
-            case array_index(SPECIES, "Toxtricity"):
-            {
-                if (spec->fields.formno == 255)
-                {
-                    if (Pml::PokePara::CalcTool::IsSeikakuHigh(spec->fields.seikaku))
-                        accessor->SetFormNo((uint16_t)ToxtricityForm::AMPED);
-                    else if (Pml::PokePara::CalcTool::IsSeikakuLow(spec->fields.seikaku))
-                        accessor->SetFormNo((uint16_t)ToxtricityForm::LOW_KEY);
-                    else
-                        accessor->SetFormNo(spec->fields.formno);
-                }
-                else
-                {
-                    accessor->SetFormNo(spec->fields.formno);
-                }
-            }
-            break;
-
-            default:
-            {
-                if (spec->fields.formno == 255)
-                    accessor->SetFormNo(RollForForm(spec->fields.monsno, PlayerWork::get_zoneID()));
-                else
-                    accessor->SetFormNo(spec->fields.formno);
-            }
-            break;
-        }
-
+        accessor->SetFormNo(spec->fields.formno);
         accessor->SetLevel(spec->fields.level);
         accessor->SetSeikaku(spec->fields.seikaku);
         accessor->SetSeikakuHosei(spec->fields.seikaku);
@@ -157,7 +187,7 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Toku
         auto param = Orig(__this, monsNo, rareTryCount);
 
         // Regenerate the form argument again for the room we're transitioning to in the Underground
-        FormArgumentGeneration(param->fields.m_accessor, param->cast<Pml::PokePara::CoreParam>()->GetMonsNo(), PlayerWork::get_transitionZoneID());
+        FormArgumentGeneration(param->fields.m_accessor, param->cast<Pml::PokePara::CoreParam>()->GetMonsNo(), GetEncounterZoneForPokemonGeneration());
 
         return param;
     }
@@ -166,8 +196,15 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Toku
 
 void exl_form_arg_generation_main() {
     Factory$$InitCoreData::InstallAtOffset(0x02054140);
+    FixInitSpec_FormRolling::InstallAtOffset(0x02053f8c);
     EggGenerator$$CreateEgg_CoreParam_Variants::InstallAtOffset(0x0204e28c);
     ZukanInfo$$GetCurrentPokemonParam::InstallAtOffset(0x01bb04e0);
 
     Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei::InstallAtOffset(0x018bfea0);
+
+    using namespace exl::armv8::inst;
+    using namespace exl::armv8::reg;
+    exl::patch::CodePatcher p(0);
+    p.Seek(0x02053f90);
+    p.WriteInst(Branch(0xA8)); // Jump to 02054038
 }

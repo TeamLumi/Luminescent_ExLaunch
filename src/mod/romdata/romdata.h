@@ -69,6 +69,9 @@ RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId);
 // Returns the form rates of the given Pokémon at the given zoneID.
 nn::vector<uint32_t> GetFormRates(int32_t monsno, int32_t zoneID);
 
+// Returns if there are defined form rates for the given Pokémon at the given zoneID.
+bool ExistFormRates(int32_t monsno, int32_t zoneID);
+
 // Rolls for a form based on the form rates for the given Pokémon at the given zoneID.
 int32_t RollForForm(int32_t monsno, int32_t zoneID);
 
