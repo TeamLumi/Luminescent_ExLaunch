@@ -54,6 +54,6 @@ HOOK_DEFINE_REPLACE(UgResManager$$AppendAsset_ShinyFix) {
 
 
 void exl_ug_shinies_main() {
-    UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix::InstallAtOffset(0x019daafc);
+    UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix::InstallAtOffset(0x018d5ea0);
     UgResManager$$AppendAsset_ShinyFix::InstallAtOffset(0x01b1b110);
 }
