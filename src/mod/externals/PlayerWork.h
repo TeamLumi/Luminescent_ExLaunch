@@ -353,6 +353,10 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
     }
 
+    static inline int32_t get_transitionZoneID() {
+        return external<int32_t>(0x02cef090);
+    }
+
     static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
         return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*>(0x02ce2a00);
     }

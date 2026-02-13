@@ -2,6 +2,8 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/System/Primitives.h"
+
 namespace Pml::PokePara {
     struct CalcTool : ILClass<CalcTool, 0x04c64410> {
         static inline uint8_t GetArceusType(uint32_t itemno) {
@@ -22,6 +24,14 @@ namespace Pml::PokePara {
 
         static inline bool IsSeikakuLow(int32_t seikaku) {
             return external<bool>(0x024ae000, seikaku);
+        }
+
+        static inline System::Int32_array* GetSeikakuHigh(uint8_t* pNum) {
+            return external<System::Int32_array*>(0x024ae0f0, pNum);
+        }
+
+        static inline System::Int32_array* GetSeikakuLow(uint8_t* pNum) {
+            return external<System::Int32_array*>(0x024ae170, pNum);
         }
 
         static inline uint16_t GetTokuseiNo(int32_t monsno, uint16_t formno, uint8_t tokuseiIndex) {
