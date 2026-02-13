@@ -13,7 +13,7 @@ HOOK_DEFINE_INLINE(Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei_
         initSpec->fields.monsno = fullMonsNo & 0x0000FFFF;
         initSpec->fields.formno = (fullMonsNo & 0xFFFF0000) >> 16;
 
-        Logger::log("Converting %d to monsno %d of form %d\n", fullMonsNo, initSpec->fields.monsno, initSpec->fields.formno);
+        //Logger::log("Converting %d to monsno %d of form %d\n", fullMonsNo, initSpec->fields.monsno, initSpec->fields.formno);
     }
 };
 
