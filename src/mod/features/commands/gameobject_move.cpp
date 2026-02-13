@@ -1,5 +1,5 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/FieldObjectEntity.h"
+#include "externals/UnityEngine/GameObject.h"
 
 #include "features/commands/utils/cmd_utils.h"
 #include "features/commands/utils/FCEasing.h"
@@ -9,34 +9,35 @@ static float origPosX = 0.0f;
 static float origPosY = 0.0f;
 static float origPosZ = 0.0f;
 
-bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
+bool GameObjectMove(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    //Logger::log("_ENTITY_MOVE\n");
-
+    // Logger::log("_GAMEOBJECT_MOVE\n");
     system_load_typeinfo(0x438c);
     system_load_typeinfo(0x45dc);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
-    FieldObjectEntity::Object* entity = FindEntity(manager, args->m_Items[1]);
+    auto id = GetStringText(manager, args->m_Items[1]);
+    auto gameObj= UnityEngine::GameObject::Find(id)->instance();
 
     int32_t deltaX = GetWorkOrIntValue(args->m_Items[2]);
     int32_t deltaY = GetWorkOrIntValue(args->m_Items[3]);
     int32_t deltaZ = GetWorkOrIntValue(args->m_Items[4]);
     int32_t frames = GetWorkOrIntValue(args->m_Items[5]);
 
+    // NEW: Ease type from script (mapped to EFCEase)
     int32_t easingIndex = 0; // Default to Linear
     if (args->max_length >= 7) {
         easingIndex = GetWorkOrIntValue(args->m_Items[6]);
     }
     EFCEase easeType = static_cast<EFCEase>(easingIndex);
 
-    // Do the movement instantly if frames are 0 or negative
+    // Instant move if frames <= 0
     if (frames <= 0) {
-        auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
+        auto currPos = gameObj->get_transform()->get_localPosition();
         currPos.fields.x += deltaX;
         currPos.fields.y += deltaY;
         currPos.fields.z += deltaZ;
-        entity->cast<BaseEntity>()->SetPositionDirect(currPos);
+        gameObj->get_transform()->set_localPosition(currPos);
 
         return true;
     }
@@ -46,7 +47,7 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
 
     // Capture initial position only on first update
     if (manager->fields._timeWait == 0.0f) {
-        auto origPos = entity->cast<BaseEntity>()->fields.worldPosition;
+        auto origPos = gameObj->get_transform()->get_localPosition();
         origPosX = origPos.fields.x;
         origPosY = origPos.fields.y;
         origPosZ = origPos.fields.z;
@@ -67,21 +68,20 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
     float newY = origPosY + deltaY * e;
     float newZ = origPosZ + deltaZ * e;
 
-    auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
+    auto currPos = gameObj->get_transform()->get_localPosition();
     currPos.fields.x = newX;
     currPos.fields.y = newY;
     currPos.fields.z = newZ;
-    entity->cast<BaseEntity>()->SetPositionDirect(currPos);
+    gameObj->get_transform()->set_localPosition(currPos);
 
     // Checks if the entire animation has played out 0 to 1 == 0% to 100%
     if (t >= 1.0f) {
         manager->fields._timeWait = 0.0f;
-        auto currPos = entity->cast<BaseEntity>()->fields.worldPosition;
-        currPos.fields.x = origPosX + deltaX;
-        currPos.fields.y = origPosY + deltaY;
-        currPos.fields.z = origPosZ + deltaZ;
-        entity->cast<BaseEntity>()->SetPositionDirect(currPos);
-
+        auto endPos = gameObj->get_transform()->get_localPosition();
+        endPos.fields.x = origPosX + deltaX;
+        endPos.fields.y = origPosY + deltaY;
+        endPos.fields.z = origPosZ + deltaZ;
+        gameObj->get_transform()->set_localPosition(endPos);
         return true;
     }
 

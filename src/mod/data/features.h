@@ -58,6 +58,7 @@ static constexpr const char* FEATURES[] = {
     "Pushable Entities",
     "Select Poffin Case",
     "Fake StopData",
+    "Surf End Check",
     "Underground Statue Names",
     "Underground Visible Shinies",
 };
