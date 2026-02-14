@@ -305,6 +305,11 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         return external<bool>(0x02ce2cd0);
     }
 
+    // Returns current fashion/dress index (maps to CharacterDressData table)
+    static inline int32_t get_playerFashion() {
+        return external<int32_t>(0x02cee8f0);
+    }
+
     static inline int32_t get_defaultPokeType() {
         return external<int32_t>(0x02cf1320);
     }

@@ -57,6 +57,10 @@ namespace SmartPoint::AssetAssistant {
             void* waitForEndOfFrame;
         };
 
+        static inline UnityEngine::Coroutine::Object* Start(Il2CppObject* routine) {
+            return external<UnityEngine::Coroutine::Object*>(0x02bc1db0, routine);
+        }
+
         static inline void Stop(UnityEngine::Coroutine::Object *coroutine) {
             external<void>(0x02bc29b0, coroutine);
         }
