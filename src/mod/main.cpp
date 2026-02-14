@@ -73,6 +73,15 @@ HOOK_DEFINE_TRAMPOLINE(MainInitHook){
         Logger::log(MODULE_NAME " Loaded!\n");
 #endif
 
+        // Always add svcOutputDebugString listener so logs appear in Ryujinx console
+        Logger::addListener([](const char* message) {
+            if (message != nullptr) {
+                size_t len = 0;
+                while (message[len] != '\0' && len < 0x1000) len++;
+                svcOutputDebugString(message, len);
+            }
+        });
+
         nn::oe::DisplayVersion display_version{};
         nn::oe::GetDisplayVersion(&display_version);
         Logger::log("Detected version: %s\n", display_version.name);

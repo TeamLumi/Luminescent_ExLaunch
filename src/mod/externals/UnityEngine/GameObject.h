@@ -11,11 +11,15 @@ namespace Dpr {
     struct PatcheelPattern;
 }
 
+struct ColorVariation;
+struct FieldObjectEntity;
+struct UgOpcController;
+
 namespace UnityEngine {
     struct SkinnedMeshRenderer;
     struct Image;
 
-    struct GameObject : ILClass<GameObject> {
+    struct GameObject : ILClass<GameObject, 0x04c57d90> {
         struct Fields : UnityEngine::_Object::Fields {
 
         };
@@ -26,6 +30,22 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c670c8, UnityEngine::Image>   Method$$Image$$GetComponent {};
 
         static inline StaticILMethod<0x04c8e9c0, UnityEngine::Component> Method$$Component$$GetComponents {};
+
+        static inline StaticILMethod<0x04c66c28, UgOpcController>       Method$$UgOpcController$$AddComponent {};
+        static inline StaticILMethod<0x04c66fd0, FieldObjectEntity>     Method$$FieldObjectEntity$$GetComponent {};
+        static inline StaticILMethod<0x04c703e0, ColorVariation>        Method$$ColorVariation$$TryGetComponent {};
+
+        // Constructor: creates native Unity backing object
+        // GameObject.ctor(string name) @ 0x26b1bd0
+        inline void ctor(System::String::Object* name) {
+            external<void>(0x26b1bd0, this, name);
+        }
+
+        // Non-generic AddComponent(Type) — uses Unity's internal AddComponent
+        // @ 0x26b1880
+        inline void* AddComponentByType(System::Type::Object* componentType) {
+            return external<void*>(0x26b1880, this, componentType);
+        }
 
         inline UnityEngine::Transform::Object* get_transform() {
             return external<UnityEngine::Transform::Object*>(0x026b18d0, this);
@@ -69,6 +89,16 @@ namespace UnityEngine {
         template <typename T>
         inline T::Object* GetComponent(ILMethod<T>& method) {
             return external<typename T::Object*>(0x01f48980, this, *method);
+        }
+
+        template <typename T>
+        inline T::Object* AddComponent(ILMethod<T>& method) {
+            return external<typename T::Object*>(0x01f48870, this, *method);
+        }
+
+        template <typename T>
+        inline bool TryGetComponent(T::Object** component, ILMethod<T>& method) {
+            return external<bool>(0x01ed3dd0, this, component, *method);
         }
 
         template <typename T>

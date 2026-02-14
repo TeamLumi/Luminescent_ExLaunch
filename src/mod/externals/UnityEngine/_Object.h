@@ -33,5 +33,9 @@ namespace UnityEngine {
         static inline void Destroy(UnityEngine::_Object::Object* obj) {
             external<void>(0x0268b1f0, obj);
         }
+
+        static inline void DontDestroyOnLoad(UnityEngine::_Object::Object* target) {
+            external<void>(0x0268b3d0, target);
+        }
     };
 }

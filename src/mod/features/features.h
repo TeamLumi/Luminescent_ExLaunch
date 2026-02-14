@@ -172,6 +172,10 @@ void exl_sounds_main();
 // Disables getting out of surfing in specific zones.
 void exl_surf_end_check_main();
 
+// Enables overworld multiplayer via local wireless (LAN).
+// Players in the same zone see each other walking around and can interact (battle, trade, emote).
+void exl_overworld_multiplayer_main();
+
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 
