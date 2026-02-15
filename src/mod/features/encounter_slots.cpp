@@ -26,6 +26,7 @@
 #include "externals/ZukanWork.h"
 
 #include "logger/logger.h"
+#include "features/symbol_encounters.h"
 
 // Slots
 const int32_t SLOT_SWARM_1 = 0;
@@ -622,6 +623,12 @@ HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
         system_load_typeinfo(0x48c9);
         system_load_typeinfo(0x48c7);
         system_load_typeinfo(0x48c6);
+
+        // No random encounters when symbol encounters are active (touch-to-battle instead)
+        if (g_symbolEncountersActive)
+        {
+            return nullptr;
+        }
 
         // No encounters if party is empty
         if (IsPartyEmpty())

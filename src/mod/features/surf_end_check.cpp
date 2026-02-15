@@ -6,7 +6,7 @@
 #include "data/utils.h"
 #include "data/zones.h"
 
-#include "Logger/logger.h"
+#include "logger/logger.h"
 
 HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity$$CheckEndSwim) {
     static void Callback(FieldPlayerEntity::Object* __this, UnityEngine::Vector2::Object inputDir) {

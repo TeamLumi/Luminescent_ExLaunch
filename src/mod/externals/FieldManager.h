@@ -104,6 +104,22 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         return external<int32_t>(0x01797f90, this);
     }
 
+    inline void add_OnZoneChangeEvent(System::Action::Object* value) {
+        external<void>(0x01797b40, this, value);
+    }
+
+    inline void remove_OnZoneChangeEvent(System::Action::Object* value) {
+        external<void>(0x01797bf0, this, value);
+    }
+
+    inline void add_OnSceneInitEvent(System::Action::Object* value) {
+        external<void>(0x01797ca0, this, value);
+    }
+
+    inline void remove_OnSceneInitEvent(System::Action::Object* value) {
+        external<void>(0x01797d50, this, value);
+    }
+
     inline int32_t GetBatleWeather() {
         return external<int32_t>(0x0179f1a0, this);
     }
