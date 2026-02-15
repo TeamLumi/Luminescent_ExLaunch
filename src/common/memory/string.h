@@ -8,4 +8,5 @@ namespace nn {
 
     string to_string(int32_t value);
     string to_string(int32_t value, const char* format);
+    string to_string(uint32_t value, const char* format);
 }

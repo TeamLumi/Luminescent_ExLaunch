@@ -2,21 +2,10 @@
 
 #include "externals/il2cpp-api.h"
 
-
-// Forward declaration to avoid circular dependencies
-struct PlayerWork;
-
 namespace SmartPoint::Components {
-    template <typename T>
-    struct PlayerPrefsProvider : ILClass<T> {
+    struct PlayerPrefsProvider : ILClass<PlayerPrefsProvider> {
         struct Fields {
             bool _loaded;
-        };
-
-        struct VirtualInvokeData_get_key {
-            typedef System::String::Object*(*Il2CppMethodPointer)(T::Object*, const MethodInfo*);
-            Il2CppMethodPointer methodPtr;
-            const MethodInfo* method;
         };
 
         struct VTable {
@@ -24,7 +13,7 @@ namespace SmartPoint::Components {
             VirtualInvokeData _1_Finalize;
             VirtualInvokeData _2_GetHashCode;
             VirtualInvokeData _3_ToString;
-            VirtualInvokeData_get_key _4_get_key;
+            VirtualInvokeData _4_get_key;
             VirtualInvokeData _5_Initialization;
             VirtualInvokeData _6_CustomLoadOperation;
             VirtualInvokeData _7_CustomSaveOperation;
@@ -34,11 +23,9 @@ namespace SmartPoint::Components {
             VirtualInvokeData _11_OnPreSave;
         };
 
-        static inline StaticILMethod<0x04c82110, PlayerWork>
-                Method$SmartPoint_Components_PlayerPrefsProvider_PlayerWork_Save {};
-
+        template <typename T>
         static inline typename T::Object* get_instance(ILMethod<T>& method) {
-            return ILClass<T>::template external<typename T::Object*>(0x02324910, *method);
+            return external<typename T::Object*>(0x02324910, *method);
         }
     };
 }

@@ -3,7 +3,7 @@
 #include "externals/UnityEngine/BoxCollider.h"
 #include "externals/UnityEngine/GameObject.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
 bool ToggleCollisionBox(Dpr::EvScript::EvDataManager::Object* manager)

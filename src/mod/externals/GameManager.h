@@ -2,10 +2,12 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/FieldCamera.h"
 #include "externals/GameSettings.h"
 #include "externals/PeriodOfDay.h"
 #include "externals/ScriptableObjectFormat/PokemonData.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
+#include "externals/System/DateTime.h"
 #include "externals/System/String.h"
 #include "externals/TMPro/TextMeshProUGUI.h"
 #include "externals/UnityEngine/Coroutine.h"
@@ -35,6 +37,22 @@ struct GameManager : ILClass<GameManager, 0x04c59b50> {
         bool _switchingNow;
     };
 
+    struct StaticFields {
+        void* connector;
+        bool _isReady_k__BackingField;
+        bool _afterStarting_k__BackingField;
+        bool _playEnding_k__BackingField;
+        System::DateTime::Object _nowTime;
+        int64_t _tickOffset_k__BackingField;
+        int64_t _timeScale_k__BackingField;
+        bool _pause_k__BackingField;
+        FieldCamera::Object* fieldCamera;
+        bool isControllable;
+        bool useSubAttribute;
+    };
+
+    static_assert(offsetof(StaticFields, useSubAttribute) == 0x39);
+
     static inline XLSXContent::FieldEncountTable::Sheettable::Object* GetFieldEncountData(int32_t zoneID) {
         return external<XLSXContent::FieldEncountTable::Sheettable::Object*>(0x02cd1150, zoneID);
     }
@@ -61,5 +79,9 @@ struct GameManager : ILClass<GameManager, 0x04c59b50> {
 
     static inline XLSXContent::MapAttributeTable::SheetData::Object* GetAttributeTable(int32_t code) {
         return external<XLSXContent::MapAttributeTable::SheetData::Object*>(0x02cd3ed0, code);
+    }
+
+    static inline XLSXContent::MapAttributeExTable::SheetData::Object* GetAttributeEx(UnityEngine::Vector2Int::Object grid, float height, bool debugdraw) {
+        return external<XLSXContent::MapAttributeExTable::SheetData::Object*>(0x02cd3f70, grid, height, debugdraw);
     }
 };

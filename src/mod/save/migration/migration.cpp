@@ -7,6 +7,7 @@
 
 void migrate(PlayerWork::Object* playerWork)
 {
+    bool firstSave = false;
     bool changed = false;
     while (getCustomSaveData()->main.version < CURRENT_VERSION) {
         Logger::log("Custom save data version mismatch! Expected %d, got %d; performing migration.\n", CURRENT_VERSION, getCustomSaveData()->main.version);
@@ -16,6 +17,7 @@ void migrate(PlayerWork::Object* playerWork)
                 migrateToReLease(playerWork);
 
                 getCustomSaveData()->main.version = ModVersion::Re_Lease;
+                firstSave = true;
                 break;
             }
 
@@ -43,7 +45,7 @@ void migrate(PlayerWork::Object* playerWork)
         changed = true;
     }
 
-    if (changed) {
+    if (changed && !firstSave) {
         nn::err::ApplicationErrorArg err(0, "A mod update has been detected. Press Details to view the changelog.", CHANGELOG, nn::settings::LanguageCode::Make(nn::settings::Language::Language_English));
         nn::err::ShowApplicationError(err);
     }

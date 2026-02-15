@@ -7,22 +7,23 @@
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 #include "externals/Dpr/Demo/Demo_Evolve.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
-#include "externals/FlagWork.h"
+#include "externals/FieldObjectEntity.h"
 
 #include "features/activated_features.h"
 #include "logger/logger.h"
+#include "save/save.h"
 
 using namespace Dpr::Battle::Logic;
 
 HOOK_DEFINE_TRAMPOLINE(FriendshipFlag) {
     static bool Callback(MainModule::Object* _this, BTL_POKEPARAM::Object* bpp) {
-        return Orig(_this, bpp) && !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_AFFECTION);
+        return getCustomSaveData()->settings.affectionEnabled && Orig(_this, bpp);
     }
 };
 
 HOOK_DEFINE_REPLACE(ExpShareFlag) {
     static bool Callback() {
-        return !FlagWork::GetFlag(FlagWork_Flag::FLAG_DISABLE_EXP_SHARE);
+        return getCustomSaveData()->settings.expShareEnabled;
     }
 };
 
@@ -36,6 +37,23 @@ HOOK_DEFINE_INLINE(DoEvolve_ItemCancelCheck) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto param = (Dpr::Demo::Demo_Evolve::Param::Object*)ctx->X[23];
         param->fields.useCancel = ((uint16_t)ctx->W[22]) == 0;
+    }
+};
+
+HOOK_DEFINE_INLINE(BoxSearchPanel_CreateSearchDataListCore_MonIcon) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto str = (System::String::Object*)ctx->X[0];
+        ctx->X[0] = (uint64_t)str->Substring(str->LastIndexOf('_') + 1);
+    }
+};
+
+HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_SetOGI) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        auto entity = (FieldObjectEntity::Object*)ctx->X[22];
+        auto ogi = (int32_t)ctx->W[19];
+
+        entity->fields.EventParams->fields.CharacterGraphicsIndex = ogi;
+        ctx->X[3] = 0;
     }
 };
 
@@ -56,13 +74,42 @@ void exl_patches_main() {
         p.WriteInst(Branch(0x44));
     }
 
+    if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Extended Flags Fixes")))
+    {
+        auto townmapinst = nn::vector<exl::patch::Instruction> {
+            { 0x0184c5c8, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupHoneyTrees
+            { 0x0184c3a0, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupKinomis
+            { 0x0184d140, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap.Cell$$IsArrive
+            { 0x0184eeac, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { 0x0184ef54, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { 0x0184f12c, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+
+            { 0x0184c01c, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$SetupSymbols
+            { 0x0184d060, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsView
+            { 0x0184d104, CmpImmediate(W8, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsArrive
+            { 0x0184e634, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$PlayCellChangeSe
+            { 0x0184edc8, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapFacility$$Setup
+            { 0x0184fd78, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapSymbolName$$Setup
+            { 0x01850c58, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapWindowBase$$Fly
+        };
+        p.WriteInst(townmapinst);
+
+        auto adventureguideinst = nn::vector<exl::patch::Instruction> {
+            { 0x0187626c, CmpImmediate(W0, FlagCount) }, // Dpr.UI.AdventureNoteWindow.<OpOpen>d__6$$MoveNext
+        };
+        p.WriteInst(adventureguideinst);
+    }
+
     // Always-on Patches
     auto inst = nn::vector<exl::patch::Instruction> {
         { 0x02053b24, CmpImmediate(W8, 0x7) },          // Allow 6IV Pokémon
         { 0x0202c140, CmpImmediate(W19, ITEM_COUNT) },  // Make the battle check for if you own balls that go past 1822 items
+        { 0x02c5b0d8, Movz(W2, 0x1)}, // Patches _VISIBLE_OBJ_PROP to always look at inactive objects.
     };
     p.WriteInst(inst);
 
     GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns first boot language as English
     DoEvolve_ItemCancelCheck::InstallAtOffset(0x0177f16c); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
+    BoxSearchPanel_CreateSearchDataListCore_MonIcon::InstallAtOffset(0x01caf0b8); // Box Search checks all characters after "_" to get monsno and not just the last 3
+    EvDataManager$$LoadObjectCreate_Asset_SetOGI::InstallAtOffset(0x02ca4160); // Always sets the "CharacterGraphicsIndex" on a FieldObjectEntity to the OGI, not just for characters
 }

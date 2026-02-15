@@ -6,7 +6,7 @@
 #include "externals/System/Action.h"
 #include "externals/System/String.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 #include "romdata/romdata.h"
 

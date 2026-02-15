@@ -139,6 +139,7 @@ namespace Dpr::Battle::Logic {
             INVALID_MESSAGE_FLAG = 122,
             NEED_ITEM_CONSUME_MESSAGE_DISPLAY = 123,
             NUM = 124,
+            MEGA_EVOLUTION = 125,
         };
     };
 }

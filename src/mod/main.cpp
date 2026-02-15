@@ -61,6 +61,7 @@ HOOK_DEFINE_TRAMPOLINE(MainInitHook){
     static void Callback(){
         R_ABORT_UNLESS(nn::fs::MountSdCardForDebug("sd"));
 
+#if DEBUG_BUILD
         if (gSocket.init(LOGGER_IP, LOGGER_PORT).isFailure()) {
             Logger::log("Failed to connect to logging server!\n");
         } else {
@@ -70,11 +71,11 @@ HOOK_DEFINE_TRAMPOLINE(MainInitHook){
             Logger::log("Connected to logging server!\n");
         }
         Logger::log(MODULE_NAME " Loaded!\n");
+#endif
 
         nn::oe::DisplayVersion display_version{};
         nn::oe::GetDisplayVersion(&display_version);
         Logger::log("Detected version: %s\n", display_version.name);
-
 
         // Load activated features
         exl_save_main();
@@ -108,9 +109,11 @@ extern "C" void exl_main(void* x0, void* x1) {
     // We alloc before this is called
     NoAction::InstallAtSymbol("_ZN2nn2fs12SetAllocatorEPFPvmEPFvS1_mE");
 
-    // We initialize nn::socket before the game does; make the game not call it
+#if DEBUG_BUILD
+    // For logging, we initialize nn::socket before the game does; make the game not call it
     NoAction::InstallAtOffset(0x01733d88);
     NoAction::InstallAtOffset(0x01733d78);
+#endif
 
     MainInitHook::InstallAtSymbol("nnMain");
 

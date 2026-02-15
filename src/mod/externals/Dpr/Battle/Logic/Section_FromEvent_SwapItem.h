@@ -4,7 +4,7 @@
 
 #include "externals/Dpr/Battle/Logic/Section.h"
 #include "externals/Dpr/Battle/Logic/StrParam.h"
-#include "externals/Dpr/Battle/Logic/CommonParam.h"
+#include "externals/Dpr/Battle/Logic/Section_CommonParam.h"
 
 namespace Dpr::Battle::Logic {
     struct Section_FromEvent_SwapItem : ILClass<Section_FromEvent_SwapItem, 0x04c5ba88> {

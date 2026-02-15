@@ -43,8 +43,8 @@ HOOK_DEFINE_INLINE(ButtonInit) {
                 ->Find(System::String::Create("Image_button2"));
 
         auto backwardsButton = backwardsButtonTransform->GetComponent<Dpr::UI::PoketchButton>(poketchWindow->fields._changeButton->klass);
-        ILMethod mi(forwardsAction->fields.method);
-        auto backwardsAction = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::void_TypeInfo)->newInstance(poketchWindow, mi.copyWith((Il2CppMethodPointer) &goBackAction));
+        MethodInfo* mi = Dpr::UI::PoketchWindow::getMethod$$GoBackAction((Il2CppMethodPointer)&goBackAction);
+        auto backwardsAction = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::void_TypeInfo)->newInstance(poketchWindow, mi);
 
         backwardsButton->Initialize(backwardsAction, forwardsSeEventId);
     }
@@ -114,7 +114,7 @@ HOOK_DEFINE_REPLACE(PoketchWindow_OnUpdate) {
             return;
         }
 
-        auto uiManager = Dpr::UI::UIManager::instance();
+        auto uiManager = Dpr::UI::UIManager::get_Instance();
         auto currentWindow = (UnityEngine::_Object::Object *)uiManager->GetCurrentUIWindow<Dpr::UI::UIWindow>(Dpr::UI::UIManager::Method$$GetCurrentUIWindow_UIWindow_);
         bool isCurrentWindowPoketch = !UnityEngine::_Object::op_Inequality(currentWindow, (UnityEngine::_Object::Object *)__this);
         if (isCurrentWindowPoketch)
@@ -144,6 +144,15 @@ HOOK_DEFINE_REPLACE(PoketchWindow_OnUpdate) {
 
                 __this->fields._buttonR->OnUpdate(deltaTime);
                 __this->fields._buttonSR->OnUpdate(deltaTime);
+
+                // L3 (Left Stick Click) goes backward
+                GameController::getClass()->initIfNeeded();
+                if ((GameController::getClass()->static_fields->push & GameController::ButtonMask::StickL) != 0) {
+                    if (!__this->fields._isSizeChanging) {
+                        __this->SelectApp(false);
+                    }
+                }
+
                 bool isPrevTouch = __this->fields._isTouch;
                 UnityEngine::Vector2::Object touchVec2 = UnityEngine::Vector2::get_zero();
                 if (UnityEngine::Input::get_touchCount() > 0)

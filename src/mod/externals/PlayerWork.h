@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 #include "externals/il2cpp-api.h"
 
 #include "externals/AzukariyaData.h"
@@ -182,7 +183,7 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static_assert(offsetof(StaticFields, _SafariBallNum_k__BackingField) == 72);
 
-    struct Fields : SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::Fields {
+    struct Fields : SmartPoint::Components::PlayerPrefsProvider::Fields {
         PlayerWork::SaveData::Object _saveData;
         int32_t _transitionZoneID;
         int32_t _locatorIndex;
@@ -324,6 +325,10 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
     }
 
+    static inline PLAYREPORT_DATA::Object* get_playReportDataRef() {
+        return external<PLAYREPORT_DATA::Object*>(0x02cf6530);
+    }
+
     static inline DPData::PLAYER_DATA::Object* get_playerData() {
         return external<DPData::PLAYER_DATA::Object*>(0x02ce2a50);
     }
@@ -337,10 +342,18 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     }
 
     static inline PlayerWork::Object* get_instance() {
-        return SmartPoint::Components::PlayerPrefsProvider<PlayerWork>::get_instance(Method$PlayerWork_get_instance);
+        return SmartPoint::Components::PlayerPrefsProvider::get_instance(Method$PlayerWork_get_instance);
     }
 
     static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
         external<void>(0x02cf0fd0, value);
+    }
+
+    static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
+        return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
+    }
+
+    static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
+        return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*>(0x02ce2a00);
     }
 };

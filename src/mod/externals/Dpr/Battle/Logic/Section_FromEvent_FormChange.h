@@ -34,5 +34,9 @@ namespace Dpr::Battle::Logic {
         };
 
         struct Fields : Section::Fields {};
+
+        inline void Execute(Result::Object* result, Description::Object** description) {
+            external<void>(0x01fb43f0, this, result, description);
+        }
     };
 }
