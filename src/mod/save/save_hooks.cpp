@@ -102,8 +102,10 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomLoadOperation) {
         system_load_typeinfo(0x6ad4);
         Dpr::NX::SaveSystem::getClass()->initIfNeeded();
 
-        // Initialize version as "Vanilla" prior to loading.
+        // Initialize all custom data to defaults prior to loading.
+        // If a save exists, these will be overwritten by LoadCustomSaveData.
         getCustomSaveData()->main.Initialize();
+        getCustomSaveData()->settings.Initialize();
 
         auto saveFile = LoadJSONSave(playerWork->fields._isBackupSave);
         bool loadResult = SaveSystem_Load(playerWork, saveFile);
