@@ -2,11 +2,17 @@
 
 #include "features/overworld_multiplayer.h"
 
+#include "externals/ContextMenuID.h"
+#include "externals/Dpr/UI/ContextMenuWindow.h"
+#include "externals/Dpr/UI/ContextMenuItem.h"
+#include "externals/Dpr/UI/UIManager.h"
+#include "externals/Dpr/UI/UIPofinCase.h"
 #include "externals/EntityManager.h"
 #include "externals/FieldManager.h"
 #include "externals/FieldPlayerEntity.h"
 #include "externals/OpcState.h"
 #include "externals/PlayerWork.h"
+#include "externals/System/String.h"
 #include "externals/UnityEngine/Vector3.h"
 
 #include "logger/logger.h"
@@ -37,6 +43,84 @@ struct InteractContext {
 
 static InteractContext s_interact;
 static constexpr float INTERACT_TIMEOUT = 30.0f; // seconds to wait for response
+
+// MethodInfo for our onClicked callback — lazily initialized via copyWith
+static MethodInfo* s_onClickedMethodInfo = nullptr;
+
+// Dpr.SubContents.Utils.get_PushA() @ 0x186A3C0 — returns true on A-button press
+static inline bool getSubContentsUtilsPushA() {
+    return _ILExternal::external<bool>(0x186A3C0);
+}
+
+// ---------------------------------------------------------------------------
+// Menu click callback
+// ---------------------------------------------------------------------------
+
+// Signature must match Func<ContextMenuItem, bool>: (void* __this, ContextMenuItem* item) -> bool
+static bool onMPMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item) {
+    if (item == nullptr || item->fields._param == nullptr) {
+        s_interact.Reset();
+        PlayerWork::getClass()->static_fields->_isPlayerInputActive = true;
+        return true;
+    }
+
+    ContextMenuID id = item->fields._param->fields.menuId;
+    Logger::log("[OverworldMP] Menu selection: id=%d\n", (int)id);
+
+    switch (id) {
+        case ContextMenuID::OWMP_BATTLE:
+        {
+            if (s_interact.targetStationIndex < 0) {
+                s_interact.Reset();
+                break;
+            }
+            Logger::log("[OverworldMP] Requesting battle with station %d\n", s_interact.targetStationIndex);
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Battle, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+        }
+
+        case ContextMenuID::OWMP_TRADE:
+        {
+            if (s_interact.targetStationIndex < 0) {
+                s_interact.Reset();
+                break;
+            }
+            Logger::log("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Trade, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+        }
+
+        case ContextMenuID::OWMP_EMOTE:
+        {
+            Logger::log("[OverworldMP] Sending emote\n");
+            overworldMPSendEmote(EMOTE_ID_LIKES);
+            s_interact.Reset();
+            break;
+        }
+
+        case ContextMenuID::OWMP_CANCEL:
+        default:
+        {
+            Logger::log("[OverworldMP] Interaction cancelled\n");
+            s_interact.Reset();
+            break;
+        }
+    }
+
+    // Re-enable player input unless we're waiting for a response
+    // (WaitingResponse state keeps input disabled until timeout or response)
+    if (s_interact.state != InteractState::WaitingResponse) {
+        PlayerWork::getClass()->static_fields->_isPlayerInputActive = true;
+    }
+
+    return true;
+}
 
 // ---------------------------------------------------------------------------
 // Interaction menu
@@ -71,74 +155,65 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
     s_interact.targetStationIndex = targetStationIndex;
     s_interact.state = InteractState::MenuOpen;
 
-    // TODO: Open a UI menu with options:
-    //   - Battle  (sends RECRUITMENT_BATTLE state + NetBattleRequest)
-    //   - Trade   (sends RECRUITMENT_TRADE state + NetTradeRequest)
-    //   - Emote   (opens emote submenu, sends NetEmotionData)
-    //   - Cancel  (returns to idle)
-    //
-    // Implementation approach:
-    //   1. Use Dpr::UI::UIManager to open a selection window
-    //   2. Populate with 4 options
-    //   3. On selection, call the appropriate handler below
-    //
-    // For now, this is a stub. The menu system integration requires
-    // hooking into the EvScript or UI window system to show a choice box.
-}
+    // Build context menu with 4 items: Battle, Trade, Emote, Cancel
+    auto* param = Dpr::UI::ContextMenuWindow::Param::getClass()->newInstance();
+    param->fields.itemParams = Dpr::UI::ContextMenuItem::Param::newArray(4);
 
-// ---------------------------------------------------------------------------
-// Menu selection handlers
-// ---------------------------------------------------------------------------
+    // Battle
+    param->fields.itemParams->m_Items[0] = Dpr::UI::ContextMenuItem::Param::newInstance();
+    param->fields.itemParams->m_Items[0]->fields.menuId = ContextMenuID::OWMP_BATTLE;
+    param->fields.itemParams->m_Items[0]->fields.text = System::String::Create("Battle");
 
-static void onSelectBattle() {
-    if (s_interact.targetStationIndex < 0) {
+    // Trade
+    param->fields.itemParams->m_Items[1] = Dpr::UI::ContextMenuItem::Param::newInstance();
+    param->fields.itemParams->m_Items[1]->fields.menuId = ContextMenuID::OWMP_TRADE;
+    param->fields.itemParams->m_Items[1]->fields.text = System::String::Create("Trade");
+
+    // Emote
+    param->fields.itemParams->m_Items[2] = Dpr::UI::ContextMenuItem::Param::newInstance();
+    param->fields.itemParams->m_Items[2]->fields.menuId = ContextMenuID::OWMP_EMOTE;
+    param->fields.itemParams->m_Items[2]->fields.text = System::String::Create("Emote");
+
+    // Cancel
+    param->fields.itemParams->m_Items[3] = Dpr::UI::ContextMenuItem::Param::newInstance();
+    param->fields.itemParams->m_Items[3]->fields.menuId = ContextMenuID::OWMP_CANCEL;
+    param->fields.itemParams->m_Items[3]->fields.text = System::String::Create("Cancel");
+
+    // Position the menu near screen center
+    param->fields.pivot = { .fields = { .x = 0.5f, .y = 0.5f } };
+    param->fields.position = { .fields = { .x = 640.0f, .y = 360.0f, .z = 0.0f } };
+    param->fields.minItemWidth = 160.0f;
+    param->fields.cancelIndex = 3;       // B button selects Cancel
+    param->fields.useCancel = true;
+    param->fields.useLoopAndRepeat = false;
+
+    // Create the context menu window
+    auto* window = Dpr::UI::UIManager::get_Instance()->CreateUIWindow<Dpr::UI::ContextMenuWindow>(UIWindowID::CONTEXTMENU);
+    if (window == nullptr) {
+        Logger::log("[OverworldMP] ERROR: Failed to create ContextMenuWindow\n");
+        s_interact.Reset();
         return;
     }
 
-    Logger::log("[OverworldMP] Requesting battle with station %d\n", s_interact.targetStationIndex);
-
-    // TODO: Send battle request to target
-    //   1. Set our online state to RECRUITMENT_BATTLE
-    //   2. Send NetBattleRequest reliable packet to targetStationIndex
-    //   3. Show "Waiting for response..." message
-    //   4. Transition to WaitingResponse state
-
-    s_interact.state = InteractState::WaitingResponse;
-    s_interact.timeoutTimer = INTERACT_TIMEOUT;
-}
-
-static void onSelectTrade() {
-    if (s_interact.targetStationIndex < 0) {
-        return;
+    // Create MethodInfo for our callback by copying from the poffin case's method
+    // (same signature: Func<ContextMenuItem, bool>)
+    if (s_onClickedMethodInfo == nullptr) {
+        s_onClickedMethodInfo = (*Dpr::UI::UIPofinCase::DisplayClass35_0::Method$$ShowItemContextMenu_b__1)
+            ->copyWith((Il2CppMethodPointer)&onMPMenuClicked);
     }
 
-    Logger::log("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
+    // Set the onClicked delegate
+    window->fields.onClicked = System::Func::getClass(System::Func::ContextMenuItem_bool__TypeInfo)
+        ->newInstance(nullptr, s_onClickedMethodInfo);
 
-    // TODO: Send trade request to target
-    //   1. Set our online state to RECRUITMENT_TRADE
-    //   2. Send NetTradeRequest reliable packet to targetStationIndex
-    //   3. Show "Waiting for response..." message
-    //   4. Transition to WaitingResponse state
+    // Open the menu
+    window->Open(param);
 
-    s_interact.state = InteractState::WaitingResponse;
-    s_interact.timeoutTimer = INTERACT_TIMEOUT;
-}
+    // Disable player input while menu is open
+    PlayerWork::getClass()->initIfNeeded();
+    PlayerWork::getClass()->static_fields->_isPlayerInputActive = false;
 
-static void onSelectEmote() {
-    Logger::log("[OverworldMP] Opening emote menu\n");
-
-    // TODO: Open emote submenu
-    //   1. Show emote selection (reuse existing emoticon UI)
-    //   2. On selection, send NetEmotionData reliable to all same-zone players
-    //   3. Display emoticon bubble above local player's head
-    //   4. Return to idle state
-
-    s_interact.Reset();
-}
-
-static void onSelectCancel() {
-    Logger::log("[OverworldMP] Interaction cancelled\n");
-    s_interact.Reset();
+    Logger::log("[OverworldMP] Context menu opened\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -162,11 +237,6 @@ void overworldMPOnBattleRequest(int32_t fromStationIndex) {
     //   "PlayerName wants to battle! Accept?"
     //   Yes → send accept, enter LocalBattleManager
     //   No → send decline
-    //
-    // Reuse underground's battle invitation flow:
-    //   1. OpcState.RECRUITMENT_BATTLE on requestor
-    //   2. Show accept/decline prompt
-    //   3. On accept: both enter link battle via LocalBattleManager
 }
 
 void overworldMPOnTradeRequest(int32_t fromStationIndex) {
@@ -186,41 +256,57 @@ void overworldMPOnTradeRequest(int32_t fromStationIndex) {
     //   "PlayerName wants to trade! Accept?"
     //   Yes → send accept, enter LocalKoukan
     //   No → send decline
-    //
-    // Reuse underground's trade invitation flow:
-    //   1. OpcState.RECRUITMENT_TRADE on requestor
-    //   2. Show accept/decline prompt
-    //   3. On accept: both enter local trade via LocalKoukan
 }
 
 // ---------------------------------------------------------------------------
 // Proximity check integration
 // ---------------------------------------------------------------------------
 
-// This function is intended to be called from the FieldManager.Update hook
-// to check if the player is near a remote player and pressing A
+// Called each frame from overworldMPUpdate to check A-button near remote player
 void overworldMPCheckInteraction() {
-    auto& ctx = getOverworldMPContext();
     if (!isOverworldMPActive()) {
         return;
     }
 
-    // Only check when in idle state
-    if (s_interact.state != InteractState::Idle) {
-        // Update timeout for waiting state
-        if (s_interact.state == InteractState::WaitingResponse) {
-            s_interact.timeoutTimer -= 0.03333334f;
-            if (s_interact.timeoutTimer <= 0.0f) {
-                Logger::log("[OverworldMP] Interaction timed out\n");
-                s_interact.Reset();
-            }
+    // If menu is open, check if it closed (interaction state goes back to Idle
+    // when onClicked fires via the callback above, or if the window is dismissed)
+    if (s_interact.state == InteractState::MenuOpen) {
+        // The callback handles transitions — nothing else to do here
+        return;
+    }
+
+    // Update timeout for waiting state
+    if (s_interact.state == InteractState::WaitingResponse) {
+        s_interact.timeoutTimer -= 0.03333334f;
+        if (s_interact.timeoutTimer <= 0.0f) {
+            Logger::log("[OverworldMP] Interaction timed out\n");
+            s_interact.Reset();
+            // Re-enable player input
+            PlayerWork::getClass()->initIfNeeded();
+            PlayerWork::getClass()->static_fields->_isPlayerInputActive = true;
         }
+        return;
+    }
+
+    // Only check for new interactions when idle
+    if (s_interact.state != InteractState::Idle) {
+        return;
+    }
+
+    // Don't check input if player input is disabled (cutscene, dialog, etc.)
+    PlayerWork::getClass()->initIfNeeded();
+    if (!PlayerWork::get_isPlayerInputActive()) {
+        return;
+    }
+
+    // Check A-button press
+    if (!getSubContentsUtilsPushA()) {
         return;
     }
 
     // Get local player position
     EntityManager::getClass()->initIfNeeded();
-    auto player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
+    auto* player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
     if (player == nullptr) {
         return;
     }
@@ -233,10 +319,6 @@ void overworldMPCheckInteraction() {
         return;
     }
 
-    // TODO: Check if A button was just pressed
-    // Using UIManager input detection or direct controller polling
-    //
-    // if (isAButtonPressed()) {
-    //     overworldMPShowInteractionMenu(nearestStation);
-    // }
+    // Found a nearby player — open the interaction menu
+    overworldMPShowInteractionMenu(nearestStation);
 }

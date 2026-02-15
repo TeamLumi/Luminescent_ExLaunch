@@ -1,10 +1,13 @@
 #include "exlaunch.hpp"
 
+#include <cmath>
+
 #include "features/overworld_multiplayer.h"
 
 #include "data/settings.h"
 #include "data/utils.h"
 
+#include "externals/AnimationPlayer.h"
 #include "externals/BaseEntity.h"
 #include "externals/ColorVariation.h"
 #include "externals/EntityManager.h"
@@ -12,9 +15,11 @@
 #include "externals/FieldManager.h"
 #include "externals/FieldObjectEntity.h"
 #include "externals/FieldPlayerEntity.h"
+#include "externals/FieldPokemonEntity.h"
 #include "externals/GameData/DataManager.h"
 #include "externals/PlayerWork.h"
 #include "externals/XLSXContent/CharacterDressData.h"
+#include "externals/Dpr/Field/Walking/FieldWalkingManager.h"
 
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/SubContents/Utils.h"
@@ -26,6 +31,7 @@
 #include "externals/System/Type.h"
 #include "externals/UnityEngine/_Object.h"
 #include "externals/UnityEngine/GameObject.h"
+#include "externals/UnityEngine/Time.h"
 #include "externals/UnityEngine/Transform.h"
 
 #include "save/save.h"
@@ -121,6 +127,15 @@ static OverworldMPContext s_mpContext;
 // Forward declaration — defined after global state section
 static Dpr::NetworkUtils::NetworkManager::Object* getNMInstance();
 
+// Forward declarations for follow pokemon spawn/despawn
+static void overworldMPSpawnFollowPokemon(int32_t stationIndex);
+static void overworldMPDespawnFollowPokemon(int32_t stationIndex);
+
+// Spawn queue state — declared early for use in overworldMPUpdate().
+// The actual queue array and helper functions are defined later in the entity spawn section.
+static bool    s_spawnInFlight = false;
+static bool    s_pokeSpawnInFlight = false;
+
 // ---------------------------------------------------------------------------
 // NM GameObject deactivation for zone change crash prevention
 // ---------------------------------------------------------------------------
@@ -187,7 +202,7 @@ static void setIlcaNetComponentEnabled(bool enabled) {
 // ---------------------------------------------------------------------------
 static InteractionState s_interactionState = InteractionState::None;
 static int32_t s_interactionTarget = -1;  // station index of interaction partner
-static int32_t s_interactionTimeoutFrames = 0;  // countdown for request timeout
+static float s_interactionTimeoutTime = 0.0f;  // countdown for request timeout (seconds)
 
 // NM.Start() is called manually after AddComponent since Unity's non-generic
 // AddComponent(Type) doesn't trigger Start(). The NM.Start hook logs all calls.
@@ -208,7 +223,7 @@ bool isOverworldMPActive() {
 // and creates the IE_Start coroutine. We poll for IE_Start completion by
 // checking SC.callObjPtr (set during SC.Initialize inside the coroutine).
 
-static int32_t s_initWaitFrames = 0;
+static float s_initWaitTime = 0.0f;
 
 // NM.OnUpdate readiness flag — set true on first invocation of NM.OnUpdate,
 // proving IE_Start completed and Sequencer subscriptions are active.
@@ -221,10 +236,24 @@ static void* s_nmStartedInstance = nullptr;
 static uint32_t s_lastLoggedPiaState = 0xFFFFFFFF;
 static int32_t s_searchingFrameCount = 0;
 
+// Session error grace — tolerate transient PIA error states (e.g., brief lag spikes
+// or individual player disconnects). When one player disconnects, PIA briefly reports
+// GamingError to remaining players before processing the leave event and recovering.
+// We use a long grace period to ride through this, and only stop if the session state
+// stays bad AND we have no active peers left (truly dead session).
+static constexpr float OW_MP_ERROR_GRACE_SEC = 3.0f;  // 3 seconds
+static float s_errorGraceTime = 0.0f;
+
 // Zone change grace period — after a zone transition, game systems (Sequencer,
-// EntityManager, asset loader) need time to stabilize. During grace frames,
+// EntityManager, asset loader) need time to stabilize. During grace time,
 // all MP processing (position sends, spawning) is deferred.
-static int32_t s_zoneChangeGraceFrames = 0;
+static float s_zoneChangeGraceTime = 0.0f;
+
+// Position sync accumulator (time-based, replaces frame counter modulo)
+static float s_posSyncAccumulator = 0.0f;
+
+// Diagnostic logging accumulator (log every ~5 seconds when connected)
+static float s_diagnosticAccumulator = 0.0f;
 
 // (s_pendingCleanupEntities removed — entities are no longer DDOL,
 // Unity destroys them during scene transitions)
@@ -308,12 +337,38 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         remote.avatarId = avatarId;
         remote.colorId = colorId;
 
+        // Read follow pokemon data
+        uint8_t hasFollowPoke = 0;
+        il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &hasFollowPoke);
+
+        if (hasFollowPoke) {
+            int32_t oldMonsNo = remote.followMonsNo;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &remote.followMonsNo);
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &remote.followFormNo);
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &remote.followSex);
+            uint8_t rare = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &rare);
+            remote.followIsRare = (rare != 0);
+            remote.followPokeActive = true;
+
+            // If pokemon species changed, despawn old one so a new one spawns
+            if (oldMonsNo != 0 && oldMonsNo != remote.followMonsNo && remote.followPokeSpawned) {
+                overworldMPDespawnFollowPokemon(fromStation);
+            }
+        } else {
+            if (remote.followPokeActive && remote.followPokeSpawned) {
+                overworldMPDespawnFollowPokemon(fromStation);
+            }
+            remote.followPokeActive = false;
+            remote.followMonsNo = 0;
+        }
+
         int32_t oldArea = remote.areaID;
         remote.areaID = areaID;
 
         // Handle area change: spawn/despawn based on whether remote is in our area.
         // Skip during zone change grace period — game systems are unstable.
-        if (oldArea != areaID && s_zoneChangeGraceFrames <= 0) {
+        if (oldArea != areaID && s_zoneChangeGraceTime <= 0.0f) {
             Logger::log("[OverworldMP] Remote %d area change: %d -> %d\n",
                         fromStation, oldArea, areaID);
 
@@ -405,7 +460,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 Logger::log("[OverworldMP] Interaction REJECTED by station %d\n", fromStation);
                 s_interactionState = InteractionState::None;
                 s_interactionTarget = -1;
-                s_interactionTimeoutFrames = 0;
+                s_interactionTimeoutTime = 0.0f;
             }
         } else {
             Logger::log("[OverworldMP] Ignoring interaction response — state=%d target=%d\n",
@@ -673,7 +728,7 @@ void overworldMPStart() {
 
     // Wait for IE_Start to complete before starting the session.
     // IE_Start sets SC.callObjPtr to NM when done; we poll for this.
-    s_initWaitFrames = 0;
+    s_initWaitTime = 0.0f;
     s_lastLoggedPiaState = 0xFFFFFFFF;  // Reset state change tracker
     s_mpContext.state = OverworldMPState::Initializing;
     Logger::log("[OverworldMP] Waiting for IE_Start coroutine to complete...\n");
@@ -689,16 +744,16 @@ void overworldMPStop() {
     s_mpContext.state = OverworldMPState::Disconnecting;
 
     // Clear grace period if stopping during one
-    if (s_zoneChangeGraceFrames > 0) {
-        Logger::log("[OverworldMP] Stop during grace period (frames remaining: %d)\n",
-                    s_zoneChangeGraceFrames);
-        s_zoneChangeGraceFrames = 0;
+    if (s_zoneChangeGraceTime > 0.0f) {
+        Logger::log("[OverworldMP] Stop during grace period (%.2fs remaining)\n",
+                    s_zoneChangeGraceTime);
+        s_zoneChangeGraceTime = 0.0f;
     }
 
     // Reset interaction state
     s_interactionState = InteractionState::None;
     s_interactionTarget = -1;
-    s_interactionTimeoutFrames = 0;
+    s_interactionTimeoutTime = 0.0f;
 
     // Unregister receive callback before tearing down the session
     unregisterReceiveCallback();
@@ -721,6 +776,11 @@ void overworldMPStop() {
     Logger::log("[OverworldMP] Session stopped\n");
 }
 
+// Forward declarations for spawn queue (defined after entity spawn section)
+static void spawnQueueClear();
+static void spawnQueueProcessNext();
+static bool spawnQueueEmpty();
+
 // ---------------------------------------------------------------------------
 // Per-frame update
 // ---------------------------------------------------------------------------
@@ -732,7 +792,7 @@ void overworldMPUpdate(float deltaTime) {
     // init sequence. When done, SC.callObjPtr (SC+0x58) is set to NM.
     // We poll for this before starting the network session.
     if (s_mpContext.state == OverworldMPState::Initializing) {
-        s_initWaitFrames++;
+        s_initWaitTime += deltaTime;
 
         auto* nm = getNMInstance();
         if (nm == nullptr) {
@@ -748,8 +808,8 @@ void overworldMPUpdate(float deltaTime) {
         // callObjPtr is set during NM's .ctor, not by IE_Start.
         if (s_nmOnUpdateReady) {
             auto* sc = (Dpr::NetworkUtils::SessionConnector::Object*)nm->fields._sessionConnector;
-            Logger::log("[OverworldMP] IE_Start completed after %d frames (NM.OnUpdate fired)\n",
-                        s_initWaitFrames);
+            Logger::log("[OverworldMP] IE_Start completed after %.2fs (NM.OnUpdate fired)\n",
+                        s_initWaitTime);
 
             // Use the same high-level API the underground uses: populate
             // NetworkParam and call DoStartSession. This lets the Sequencer-
@@ -799,8 +859,8 @@ void overworldMPUpdate(float deltaTime) {
 #endif
             Logger::log("[OverworldMP] Session started (netType=0, matchType=12576, max %d players)\n",
                         OW_MP_MAX_PLAYERS);
-        } else if (s_initWaitFrames > 600) {  // ~20 second timeout
-            Logger::log("[OverworldMP] IE_Start timeout after %d frames\n", s_initWaitFrames);
+        } else if (s_initWaitTime > 20.0f) {  // 20 second timeout
+            Logger::log("[OverworldMP] IE_Start timeout after %.1fs\n", s_initWaitTime);
             s_mpContext.state = OverworldMPState::Error;
         }
         return;
@@ -814,17 +874,20 @@ void overworldMPUpdate(float deltaTime) {
     // stabilize after a zone transition. IlcaNetComponent is disabled during
     // this period to prevent PIA from ticking with stale scene references.
     // When the grace period expires, re-enable IlcaNetComponent and resume.
-    if (s_zoneChangeGraceFrames > 0) {
-        s_zoneChangeGraceFrames--;
+    if (s_zoneChangeGraceTime > 0.0f) {
+        float prevTime = s_zoneChangeGraceTime;
+        s_zoneChangeGraceTime -= deltaTime;
 
-        // Log every 5 frames during grace to track countdown + session health
-        if (s_zoneChangeGraceFrames % 5 == 0 || s_zoneChangeGraceFrames <= 3) {
+        // Log every ~0.25s during grace to track countdown + session health
+        if ((int)(prevTime * 4) != (int)(s_zoneChangeGraceTime * 4) || s_zoneChangeGraceTime <= 0.0f) {
             int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-            Logger::log("[OverworldMP] Grace countdown: %d frames left, sessionState=%d, area=%d\n",
-                        s_zoneChangeGraceFrames, sessionState, s_mpContext.myAreaID);
+            Logger::log("[OverworldMP] Grace countdown: %.2fs left, sessionState=%d, area=%d\n",
+                        s_zoneChangeGraceTime > 0.0f ? s_zoneChangeGraceTime : 0.0f,
+                        sessionState, s_mpContext.myAreaID);
         }
 
-        if (s_zoneChangeGraceFrames == 0) {
+        if (s_zoneChangeGraceTime <= 0.0f) {
+            s_zoneChangeGraceTime = 0.0f;
             Logger::log("[OverworldMP] Grace period expired\n");
 
             // Check session health immediately after reactivation
@@ -885,45 +948,95 @@ void overworldMPUpdate(float deltaTime) {
         }
     }
 
-    // Session health check — detect error/crash states and stop gracefully.
-    // This catches disconnects that bypass the session event callback
-    // (e.g., PIA internal errors, transport failures).
+    // Session health check — detect error/crash states and handle gracefully.
+    // State 9 (Crash) = irrecoverable: PIA is dead, no more events will fire.
+    //   Any remaining "active" peers are ghosts — force-clear and restart.
+    // State 7 (GamingError) = potentially recoverable: PIA may still fire
+    //   leave events and return to Gaming state after processing disconnects.
+    //   Give it time via the grace counter.
     if (s_mpContext.state == OverworldMPState::Connected) {
         int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-        if (sessionState == 7 || sessionState == 9) { // GamingError or Crash
-            Logger::log("[OverworldMP] Session error detected (state=%d), stopping gracefully\n",
-                        sessionState);
-            overworldMPStop();
-            return;
+
+        if (sessionState == 9) {
+            // Crash — irrecoverable. PIA is completely dead.
+            // Force-clear all ghost peers and restart immediately.
+            float prevGrace = s_errorGraceTime;
+            s_errorGraceTime += deltaTime;
+            if (prevGrace == 0.0f) {
+                Logger::log("[OverworldMP] Session CRASH detected (state=9), will restart in 0.5s\n");
+            }
+            // Small grace (0.5s) to let any final callbacks drain
+            if (s_errorGraceTime >= 0.5f) {
+                Logger::log("[OverworldMP] Session crashed, clearing %d ghost peers and restarting...\n",
+                            (int)[&]{ int n=0; for(int i=0;i<OW_MP_MAX_PLAYERS;i++) if(s_mpContext.remotePlayers[i].isActive) n++; return n; }());
+                s_errorGraceTime = 0.0f;
+                overworldMPStop();
+                overworldMPStart();
+                return;
+            }
+        } else if (sessionState == 7) {
+            // GamingError — may recover after processing leave events.
+            float prevGrace = s_errorGraceTime;
+            s_errorGraceTime += deltaTime;
+            if (prevGrace == 0.0f || (int)(prevGrace) != (int)(s_errorGraceTime)) {
+                Logger::log("[OverworldMP] Session error state=%d (grace %.2fs/%.1fs)\n",
+                            sessionState, s_errorGraceTime, OW_MP_ERROR_GRACE_SEC);
+            }
+            if (s_errorGraceTime >= OW_MP_ERROR_GRACE_SEC) {
+                // Waited long enough — session didn't recover. Restart.
+                Logger::log("[OverworldMP] Session error persisted for %.2fs, restarting...\n",
+                            s_errorGraceTime);
+                s_errorGraceTime = 0.0f;
+                overworldMPStop();
+                overworldMPStart();
+                return;
+            }
+        } else {
+            // Session is healthy — reset grace counter
+            if (s_errorGraceTime > 0.0f) {
+                Logger::log("[OverworldMP] Session recovered after %.2fs error (state=%d)\n",
+                            s_errorGraceTime, sessionState);
+                s_errorGraceTime = 0.0f;
+            }
         }
     }
 
     // Periodic Connected state diagnostics (~every 5 seconds)
-    if (s_mpContext.state == OverworldMPState::Connected &&
-        s_mpContext.frameCounter % 150 == 0) {
-        int activeCount = 0;
-        for (int i = 0; i < OW_MP_MAX_PLAYERS; i++)
-            if (s_mpContext.remotePlayers[i].isActive) activeCount++;
-        Logger::log("[OverworldMP] Connected: frame=%d recvCB=%d activePlayers=%d\n",
-                    s_mpContext.frameCounter, s_recvCallbackCount, activeCount);
+    if (s_mpContext.state == OverworldMPState::Connected) {
+        s_diagnosticAccumulator += deltaTime;
+        if (s_diagnosticAccumulator >= 5.0f) {
+            s_diagnosticAccumulator = 0.0f;
+            int activeCount = 0;
+            for (int i = 0; i < OW_MP_MAX_PLAYERS; i++)
+                if (s_mpContext.remotePlayers[i].isActive) activeCount++;
+            Logger::log("[OverworldMP] Connected: frame=%d recvCB=%d activePlayers=%d\n",
+                        s_mpContext.frameCounter, s_recvCallbackCount, activeCount);
+        }
     }
 
-    // Send position at sync rate (~10 Hz)
-    if (s_mpContext.state == OverworldMPState::Connected &&
-        s_mpContext.frameCounter % OW_MP_POS_SYNC_INTERVAL == 0) {
-        overworldMPSendPosition();
+    // Send position at sync rate (~20 Hz)
+    if (s_mpContext.state == OverworldMPState::Connected) {
+        s_posSyncAccumulator += deltaTime;
+        if (s_posSyncAccumulator >= OW_MP_POS_SYNC_INTERVAL_SEC) {
+            s_posSyncAccumulator = 0.0f;
+            overworldMPSendPosition();
+        }
+    }
+
+    // Check for A-button interaction with nearby remote players
+    if (s_mpContext.state == OverworldMPState::Connected) {
+        overworldMPCheckInteraction();
     }
 
     // Interaction timeout — if waiting for a response too long, cancel
     if (s_interactionState == InteractionState::WaitingResponse) {
-        if (s_interactionTimeoutFrames > 0) {
-            s_interactionTimeoutFrames--;
-        }
-        if (s_interactionTimeoutFrames == 0) {
+        s_interactionTimeoutTime -= deltaTime;
+        if (s_interactionTimeoutTime <= 0.0f) {
             Logger::log("[OverworldMP] Interaction request timed out (target station %d)\n",
                         s_interactionTarget);
             s_interactionState = InteractionState::None;
             s_interactionTarget = -1;
+            s_interactionTimeoutTime = 0.0f;
         }
     }
 
@@ -977,12 +1090,119 @@ void overworldMPUpdate(float deltaTime) {
                 fce->fields._animationPlayer->Play(0);  // Idle
             }
         }
+
+        // Update follow pokemon position and animation
+        auto* pokeEntity = (FieldObjectEntity::Object*)remote.followPokeEntity;
+        if (pokeEntity != nullptr && remote.followPokeSpawned) {
+            // Spawn scale-in animation (0→1 over 0.3s)
+            if (remote.followPokeSpawnTimer > 0.0f) {
+                remote.followPokeSpawnTimer -= deltaTime;
+                if (remote.followPokeSpawnTimer < 0.0f) remote.followPokeSpawnTimer = 0.0f;
+                float t = 1.0f - (remote.followPokeSpawnTimer / 0.3f);
+                float s = remote.followPokeScale * t;
+                UnityEngine::Vector3::Object scaleVec = {};
+                scaleVec.fields.x = s;
+                scaleVec.fields.y = s;
+                scaleVec.fields.z = s;
+                auto* pokeTransform = pokeEntity->cast<UnityEngine::Component>()->get_gameObject()->get_transform();
+                pokeTransform->set_localScale(scaleVec);
+            }
+
+            // Trail-based following: the pokemon's target is the player's previous
+            // position, not a yaw-computed offset. The target updates when the player
+            // moves far enough from it, creating a natural trailing effect like the
+            // base game. The pokemon stays still when the player just turns in place.
+            float playerX = remote.position.fields.x;
+            float playerZ = remote.position.fields.z;
+            float playerY = remote.position.fields.y;
+
+            // Update trail target when player moves > 1.5 units from current target
+            float trailDx = playerX - remote.followPokeTargetX;
+            float trailDz = playerZ - remote.followPokeTargetZ;
+            float trailDistSq = trailDx * trailDx + trailDz * trailDz;
+            if (trailDistSq > 2.25f) {  // 1.5^2
+                // Place target 1.5 units behind player along movement direction
+                float trailDist = sqrtf(trailDistSq);
+                float normX = trailDx / trailDist;
+                float normZ = trailDz / trailDist;
+                remote.followPokeTargetX = playerX - normX * 1.5f;
+                remote.followPokeTargetZ = playerZ - normZ * 1.5f;
+                remote.followPokeTargetY = playerY;
+            }
+
+            float targetX = remote.followPokeTargetX;
+            float targetZ = remote.followPokeTargetZ;
+            float targetY = remote.followPokeTargetY;
+
+            auto pokeCurPos = pokeEntity->cast<BaseEntity>()->fields.worldPosition;
+
+            // Distance from pokemon to its trail target
+            float toTargetDx = targetX - pokeCurPos.fields.x;
+            float toTargetDz = targetZ - pokeCurPos.fields.z;
+            float toTargetDist = sqrtf(toTargetDx * toTargetDx + toTargetDz * toTargetDz);
+
+            // Distance-based speed matching the base game's WalkingCharacterController:
+            //   < 0.5 units from target: idle (stop moving)
+            //   0.5 - 2.5 units: walk speed
+            //   > 2.5 units: run speed (pokemon fell behind)
+            // Thresholds derived from Ghidra WalkData: nearTolerance=0.01+0.5, farDistance~2.5
+            float pokeLerp;
+            int32_t targetPokeClip;
+            if (toTargetDist < 0.5f) {
+                // Close enough — idle, no movement
+                pokeLerp = 0.0f;
+                targetPokeClip = 0;  // Idle
+            } else if (toTargetDist < 2.5f) {
+                // Normal following distance — walk
+                pokeLerp = 3.0f * deltaTime;
+                targetPokeClip = 1;  // Walk
+            } else {
+                // Fell behind — run to catch up
+                pokeLerp = 7.0f * deltaTime;
+                targetPokeClip = 2;  // Run
+            }
+            if (pokeLerp > 1.0f) pokeLerp = 1.0f;
+
+            UnityEngine::Vector3::Object pokeNewPos;
+            pokeNewPos.fields.x = pokeCurPos.fields.x + toTargetDx * pokeLerp;
+            pokeNewPos.fields.y = pokeCurPos.fields.y + (targetY - pokeCurPos.fields.y) * pokeLerp;
+            pokeNewPos.fields.z = pokeCurPos.fields.z + toTargetDz * pokeLerp;
+            pokeEntity->cast<BaseEntity>()->SetPositionDirect(pokeNewPos);
+
+            // Face toward the player (matches base game behavior)
+            float lookDx = remote.position.fields.x - pokeNewPos.fields.x;
+            float lookDz = remote.position.fields.z - pokeNewPos.fields.z;
+            float lookDistSq = lookDx * lookDx + lookDz * lookDz;
+            if (lookDistSq > 0.01f) {
+                float lookYaw = atan2f(lookDx, lookDz) * 180.0f / 3.14159265f;
+                pokeEntity->cast<BaseEntity>()->SetYawAngleDirect(lookYaw);
+            }
+
+            // Distance-based animation: 0=Idle, 1=Walk, 2=Run
+            auto* pokeFpe = (FieldPokemonEntity::Object*)pokeEntity;
+            if (pokeFpe != nullptr && pokeFpe->fields._animationPlayer != nullptr) {
+                auto* animPlayer = (AnimationPlayer*)pokeFpe->fields._animationPlayer;
+                int32_t currentPokeClip = animPlayer->get_currentIndex();
+                if (currentPokeClip != targetPokeClip) {
+                    animPlayer->Play(targetPokeClip);
+                }
+            }
+        }
+    }
+
+    // Spawn follow pokemon for remote players (after player entity exists)
+    if (!s_spawnInFlight && spawnQueueEmpty() && !s_pokeSpawnInFlight
+        && s_zoneChangeGraceTime <= 0.0f) {
+        for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
+            auto& remote = s_mpContext.remotePlayers[i];
+            if (remote.isActive && remote.isSpawned && remote.followPokeActive
+                && !remote.followPokeSpawned && remote.followMonsNo != 0) {
+                overworldMPSpawnFollowPokemon(i);
+                break;  // One at a time
+            }
+        }
     }
 }
-
-// Forward declarations for spawn queue (defined after entity spawn section)
-static void spawnQueueClear();
-static void spawnQueueProcessNext();
 
 // ---------------------------------------------------------------------------
 // Zone change handling
@@ -1070,8 +1290,12 @@ void overworldMPOnPlayerLeave(int32_t stationIndex) {
 static int32_t s_spawnQueue[OW_MP_MAX_PLAYERS];
 static int32_t s_spawnQueueHead = 0;   // Next index to dequeue from
 static int32_t s_spawnQueueTail = 0;   // Next index to enqueue to
-static bool    s_spawnInFlight = false; // True while an asset load is pending
+// s_spawnInFlight declared earlier (near forward declarations) for use in overworldMPUpdate
 static int32_t s_spawnInFlightStation = -1; // Station being spawned right now
+
+// Follow pokemon spawn state — separate from player spawn queue so they don't block each other
+// s_pokeSpawnInFlight declared earlier (near forward declarations) for use in overworldMPUpdate
+static int32_t s_pokeSpawnInFlightStation = -1;
 
 static int spawnQueueCount() {
     return (s_spawnQueueTail - s_spawnQueueHead + OW_MP_MAX_PLAYERS) % OW_MP_MAX_PLAYERS;
@@ -1086,6 +1310,8 @@ static void spawnQueueClear() {
     s_spawnQueueTail = 0;
     s_spawnInFlight = false;
     s_spawnInFlightStation = -1;
+    s_pokeSpawnInFlight = false;
+    s_pokeSpawnInFlightStation = -1;
 }
 
 static bool spawnQueuePush(int32_t stationIndex) {
@@ -1149,7 +1375,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     }
 
     // Grace period guard — don't spawn during zone transitions
-    if (s_zoneChangeGraceFrames > 0) {
+    if (s_zoneChangeGraceTime > 0.0f) {
         Logger::log("[OverworldMP] Asset loaded during grace period, skipping spawn for station %d\n",
                     stationIndex);
         remote.isSpawned = false;
@@ -1193,7 +1419,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     // scene transitions. We just null out our references on zone change
     // and spawn fresh entities after the grace period.
 
-    // 2. Set world position
+    // 2. Set world position via Transform (for Unity rendering)
     auto* transform = go->get_transform();
     transform->set_position(remote.position);
 
@@ -1214,7 +1440,14 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
         // Network characters should not block local player movement
         Logger::log("[OverworldMP] Step 4a: setting collision ignore\n");
         entity->fields.IsIgnorePlayerCollision = true;
-        Logger::log("[OverworldMP] Step 4a done\n");
+
+        // Set BaseEntity.worldPosition directly so the interpolation loop
+        // doesn't see a huge delta from (0,0,0) to the actual position.
+        // Without this, the entity visibly "drags" across the screen on spawn.
+        entity->cast<BaseEntity>()->SetPositionDirect(remote.position);
+        entity->cast<BaseEntity>()->fields.worldPosition = remote.position;
+        entity->cast<BaseEntity>()->SetYawAngleDirect(remote.rotationY);
+        Logger::log("[OverworldMP] Step 4a done: pos/rot/collision set\n");
     }
 
     // 5. Apply color variation (hair color, skin, etc.)
@@ -1390,6 +1623,12 @@ void overworldMPDespawnEntity(int32_t stationIndex) {
     }
 
     auto& remote = s_mpContext.remotePlayers[stationIndex];
+
+    // Also despawn follow pokemon if present
+    if (remote.followPokeSpawned) {
+        overworldMPDespawnFollowPokemon(stationIndex);
+    }
+
     if (!remote.isSpawned) {
         return;
     }
@@ -1422,6 +1661,191 @@ void overworldMPDespawnAllEntities() {
 }
 
 // ---------------------------------------------------------------------------
+// Follow pokemon spawn/despawn
+// ---------------------------------------------------------------------------
+
+static void overworldMPDespawnFollowPokemon(int32_t stationIndex) {
+    if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) return;
+
+    auto& remote = s_mpContext.remotePlayers[stationIndex];
+    if (!remote.followPokeSpawned) return;
+
+    Logger::log("[OverworldMP] Despawning follow pokemon for station %d\n", stationIndex);
+
+    auto* entity = (FieldObjectEntity::Object*)remote.followPokeEntity;
+    if (entity != nullptr) {
+        EntityManager::getClass()->initIfNeeded();
+        EntityManager::Remove(entity->cast<BaseEntity>());
+
+        UnityEngine::_Object::getClass()->initIfNeeded();
+        auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
+        UnityEngine::_Object::Destroy(go->cast<UnityEngine::_Object>());
+    }
+
+    remote.followPokeSpawned = false;
+    remote.followPokeEntity = nullptr;
+}
+
+// Async asset load callback for follow pokemon
+static void onPokemonAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*method*/) {
+    int32_t stationIndex = s_pokeSpawnInFlightStation;
+    s_pokeSpawnInFlight = false;
+    s_pokeSpawnInFlightStation = -1;
+
+    if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) {
+        Logger::log("[OverworldMP] Pokemon asset loaded but no pending spawn\n");
+        return;
+    }
+
+    auto& remote = s_mpContext.remotePlayers[stationIndex];
+
+    if (!remote.isActive || !remote.followPokeActive) {
+        Logger::log("[OverworldMP] Pokemon asset loaded but station %d no longer active/follow\n", stationIndex);
+        return;
+    }
+
+    if (loadedAsset == nullptr) {
+        Logger::log("[OverworldMP] Pokemon asset load returned null for station %d\n", stationIndex);
+        return;
+    }
+
+    // Grace period guard
+    if (s_zoneChangeGraceTime > 0.0f) {
+        Logger::log("[OverworldMP] Pokemon asset loaded during grace period, skipping for station %d\n", stationIndex);
+        return;
+    }
+
+    Logger::log("[OverworldMP] Follow pokemon asset loaded for station %d: monsNo=%d\n",
+                stationIndex, remote.followMonsNo);
+
+    // 1. Instantiate the loaded prefab
+    auto* prefab = (UnityEngine::_Object::Object*)loadedAsset;
+    auto* go = (UnityEngine::GameObject::Object*)UnityEngine::_Object::Instantiate(prefab);
+    if (go == nullptr) {
+        Logger::log("[OverworldMP] Pokemon Object.Instantiate returned null\n");
+        return;
+    }
+
+    // 2. Start with scale 0 for spawn animation (scales up over 0.3s)
+    auto* transform = go->get_transform();
+    UnityEngine::Vector3::Object scaleVec = {};
+    scaleVec.fields.x = 0.0f;
+    scaleVec.fields.y = 0.0f;
+    scaleVec.fields.z = 0.0f;
+    transform->set_localScale(scaleVec);
+    remote.followPokeSpawnTimer = 0.3f;
+
+    // 3. Set initial position behind the player and initialize trail target
+    float yawRad = remote.rotationY * 3.14159265f / 180.0f;
+    float offsetDist = 1.5f;
+    UnityEngine::Vector3::Object pokePos = {};
+    pokePos.fields.x = remote.position.fields.x + sinf(yawRad) * offsetDist;
+    pokePos.fields.y = remote.position.fields.y;
+    pokePos.fields.z = remote.position.fields.z - cosf(yawRad) * offsetDist;
+    transform->set_position(pokePos);
+
+    // Initialize trail target to the pokemon's starting position
+    remote.followPokeTargetX = pokePos.fields.x;
+    remote.followPokeTargetY = pokePos.fields.y;
+    remote.followPokeTargetZ = pokePos.fields.z;
+
+    // 4. Face toward the player
+    float lookDx = remote.position.fields.x - pokePos.fields.x;
+    float lookDz = remote.position.fields.z - pokePos.fields.z;
+    float lookYaw = atan2f(lookDx, lookDz) * 180.0f / 3.14159265f;
+    UnityEngine::Vector3::Object euler = {};
+    euler.fields.y = lookYaw;
+    transform->set_eulerAngles(euler);
+
+    // 5. GetComponent<FieldObjectEntity> — the pokemon prefab has this (FieldPokemonEntity inherits)
+    auto* entity = go->GetComponent<FieldObjectEntity>(
+        UnityEngine::GameObject::Method$$FieldObjectEntity$$GetComponent);
+
+    if (entity != nullptr) {
+        // Ignore collision with local player
+        entity->fields.IsIgnorePlayerCollision = true;
+
+        // Set BaseEntity.worldPosition directly so interpolation loop starts
+        // from the correct position (avoids "drag" from origin)
+        entity->cast<BaseEntity>()->SetPositionDirect(pokePos);
+        entity->cast<BaseEntity>()->fields.worldPosition = pokePos;
+        entity->cast<BaseEntity>()->SetYawAngleDirect(lookYaw);
+    }
+
+    // 6. Start idle animation
+    auto* fpe = (FieldPokemonEntity::Object*)entity;
+    if (fpe != nullptr && fpe->fields._animationPlayer != nullptr) {
+        auto* animPlayer = (AnimationPlayer*)fpe->fields._animationPlayer;
+        animPlayer->Play(0);  // 0 = Idle
+    }
+
+    // 7. Store entity reference
+    remote.followPokeEntity = entity;
+    remote.followPokeSpawned = true;
+
+    Logger::log("[OverworldMP] Follow pokemon spawned for station %d (monsNo=%d scale=%.2f)\n",
+                stationIndex, remote.followMonsNo, remote.followPokeScale);
+}
+
+static void overworldMPSpawnFollowPokemon(int32_t stationIndex) {
+    if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) return;
+
+    auto& remote = s_mpContext.remotePlayers[stationIndex];
+    if (remote.followMonsNo == 0) return;
+
+    Logger::log("[OverworldMP] Spawning follow pokemon for station %d: monsNo=%d formNo=%d\n",
+                stationIndex, remote.followMonsNo, (int)remote.followFormNo);
+
+    // Get pokemon catalog for asset name and scale
+    GameData::DataManager::getClass()->initIfNeeded();
+    auto* catalog = GameData::DataManager::GetPokemonCatalog(
+        remote.followMonsNo, remote.followFormNo,
+        (Pml::Sex)remote.followSex, remote.followIsRare, false);
+
+    if (catalog == nullptr) {
+        Logger::log("[OverworldMP] No pokemon catalog for monsNo=%d\n", remote.followMonsNo);
+        return;
+    }
+
+    auto* assetBundleName = catalog->fields.AssetBundleName;
+    remote.followPokeScale = catalog->fields.FieldWalkingScale;
+
+    if (assetBundleName == nullptr) {
+        Logger::log("[OverworldMP] No AssetBundleName for monsNo=%d\n", remote.followMonsNo);
+        return;
+    }
+
+    // Build the full asset path using the game's method
+    Dpr::SubContents::Utils::getClass()->initIfNeeded();
+    auto* fullPath = Dpr::SubContents::Utils::GetPokemonAssetbundleName(assetBundleName);
+
+    // Mark in-flight
+    s_pokeSpawnInFlight = true;
+    s_pokeSpawnInFlightStation = stationIndex;
+
+    // Create Action delegate for the asset load callback (same pattern as player spawn)
+    static MethodInfo* s_pokeAssetMethodInfo = nullptr;
+    if (s_pokeAssetMethodInfo == nullptr) {
+        s_pokeAssetMethodInfo = (MethodInfo*)nn_malloc(sizeof(MethodInfo));
+        memset(s_pokeAssetMethodInfo, 0, sizeof(MethodInfo));
+        s_pokeAssetMethodInfo->methodPointer = (Il2CppMethodPointer)&onPokemonAssetLoaded;
+        s_pokeAssetMethodInfo->flags = 0x0010;          // METHOD_ATTRIBUTE_STATIC
+        s_pokeAssetMethodInfo->parameters_count = 1;     // void(Object) = 1 param
+    }
+    auto* actionClass = System::Action::getClass(System::Action::void_TypeInfo);
+    if (s_pokeAssetMethodInfo->klass == nullptr) {
+        s_pokeAssetMethodInfo->klass = (Il2CppClass*)actionClass;
+    }
+    auto* action = (System::Action::Object*)il2cpp_object_new((Il2CppClass*)actionClass);
+    _ILExternal::external<void>(0x023feb30, action, nullptr, s_pokeAssetMethodInfo);
+
+    // Start async asset load
+    SmartPoint::AssetAssistant::Sequencer::getClass()->initIfNeeded();
+    auto* coroutine = Dpr::SubContents::Utils::LoadAsset(fullPath, action);
+    SmartPoint::AssetAssistant::Sequencer::Start(coroutine);
+}
+
+// ---------------------------------------------------------------------------
 // Network send helpers
 // ---------------------------------------------------------------------------
 
@@ -1444,7 +1868,8 @@ void overworldMPSendPosition() {
     int32_t myAvatarId = PlayerWork::get_playerFashion();
     int32_t myColorId = getCustomSaveData()->playerColorVariation.playerColorID;
 
-    // Build packet: [DataID:1][posX:4][posY:4][posZ:4][rotY:4][areaID:4][avatarId:4][colorId:4] = 29 bytes
+    // Build packet: [DataID:1][posX:4][posY:4][posZ:4][rotY:4][areaID:4][avatarId:4][colorId:4]
+    //               [hasFollowPoke:1][monsNo:4][formNo:1][sex:1][isRare:1] = 30-37 bytes
     il2cpp_vcall_void(pw, PW_RESET);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, OWMP_DATA_ID);
     il2cpp_vcall_write_fp32(pw, PW_WRITE_FP32, pos.fields.x);
@@ -1455,13 +1880,30 @@ void overworldMPSendPosition() {
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, myAvatarId);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, myColorId);
 
+    // Follow pokemon data — read from FieldWalkingManager
+    auto* fwMng = (Dpr::Field::Walking::FieldWalkingManager::Object*)
+        FieldManager::getClass()->static_fields->fwMng;
+    auto* pokeParamRaw = (fwMng != nullptr)
+        ? fwMng->fields._PartnerPokeParam_k__BackingField : nullptr;
+    auto* corePoke = (Pml::PokePara::CoreParam::Object*)pokeParamRaw;
+    bool hasFollowPoke = (corePoke != nullptr && !corePoke->IsNull());
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, hasFollowPoke ? 1 : 0);
+    if (hasFollowPoke) {
+        il2cpp_vcall_write_s32(pw, PW_WRITE_S32, corePoke->GetMonsNo());
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)corePoke->GetFormNo());
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)corePoke->GetSex());
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE,
+            (corePoke->GetRareType() != Pml::PokePara::RareType::NOT_RARE) ? 1 : 0);
+    }
+
     // Send unreliable to all peers on Station transport (type=0)
     Dpr::NetworkUtils::NetworkManager::SendUnReliablePacketToAll(pw, 0);
 
     if (!s_loggedFirstSend) {
         s_loggedFirstSend = true;
-        Logger::log("[OverworldMP] First position sent: area=%d pos=(%.1f,%.1f,%.1f)\n",
-                    s_mpContext.myAreaID, pos.fields.x, pos.fields.y, pos.fields.z);
+        Logger::log("[OverworldMP] First position sent: area=%d pos=(%.1f,%.1f,%.1f) followPoke=%d\n",
+                    s_mpContext.myAreaID, pos.fields.x, pos.fields.y, pos.fields.z,
+                    hasFollowPoke ? 1 : 0);
     }
 }
 
@@ -1495,6 +1937,22 @@ void overworldMPSendAreaChange(int32_t areaID) {
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, areaID);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, myAvatarId);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, myColorId);
+
+    // Follow pokemon data — same as position packet
+    auto* fwMng2 = (Dpr::Field::Walking::FieldWalkingManager::Object*)
+        FieldManager::getClass()->static_fields->fwMng;
+    auto* pokeParamRaw2 = (fwMng2 != nullptr)
+        ? fwMng2->fields._PartnerPokeParam_k__BackingField : nullptr;
+    auto* corePoke2 = (Pml::PokePara::CoreParam::Object*)pokeParamRaw2;
+    bool hasFollowPoke2 = (corePoke2 != nullptr && !corePoke2->IsNull());
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, hasFollowPoke2 ? 1 : 0);
+    if (hasFollowPoke2) {
+        il2cpp_vcall_write_s32(pw, PW_WRITE_S32, corePoke2->GetMonsNo());
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)corePoke2->GetFormNo());
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)corePoke2->GetSex());
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE,
+            (corePoke2->GetRareType() != Pml::PokePara::RareType::NOT_RARE) ? 1 : 0);
+    }
 
     // Send reliable to all peers on Station transport (type=0)
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
@@ -1575,7 +2033,7 @@ void overworldMPSendInteractionRequest(int32_t targetStation, InteractionType ty
 
     s_interactionState = InteractionState::WaitingResponse;
     s_interactionTarget = targetStation;
-    s_interactionTimeoutFrames = 300; // 10 seconds at 30fps
+    s_interactionTimeoutTime = 10.0f; // 10 seconds
 
     Logger::log("[OverworldMP] Sent interaction request: target=%d type=%d subtype=%d\n",
                 targetStation, (int)type, (int)subtype);
@@ -1738,11 +2196,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnUpdate) {
 
         // Block during grace period as safety measure — prevent PIA ticking
         // while scene state is settling after a zone transition.
-        if (s_zoneChangeGraceFrames > 0) {
-            if (s_zoneChangeGraceFrames % 10 == 0 || s_zoneChangeGraceFrames <= 3) {
-                Logger::log("[OverworldMP] NM.OnUpdate BLOCKED during grace (frames left: %d)\n",
-                            s_zoneChangeGraceFrames);
-            }
+        if (s_zoneChangeGraceTime > 0.0f) {
             return;
         }
 
@@ -1772,11 +2226,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnUpdate) {
 HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnLateUpdate) {
     static void Callback(void* __this) {
         // Block during grace period as safety measure
-        if (s_zoneChangeGraceFrames > 0) {
-            if (s_zoneChangeGraceFrames % 10 == 0 || s_zoneChangeGraceFrames <= 3) {
-                Logger::log("[OverworldMP] NM.OnLateUpdate BLOCKED during grace (frames left: %d)\n",
-                            s_zoneChangeGraceFrames);
-            }
+        if (s_zoneChangeGraceTime > 0.0f) {
             return;
         }
 
@@ -2073,6 +2523,19 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
             }
         }
 
+        // Periodic self-heal: if the setting is on but the session is Disabled
+        // (e.g. after a dead session, failed restart, or edge case), restart it.
+        // Check every ~10 seconds to avoid spamming.
+        if (enabled && s_mpContext.state == OverworldMPState::Disabled) {
+            static float s_selfHealAccumulator = 0.0f;
+            s_selfHealAccumulator += UnityEngine::Time::get_deltaTime();
+            if (s_selfHealAccumulator >= 10.0f) {
+                s_selfHealAccumulator = 0.0f;
+                Logger::log("[OverworldMP] Self-heal: setting ON but session Disabled, restarting...\n");
+                overworldMPStart();
+            }
+        }
+
         // Detect area changes (replaces OnZoneChange hook — trampoline on
         // OnZoneChange @ 0x01798CC0 caused crashes in native Unity code).
         // After Orig() returns, the zone transition is complete and the new
@@ -2098,6 +2561,19 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
                 // don't trigger a full scene unload, leaving orphan entities
                 // that become duplicates when we spawn fresh ones post-grace.
                 for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
+                    // Destroy follow pokemon entity
+                    auto& rp = s_mpContext.remotePlayers[i];
+                    if (rp.followPokeEntity != nullptr) {
+                        auto* pokeEnt = (FieldObjectEntity::Object*)rp.followPokeEntity;
+                        auto* pokeGo = pokeEnt->cast<UnityEngine::Component>()->get_gameObject();
+                        if (pokeGo != nullptr) {
+                            UnityEngine::_Object::Destroy(pokeGo->cast<UnityEngine::_Object>());
+                        }
+                    }
+                    rp.followPokeSpawned = false;
+                    rp.followPokeEntity = nullptr;
+
+                    // Destroy player entity
                     if (s_mpContext.spawnedEntities[i] != nullptr) {
                         auto* entity = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[i];
                         auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
@@ -2105,7 +2581,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
                             UnityEngine::_Object::Destroy(go->cast<UnityEngine::_Object>());
                         }
                     }
-                    s_mpContext.remotePlayers[i].isSpawned = false;
+                    rp.isSpawned = false;
                     s_mpContext.spawnedEntities[i] = nullptr;
                 }
 
@@ -2115,14 +2591,13 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
                                 (int)s_interactionState);
                     s_interactionState = InteractionState::None;
                     s_interactionTarget = -1;
-                    s_interactionTimeoutFrames = 0;
+                    s_interactionTimeoutTime = 0.0f;
                 }
 
                 s_mpContext.myAreaID = currentArea;
-                s_zoneChangeGraceFrames = OW_MP_ZONE_CHANGE_GRACE_FRAMES;
-                Logger::log("[OverworldMP] Grace period started: %d frames (~%.1fs)\n",
-                            OW_MP_ZONE_CHANGE_GRACE_FRAMES,
-                            OW_MP_ZONE_CHANGE_GRACE_FRAMES / 30.0f);
+                s_zoneChangeGraceTime = OW_MP_ZONE_CHANGE_GRACE_SEC;
+                Logger::log("[OverworldMP] Grace period started: %.1fs\n",
+                            OW_MP_ZONE_CHANGE_GRACE_SEC);
             }
         }
 
@@ -2133,8 +2608,8 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
             return;
         }
 
-        // Approximate deltaTime — Update runs at ~30fps, so deltaTime ~= 0.033s
-        float deltaTime = 0.03333334f;
+        // Get real deltaTime from Unity — works correctly at any framerate
+        float deltaTime = UnityEngine::Time::get_deltaTime();
 
         overworldMPUpdate(deltaTime);
     }
@@ -2153,6 +2628,8 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$OnZoneChange) {
             spawnQueueClear();
             for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
                 s_mpContext.remotePlayers[i].isSpawned = false;
+                s_mpContext.remotePlayers[i].followPokeSpawned = false;
+                s_mpContext.remotePlayers[i].followPokeEntity = nullptr;
                 s_mpContext.spawnedEntities[i] = nullptr;
             }
         }
@@ -2170,7 +2647,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$OnZoneChange) {
             s_mpContext.myAreaID = newAreaID;
         }
 
-        s_zoneChangeGraceFrames = OW_MP_ZONE_CHANGE_GRACE_FRAMES;
+        s_zoneChangeGraceTime = OW_MP_ZONE_CHANGE_GRACE_SEC;
     }
 };
 
@@ -2191,27 +2668,38 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$OnZoneChange) {
 // MP we want graceful disconnect, not an error dialog.
 HOOK_DEFINE_TRAMPOLINE(SessionConnector$$OnSessionEventCallback) {
     static void Callback(void* __this, int32_t rawEventType, int32_t stationIndex) {
-        // For overworld MP: let Orig() process all events (updates SC internal
-        // state tables). The session event/error/finish delegates on SC are
-        // permanently nulled during session setup, so Orig() can't propagate
-        // errors to NM's handler (no ErrorApplet). We handle events ourselves.
+        // Non-MP sessions: pass through to normal game handling
         if (!isOverworldMPActive()) {
             Orig(__this, rawEventType, stationIndex);
             return;
         }
 
-        Orig(__this, rawEventType, stationIndex);
+        // For overworld MP, we handle events ourselves to prevent ErrorApplet.
+        // Orig() propagates disconnect/leave events through the game's normal
+        // error path (SC → NM error handler → ErrorApplet), which blocks the
+        // game thread until the user dismisses the dialog. We SKIP Orig() for
+        // disconnect/leave events and process them directly.
+        //
+        // Raw event types: 0=join, 1=leave, 2=disconnect
+        // We classify them ourselves without needing Orig()'s processing.
 
-        // Read the processed eventType stored by Orig() at SC+0x44
-        int32_t eventType = *(int32_t*)((uintptr_t)__this + 0x44);
-        Logger::log("[OverworldMP] Session event: raw=%d station=%d type=%d\n",
-                    rawEventType, stationIndex, eventType);
-
-        if (eventType == 2) {
-            // Another player joined
-            overworldMPOnPlayerJoin(stationIndex);
-        } else if (eventType == 4 || eventType == 6) {
-            // Other player disconnected (4) or left (6)
+        if (rawEventType == 0) {
+            // Join event — safe to call Orig() (no error path)
+            Orig(__this, rawEventType, stationIndex);
+            int32_t eventType = *(int32_t*)((uintptr_t)__this + 0x44);
+            Logger::log("[OverworldMP] Session event: raw=%d station=%d type=%d\n",
+                        rawEventType, stationIndex, eventType);
+            if (eventType == 2) {
+                // Another player joined
+                overworldMPOnPlayerJoin(stationIndex);
+            }
+            // eventType==1 (self_joined) — no action needed
+        } else {
+            // Leave (1) or disconnect (2) — DO NOT call Orig() to prevent ErrorApplet.
+            // Treat all leave/disconnect as "other player left". If it's actually us
+            // disconnecting, the session health check will detect state=9 and restart.
+            Logger::log("[OverworldMP] Session event (no Orig): raw=%d station=%d\n",
+                        rawEventType, stationIndex);
             overworldMPOnPlayerLeave(stationIndex);
         }
     }
@@ -2233,12 +2721,7 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetComponent$$Update) {
         // PIA's Dispatch() may access resources invalidated by the scene change,
         // causing a delayed crash at ~700-950ms. By not calling Orig(), we prevent
         // Common.Update() → NexPlugin.Common.Dispatch() from running.
-        if (s_zoneChangeGraceFrames > 0) {
-            // Log periodically (not every frame) to confirm blocking works
-            if (s_zoneChangeGraceFrames % 10 == 0 || s_zoneChangeGraceFrames <= 3) {
-                Logger::log("[OverworldMP] IlcaNetComponent.Update() BLOCKED (grace frames left: %d)\n",
-                            s_zoneChangeGraceFrames);
-            }
+        if (s_zoneChangeGraceTime > 0.0f) {
             return;  // Do NOT call Orig() — prevent PIA tick
         }
 

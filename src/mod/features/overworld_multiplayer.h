@@ -15,13 +15,12 @@ static constexpr int32_t OW_MP_POS_LIST_LENGTH = 20;
 // Proximity radius for interaction prompt (in world units)
 static constexpr float OW_MP_CONTACT_RADIUS = 2.0f;
 
-// Position sync rate (send position every N frames, ~10 Hz at 30fps)
-static constexpr int32_t OW_MP_POS_SYNC_INTERVAL = 3;
+// Position sync interval in seconds (~20 Hz)
+static constexpr float OW_MP_POS_SYNC_INTERVAL_SEC = 0.05f;
 
-// Zone change grace period — frames to defer all MP processing after a zone transition.
-// Extended to 45 (~1.5s at 30fps) to cover the full crash window (700-950ms observed)
-// plus safety margin for slower hardware / GC pressure.
-static constexpr int32_t OW_MP_ZONE_CHANGE_GRACE_FRAMES = 45;
+// Zone change grace period in seconds — defer all MP processing after a zone transition.
+// 1.5s covers the full crash window (700-950ms observed) plus safety margin.
+static constexpr float OW_MP_ZONE_CHANGE_GRACE_SEC = 1.5f;
 
 // Network data IDs (matching existing ANetData<T> DataID constants)
 static constexpr uint8_t NET_DATA_ID_POS = 2;        // NetPosData
@@ -52,6 +51,20 @@ struct FieldPlayerNetData {
     float prevPosX;
     float prevPosZ;
 
+    // Follow pokemon (Walk Together) state
+    int32_t followMonsNo;       // 0 = no follow pokemon
+    uint8_t followFormNo;
+    uint8_t followSex;
+    bool    followIsRare;
+    bool    followPokeActive;    // remote player has a follow pokemon
+    bool    followPokeSpawned;   // we've spawned their pokemon entity
+    float   followPokeScale;     // FieldWalkingScale from catalog
+    float   followPokeSpawnTimer; // scale-in animation countdown (0.3s → 0)
+    float   followPokeTargetX;   // trail target position (player's previous position)
+    float   followPokeTargetY;
+    float   followPokeTargetZ;
+    void*   followPokeEntity;    // FieldPokemonEntity::Object*
+
     void Clear() {
         stationIndex = -1;
         areaID = 0;
@@ -67,6 +80,18 @@ struct FieldPlayerNetData {
         playerName = nullptr;
         prevPosX = 0.0f;
         prevPosZ = 0.0f;
+        followMonsNo = 0;
+        followFormNo = 0;
+        followSex = 0;
+        followIsRare = false;
+        followPokeActive = false;
+        followPokeSpawned = false;
+        followPokeScale = 1.0f;
+        followPokeSpawnTimer = 0.0f;
+        followPokeTargetX = 0.0f;
+        followPokeTargetY = 0.0f;
+        followPokeTargetZ = 0.0f;
+        followPokeEntity = nullptr;
     }
 };
 
@@ -177,3 +202,6 @@ void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted);
 
 // Get current interaction state
 InteractionState overworldMPGetInteractionState();
+
+// Check for A-button interaction with nearby remote players (called from overworldMPUpdate)
+void overworldMPCheckInteraction();
