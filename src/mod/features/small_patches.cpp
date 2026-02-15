@@ -6,11 +6,14 @@
 
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 #include "externals/Dpr/Demo/Demo_Evolve.h"
+#include "externals/Dpr/Field/Walking/AIStateBase.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
+#include "externals/EntityManager.h"
 #include "externals/FieldObjectEntity.h"
+#include "externals/UnityEngine/_Object.h"
+#include "externals/UnityEngine/Time.h"
 
 #include "features/activated_features.h"
-#include "logger/logger.h"
 #include "save/save.h"
 
 using namespace Dpr::Battle::Logic;
@@ -54,6 +57,59 @@ HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_SetOGI) {
 
         entity->fields.EventParams->fields.CharacterGraphicsIndex = ogi;
         ctx->X[3] = 0;
+    }
+};
+
+// Fix NPC AI behavior speed at non-30fps framerates.
+// AIStateBase::CommonUpdate @ 0x19BFA70 has a per-frame random action check:
+// when the AI timer (offset 0x38) goes negative, it runs
+// Random.Range(0, ~1.0) < probability (offset 0x34, default 0.05) every frame.
+// At 60fps this fires 2x per second compared to 30fps, making NPCs decide to
+// act (turn, walk, stop) roughly 2x faster.
+// Fix: temporarily scale the probability by deltaTime * 30.0f before calling
+// Orig, then restore it. At 30fps: 0.05 * 0.0333 * 30 = 0.05 (unchanged).
+// At 60fps: 0.05 * 0.0167 * 30 = 0.025 (halved per-frame, same per-second).
+HOOK_DEFINE_TRAMPOLINE(AIStateBase$$CommonUpdate) {
+    static void Callback(Dpr::Field::Walking::AIStateBase::Object* __this) {
+        float origProb = __this->fields.ActionProbability;
+        float dt = UnityEngine::Time::get_deltaTime();
+        float scale = dt * 30.0f;
+        if (scale < 1.0f) {
+            __this->fields.ActionProbability = origProb * scale;
+        }
+        Orig(__this);
+        __this->fields.ActionProbability = origProb;
+    }
+};
+
+// Fix NPC movement speed at non-30fps framerates.
+// FieldObjectEntity::OnLateUpdate @ 0x1D54BA0 applies worldPosition += moveVector
+// then zeros moveVector each frame. The walking system's movement functions
+// (WalkData::Move, NPCMove, etc.) write a fixed per-frame displacement to
+// moveVector that was designed for 30fps. At 60fps, the same displacement is
+// applied twice as often, doubling the movement speed.
+// Fix: scale moveVector by deltaTime * 30 for all non-player entities before
+// Orig applies it. At 30fps (dt=0.033): scale=1.0 (unchanged).
+// At 60fps (dt=0.017): scale=0.5 (half per frame, same per second).
+// This catches ALL movement that goes through moveVector regardless of which
+// WalkData function produced it.
+HOOK_DEFINE_TRAMPOLINE(FieldObjectEntity$$OnLateUpdate) {
+    static void Callback(FieldObjectEntity::Object* __this, float deltaTime) {
+        if (__this != nullptr) {
+            EntityManager::getClass()->initIfNeeded();
+            auto* player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
+            if (UnityEngine::_Object::op_Inequality(
+                    __this->cast<UnityEngine::_Object>(),
+                    player->cast<UnityEngine::_Object>())) {
+                float dt = UnityEngine::Time::get_deltaTime();
+                float scale = dt * 30.0f;
+                if (scale < 1.0f) {
+                    __this->fields.moveVector.fields.x *= scale;
+                    __this->fields.moveVector.fields.z *= scale;
+                }
+            }
+        }
+        Orig(__this, deltaTime);
     }
 };
 
@@ -108,6 +164,8 @@ void exl_patches_main() {
     };
     p.WriteInst(inst);
 
+    AIStateBase$$CommonUpdate::InstallAtOffset(0x019BFA70); // Fix NPC AI behavior speed at non-30fps framerates
+    FieldObjectEntity$$OnLateUpdate::InstallAtOffset(0x01D54BA0); // Fix NPC movement speed at non-30fps framerates
     GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns first boot language as English
     DoEvolve_ItemCancelCheck::InstallAtOffset(0x0177f16c); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
     BoxSearchPanel_CreateSearchDataListCore_MonIcon::InstallAtOffset(0x01caf0b8); // Box Search checks all characters after "_" to get monsno and not just the last 3
