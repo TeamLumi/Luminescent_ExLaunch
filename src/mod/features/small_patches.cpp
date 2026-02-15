@@ -6,9 +6,11 @@
 
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 #include "externals/Dpr/Demo/Demo_Evolve.h"
+#include "externals/Dpr/Field/Walking/AIStateBase.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/EntityManager.h"
 #include "externals/FieldObjectEntity.h"
+#include "externals/UnityEngine/_Object.h"
 #include "externals/UnityEngine/Time.h"
 
 #include "features/activated_features.h"
@@ -68,16 +70,15 @@ HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_SetOGI) {
 // Orig, then restore it. At 30fps: 0.05 * 0.0333 * 30 = 0.05 (unchanged).
 // At 60fps: 0.05 * 0.0167 * 30 = 0.025 (halved per-frame, same per-second).
 HOOK_DEFINE_TRAMPOLINE(AIStateBase$$CommonUpdate) {
-    static void Callback(void* thisObj) {
-        float* prob = (float*)((uintptr_t)thisObj + 0x34);
-        float origProb = *prob;
+    static void Callback(Dpr::Field::Walking::AIStateBase::Object* __this) {
+        float origProb = __this->fields.ActionProbability;
         float dt = UnityEngine::Time::get_deltaTime();
         float scale = dt * 30.0f;
         if (scale < 1.0f) {
-            *prob = origProb * scale;
+            __this->fields.ActionProbability = origProb * scale;
         }
-        Orig(thisObj);
-        *prob = origProb;
+        Orig(__this);
+        __this->fields.ActionProbability = origProb;
     }
 };
 
@@ -93,18 +94,22 @@ HOOK_DEFINE_TRAMPOLINE(AIStateBase$$CommonUpdate) {
 // This catches ALL movement that goes through moveVector regardless of which
 // WalkData function produced it.
 HOOK_DEFINE_TRAMPOLINE(FieldObjectEntity$$OnLateUpdate) {
-    static void Callback(FieldObjectEntity::Object* self, float deltaTime, void* method) {
-        EntityManager::getClass()->initIfNeeded();
-        auto* player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
-        if ((void*)self != (void*)player && self != nullptr) {
-            float dt = UnityEngine::Time::get_deltaTime();
-            float scale = dt * 30.0f;
-            if (scale < 1.0f) {
-                self->fields.moveVector.fields.x *= scale;
-                self->fields.moveVector.fields.z *= scale;
+    static void Callback(FieldObjectEntity::Object* __this, float deltaTime) {
+        if (__this != nullptr) {
+            EntityManager::getClass()->initIfNeeded();
+            auto* player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
+            if (UnityEngine::_Object::op_Inequality(
+                    __this->cast<UnityEngine::_Object>(),
+                    player->cast<UnityEngine::_Object>())) {
+                float dt = UnityEngine::Time::get_deltaTime();
+                float scale = dt * 30.0f;
+                if (scale < 1.0f) {
+                    __this->fields.moveVector.fields.x *= scale;
+                    __this->fields.moveVector.fields.z *= scale;
+                }
             }
         }
-        Orig(self, deltaTime, method);
+        Orig(__this, deltaTime);
     }
 };
 
