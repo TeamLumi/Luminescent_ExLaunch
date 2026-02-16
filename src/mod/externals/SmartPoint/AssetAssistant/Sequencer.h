@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
+#include "externals/System/Collections/IEnumerator.h"
 #include "externals/UnityEngine/Coroutine.h"
 
 namespace SmartPoint::AssetAssistant {
@@ -57,7 +58,7 @@ namespace SmartPoint::AssetAssistant {
             void* waitForEndOfFrame;
         };
 
-        static inline UnityEngine::Coroutine::Object* Start(Il2CppObject* routine) {
+        static inline UnityEngine::Coroutine::Object* Start(System::Collections::IEnumerator::Object* routine) {
             return external<UnityEngine::Coroutine::Object*>(0x02bc1db0, routine);
         }
 

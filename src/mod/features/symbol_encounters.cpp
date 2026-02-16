@@ -23,6 +23,7 @@
 #include "externals/Dpr/SubContents/Utils.h"
 #include "externals/RandomGroupWork.h"
 
+#include "externals/Audio/AudioManager.h"
 #include "externals/GameData/DataManager.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/PokeParty.h"
@@ -43,6 +44,8 @@
 #include "externals/ZoneWork.h"
 #include "externals/ZukanWork.h"
 
+#include "save/save.h"
+
 #include "logger/logger.h"
 #include "exlaunch/nx/kernel/svc.h"
 
@@ -56,15 +59,18 @@ static constexpr int MAX_WATER_POKEMON = 7;
 static constexpr float PROXIMITY_THRESHOLD_SQ = 1.0f;
 static constexpr float GROW_DURATION = 0.5f;
 static constexpr float SHRINK_DURATION = 0.5f;
-static constexpr float MIN_LIFETIME = 20.0f;
-static constexpr float MAX_LIFETIME = 30.0f;
+static constexpr float MIN_LIFETIME = 45.0f;
+static constexpr float MAX_LIFETIME = 60.0f;
 static constexpr int SPAWN_MIN_DIST_SQ = 16;
-static constexpr int SPAWN_MAX_DIST_SQ = 1600;
+static constexpr int SPAWN_MAX_DIST_SQ = 2500;
 static constexpr int MAX_SPAWN_ATTEMPTS = 15;
 static constexpr float WANDER_MIN_INTERVAL = 3.0f;
 static constexpr float WANDER_MAX_INTERVAL = 5.0f;
 static constexpr float WANDER_RANGE = 5.0f;
 static constexpr float RESPAWN_DELAY = 1.0f;
+
+// TODO: Replace with the actual shiny sparkle SE hash from Wwise bank
+static constexpr uint32_t SHINY_SPARKLE_SE = 0x4491b890;
 
 // ============================================================
 // External method bindings not in existing headers
@@ -208,6 +214,8 @@ struct SymbolPokemon {
     int8_t sex;
     int32_t catalogId;
     bool isWaterTile;
+    bool isPersistentShiny;     // true = from persistent save, skip lifetime
+    int32_t persistentShinyIdx; // index in SymbolEncountersSaveData::shinies, or -1
 
     int32_t spawnGridX;
     int32_t spawnGridZ;
@@ -249,7 +257,7 @@ bool g_symbolEncountersActive = false;
 
 
 static float s_spawnDelay = 0.0f;
-static constexpr float AREA_SPAWN_DELAY = 3.0f;
+static constexpr float AREA_SPAWN_DELAY = 1.0f;
 
 static bool s_loadPending[MAX_SYMBOL_POKEMON] = {};
 static Il2CppObject* s_loadedPrefab[MAX_SYMBOL_POKEMON] = {};
@@ -268,6 +276,8 @@ static bool TryFindSpawnPosition(int index, int32_t playerGridX, int32_t playerG
 static void BeginLoading(int index);
 static void FinishSpawning(int index);
 static void OnAssetLoaded(Il2CppObject* loadedObject);
+static void SpawnPersistentShiniesForZone(int32_t zoneID);
+static void PlayShinySe();
 
 // ============================================================
 // Helpers
@@ -295,6 +305,14 @@ static bool IsInField() {
     auto player = GetPlayerEntity();
     if (player == nullptr) return false;
     return true;
+}
+
+static void PlayShinySe() {
+    SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
+    auto* audioManager = Audio::AudioManager::get_Instance();
+    if (audioManager != nullptr) {
+        audioManager->PlaySe(SHINY_SPARKLE_SE, nullptr);
+    }
 }
 
 // ============================================================
@@ -389,6 +407,8 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
     s_symbolPokemon[index].formNo = (int16_t)formNo;
     s_symbolPokemon[index].level = level;
     s_symbolPokemon[index].isRare = isRare;
+    s_symbolPokemon[index].isPersistentShiny = false;
+    s_symbolPokemon[index].persistentShinyIdx = -1;
 
     // Determine sex from personal data
     XLSXContent::PersonalTable::SheetPersonal::Object* personal =
@@ -410,8 +430,19 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
         s_symbolPokemon[index].sex = (int8_t)Pml::Sex::MALE;
     }
 
-    Logger::log("[SymbolEnc] Generated: monsNo=%d form=%d level=%d rare=%d\n",
-        monsNo, formNo, level, isRare);
+    // Persist shinies to save data
+    if (isRare) {
+        int32_t zoneId = PlayerWork::get_zoneID();
+        auto* saveData = getCustomSaveData();
+        saveData->symbolEncounters.AddShiny(
+            monsNo, (int16_t)formNo, level, s_symbolPokemon[index].sex,
+            zoneId, s_symbolPokemon[index].spawnGridX, s_symbolPokemon[index].spawnGridZ);
+        s_symbolPokemon[index].isPersistentShiny = true;
+        s_symbolPokemon[index].persistentShinyIdx = saveData->symbolEncounters.count - 1;
+    }
+
+    Logger::log("[SymbolEnc] Generated: monsNo=%d form=%d level=%d rare=%d%s\n",
+        monsNo, formNo, level, isRare, isRare ? " [PERSISTED]" : "");
     return true;
 }
 
@@ -421,8 +452,8 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
 
 static bool TryFindSpawnPosition(int index, int32_t playerGridX, int32_t playerGridZ, float playerY) {
     for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
-        int32_t dx = RandRange(-40, 41);
-        int32_t dz = RandRange(-40, 41);
+        int32_t dx = RandRange(-50, 51);
+        int32_t dz = RandRange(-50, 51);
 
         int32_t distSq = dx * dx + dz * dz;
         if (distSq < SPAWN_MIN_DIST_SQ || distSq > SPAWN_MAX_DIST_SQ) continue;
@@ -677,6 +708,11 @@ static void FinishSpawning(int index) {
     poke.state = SymbolState::SPAWNED;
     Logger::log("[SymbolEnc] Spawned slot %d: monsNo=%d at grid(%d,%d) world(%.1f,%.1f,%.1f)\n",
                 index, poke.monsNo, poke.spawnGridX, poke.spawnGridZ, worldX, worldY, worldZ);
+
+    // Play shiny sparkle sound when a shiny Pokemon spawns
+    if (poke.isRare) {
+        PlayShinySe();
+    }
 }
 
 // ============================================================
@@ -724,6 +760,50 @@ static void CleanupAll() {
 }
 
 // ============================================================
+// Spawn persistent shinies for the current zone from save data
+// ============================================================
+
+static void SpawnPersistentShiniesForZone(int32_t zoneID) {
+    auto* saveData = getCustomSaveData();
+    auto& enc = saveData->symbolEncounters;
+
+    for (int si = 0; si < enc.count; si++) {
+        auto& shiny = enc.shinies[si];
+        if (shiny.zoneID != zoneID) continue;
+
+        // Find an empty slot
+        int slot = -1;
+        for (int i = 0; i < MAX_SYMBOL_POKEMON; i++) {
+            if (s_symbolPokemon[i].state == SymbolState::EMPTY) {
+                slot = i;
+                break;
+            }
+        }
+        if (slot < 0) {
+            Logger::log("[SymbolEnc] No empty slot for persistent shiny monsNo=%d\n", shiny.monsNo);
+            break;
+        }
+
+        auto& poke = s_symbolPokemon[slot];
+        poke.monsNo = shiny.monsNo;
+        poke.formNo = shiny.formNo;
+        poke.level = shiny.level;
+        poke.sex = shiny.sex;
+        poke.isRare = true;
+        poke.isPersistentShiny = true;
+        poke.persistentShinyIdx = si;
+        poke.spawnGridX = shiny.gridX;
+        poke.spawnGridZ = shiny.gridZ;
+        poke.isWaterTile = SafeIsTileAWaterTile(
+            (UnityEngine::Vector2Int::Object){ .fields = { .m_X = shiny.gridX, .m_Y = shiny.gridZ } });
+
+        BeginLoading(slot);
+        Logger::log("[SymbolEnc] Spawning persistent shiny: monsNo=%d grid(%d,%d) slot=%d saveIdx=%d\n",
+                    shiny.monsNo, shiny.gridX, shiny.gridZ, slot, si);
+    }
+}
+
+// ============================================================
 // Per-frame update (called AFTER game's FieldManager.Update)
 // ============================================================
 
@@ -761,6 +841,7 @@ static void OnUpdate() {
         s_spawnDelay = AREA_SPAWN_DELAY;
         s_rngState = (uint32_t)currentArea * 2654435761u ^ (uint32_t)currentZone * 40503u;
         if (s_rngState == 0) s_rngState = 0x12345678;
+        SpawnPersistentShiniesForZone(currentZone);
     } else if (currentZone != s_currentZoneID) {
         Logger::log("[SymbolEnc] Zone changed: %d -> %d (same area %d)\n", s_currentZoneID, currentZone, currentArea);
         CleanupAll();
@@ -768,6 +849,7 @@ static void OnUpdate() {
         s_spawnDelay = AREA_SPAWN_DELAY;
         s_rngState = (uint32_t)currentArea * 2654435761u ^ (uint32_t)currentZone * 40503u;
         if (s_rngState == 0) s_rngState = 0x12345678;
+        SpawnPersistentShiniesForZone(currentZone);
     }
 
     // Check if symbol encounters are toggled on via the Silph Scope Mk.II key item
@@ -865,7 +947,8 @@ static void OnUpdate() {
                 }
 
                 // Lifetime expired — begin shrink-out via DESPAWNING state
-                if (poke.lifetimeTimer >= poke.lifetimeDuration) {
+                // Persistent shinies never auto-despawn
+                if (!poke.isPersistentShiny && poke.lifetimeTimer >= poke.lifetimeDuration) {
                     DespawnSingle(i);
                     break;
                 }
@@ -973,7 +1056,31 @@ static void OnUpdate() {
                         Logger::log("[SymbolEnc] Battle triggered! monsNo=%d level=%d shiny=%d\n",
                                     poke.monsNo, poke.level, poke.isRare);
 
+                        // Remove persistent shiny from save data on battle
+                        if (poke.isPersistentShiny && poke.persistentShinyIdx >= 0) {
+                            auto* saveData = getCustomSaveData();
+                            saveData->symbolEncounters.RemoveShiny(poke.persistentShinyIdx);
+                            // Fix up indices for any other active persistent shinies
+                            for (int j = 0; j < MAX_SYMBOL_POKEMON; j++) {
+                                if (j == i) continue;
+                                if (s_symbolPokemon[j].isPersistentShiny &&
+                                    s_symbolPokemon[j].persistentShinyIdx > poke.persistentShinyIdx) {
+                                    s_symbolPokemon[j].persistentShinyIdx--;
+                                }
+                            }
+                            Logger::log("[SymbolEnc] Removed persistent shiny idx=%d from save\n",
+                                        poke.persistentShinyIdx);
+                        }
+
+                        // Guard: pokemonParam could be null if loading partially failed
+                        if (poke.pokemonParam == nullptr) {
+                            Logger::log("[SymbolEnc] pokemonParam null for slot %d, skipping battle\n", i);
+                            DespawnSingle(i);
+                            break;
+                        }
+
                         // Build a PokeParty with the exact Pokemon touched
+                        Pml::PokeParty::getClass()->initIfNeeded();
                         auto* battleParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)Pml::PokeParty::getClass());
                         battleParty->ctor();
                         battleParty->AddMember(poke.pokemonParam);

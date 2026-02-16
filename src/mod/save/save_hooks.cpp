@@ -70,6 +70,7 @@ void LoadCustomSaveData(nn::json& saveFile) {
     loadDexFormsFromJson(saveFile);
     loadAYouFromJson(saveFile);
     loadExtraSettingsFromJson(saveFile);
+    loadSymbolEncountersFromJson(saveFile);
 
     Logger::log("[LoadCustomSaveData] Custom data loaded successfully.\n");
 }
@@ -85,6 +86,7 @@ nn::json WriteCustomSaveData() {
         getDexFormsAsJson(),
         getAYouAsJson(),
         getExtraSettingsAsJson(),
+        getSymbolEncountersAsJson(),
     };
 
     Logger::log("[WriteCustomSaveData] Custom data converted successfully.\n");

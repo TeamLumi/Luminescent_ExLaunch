@@ -26,7 +26,7 @@
 #include "externals/ZukanWork.h"
 
 #include "logger/logger.h"
-#include "features/symbol_encounters.h"
+#include "features/features.h"
 
 // Slots
 const int32_t SLOT_SWARM_1 = 0;
@@ -569,12 +569,9 @@ Dpr::Field::EncountResult::Object * ReturnRoamingPokemonEncounter(Dpr::Field::En
     return *encounterHolder;
 }
 
-// Prepares the water encounter slots and triggers a water encounter.
-Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spaStruct, MonsLv::Array *slots, bool resetWalkEncountCount)
+// Sets up the water encounter slots and BattleBG.
+void SetWaterSlots(Dpr::Field::EncountResult::Object **encounterHolder, MonsLv::Array *slots)
 {
-    Pml::PokeParty::Object *party = PlayerWork::get_playerParty();
-    auto firstPokemon = (Pml::PokePara::CoreParam::Object *)party->GetMemberPointer(0);
-
     XLSXContent::FieldEncountTable::Sheettable::Object * fieldEnc = GetFieldEncountersOfCurrentZoneID();
 
     int32_t zoneId = PlayerWork::get_zoneID();
@@ -591,6 +588,15 @@ Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResu
     }
 
     SetWaterGBASlots(slots);
+}
+
+// Prepares the water encounter slots and triggers a water encounter.
+Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spaStruct, MonsLv::Array *slots, bool resetWalkEncountCount)
+{
+    Pml::PokeParty::Object *party = PlayerWork::get_playerParty();
+    auto firstPokemon = (Pml::PokePara::CoreParam::Object *)party->GetMemberPointer(0);
+
+    SetWaterSlots(encounterHolder, slots);
     bool randomWildEncounter = Dpr::Field::FieldEncount::SetEncountData((Pml::PokePara::PokemonParam::Object*)firstPokemon, 0, *spaStruct, slots, 1, 1, encounterHolder);
     return ReturnEncounterSlots(randomWildEncounter, encounterHolder, spaStruct, slots, false, resetWalkEncountCount);
 }

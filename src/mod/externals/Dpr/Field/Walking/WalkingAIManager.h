@@ -4,6 +4,8 @@
 #include "externals/FieldObjectEntity.h"
 
 namespace Dpr::Field::Walking {
+    struct WalkingCharacterController;
+
     struct WalkingAIManager : ILClass<WalkingAIManager> {
         struct Fields {
             void* walkingCharacters; // System_Collections_Generic_List_WalkingCharacterController__o*
@@ -14,8 +16,8 @@ namespace Dpr::Field::Walking {
         };
 
         // Creates a WalkingCharacterController for the given entity
-        inline void* ToWalkingCharacter(FieldObjectEntity::Object* entity) {
-            return external<void*>(0x1CD8580, this, entity);
+        inline WalkingCharacterController* ToWalkingCharacter(FieldObjectEntity::Object* entity) {
+            return external<WalkingCharacterController*>(0x1CD8580, this, entity);
         }
 
         // Removes and optionally destroys the walking controller for the given entity
