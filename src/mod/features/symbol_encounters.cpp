@@ -31,9 +31,9 @@
 #include "externals/Pml/Personal/PersonalSystem.h"
 #include "externals/Pml/Personal/SexVector.h"
 #include "externals/Pml/Sex.h"
+#include "externals/Dpr/FureaiHiroba/PokeFactory.h"
 #include "externals/System/Action.h"
 #include "externals/System/String.h"
-#include "externals/System/Type.h"
 #include "externals/XLSXContent/PersonalTable.h"
 #include "externals/XLSXContent/PokemonInfo.h"
 
@@ -44,6 +44,7 @@
 #include "externals/ZoneWork.h"
 #include "externals/ZukanWork.h"
 
+#include "utils/utils.h"
 #include "save/save.h"
 
 #include "logger/logger.h"
@@ -71,20 +72,6 @@ static constexpr float RESPAWN_DELAY = 1.0f;
 
 // TODO: Replace with the actual shiny sparkle SE hash from Wwise bank
 static constexpr uint32_t SHINY_SPARKLE_SE = 0x4491b890;
-
-// ============================================================
-// External method bindings not in existing headers
-// ============================================================
-
-// FureaiHiroba_PokeFactory.SetPokeScale (STATIC)
-static void SetPokeScale(UnityEngine::Transform::Object* transform, Pml::PokePara::PokemonParam::Object* pokemonParam) {
-    _ILExternal::external<void>(0x1A7EA40, transform, pokemonParam);
-}
-
-// FieldPokemonEntity.Animation indices (from il2cpp dump)
-static constexpr int32_t ANIM_IDLE = 0;
-static constexpr int32_t ANIM_WALK = 1;
-static constexpr int32_t ANIM_RUN  = 2;
 
 // Speed thresholds
 static constexpr float WALK_SPEED_MIN = 0.3f;
@@ -124,18 +111,6 @@ static float RandRange(float min, float max) {
 // Encounter table helpers
 // ============================================================
 
-extern XLSXContent::FieldEncountTable::Sheettable::Object* GetFieldEncountersOfCurrentZoneID();
-
-// Encounter slot modifier functions from encounter_slots.cpp
-extern void SetBaseGroundSlots(Dpr::Field::EncountResult::Object** encounterHolder, MonsLv::Array* slots);
-extern void SetTimeOfDaySlots(MonsLv::Array* slots);
-extern void SetSwarmSlots(MonsLv::Array* slots);
-extern void SetTrophyGardenSlots(MonsLv::Array* slots);
-extern void SetGBASlots(MonsLv::Array* slots);
-extern void SetWaterGBASlots(MonsLv::Array* slots);
-extern bool DoesTileGiveEncounters(UnityEngine::Vector2Int::Object tile);
-extern bool IsTileAWaterTile(UnityEngine::Vector2Int::Object tile);
-
 static bool SafeGetTileAttribute(UnityEngine::Vector2Int::Object tile,
                                   XLSXContent::MapAttributeTable::SheetData::Object** outAttr) {
     int32_t code = 0;
@@ -157,11 +132,6 @@ static bool SafeIsTileAWaterTile(UnityEngine::Vector2Int::Object tile) {
     XLSXContent::MapAttributeTable::SheetData::Object* attr = nullptr;
     if (!SafeGetTileAttribute(tile, &attr)) return false;
     return AttributeID::MATR_IsWater(attr->fields.Code);
-}
-
-static bool DoesCurrentZoneIDHaveEncounters() {
-    XLSXContent::FieldEncountTable::Sheettable::Object* fieldEnc = GetFieldEncountersOfCurrentZoneID();
-    return fieldEnc != nullptr;
 }
 
 // Check if a grid tile is valid for Pokemon placement.
@@ -612,7 +582,7 @@ static void FinishSpawning(int index) {
     euler.fields.z = 0.0f;
     transform->set_localEulerAngles(euler);
 
-    SetPokeScale(transform, poke.pokemonParam);
+    Dpr::FureaiHiroba::PokeFactory::SetPokeScale(transform, poke.pokemonParam);
 
     UnityEngine::Vector3::Object savedScale = transform->get_localScale();
     poke.targetScaleX = savedScale.fields.x;
@@ -626,19 +596,14 @@ static void FinishSpawning(int index) {
     transform->set_localScale(zeroScale);
 
     // Get FieldPokemonEntity component
-    {
-        System::RuntimeTypeHandle::Object handle {};
-        handle.fields.value = &FieldPokemonEntity::getClass()->_1.byval_arg;
-        poke.entity = _ILExternal::external<FieldPokemonEntity::Object*>(
-            0x026a8240, poke.gameObject, System::Type::GetTypeFromHandle(handle));
-    }
+    poke.entity = poke.gameObject->GetComponent<FieldPokemonEntity>(FieldPokemonEntity::getClass());
     if (poke.entity != nullptr) {
         poke.entity->fields.updateEnable = true;
 
         auto* animPlayer = (AnimationPlayer::Object*)poke.entity->fields._animationPlayer;
         if (animPlayer != nullptr) {
-            animPlayer->Play(ANIM_IDLE, 0.0f, 0.0f);
-            poke.currentAnimIndex = ANIM_IDLE;
+            animPlayer->Play(FieldPokemonEntity::ANIM_IDLE, 0.0f, 0.0f);
+            poke.currentAnimIndex = FieldPokemonEntity::ANIM_IDLE;
         }
     }
 
@@ -948,7 +913,7 @@ static void OnUpdate() {
                     float ddz = poke.wanderTargetZ - curPos.fields.z;
                     float distSqToTarget = ddx * ddx + ddz * ddz;
 
-                    int32_t desiredAnim = ANIM_IDLE;
+                    int32_t desiredAnim = FieldPokemonEntity::ANIM_IDLE;
 
                     if (distSqToTarget > 0.04f) {
                         float dist = __builtin_sqrtf(distSqToTarget);
@@ -989,7 +954,7 @@ static void OnUpdate() {
                         facing.fields.z = 0.0f;
                         pokeTransform->set_localEulerAngles(facing);
 
-                        desiredAnim = (poke.moveSpeed >= RUN_THRESHOLD) ? ANIM_RUN : ANIM_WALK;
+                        desiredAnim = (poke.moveSpeed >= RUN_THRESHOLD) ? FieldPokemonEntity::ANIM_RUN : FieldPokemonEntity::ANIM_WALK;
                     }
 
                     if (desiredAnim != poke.currentAnimIndex && poke.entity != nullptr) {
