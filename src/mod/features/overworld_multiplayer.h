@@ -194,6 +194,9 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex);
 // Send an emote to all peers
 void overworldMPSendEmote(uint8_t emoteId);
 
+// Display emote balloon above a remote player's entity
+void overworldMPShowRemoteEmote(int32_t stationIndex, uint8_t emoteId);
+
 // Send an interaction request to a specific player
 void overworldMPSendInteractionRequest(int32_t targetStation, InteractionType type, BattleSubtype subtype);
 
@@ -205,3 +208,6 @@ InteractionState overworldMPGetInteractionState();
 
 // Check for A-button interaction with nearby remote players (called from overworldMPUpdate)
 void overworldMPCheckInteraction();
+
+// Tick emote balloon timers and delete expired balloons (called from overworldMPUpdate)
+void overworldMPTickBalloons(float deltaTime);

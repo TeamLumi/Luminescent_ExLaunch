@@ -394,9 +394,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         Logger::log("[OverworldMP] Received emote from station %d: emoteId=%d\n",
                     fromStation, (int)emoteId);
 
-        // TODO: Display emote above remote player entity.
-        // Needs research into UgEmoticonSet or direct prefab instantiation.
-        // For now, just log it — the packet protocol is in place.
+        overworldMPShowRemoteEmote(fromStation, emoteId);
         break;
     }
 
@@ -1028,6 +1026,9 @@ void overworldMPUpdate(float deltaTime) {
         overworldMPCheckInteraction();
     }
 
+    // Tick emote balloon timers
+    overworldMPTickBalloons(deltaTime);
+
     // Interaction timeout — if waiting for a response too long, cancel
     if (s_interactionState == InteractionState::WaitingResponse) {
         s_interactionTimeoutTime -= deltaTime;
@@ -1169,13 +1170,26 @@ void overworldMPUpdate(float deltaTime) {
             pokeNewPos.fields.z = pokeCurPos.fields.z + toTargetDz * pokeLerp;
             pokeEntity->cast<BaseEntity>()->SetPositionDirect(pokeNewPos);
 
-            // Face toward the player (matches base game behavior)
+            // Face toward the player with smooth turning
             float lookDx = remote.position.fields.x - pokeNewPos.fields.x;
             float lookDz = remote.position.fields.z - pokeNewPos.fields.z;
             float lookDistSq = lookDx * lookDx + lookDz * lookDz;
             if (lookDistSq > 0.01f) {
-                float lookYaw = atan2f(lookDx, lookDz) * 180.0f / 3.14159265f;
-                pokeEntity->cast<BaseEntity>()->SetYawAngleDirect(lookYaw);
+                float targetYaw = atan2f(lookDx, lookDz) * 180.0f / 3.14159265f;
+                float currentYaw = pokeEntity->cast<BaseEntity>()->fields.yawAngle;
+
+                // Shortest-path angular difference (-180 to 180)
+                float yawDiff = targetYaw - currentYaw;
+                if (yawDiff > 180.0f) yawDiff -= 360.0f;
+                if (yawDiff < -180.0f) yawDiff += 360.0f;
+
+                // Smooth turn: ~8x per second lerp rate, faster when running
+                float turnRate = (targetPokeClip == 2) ? 12.0f : 8.0f;
+                float turnStep = yawDiff * turnRate * deltaTime;
+                // Clamp to prevent overshoot
+                if (fabsf(turnStep) > fabsf(yawDiff)) turnStep = yawDiff;
+
+                pokeEntity->cast<BaseEntity>()->SetYawAngleDirect(currentYaw + turnStep);
             }
 
             // Distance-based animation: 0=Idle, 1=Walk, 2=Run
@@ -1440,6 +1454,10 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
         // Network characters should not block local player movement
         Logger::log("[OverworldMP] Step 4a: setting collision ignore\n");
         entity->fields.IsIgnorePlayerCollision = true;
+
+        // NOTE: Do NOT null out EventParams — UpdateSubductionDepth and
+        // UpdateSwim dereference it (offset +0xa4 for attribute checks).
+        // The interact crash is handled separately by our MP interaction system.
 
         // Set BaseEntity.worldPosition directly so the interpolation loop
         // doesn't see a huge delta from (0,0,0) to the actual position.
