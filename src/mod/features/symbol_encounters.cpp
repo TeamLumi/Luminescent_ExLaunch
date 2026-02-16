@@ -351,17 +351,13 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
     Logger::log("[SymbolEnc] TrySelectSpecies: slots=%p encounterHolder=%p\n", slots, encounterHolder);
 
     if (isWaterTile) {
-        if (fieldEnc->fields.water_mons == nullptr || fieldEnc->fields.water_mons->max_length == 0 ||
-            fieldEnc->fields.encRate_wat <= 0) return false;
+        if (fieldEnc->fields.water_mons == nullptr || fieldEnc->fields.water_mons->max_length == 0) return false;
         for (uint32_t i = 0; i < slots->max_length && i < fieldEnc->fields.water_mons->max_length; i++) {
             slots->m_Items[i] = fieldEnc->fields.water_mons->m_Items[i];
         }
-        if (fieldEnc->fields.gbaRuby != nullptr) {
-            SetWaterGBASlots(slots);
-        }
+        SetWaterGBASlots(slots);
     } else {
-        if (fieldEnc->fields.ground_mons == nullptr || fieldEnc->fields.ground_mons->max_length == 0 ||
-            fieldEnc->fields.encRate_gr <= 0) return false;
+        if (fieldEnc->fields.ground_mons == nullptr || fieldEnc->fields.ground_mons->max_length == 0) return false;
         SetBaseGroundSlots(&encounterHolder, slots);
         if (fieldEnc->fields.day != nullptr && fieldEnc->fields.night != nullptr) {
             SetTimeOfDaySlots(slots);
@@ -375,9 +371,7 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
         if (ZoneWork::IsHillBackZone(zoneId) && ZukanWork::GetZenkokuFlag()) {
             SetTrophyGardenSlots(slots);
         }
-        if (fieldEnc->fields.gbaRuby != nullptr) {
-            SetGBASlots(slots);
-        }
+        SetGBASlots(slots);
     }
 
     // Use the game's own encounter generation — applies ability effects, probability weighting, etc.
@@ -390,12 +384,6 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
 
     // Apply form changes (Unown, etc.)
     Dpr::Field::FieldEncount::LastProc(&encounterHolder, &spaStruct);
-
-    // Read the result
-    if (encounterHolder->fields.Enemy == nullptr || encounterHolder->fields.Level == nullptr) {
-        Logger::log("[SymbolEnc] EncountResult has null Enemy/Level\n");
-        return false;
-    }
 
     int32_t monsNo = encounterHolder->fields.Enemy->m_Items[0];
     int32_t level = encounterHolder->fields.Level->m_Items[0];
@@ -525,17 +513,9 @@ static void BeginLoading(int index) {
 
     Logger::log("[SymbolEnc] Loading slot %d: monsNo=%d form=%d\n", index, poke.monsNo, poke.formNo);
 
-    Logger::log("[SymbolEnc] BeginLoading: creating PokemonParam...\n");
     poke.pokemonParam = Pml::PokePara::PokemonParam::newInstance(poke.monsNo, (uint16_t)poke.level, (uint64_t)0);
-    if (poke.pokemonParam == nullptr) {
-        Logger::log("[SymbolEnc] Failed to create PokemonParam for monsNo=%d\n", poke.monsNo);
-        poke.state = SymbolState::EMPTY;
-        return;
-    }
-    Logger::log("[SymbolEnc] BeginLoading: PokemonParam created=%p\n", poke.pokemonParam);
 
     GameData::DataManager::getClass()->initIfNeeded();
-    Logger::log("[SymbolEnc] BeginLoading: getting catalog...\n");
     XLSXContent::PokemonInfo::SheetCatalog::Object* catalog =
         GameData::DataManager::GetPokemonCatalog(
             poke.monsNo, poke.formNo, (Pml::Sex)poke.sex, poke.isRare, false);
@@ -548,22 +528,9 @@ static void BeginLoading(int index) {
     }
 
     auto* assetBundleName = catalog->fields.AssetBundleName;
-    if (assetBundleName == nullptr) {
-        Logger::log("[SymbolEnc] No AssetBundleName for monsNo=%d\n", poke.monsNo);
-        poke.pokemonParam = nullptr;
-        poke.state = SymbolState::EMPTY;
-        return;
-    }
 
-    Logger::log("[SymbolEnc] BeginLoading: getting asset path...\n");
     Dpr::SubContents::Utils::getClass()->initIfNeeded();
     auto* fullPath = Dpr::SubContents::Utils::GetPokemonAssetbundleName(assetBundleName);
-    if (fullPath == nullptr) {
-        Logger::log("[SymbolEnc] GetPokemonAssetbundleName returned null\n");
-        poke.pokemonParam = nullptr;
-        poke.state = SymbolState::EMPTY;
-        return;
-    }
 
     s_loadPending[index] = true;
     s_loadedPrefab[index] = nullptr;
@@ -1062,7 +1029,7 @@ static void OnUpdate() {
                         }
                     }
 
-                    if (distSq < PROXIMITY_THRESHOLD_SQ && !repelActive) {
+                    if (distSq < PROXIMITY_THRESHOLD_SQ && !repelActive && poke.scaleProgress >= 1.0f) {
                         Logger::log("[SymbolEnc] Battle triggered! monsNo=%d level=%d shiny=%d\n",
                                     poke.monsNo, poke.level, poke.isRare);
 
