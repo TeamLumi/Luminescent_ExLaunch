@@ -382,7 +382,7 @@ static bool TrySelectSpecies(int index, bool isWaterTile) {
 
     // Use the game's own encounter generation — applies ability effects, probability weighting, etc.
     bool success = Dpr::Field::FieldEncount::SetEncountData(
-        firstPokemon, 0, spaStruct, slots, isWaterTile ? 0 : 0, 1, &encounterHolder);
+        firstPokemon, 0, spaStruct, slots, isWaterTile ? 1 : 0, 1, &encounterHolder);
     if (!success) {
         Logger::log("[SymbolEnc] SetEncountData failed\n");
         return false;
