@@ -7,6 +7,7 @@
 #include "save/data/dex_form/dex_form.h"
 #include "save/data/main/main.h"
 #include "save/data/settings/settings.h"
+#include "save/data/symbol_encounters/symbol_encounters_save.h"
 
 #include "logger/logger.h"
 
@@ -29,6 +30,7 @@ struct CustomSaveData {
     DexFormSaveData<DexSize> dexForms;
     AYouSaveData ayou;
     ExtraSettingsSaveData settings;
+    SymbolEncountersSaveData symbolEncounters;
 };
 
 CustomSaveData* getCustomSaveData();

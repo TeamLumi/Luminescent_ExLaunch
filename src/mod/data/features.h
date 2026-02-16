@@ -59,6 +59,7 @@ static constexpr const char* FEATURES[] = {
     "Select Poffin Case",
     "Fake StopData",
     "Surf End Check",
+    "Symbol Encounters",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
@@ -95,6 +96,7 @@ static constexpr const char* KEY_ITEM_FEATURES[] = {
     "Clothing Trunk",
     "Incense Burner",
     "Infinite Repel",
+    "Silph Scope Mk.II",
 };
 
 constexpr int KEY_ITEM_FEATURE_COUNT = sizeof(KEY_ITEM_FEATURES) / sizeof(KEY_ITEM_FEATURES[0]);
