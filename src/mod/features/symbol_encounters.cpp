@@ -261,6 +261,7 @@ static constexpr float AREA_SPAWN_DELAY = 1.0f;
 
 static bool s_loadPending[MAX_SYMBOL_POKEMON] = {};
 static Il2CppObject* s_loadedPrefab[MAX_SYMBOL_POKEMON] = {};
+static int s_currentlyLoadingSlot = -1;  // which slot is actively loading (-1 = none)
 
 static MethodInfo* s_onAssetLoadedMI = nullptr;
 
@@ -495,16 +496,16 @@ static bool TryFindSpawnPosition(int index, int32_t playerGridX, int32_t playerG
 static void OnAssetLoaded(Il2CppObject* loadedObject) {
     Logger::log("[SymbolEnc] OnAssetLoaded callback fired, obj=%p\n", loadedObject);
 
-    for (int i = 0; i < MAX_SYMBOL_POKEMON; i++) {
-        if (s_loadPending[i]) {
-            s_loadPending[i] = false;
-            s_loadedPrefab[i] = loadedObject;
-            Logger::log("[SymbolEnc] Asset loaded for slot %d\n", i);
-            return;
-        }
+    int slot = s_currentlyLoadingSlot;
+    if (slot >= 0 && slot < MAX_SYMBOL_POKEMON && s_loadPending[slot]) {
+        s_loadPending[slot] = false;
+        s_loadedPrefab[slot] = loadedObject;
+        s_currentlyLoadingSlot = -1;
+        Logger::log("[SymbolEnc] Asset loaded for slot %d\n", slot);
+        return;
     }
+    s_currentlyLoadingSlot = -1;
     // Orphan load (area changed during async load) — just log it.
-    // Don't Destroy (corrupts asset cache) or SetActive (corrupts prefab state).
     Logger::log("[SymbolEnc] WARNING: OnAssetLoaded but no pending slot (orphan)\n");
 }
 
@@ -513,6 +514,12 @@ static void OnAssetLoaded(Il2CppObject* loadedObject) {
 // ============================================================
 
 static void BeginLoading(int index) {
+    // Only one async load at a time — prevents callback from assigning to wrong slot
+    if (s_currentlyLoadingSlot >= 0) {
+        Logger::log("[SymbolEnc] Skipping load for slot %d — slot %d still loading\n", index, s_currentlyLoadingSlot);
+        return;
+    }
+
     auto& poke = s_symbolPokemon[index];
     poke.state = SymbolState::LOADING;
 
@@ -560,6 +567,7 @@ static void BeginLoading(int index) {
 
     s_loadPending[index] = true;
     s_loadedPrefab[index] = nullptr;
+    s_currentlyLoadingSlot = index;
 
     if (s_onAssetLoadedMI == nullptr) {
         s_onAssetLoadedMI = (MethodInfo*)nn_malloc(sizeof(MethodInfo));
@@ -730,6 +738,7 @@ static void DespawnSingle(int index) {
         poke.pokemonParam = nullptr;
         s_loadPending[index] = false;
         s_loadedPrefab[index] = nullptr;
+        if (s_currentlyLoadingSlot == index) s_currentlyLoadingSlot = -1;
         poke.cooldownTimer = RESPAWN_DELAY;
         poke.state = SymbolState::COOLDOWN;
         return;
@@ -757,6 +766,7 @@ static void CleanupAll() {
         poke.state = SymbolState::EMPTY;
         poke.cooldownTimer = 0.0f;
     }
+    s_currentlyLoadingSlot = -1;
 }
 
 // ============================================================
@@ -1060,7 +1070,6 @@ static void OnUpdate() {
                         if (poke.isPersistentShiny && poke.persistentShinyIdx >= 0) {
                             auto* saveData = getCustomSaveData();
                             saveData->symbolEncounters.RemoveShiny(poke.persistentShinyIdx);
-                            // Fix up indices for any other active persistent shinies
                             for (int j = 0; j < MAX_SYMBOL_POKEMON; j++) {
                                 if (j == i) continue;
                                 if (s_symbolPokemon[j].isPersistentShiny &&
@@ -1068,27 +1077,36 @@ static void OnUpdate() {
                                     s_symbolPokemon[j].persistentShinyIdx--;
                                 }
                             }
-                            Logger::log("[SymbolEnc] Removed persistent shiny idx=%d from save\n",
-                                        poke.persistentShinyIdx);
                         }
 
-                        // Guard: pokemonParam could be null if loading partially failed
-                        if (poke.pokemonParam == nullptr) {
-                            Logger::log("[SymbolEnc] pokemonParam null for slot %d, skipping battle\n", i);
-                            DespawnSingle(i);
-                            break;
+                        // Create fresh PokemonParam at battle time from stored primitives
+                        // (never reuse stored pokemonParam — IL2CPP GC can relocate managed objects)
+                        auto* freshParam = (Pml::PokePara::PokemonParam::Object*)il2cpp_object_new(
+                            (Il2CppClass*)Pml::PokePara::PokemonParam::getClass());
+                        freshParam->ctor(poke.monsNo, (uint16_t)poke.level, 0);
+
+                        auto* coreParam = (Pml::PokePara::CoreParam::Object*)freshParam;
+
+                        // Set form if non-zero (e.g. Unown forms)
+                        if (poke.formNo != 0) {
+                            coreParam->ChangeMonsNo(poke.monsNo, (uint16_t)poke.formNo);
                         }
 
-                        // Build a PokeParty with the exact Pokemon touched
-                        Pml::PokeParty::getClass()->initIfNeeded();
-                        auto* battleParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)Pml::PokeParty::getClass());
+                        // Match sex to overworld model
+                        coreParam->fields.m_accessor->SetSex((Pml::Sex)poke.sex);
+
+                        if (poke.isRare) {
+                            coreParam->SetRareType(Pml::PokePara::RareType::CAPTURED);
+                        }
+
+                        auto* battleParty = (Pml::PokeParty::Object*)il2cpp_object_new(
+                            (Il2CppClass*)Pml::PokeParty::getClass());
                         battleParty->ctor();
-                        battleParty->AddMember(poke.pokemonParam);
+                        battleParty->AddMember(freshParam);
 
                         // Shrink-out the touched Pokemon (DESPAWNING handles destroy)
                         DespawnSingle(i);
 
-                        // PokeParty overload ensures the exact species/level/form battles
                         fm->EventWildBattle(battleParty, false, true, false, false);
                         return; // exit OnUpdate entirely
                     }
