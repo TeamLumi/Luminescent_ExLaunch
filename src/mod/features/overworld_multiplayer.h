@@ -32,6 +32,15 @@ static constexpr uint8_t OWMP_DATA_ID_POSITION      = 0xC0; // Position/avatar b
 static constexpr uint8_t OWMP_DATA_ID_EMOTE          = 0xC1; // Emote broadcast
 static constexpr uint8_t OWMP_DATA_ID_INTERACT_REQ   = 0xC2; // Interaction request (targeted)
 static constexpr uint8_t OWMP_DATA_ID_INTERACT_RESP  = 0xC3; // Interaction response (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TRADE_POKE     = 0xC4; // Trade pokemon data (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TRADE_CONFIRM   = 0xC5; // Trade confirmation (targeted)
+static constexpr uint8_t OWMP_DATA_ID_BATTLE_PARTY    = 0xC6; // Battle party data (targeted, chunked)
+static constexpr uint8_t OWMP_DATA_ID_BATTLE_READY    = 0xC7; // Battle scene sync (targeted)
+
+// 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
+// exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
+static constexpr uint8_t BATTLE_PARTY_SUB_HEADER = 0;  // Header: memberCount + MYSTATUS + subtype
+static constexpr uint8_t BATTLE_PARTY_SUB_POKE   = 1;  // Single Pokemon: pokeIndex + 344 bytes
 
 // Per-remote-player state tracked by the overworld multiplayer system
 struct FieldPlayerNetData {
@@ -206,8 +215,52 @@ void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted);
 // Get current interaction state
 InteractionState overworldMPGetInteractionState();
 
+// Show incoming request dialog to the local player (called from 0xC2 receive handler)
+void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType type, BattleSubtype battleSubtype = BattleSubtype::Single);
+
+// Called when the partner accepts/declines our request (from 0xC3 receive handler)
+void overworldMPOnRequestAccepted(int32_t partnerStation);
+void overworldMPOnRequestDeclined(int32_t partnerStation);
+
 // Check for A-button interaction with nearby remote players (called from overworldMPUpdate)
 void overworldMPCheckInteraction();
 
 // Tick emote balloon timers and delete expired balloons (called from overworldMPUpdate)
 void overworldMPTickBalloons(float deltaTime);
+
+// Start trade flow after handshake accept (called from overworldMPOnRequestAccepted)
+void overworldMPStartTrade(int32_t partnerStation);
+
+// Send trade pokemon data to partner
+void overworldMPSendTradePoke(int32_t targetStation, int32_t partySlot, uint8_t* data, int32_t size);
+
+// Send trade confirmation to partner
+void overworldMPSendTradeConfirm(int32_t targetStation, bool confirmed);
+
+// Called from 0xC4/0xC5 receive handlers to notify the trade state machine
+void overworldMPOnTradePokeReceived(int32_t fromStation, int32_t partySlot, uint8_t* data, int32_t size);
+void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed);
+
+// Battle: send local party data to partner (0xC6 packet)
+void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype);
+
+// Battle: called from 0xC6 receive handler
+void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_t size);
+
+// Battle: start battle flow after handshake accept
+void overworldMPStartBattle(int32_t partnerStation, BattleSubtype subtype);
+
+// Battle: send BATTLE_READY sync packet to partner (0xC7 packet)
+void overworldMPSendBattleReady(int32_t targetStation);
+
+// Battle: called from 0xC7 receive handler
+void overworldMPOnBattleReadyReceived(int32_t fromStation);
+
+// Battle scene flag — suppresses overworld packet reading so the battle
+// system's ReceivePacketExCallback gets clean PacketReaders.
+void overworldMPSetInBattleScene(bool inBattle);
+bool overworldMPIsInBattleScene();
+
+// Restore local party to pre-battle state (HP/PP/status) after a PvP battle.
+// Called when the battle scene ends and _updateType returns to 0.
+void overworldMPRestorePartyAfterBattle();

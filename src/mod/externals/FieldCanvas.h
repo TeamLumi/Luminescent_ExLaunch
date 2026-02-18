@@ -33,4 +33,8 @@ struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
     static inline void PlayDemoOrStock(Dpr::Demo::DemoBase::Object* demo) {
         external<void>(0x0177f2c0, demo);
     }
+
+    static inline void PlayDemo(Dpr::Demo::DemoBase::Object* demo, bool useAssetUnloader) {
+        external<void>(0x1786EC0, demo, useAssetUnloader);
+    }
 };
