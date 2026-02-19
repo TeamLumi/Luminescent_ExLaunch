@@ -75,20 +75,6 @@ bool PartyBoxNature(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
 bool PartyBoxRelease(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Returns the gender of the Pokémon at the given index and tray index.
-// Arguments:
-//   [Work, Number] index: The index that points to the given Pokémon.
-//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
-//   [Work] result: The work in which to put the result in. 0 = Male, 1 = Female, 2 = Genderless, -1 if null or egg.
-bool PartyBoxGender(Dpr::EvScript::EvDataManager::Object* manager);
-
-// Returns the shiny status of the Pokémon at the given index and tray index.
-// Arguments:
-//   [Work, Number] index: The index that points to the given Pokémon.
-//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
-//   [Work] result: The work in which to put the result in. 0 = Not Shiny, 1 = Shiny (captured), 2 = Shiny (distributed), -1 if null or egg.
-bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
-
 // Toggles a BoxCollider of the given name on the current map.
 // Arguments:
 //   [String] label: The name of the BoxCollider to toggle.
@@ -429,3 +415,17 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the gender of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work] result: The work in which to put the result in. 0 = Male, 1 = Female, 2 = Genderless, -1 if null or egg.
+bool PartyBoxGender(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the shiny status of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work] result: The work in which to put the result in. 0 = Not Shiny, 1 = Shiny (captured), 2 = Shiny (distributed), -1 if null or egg.
+bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
