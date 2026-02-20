@@ -19,8 +19,8 @@ static constexpr float OW_MP_CONTACT_RADIUS = 2.0f;
 static constexpr float OW_MP_POS_SYNC_INTERVAL_SEC = 0.05f;
 
 // Zone change grace period in seconds — defer all MP processing after a zone transition.
-// 1.5s covers the full crash window (700-950ms observed) plus safety margin.
-static constexpr float OW_MP_ZONE_CHANGE_GRACE_SEC = 1.5f;
+// Crash window observed at 700-950ms; 1.0s provides sufficient margin.
+static constexpr float OW_MP_ZONE_CHANGE_GRACE_SEC = 1.0f;
 
 // Network data IDs (matching existing ANetData<T> DataID constants)
 static constexpr uint8_t NET_DATA_ID_POS = 2;        // NetPosData
@@ -36,6 +36,9 @@ static constexpr uint8_t OWMP_DATA_ID_TRADE_POKE     = 0xC4; // Trade pokemon da
 static constexpr uint8_t OWMP_DATA_ID_TRADE_CONFIRM   = 0xC5; // Trade confirmation (targeted)
 static constexpr uint8_t OWMP_DATA_ID_BATTLE_PARTY    = 0xC6; // Battle party data (targeted, chunked)
 static constexpr uint8_t OWMP_DATA_ID_BATTLE_READY    = 0xC7; // Battle scene sync (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_DISBAND  = 0xC8; // Team-up disband notification
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE   = 0xC9; // Team-up battle initiation
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE_ACK = 0xCA; // Team-up battle acknowledgement
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -55,10 +58,16 @@ struct FieldPlayerNetData {
     bool isRunning;          // true if movement speed suggests running (vs walking)
     int32_t avatarId;
     int32_t colorId;
-    System::String::Object* playerName;
+    char playerNameBuf[52];  // native ASCII copy (max 12 chars + null + padding)
+    bool playerNameSet;      // true once we've received the name
+    bool isBicycle;          // remote player is riding a bicycle
     // Previous received position — used for movement detection
     float prevPosX;
     float prevPosZ;
+
+    // Deferred color refresh — Unity renderers may not be ready on the same
+    // frame as Instantiate, so we re-apply UpdateColorVariation after a short delay.
+    float colorRefreshTimer;
 
     // Follow pokemon (Walk Together) state
     int32_t followMonsNo;       // 0 = no follow pokemon
@@ -84,11 +93,14 @@ struct FieldPlayerNetData {
         isSpawned = false;
         isMoving = false;
         isRunning = false;
+        isBicycle = false;
         avatarId = 0;
         colorId = 0;
-        playerName = nullptr;
+        memset(playerNameBuf, 0, sizeof(playerNameBuf));
+        playerNameSet = false;
         prevPosX = 0.0f;
         prevPosZ = 0.0f;
+        colorRefreshTimer = 0.0f;
         followMonsNo = 0;
         followFormNo = 0;
         followSex = 0;
@@ -118,6 +130,7 @@ enum class InteractionState : int32_t {
 enum class InteractionType : uint8_t {
     Battle = 0,
     Trade = 1,
+    TeamUp = 2,
 };
 
 // Battle subtypes
@@ -264,3 +277,9 @@ bool overworldMPIsInBattleScene();
 // Restore local party to pre-battle state (HP/PP/status) after a PvP battle.
 // Called when the battle scene ends and _updateType returns to 0.
 void overworldMPRestorePartyAfterBattle();
+
+// Check if a specific station index is still connected
+bool overworldMPIsStationConnected(int32_t stationIndex);
+
+// Set the interaction state to TeamUpBattleStarting (called from team_up.cpp)
+void overworldMPSetTeamUpBattleStarting();

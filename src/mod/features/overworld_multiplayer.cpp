@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "features/overworld_multiplayer.h"
+#include "features/team_up.h"
 
 #include "data/settings.h"
 #include "data/utils.h"
@@ -128,6 +129,13 @@ static constexpr long NEXASSETS_COMMON_TYPEINFO = 0x04c604b8;
 
 static OverworldMPContext s_mpContext;
 
+// Flag: when true, ColorVariation_OnEnable applies the remote player's color
+// preset instead of the local custom save-data override.
+bool g_owmpSkipCustomColorOverride = false;
+// Remote player's color preset index — set before Instantiate so the OnEnable
+// hook can apply it immediately. -1 = not set.
+int32_t g_owmpRemoteColorId = -1;
+
 // Forward declaration — defined after global state section
 static Dpr::NetworkUtils::NetworkManager::Object* getNMInstance();
 
@@ -219,6 +227,11 @@ OverworldMPContext& getOverworldMPContext() {
 bool isOverworldMPActive() {
     return s_mpContext.state == OverworldMPState::Connected ||
            s_mpContext.state == OverworldMPState::Searching;
+}
+
+bool overworldMPIsStationConnected(int32_t stationIndex) {
+    if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) return false;
+    return s_mpContext.remotePlayers[stationIndex].isActive;
 }
 
 // Battle scene flag — when true, the ReceivePacketCallback.Invoke hook
@@ -370,6 +383,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         remote.prevPosX = posX;
         remote.prevPosZ = posZ;
 
+        // Capture old avatar/color BEFORE updating — needed for change detection below
+        int32_t oldAvatar = remote.avatarId;
+        int32_t oldColorId = remote.colorId;
+
         // Update remote player data
         remote.position.fields.x = posX;
         remote.position.fields.y = posY;
@@ -412,15 +429,37 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             for (int i = 0; i < nameLen * 2; i++) {
                 il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &nameBytes[i]);
             }
-            // Only allocate the managed string once to avoid GC churn at 20Hz
-            if (remote.playerName == nullptr) {
-                remote.playerName = System::String::fromUnicodeBytes(nameBytes, nameLen * 2);
-                Logger::log("[OverworldMP] Remote %d name: len=%d\n", fromStation, (int)nameLen);
+            // Store as native ASCII to avoid GC collecting managed string pointers
+            if (!remote.playerNameSet) {
+                int asciiLen = (nameLen > 48) ? 48 : nameLen;
+                for (int i = 0; i < asciiLen; i++) {
+                    uint16_t c = (uint16_t)(nameBytes[i * 2] | (nameBytes[i * 2 + 1] << 8));
+                    remote.playerNameBuf[i] = (c < 128) ? (char)c : '?';
+                }
+                remote.playerNameBuf[asciiLen] = '\0';
+                remote.playerNameSet = true;
+                Logger::log("[OverworldMP] Remote %d name: '%s' (len=%d)\n",
+                            fromStation, remote.playerNameBuf, (int)nameLen);
             }
         }
 
+        // Read bicycle state
+        uint8_t bikeFlag = 0;
+        il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &bikeFlag);
+        bool oldBike = remote.isBicycle;
+        remote.isBicycle = (bikeFlag != 0);
+
         int32_t oldArea = remote.areaID;
         remote.areaID = areaID;
+
+        // Detect avatar, bike, or color change — need to respawn with different model/color
+        if (remote.isSpawned && areaID == s_mpContext.myAreaID &&
+            (oldAvatar != avatarId || oldBike != remote.isBicycle || oldColorId != colorId)) {
+            Logger::log("[OverworldMP] Remote %d model change: avatar %d->%d bike %d->%d color %d->%d — respawning\n",
+                        fromStation, oldAvatar, avatarId, (int)oldBike, (int)remote.isBicycle, oldColorId, colorId);
+            overworldMPDespawnEntity(fromStation);
+            overworldMPSpawnEntity(fromStation);
+        }
 
         // Handle area change: spawn/despawn based on whether remote is in our area.
         // Skip during zone change grace period — game systems are unstable.
@@ -719,6 +758,173 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
         Logger::log("[OverworldMP] Received BATTLE_READY from station %d\n", fromStation);
         overworldMPOnBattleReadyReceived(fromStation);
+        break;
+    }
+
+    // -----------------------------------------------------------------------
+    // 0xC8: Team-up disband notification
+    // -----------------------------------------------------------------------
+    case OWMP_DATA_ID_TEAMUP_DISBAND: {
+        int32_t fromStation = il2cpp_vcall_int(pr, PR_FROM_STATION);
+        if (fromStation < 0 || fromStation >= OW_MP_MAX_PLAYERS) return;
+
+        int32_t targetStation = 0;
+        il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
+
+        Logger::log("[OverworldMP] Received TEAMUP_DISBAND from station %d\n", fromStation);
+        overworldMPOnTeamUpDisbandReceived(fromStation);
+        break;
+    }
+
+    // -----------------------------------------------------------------------
+    // 0xC9: Team-up battle initiation (chunked: HEADER + POKE sub-packets)
+    // 0xCA: Team-up battle ACK (chunked: HEADER + POKE sub-packets)
+    // -----------------------------------------------------------------------
+    case OWMP_DATA_ID_TEAMUP_BATTLE:
+    case OWMP_DATA_ID_TEAMUP_BATTLE_ACK: {
+        int32_t fromStation = il2cpp_vcall_int(pr, PR_FROM_STATION);
+        if (fromStation < 0 || fromStation >= OW_MP_MAX_PLAYERS) return;
+
+        int32_t targetStation = 0;
+        il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
+
+        uint8_t subType = 0;
+        il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &subType);
+
+        bool isAck = (dataId == OWMP_DATA_ID_TEAMUP_BATTLE_ACK);
+        auto& tu = overworldMPGetTeamUpState();
+
+        // Use external accum state (defined in team_up.cpp)
+        extern int32_t s_tuAccumFromStation;
+        extern uint8_t s_tuAccumMemberCount;
+        extern uint8_t s_tuAccumReceivedCount;
+        extern uint8_t s_tuAccumBuf[];
+        extern int32_t s_tuAccumBufSize;
+        extern uint8_t s_tuAccumBattleType;
+        extern bool    s_tuAccumIsAck;
+
+        switch (subType) {
+        case 0: { // HEADER
+            uint8_t battleType = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &battleType);
+            uint8_t memberCount = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &memberCount);
+            uint8_t wildCount = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &wildCount); // always 0 (trainer-only)
+            int32_t arenaID = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &arenaID);
+            int32_t weatherType = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &weatherType);
+            int32_t trainerID = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &trainerID);
+            int32_t trainerID2 = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &trainerID2);
+            int32_t effectID = -1;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &effectID);
+
+            Logger::log("[OverworldMP] TeamUp %s HEADER: type=%d members=%d arena=%d effect=%d\n",
+                        isAck ? "ACK" : "BATTLE",
+                        (int)battleType, (int)memberCount, arenaID, effectID);
+
+            // Initialize accumulation
+            s_tuAccumFromStation = fromStation;
+            s_tuAccumMemberCount = (memberCount > 6) ? 6 : memberCount;
+            s_tuAccumReceivedCount = 0;
+            s_tuAccumBattleType = battleType;
+            s_tuAccumIsAck = isAck;
+            memset(s_tuAccumBuf, 0, 6 * POKE_FULL_DATA_SIZE + 128);
+            s_tuAccumBufSize = 0;
+
+            // Store encounter data into TeamUpState
+            if (!isAck) {
+                tu.battleType = battleType;
+                tu.battleArenaID = arenaID;
+                tu.battleWeatherType = weatherType;
+                tu.battleTrainerID = trainerID;
+                tu.battleTrainerID2 = trainerID2;
+                tu.battleEffectID = effectID;
+            }
+
+            // Read MYSTATUS_COMM into partner mystatus buffer
+            int32_t mystOff = 0;
+            // id (4 bytes)
+            int32_t statusId = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &statusId);
+            if (mystOff + 4 <= (int32_t)sizeof(tu.partnerMystatusBuf)) {
+                memcpy(&tu.partnerMystatusBuf[mystOff], &statusId, 4);
+                mystOff += 4;
+            }
+            // nameLen (1 byte)
+            uint8_t nameLen = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &nameLen);
+            if (mystOff < (int32_t)sizeof(tu.partnerMystatusBuf))
+                tu.partnerMystatusBuf[mystOff++] = nameLen;
+            // name chars
+            for (int nc = 0; nc < nameLen * 2; nc++) {
+                uint8_t ch = 0;
+                il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &ch);
+                if (mystOff < (int32_t)sizeof(tu.partnerMystatusBuf))
+                    tu.partnerMystatusBuf[mystOff++] = ch;
+            }
+            // sex, lang, fashion, body_type, hat, shoes
+            for (int fi = 0; fi < 6; fi++) {
+                uint8_t val = 0;
+                il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &val);
+                if (mystOff < (int32_t)sizeof(tu.partnerMystatusBuf))
+                    tu.partnerMystatusBuf[mystOff++] = val;
+            }
+            tu.partnerMystatusLen = mystOff;
+
+            // If no party members, signal complete immediately
+            if (s_tuAccumMemberCount == 0) {
+                tu.partnerPartyCount = 0;
+                tu.partnerPartyBufSize = 0;
+                if (isAck) {
+                    overworldMPOnTeamUpBattleAckReceived(fromStation, nullptr, 0);
+                } else {
+                    overworldMPOnTeamUpBattleReceived(fromStation, nullptr, 0);
+                }
+            }
+            break;
+        }
+
+        case 1: { // POKE (partner's party Pokemon)
+            uint8_t pokeIndex = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
+            if (pokeIndex >= 6) break;
+
+            int32_t bufOffset = pokeIndex * POKE_FULL_DATA_SIZE;
+            for (int j = 0; j < 86; j++) {
+                int32_t val = 0;
+                il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &val);
+                if (bufOffset + 4 <= (int32_t)sizeof(tu.partnerPartyBuf)) {
+                    memcpy(&tu.partnerPartyBuf[bufOffset], &val, 4);
+                    bufOffset += 4;
+                }
+            }
+            s_tuAccumReceivedCount++;
+            tu.partnerPartyBufSize = s_tuAccumMemberCount * POKE_FULL_DATA_SIZE;
+            tu.partnerPartyCount = s_tuAccumMemberCount;
+
+            Logger::log("[OverworldMP] TeamUp %s POKE[%d] (%d/%d)\n",
+                        s_tuAccumIsAck ? "ACK" : "BATTLE",
+                        (int)pokeIndex, (int)s_tuAccumReceivedCount, (int)s_tuAccumMemberCount);
+
+            // Check if all party Pokemon received
+            if (s_tuAccumReceivedCount >= s_tuAccumMemberCount) {
+                if (s_tuAccumIsAck) {
+                    overworldMPOnTeamUpBattleAckReceived(s_tuAccumFromStation, nullptr, 0);
+                } else {
+                    overworldMPOnTeamUpBattleReceived(s_tuAccumFromStation, nullptr, 0);
+                }
+            }
+            break;
+        }
+
+        default:
+            Logger::log("[OverworldMP] Unknown TeamUp sub-type: %d\n", (int)subType);
+            break;
+        }
         break;
     }
 
@@ -1285,6 +1491,9 @@ void overworldMPUpdate(float deltaTime) {
     // Tick emote balloon timers
     overworldMPTickBalloons(deltaTime);
 
+    // Team-up auto-disband check
+    overworldMPTeamUpAutoDisband();
+
     // Interaction timeout — if waiting for a response too long, cancel
     if (s_interactionState == InteractionState::WaitingResponse) {
         s_interactionTimeoutTime -= deltaTime;
@@ -1348,6 +1557,28 @@ void overworldMPUpdate(float deltaTime) {
                 }
             } else if (!remote.isMoving && currentClip != 0) {
                 fce->fields._animationPlayer->Play(0);  // Idle
+            }
+        }
+
+        // Deferred color refresh — re-apply UpdateColorVariation once renderers are ready
+        if (remote.colorRefreshTimer > 0.0f) {
+            remote.colorRefreshTimer -= deltaTime;
+            if (remote.colorRefreshTimer <= 0.0f) {
+                remote.colorRefreshTimer = 0.0f;
+                auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
+                auto* cvKlass = *(Il2CppClass**)exl::util::modules::GetTargetOffset(0x04C57F80);
+                if (cvKlass != nullptr && go != nullptr) {
+                    System::RuntimeTypeHandle::Object cvHandle {};
+                    cvHandle.fields.value = &cvKlass->_1.byval_arg;
+                    auto* cvType = System::Type::GetTypeFromHandle(cvHandle);
+                    auto* cvComp = (ColorVariation::Object*)_ILExternal::external<void*>(0x026a8240, go, cvType);
+                    if (cvComp != nullptr) {
+                        extern void UpdateColorVariation(ColorVariation::Object* variation);
+                        UpdateColorVariation(cvComp);
+                        Logger::log("[OverworldMP] Deferred color refresh applied for station %d (colorId=%d)\n",
+                                    i, cvComp->fields.ColorIndex);
+                    }
+                }
             }
         }
 
@@ -1677,11 +1908,18 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     // and handle position updates ourselves via the recv callback.
 
     // 1. Instantiate the loaded prefab
+    // Set remote color ID so the OnEnable hook applies it during Instantiate.
+    // This is more reliable than post-spawn application because renderers
+    // are initialized inside Orig() and colors apply immediately.
     Logger::log("[OverworldMP] Step 1: Instantiate\n");
+    g_owmpSkipCustomColorOverride = true;
+    g_owmpRemoteColorId = remote.colorId;
     auto* prefab = (UnityEngine::_Object::Object*)loadedAsset;
     auto* go = (UnityEngine::GameObject::Object*)UnityEngine::_Object::Instantiate(prefab);
     if (go == nullptr) {
         Logger::log("[OverworldMP] Object.Instantiate returned null\n");
+        g_owmpSkipCustomColorOverride = false;
+        g_owmpRemoteColorId = -1;
         remote.isSpawned = false;
         spawnQueueProcessNext();
         return;
@@ -1741,17 +1979,44 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
             auto* cvType = System::Type::GetTypeFromHandle(cvHandle);
             auto* cvComp = (ColorVariation::Object*)_ILExternal::external<void*>(0x026a8240, go, cvType);
             if (cvComp != nullptr) {
-                cvComp->fields.ColorIndex = remote.colorId;
-                // Re-trigger OnEnable to apply the new color index.
-                // ColorVariation.OnEnable @ 0x018ecd20 — goes through our hook
-                // which calls Orig() + UpdateColorVariation().
-                _ILExternal::external<void>(0x018ecd20, cvComp);
-                Logger::log("[OverworldMP] ColorVariation applied: colorId=%d\n", remote.colorId);
+                // Set ColorIndex to remote player's preset (clamped >= 0).
+                // colorId -1 means "custom colors" but we don't have their RGBA data,
+                // so fall back to preset 0.
+                cvComp->fields.ColorIndex = (remote.colorId >= 0) ? remote.colorId : 0;
+
+                // Ensure propertyBlock exists — vanilla OnEnable (Orig) should create
+                // it, but if it didn't, Property::Update will silently skip all colors.
+                // MaterialPropertyBlock_TypeInfo @ 0x04C57D80, .ctor @ 0x26B7F30
+                if (cvComp->fields.propertyBlock == nullptr) {
+                    auto* mpbKlass = *(Il2CppClass**)exl::util::modules::GetTargetOffset(0x04C57D80);
+                    if (mpbKlass != nullptr) {
+                        auto* mpb = (UnityEngine::MaterialPropertyBlock::Object*)
+                            il2cpp_object_new(mpbKlass);
+                        _ILExternal::external<void>(0x26B7F30, mpb);
+                        cvComp->fields.propertyBlock = mpb;
+                        Logger::log("[OverworldMP] Created MaterialPropertyBlock (was null)\n");
+                    }
+                }
+
+                // Call UpdateColorVariation — applies GetColorSet(index) to each
+                // Property's renderer via GetPropertyBlock/SetColor/SetPropertyBlock.
+                extern void UpdateColorVariation(ColorVariation::Object* variation);
+                UpdateColorVariation(cvComp);
+                Logger::log("[OverworldMP] ColorVariation applied: colorId=%d (requested %d) propBlock=%p\n",
+                            cvComp->fields.ColorIndex, remote.colorId, cvComp->fields.propertyBlock);
             } else {
                 Logger::log("[OverworldMP] No ColorVariation component on entity\n");
             }
         }
     }
+    // Clear the skip flags now that color setup is complete
+    g_owmpSkipCustomColorOverride = false;
+    g_owmpRemoteColorId = -1;
+
+    // Schedule a deferred color refresh — Unity renderers may not have their
+    // materials ready on the same frame as Instantiate, causing the initial
+    // UpdateColorVariation call above to silently fail.
+    remote.colorRefreshTimer = 0.3f;
 
     // 6. Start idle animation on the character
     auto* fce = (FieldCharacterEntity::Object*)entity;
@@ -1765,8 +2030,8 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     ctx.spawnedEntities[stationIndex] = entity;
     remote.isSpawned = true;
 
-    Logger::log("[OverworldMP] Entity spawned for station %d (avatar=%d)\n",
-                stationIndex, remote.avatarId);
+    Logger::log("[OverworldMP] Entity spawned for station %d (avatar=%d color=%d bike=%d)\n",
+                stationIndex, remote.avatarId, remote.colorId, (int)remote.isBicycle);
 
     // Kick off next queued spawn, if any
     spawnQueueProcessNext();
@@ -1836,11 +2101,15 @@ static void spawnQueueStartLoad(int32_t stationIndex) {
                 stationIndex, remote.position.fields.x, remote.position.fields.y,
                 remote.position.fields.z);
 
-    // Get the character dress data to determine the field model asset name
+    // Get the character dress data to determine the field model asset name.
+    // When on bike, the sender already sends the correct bike dress index
+    // (Lucas=2, Dawn=16) as avatarId, so no receiver-side mapping needed.
+    int32_t spawnAvatarId = remote.avatarId;
     GameData::DataManager::getClass()->initIfNeeded();
-    auto* dressData = GameData::DataManager::GetCharacterDressData(remote.avatarId);
+    auto* dressData = GameData::DataManager::GetCharacterDressData(spawnAvatarId);
     if (dressData == nullptr) {
-        Logger::log("[OverworldMP] No dress data for avatarId %d\n", remote.avatarId);
+        Logger::log("[OverworldMP] No dress data for avatarId %d (bike=%d)\n",
+                    spawnAvatarId, (int)remote.isBicycle);
         spawnQueueProcessNext();
         return;
     }
@@ -2145,9 +2414,12 @@ void overworldMPSendPosition() {
     int32_t myAvatarId = PlayerWork::get_playerFashion();
     int32_t myColorId = getCustomSaveData()->playerColorVariation.playerColorID;
 
+    // Check bicycle state — send as a flag only, we don't render bike on remote
+    bool onBike = ((FieldPlayerEntity::Object*)player)->IsRideBicycle();
+
     // Build packet: [DataID:1][posX:4][posY:4][posZ:4][rotY:4][areaID:4][avatarId:4][colorId:4]
     //               [hasFollowPoke:1][monsNo:4][formNo:1][sex:1][isRare:1]
-    //               [nameLen:1][nameChars:nameLen*2] = 30-61 bytes
+    //               [nameLen:1][nameChars:nameLen*2][isBicycle:1] = 31-62 bytes
     il2cpp_vcall_void(pw, PW_RESET);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, OWMP_DATA_ID);
     il2cpp_vcall_write_fp32(pw, PW_WRITE_FP32, pos.fields.x);
@@ -2190,6 +2462,9 @@ void overworldMPSendPosition() {
         il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, 0);
     }
 
+    // Bicycle state
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, onBike ? 1 : 0);
+
     // Send unreliable to all peers on Station transport (type=0)
     Dpr::NetworkUtils::NetworkManager::SendUnReliablePacketToAll(pw, 0);
 
@@ -2220,6 +2495,9 @@ void overworldMPSendAreaChange(int32_t areaID) {
     // Get local player's avatar/fashion ID and color ID
     int32_t myAvatarId = PlayerWork::get_playerFashion();
     int32_t myColorId = getCustomSaveData()->playerColorVariation.playerColorID;
+
+    // Check bicycle state — send as a flag only
+    bool onBike2 = (player != nullptr) ? ((FieldPlayerEntity::Object*)player)->IsRideBicycle() : false;
 
     // Same format as position packet, but sent reliably
     il2cpp_vcall_void(pw, PW_RESET);
@@ -2263,6 +2541,9 @@ void overworldMPSendAreaChange(int32_t areaID) {
     } else {
         il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, 0);
     }
+
+    // Bicycle state (already computed above for avatarId override)
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, onBike2 ? 1 : 0);
 
     // Send reliable to all peers on Station transport (type=0)
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);

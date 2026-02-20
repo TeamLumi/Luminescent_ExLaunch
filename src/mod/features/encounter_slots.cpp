@@ -926,7 +926,7 @@ HOOK_DEFINE_REPLACE(SetSweetEncountEncounterSlots) {
             {
                 SetSafariSlots(slots);
             }
-            
+
             Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object swayInfo{};
             bool randomWildEncounter = Dpr::Field::FieldEncount::WildEncSingle((Pml::PokePara::PokemonParam::Object*)firstPokemon, &encounterHolder, fieldEnc, slots, spaStruct, swayInfo);
             return ReturnEncounterSlots(randomWildEncounter, &encounterHolder, &spaStruct, slots, true, true);

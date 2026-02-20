@@ -182,6 +182,9 @@ void exl_swarm_forms_main();
 // Changes the defaulkt text color for dialog boxes.
 void exl_text_color_main();
 
+// Team-up cooperative overworld multiplayer (double battles with partner).
+void exl_team_up_main();
+
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();
 

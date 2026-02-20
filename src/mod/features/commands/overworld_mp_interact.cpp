@@ -1,7 +1,9 @@
 #include "exlaunch.hpp"
 
 #include "features/overworld_multiplayer.h"
+#include "features/team_up.h"
 
+#include "externals/Audio/AudioManager.h"
 #include "externals/ContextMenuID.h"
 #include "externals/DPData/MYSTATUS.h"
 #include "externals/Dpr/Demo/Demo_Trade.h"
@@ -14,6 +16,7 @@
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/UIPofinCase.h"
 #include "externals/EntityManager.h"
+#include "externals/GameManager.h"
 #include "externals/FieldCanvas.h"
 #include "externals/FieldManager.h"
 #include "externals/FieldObjectEntity.h"
@@ -24,6 +27,7 @@
 #include "externals/Pml/PokePara/CoreParam.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/Pml/Personal/PersonalSystem.h"
+#include "externals/SmartPoint/AssetAssistant/Sequencer.h"
 #include "externals/System/String.h"
 #include "externals/UIWindowID.h"
 #include "externals/MYSTATUS_COMM.h"
@@ -55,6 +59,8 @@ enum class InteractState : int32_t {
     BattleSyncWait = 14,      // Sent BATTLE_READY, waiting for partner's BATTLE_READY
     BattleStarting = 15,      // Both sides ready, entering battle scene
     BattleMenuOpen = 16,      // Battle type submenu displayed (Single/Double/Back)
+    TradeLoadingBox = 17,     // Waiting for BoxWindow prefab to finish preloading
+    TeamUpBattleStarting = 18, // Partner received TEAMUP_BATTLE, entering battle
 };
 
 struct InteractContext {
@@ -96,7 +102,6 @@ static uint8_t s_partnerTradePokeData[POKE_FULL_DATA_SIZE] = {};
 static bool s_partnerPokeReceived = false;
 static bool s_partnerConfirmReceived = false;
 static bool s_partnerConfirmValue = false;
-static MethodInfo* s_tradeSelectMethodInfo = nullptr;
 static MethodInfo* s_tradeConfirmMethodInfo = nullptr;
 
 // BoxWindow trade selection
@@ -104,6 +109,7 @@ static Dpr::UI::BoxWindow::Object* s_boxWindow = nullptr;
 static MethodInfo* s_boxSelectMethodInfo = nullptr;
 static MethodInfo* s_boxCancelMethodInfo = nullptr;
 static int32_t s_myTradeTrayIndex = -1;  // -1 = party, 0+ = box tray (box deferred to future PR)
+static bool s_boxWindowPreloading = false;  // true while OpLoadWindows coroutine is running
 
 // Demo_Trade animation state
 static Pml::PokePara::PokemonParam::Object* s_myTradePokeParam = nullptr;       // our poke (for animation display)
@@ -129,6 +135,11 @@ static uint8_t s_partnerBattlePartyBuf[MAX_BATTLE_PARTY_DATA] = {};
 static int32_t s_partnerBattlePartyBufSize = 0;
 static uint8_t s_partnerBattleMemberCount = 0;
 static BattleSubtype s_partnerBattleSubtype = BattleSubtype::Single;
+
+// Forward declarations
+static bool isBoxWindowInObjectPool();
+static void preloadBoxWindow();
+static void openTradeBoxWindow(int32_t partnerStation);
 
 static void resetBattleState() {
     s_battlePartnerStation = -1;
@@ -407,7 +418,7 @@ static void overworldMPShowBattleSubmenu() {
 }
 
 // ---------------------------------------------------------------------------
-// Main menu callback
+// Main menu callback (not teamed up: Battle, Trade, Team Up, Emote, Cancel)
 // ---------------------------------------------------------------------------
 static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item, MethodInfo* mi) {
     if (item == nullptr) {
@@ -423,8 +434,7 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
         case 0: // Battle → open submenu to pick Single/Double
             Logger::log("[OverworldMP] Battle selected — opening submenu\n");
             s_interact.state = InteractState::BattleMenuOpen;
-            s_interact.emoteMenuDelay = 0.3f; // wait for close animation, then open battle submenu
-            // Don't re-enable input — battle submenu will take over
+            s_interact.emoteMenuDelay = 0.3f;
             break;
 
         case 1: // Trade
@@ -435,19 +445,126 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
                                               InteractionType::Trade, BattleSubtype::Single);
             s_interact.state = InteractState::WaitingResponse;
             s_interact.timeoutTimer = INTERACT_TIMEOUT;
-            // Don't re-enable input — waiting for response
             break;
 
-        case 2: // Emote → open sub-menu after main menu closes
+        case 2: // Team Up
+            Logger::log("[OverworldMP] Requesting team-up with station %d\n", s_interact.targetStationIndex);
+            s_pendingRequestType = InteractionType::TeamUp;
+            s_isRequester = true;
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::TeamUp, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+
+        case 3: // Emote → open sub-menu after main menu closes
             Logger::log("[OverworldMP] Emote selected — opening sub-menu\n");
             s_interact.state = InteractState::EmoteMenuPending;
-            s_interact.emoteMenuDelay = 0.3f; // wait for close animation
-            // Don't re-enable input — emote menu will take over
+            s_interact.emoteMenuDelay = 0.3f;
+            break;
+
+        case 4: // Cancel
+        default:
+            Logger::log("[OverworldMP] Interaction cancelled\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+            break;
+    }
+
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// Teamed-up menu callback (targeting partner: Disband, Trade, Emote, Cancel)
+// ---------------------------------------------------------------------------
+static MethodInfo* s_teamMenuMethodInfo = nullptr;
+
+static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item, MethodInfo* mi) {
+    if (item == nullptr) {
+        s_interact.Reset();
+        closeInteractionMenu();
+        return true;
+    }
+
+    int32_t index = (int32_t)item->fields._param->fields.menuId;
+    Logger::log("[OverworldMP] Team menu selection: index=%d\n", index);
+
+    switch (index) {
+        case 0: // Disband
+            Logger::log("[OverworldMP] Disbanding team-up\n");
+            overworldMPTeamUpDisband();
+            s_interact.Reset();
+            closeInteractionMenu();
+            break;
+
+        case 1: // Trade
+            Logger::log("[OverworldMP] Requesting trade with partner station %d\n", s_interact.targetStationIndex);
+            s_pendingRequestType = InteractionType::Trade;
+            s_isRequester = true;
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Trade, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+
+        case 2: // Emote
+            Logger::log("[OverworldMP] Emote selected — opening sub-menu\n");
+            s_interact.state = InteractState::EmoteMenuPending;
+            s_interact.emoteMenuDelay = 0.3f;
             break;
 
         case 3: // Cancel
         default:
-            Logger::log("[OverworldMP] Interaction cancelled\n");
+            Logger::log("[OverworldMP] Team menu cancelled\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+            break;
+    }
+
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// Teamed-up menu callback (targeting non-partner: Team Battle, Trade, Emote, Cancel)
+// ---------------------------------------------------------------------------
+static MethodInfo* s_teamBattleMenuMethodInfo = nullptr;
+
+static bool onTeamBattleMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item, MethodInfo* mi) {
+    if (item == nullptr) {
+        s_interact.Reset();
+        closeInteractionMenu();
+        return true;
+    }
+
+    int32_t index = (int32_t)item->fields._param->fields.menuId;
+    Logger::log("[OverworldMP] Team battle menu selection: index=%d\n", index);
+
+    switch (index) {
+        case 0: // Team Battle (PvP — future)
+            Logger::log("[OverworldMP] Team Battle not yet implemented\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+            break;
+
+        case 1: // Trade
+            Logger::log("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
+            s_pendingRequestType = InteractionType::Trade;
+            s_isRequester = true;
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Trade, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+
+        case 2: // Emote
+            Logger::log("[OverworldMP] Emote selected — opening sub-menu\n");
+            s_interact.state = InteractState::EmoteMenuPending;
+            s_interact.emoteMenuDelay = 0.3f;
+            break;
+
+        case 3: // Cancel
+        default:
+            Logger::log("[OverworldMP] Team battle menu cancelled\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
@@ -502,15 +619,39 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
     s_interact.targetStationIndex = targetStationIndex;
     s_interact.state = InteractState::MenuOpen;
 
+    // Start preloading BoxWindow early (async) — by the time the player
+    // navigates menus and accepts a trade, the prefab should be loaded.
+    preloadBoxWindow();
+
     // Disable player input
     PlayerWork::getClass()->initIfNeeded();
     PlayerWork::getClass()->static_fields->_isPlayerInputActive = false;
 
-    const char* items[] = { "Battle", "Trade", "Emote", "Cancel" };
-    if (!openContextMenu(items, 4, 3, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
-        Logger::log("[OverworldMP] ERROR: Failed to open interaction menu\n");
-        s_interact.Reset();
-        closeInteractionMenu();
+    auto& tu = overworldMPGetTeamUpState();
+    if (tu.isTeamedUp && tu.partnerStation == targetStationIndex) {
+        // Teamed up, targeting partner: Disband, Trade, Emote, Cancel
+        const char* items[] = { "Disband", "Trade", "Emote", "Cancel" };
+        if (!openContextMenu(items, 4, 3, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
+            Logger::log("[OverworldMP] ERROR: Failed to open team menu\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+        }
+    } else if (tu.isTeamedUp) {
+        // Teamed up, targeting non-partner: Team Battle, Trade, Emote, Cancel
+        const char* items[] = { "Team Battle", "Trade", "Emote", "Cancel" };
+        if (!openContextMenu(items, 4, 3, &onTeamBattleMenuClicked, &s_teamBattleMenuMethodInfo)) {
+            Logger::log("[OverworldMP] ERROR: Failed to open team battle menu\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+        }
+    } else {
+        // Not teamed up: Battle, Trade, Team Up, Emote, Cancel
+        const char* items[] = { "Battle", "Trade", "Team Up", "Emote", "Cancel" };
+        if (!openContextMenu(items, 5, 4, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
+            Logger::log("[OverworldMP] ERROR: Failed to open interaction menu\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+        }
     }
 }
 
@@ -531,8 +672,8 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
     int32_t index = (int32_t)item->fields._param->fields.menuId;
     Logger::log("[OverworldMP] Incoming request response: index=%d\n", index);
 
-    if (index == 1) {
-        // Accept — defer trade start to avoid opening UI inside callback
+    if (index == 0) {
+        // Accept — defer trade/battle start to avoid opening UI inside callback
         Logger::log("[OverworldMP] Accepting request from station %d (type=%d)\n",
                     s_pendingFromStation, (int)s_pendingRequestType);
         overworldMPSendInteractionResponse(s_pendingFromStation, true);
@@ -541,11 +682,8 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
         s_interact.targetStationIndex = s_pendingFromStation;
         s_interact.tradeStartDelay = 0.3f;
         s_pendingFromStation = -1;
-    } else if (index == 0) {
-        // Header text clicked — no-op, keep dialog open
-        return false;
     } else {
-        // Decline (index 2 or B-button)
+        // Decline (index 1 or B-button)
         Logger::log("[OverworldMP] Declining request from station %d\n", s_pendingFromStation);
         overworldMPSendInteractionResponse(s_pendingFromStation, false);
         s_pendingFromStation = -1;
@@ -587,25 +725,17 @@ void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType t
     const char* actionText = "Trade";
     if (type == InteractionType::Battle) {
         actionText = (battleSubtype == BattleSubtype::Double) ? "Double Battle" : "Single Battle";
+    } else if (type == InteractionType::TeamUp) {
+        actionText = "Team Up";
     }
-    char nameBuf[48] = "Player";
-    if (remote.playerName != nullptr) {
-        auto* str = remote.playerName;
-        int len = str->fields.m_stringLength;
-        if (len > 40) len = 40;
-        for (int i = 0; i < len; i++) {
-            uint16_t c = ((uint16_t*)&str->fields.m_firstChar)[i];
-            nameBuf[i] = (c < 128) ? (char)c : '?';
-        }
-        nameBuf[len] = '\0';
-    }
+    const char* nameBuf = remote.playerNameSet ? remote.playerNameBuf : "Player";
 
     static char acceptBuf[128];
     snprintf(acceptBuf, sizeof(acceptBuf), "%s with %s?", actionText, nameBuf);
     Logger::log("[OverworldMP] Showing incoming request dialog: %s\n", acceptBuf);
 
-    const char* items[] = { acceptBuf, "Accept", "Decline" };
-    if (!openContextMenu(items, 3, 2, &onIncomingRequestClicked, &s_incomingRequestMethodInfo)) {
+    const char* items[] = { acceptBuf, "Decline" };
+    if (!openContextMenu(items, 2, 1, &onIncomingRequestClicked, &s_incomingRequestMethodInfo)) {
         Logger::log("[OverworldMP] ERROR: Failed to open incoming request dialog\n");
         overworldMPSendInteractionResponse(fromStation, false);
         s_pendingFromStation = -1;
@@ -729,8 +859,8 @@ static bool tryStartDemoTrade(Pml::PokePara::PokemonParam::Object* myPoke,
     auto& ctx = getOverworldMPContext();
     if (s_tradePartnerStation >= 0 && s_tradePartnerStation < OW_MP_MAX_PLAYERS) {
         auto& remote = ctx.remotePlayers[s_tradePartnerStation];
-        if (remote.playerName != nullptr) {
-            partnerName = remote.playerName;
+        if (remote.playerNameSet) {
+            partnerName = System::String::Create(remote.playerNameBuf);
         }
     }
 
@@ -1059,87 +1189,88 @@ static void onBoxCancelled(MethodInfo* mi) {
 }
 
 // ---------------------------------------------------------------------------
-// Trade: context menu fallback selection callback (kept for BoxWindow failure)
+// BoxWindow preloading — loads the BOX prefab into UIManager's ObjectPool
 // ---------------------------------------------------------------------------
-static bool onTradeSelectClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item, MethodInfo* mi) {
-    if (item == nullptr) {
-        Logger::log("[OverworldMP] Trade select cancelled via B-button\n");
-        overworldMPSendTradeConfirm(s_tradePartnerStation, false);
-        resetTradeState();
-        s_interact.Reset();
-        closeInteractionMenu();
-        return true;
+
+static bool isBoxWindowInObjectPool() {
+    auto* uiMgr = Dpr::UI::UIManager::get_Instance();
+    if (uiMgr == nullptr) return false;
+
+    // UIManager._objectPool at +0xB0
+    auto* objectPool = *(uint8_t**)(((uint8_t*)uiMgr) + 0xB0);
+    if (objectPool == nullptr) return false;
+
+    // ObjectPool<UIWindowID, UIInstance>._dict at +0x10
+    auto* dict = *(uint8_t**)(objectPool + 0x10);
+    if (dict == nullptr) return false;
+
+    // Read Dictionary internals directly (avoids ContainsKey MethodInfo crash).
+    // Dictionary<UIWindowID, ObjectPool.Param> field layout:
+    //   +0x10: int[] buckets
+    //   +0x18: Entry[] entries
+    //   +0x20: int count
+    int32_t count = *(int32_t*)(dict + 0x20);
+    Logger::log("[OverworldMP] isBoxPool: dict=%p count=%d\n", dict, count);
+    if (count <= 0) return false;
+
+    auto* entries = *(uint8_t**)(dict + 0x18);
+    if (entries == nullptr) return false;
+
+    // IL2CPP Array: Il2CppObject(16) + bounds(8) + max_length(8) = data at +0x20
+    // Entry<UIWindowID, Param>: hashCode(4) + next(4) + key(4) + pad(4) + value(8) = 0x18
+    uint8_t* data = entries + 0x20;
+    const int32_t boxKey = (int32_t)UIWindowID::BOX;
+
+    for (int32_t i = 0; i < count; i++) {
+        int32_t hashCode = *(int32_t*)(data + (uint64_t)i * 0x18);
+        if (hashCode < 0) continue;  // freed slot
+        int32_t key = *(int32_t*)(data + (uint64_t)i * 0x18 + 0x08);
+        Logger::log("[OverworldMP] isBoxPool: entry[%d] hash=%d key=%d\n", i, hashCode, key);
+        if (key == boxKey) return true;
+    }
+    return false;
+}
+
+static void preloadBoxWindow() {
+    if (s_boxWindowPreloading) return;
+    if (isBoxWindowInObjectPool()) return;
+
+    auto* uiMgr = Dpr::UI::UIManager::get_Instance();
+    if (uiMgr == nullptr) return;
+
+    // Create List<UIWindowID> with one entry: BOX (16)
+    Il2CppClass* listClass = *reinterpret_cast<Il2CppClass**>(
+        exl::util::modules::GetTargetOffset(0x04C5E5C8));
+    if (listClass == nullptr) {
+        Logger::log("[OverworldMP] List<UIWindowID> TypeInfo not resolved\n");
+        return;
+    }
+    auto* list = il2cpp_object_new(listClass);
+    if (list == nullptr) return;
+
+    // List<UIWindowID>.ctor() @ 0x2A72C00
+    _ILExternal::external<void>(0x2A72C00, list, (void*)0);
+    // List<UIWindowID>.Add(BOX=16) @ 0x2A738C0
+    _ILExternal::external<void>(0x2A738C0, list, (int32_t)UIWindowID::BOX, (void*)0);
+
+    // UIManager::OpLoadWindows(list, isVariant=false) @ 0x17B0380
+    auto* coroutine = _ILExternal::external<Il2CppObject*>(0x17B0380, uiMgr, list, false, (void*)0);
+    if (coroutine == nullptr) {
+        Logger::log("[OverworldMP] OpLoadWindows returned null\n");
+        return;
     }
 
-    int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Trade select (fallback menu): index=%d\n", index);
+    SmartPoint::AssetAssistant::Sequencer::getClass()->initIfNeeded();
+    SmartPoint::AssetAssistant::Sequencer::Start(coroutine);
 
-    auto* party = PlayerWork::get_playerParty();
-    if (party == nullptr) {
-        Logger::log("[OverworldMP] ERROR: playerParty is null\n");
-        overworldMPSendTradeConfirm(s_tradePartnerStation, false);
-        resetTradeState();
-        s_interact.Reset();
-        closeInteractionMenu();
-        return true;
-    }
-
-    int32_t memberCount = party->fields.m_memberCount;
-
-    if (index >= memberCount) {
-        Logger::log("[OverworldMP] Trade cancelled (selected Cancel)\n");
-        overworldMPSendTradeConfirm(s_tradePartnerStation, false);
-        resetTradeState();
-        s_interact.Reset();
-        closeInteractionMenu();
-        return true;
-    }
-
-    if (memberCount <= 1) {
-        Logger::log("[OverworldMP] Cannot trade — only 1 pokemon in party\n");
-        return true;
-    }
-
-    s_myTradePartySlot = index;
-    s_myTradeTrayIndex = -1; // fallback is always party
-
-    auto* poke = party->GetMemberPointer(index);
-    auto* corePoke = (Pml::PokePara::CoreParam*)poke;
-    if (poke == nullptr || corePoke->IsNull()) {
-        Logger::log("[OverworldMP] ERROR: selected party slot %d is null\n", index);
-        return true;
-    }
-
-    auto* accessor = poke->fields.m_accessor;
-    if (accessor != nullptr) {
-        memset(s_myTradePokeData, 0, sizeof(s_myTradePokeData));
-        // Use Serialize_FullData (raw pointer version) @ 0x24A4470
-        // Ensures data is in encoded state before copying
-        _ILExternal::external<void>(0x24A4470, accessor, s_myTradePokeData);
-    }
-
-    Logger::log("[OverworldMP] Selected party slot %d (monsNo=%d) for trade, sending 0xC4\n",
-                index, corePoke->GetMonsNo());
-
-    overworldMPSendTradePoke(s_tradePartnerStation, s_myTradePartySlot,
-                             s_myTradePokeData, POKE_FULL_DATA_SIZE);
-
-    if (s_partnerPokeReceived) {
-        Logger::log("[OverworldMP] Partner already sent pokemon — showing confirm\n");
-        showTradeConfirmDialog();
-    } else {
-        s_interact.state = InteractState::TradeWaitPartner;
-        Logger::log("[OverworldMP] Waiting for partner's pokemon selection\n");
-    }
-
-    return true;
+    s_boxWindowPreloading = true;
+    Logger::log("[OverworldMP] BoxWindow preload coroutine started\n");
 }
 
 // ---------------------------------------------------------------------------
-// Trade: open BoxWindow for pokemon selection, with context menu fallback
+// Trade: open BoxWindow for pokemon selection
 // ---------------------------------------------------------------------------
 static void openTradeBoxWindow(int32_t partnerStation);
-static void openTradeContextMenuFallback(int32_t partnerStation);
 
 // ---------------------------------------------------------------------------
 // Trade: start trade (called after handshake accept)
@@ -1166,31 +1297,46 @@ void overworldMPStartTrade(int32_t partnerStation) {
         return;
     }
 
-    // Try BoxWindow first, fall back to context menu if it fails
     openTradeBoxWindow(partnerStation);
 }
 
 // ---------------------------------------------------------------------------
-// Trade: attempt to open BoxWindow for selection
+// Trade: open BoxWindow for pokemon selection
 // ---------------------------------------------------------------------------
 static void openTradeBoxWindow(int32_t partnerStation) {
-    // TODO: BoxWindow requires the Box UI prefab to be preloaded (it isn't in the overworld).
-    // CreateUIWindow<BoxWindow> crashes when the assets aren't loaded.
-    // For now, go straight to context menu. Revisit when asset preloading is implemented.
-    openTradeContextMenuFallback(partnerStation);
-    return;
-
+    Logger::log("[OverworldMP] openTradeBoxWindow: enter\n");
     auto* uiMgr = Dpr::UI::UIManager::get_Instance();
     if (uiMgr == nullptr) {
-        Logger::log("[OverworldMP] UIManager is null — falling back to context menu\n");
-        openTradeContextMenuFallback(partnerStation);
+        Logger::log("[OverworldMP] UIManager is null, cannot open BoxWindow\n");
+        resetTradeState();
+        s_interact.Reset();
+        closeInteractionMenu();
         return;
     }
 
+    // If BoxWindow prefab isn't loaded yet, enter loading state and poll.
+    // preloadBoxWindow() was already called when the interaction menu opened;
+    // this handles the case where loading is still in progress.
+    bool inPool = isBoxWindowInObjectPool();
+    Logger::log("[OverworldMP] openTradeBoxWindow: inPool=%d\n", (int)inPool);
+    if (!inPool) {
+        // Ensure preload is started (in case it wasn't triggered earlier)
+        preloadBoxWindow();
+        s_interact.state = InteractState::TradeLoadingBox;
+        s_interact.timeoutTimer = 10.0f;  // 10s timeout for asset loading
+        Logger::log("[OverworldMP] BoxWindow not yet loaded — waiting for preload\n");
+        return;
+    }
+
+    s_boxWindowPreloading = false;  // loading complete
+
+    Logger::log("[OverworldMP] openTradeBoxWindow: calling CreateUIWindow\n");
     auto* boxWindow = uiMgr->CreateUIWindow<Dpr::UI::BoxWindow>(UIWindowID::BOX);
     if (boxWindow == nullptr) {
-        Logger::log("[OverworldMP] Failed to create BoxWindow — falling back to context menu\n");
-        openTradeContextMenuFallback(partnerStation);
+        Logger::log("[OverworldMP] Failed to create BoxWindow\n");
+        resetTradeState();
+        s_interact.Reset();
+        closeInteractionMenu();
         return;
     }
 
@@ -1217,9 +1363,11 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     // Create Action<BoxWindow, SelectedPokemon[]> delegate
     auto* selectActionClass = System::Action::getClass(System::Action::BoxWindow_SelectedPokemon_TypeInfo);
     if (selectActionClass == nullptr) {
-        Logger::log("[OverworldMP] Failed to get Action<BoxWindow,SelectedPokemon[]> class — falling back\n");
+        Logger::log("[OverworldMP] Failed to get Action<BoxWindow,SelectedPokemon[]> class\n");
         s_boxWindow = nullptr;
-        openTradeContextMenuFallback(partnerStation);
+        resetTradeState();
+        s_interact.Reset();
+        closeInteractionMenu();
         return;
     }
     selectActionClass->initIfNeeded();
@@ -1241,9 +1389,11 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     // Create Action (non-generic) delegate for cancel callback
     auto* cancelActionClass = System::Action::getClass(System::Action::void_TypeInfo);
     if (cancelActionClass == nullptr) {
-        Logger::log("[OverworldMP] Failed to get Action class for cancel — falling back\n");
+        Logger::log("[OverworldMP] Failed to get Action class for cancel\n");
         s_boxWindow = nullptr;
-        openTradeContextMenuFallback(partnerStation);
+        resetTradeState();
+        s_interact.Reset();
+        closeInteractionMenu();
         return;
     }
     cancelActionClass->initIfNeeded();
@@ -1261,68 +1411,6 @@ static void openTradeBoxWindow(int32_t partnerStation) {
 
     s_interact.state = InteractState::TradeSelectPoke;
     Logger::log("[OverworldMP] BoxWindow opened for trade pokemon selection\n");
-}
-
-// ---------------------------------------------------------------------------
-// Trade: context menu fallback (if BoxWindow creation fails)
-// ---------------------------------------------------------------------------
-static void openTradeContextMenuFallback(int32_t partnerStation) {
-    Logger::log("[OverworldMP] Using context menu fallback for trade selection\n");
-
-    auto* party = PlayerWork::get_playerParty();
-    if (party == nullptr) {
-        Logger::log("[OverworldMP] ERROR: playerParty is null in fallback\n");
-        resetTradeState();
-        s_interact.Reset();
-        closeInteractionMenu();
-        return;
-    }
-
-    int32_t memberCount = party->fields.m_memberCount;
-
-    static char menuBufs[7][64];
-    static const char* menuItems[7];
-    int32_t itemCount = 0;
-
-    for (int32_t i = 0; i < memberCount && i < 6; i++) {
-        auto* poke = party->GetMemberPointer(i);
-        auto* coreP = (Pml::PokePara::CoreParam*)poke;
-        if (poke == nullptr || coreP->IsNull()) continue;
-
-        int32_t monsNo = coreP->GetMonsNo();
-        uint32_t level = coreP->GetLevel();
-
-        auto* nameStr = Pml::Personal::PersonalSystem::GetMonsName(monsNo, 2); // 2 = English
-        char nameBuf[48] = "???";
-        if (nameStr != nullptr) {
-            int len = nameStr->fields.m_stringLength;
-            if (len > 40) len = 40;
-            for (int j = 0; j < len; j++) {
-                uint16_t c = ((uint16_t*)&nameStr->fields.m_firstChar)[j];
-                nameBuf[j] = (c < 128) ? (char)c : '?';
-            }
-            nameBuf[len] = '\0';
-        }
-
-        snprintf(menuBufs[itemCount], sizeof(menuBufs[itemCount]), "Lv.%d %s", (int)level, nameBuf);
-        menuItems[itemCount] = menuBufs[itemCount];
-        itemCount++;
-    }
-
-    snprintf(menuBufs[itemCount], sizeof(menuBufs[itemCount]), "Cancel");
-    menuItems[itemCount] = menuBufs[itemCount];
-    int32_t cancelIndex = itemCount;
-    itemCount++;
-
-    s_interact.state = InteractState::TradeSelectPoke;
-
-    if (!openContextMenu(menuItems, itemCount, cancelIndex,
-                         &onTradeSelectClicked, &s_tradeSelectMethodInfo)) {
-        Logger::log("[OverworldMP] ERROR: Failed to open trade select fallback menu\n");
-        resetTradeState();
-        s_interact.Reset();
-        closeInteractionMenu();
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1433,6 +1521,12 @@ void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_
 
     // If we're already in the exchange state and have sent ours, the tick handler
     // will pick up partnerBattlePartyReceived and proceed to BattleSyncWait.
+}
+
+// Called from team_up.cpp when TEAMUP_BATTLE is received and partner should enter battle
+void overworldMPSetTeamUpBattleStarting() {
+    s_interact.state = InteractState::TeamUpBattleStarting;
+    Logger::log("[OverworldMP] TeamUpBattleStarting state set\n");
 }
 
 void overworldMPOnBattleReadyReceived(int32_t fromStation) {
@@ -1594,6 +1688,17 @@ void overworldMPSetupAndStartBattle() {
         return;
     }
 
+    // Heal partner pokemon — party data was sent before local healing,
+    // so the received data may contain damage from previous battles.
+    for (uint32_t i = 0; i < partnerParty->fields.m_memberCount && i < 6; i++) {
+        auto* poke = partnerParty->GetMemberPointer(i);
+        if (poke != nullptr) {
+            ((Pml::PokePara::CoreParam*)poke)->RecoverAll();
+        }
+    }
+    Logger::log("[OverworldMP] Partner party healed (%d members)\n",
+                (int)partnerParty->fields.m_memberCount);
+
     // Get local party
     auto* myParty = PlayerWork::get_playerParty();
     if (myParty == nullptr) {
@@ -1676,6 +1781,7 @@ void overworldMPSetupAndStartBattle() {
     // Call SetupBattleComm — player at commPos 0 goes first in arg list
     // networkType=0 → commMode=1 (BTL_COMM_WIRELESS/LAN) for local P2P session
     // networkType=1 would give commMode=2 (BTL_COMM_WIFI/Internet) — WRONG for LAN
+    // Pass nullptr for bgm/winBgm — we override the effect data below.
     if (commPos == 0) {
         Dpr::EncountTools::SetupBattleComm(bsp, 0, commRule, commPos, regulation,
             myStation, myParty, &myStatus, emptyCapsule,
@@ -1693,6 +1799,67 @@ void overworldMPSetupAndStartBattle() {
     }
 
     Logger::log("[OverworldMP] SetupBattleComm called — starting battle scene\n");
+
+    // --- Override arena with current zone's battle background ---
+    // SetupBattleComm hardcodes arena 0x2b (Union Room). Replace it with
+    // the arena ID from the current zone's MapInfo so the background matches
+    // the overworld location where the battle was initiated.
+    {
+        GameManager::getClass()->initIfNeeded();
+        auto zoneID = PlayerWork::get_zoneID();
+        auto* mapInfo = GameManager::get_mapInfo();
+        if (mapInfo != nullptr) {
+            auto* zoneData = mapInfo->get_Item(zoneID);
+            if (zoneData != nullptr && zoneData->fields.BattleBg != nullptr &&
+                zoneData->fields.BattleBg->max_length > 0) {
+                int32_t arenaID = zoneData->fields.BattleBg->m_Items[0]; // land arena
+                void* fieldSit = bsp->instance()->fields.fieldSituation;
+                if (fieldSit != nullptr) {
+                    void* bgComp = *(void**)((uintptr_t)fieldSit + 0x10);
+                    if (bgComp != nullptr) {
+                        // BgComponentData::SetUpBgComponentData @ 0x188A6C0
+                        _ILExternal::external<void>(0x188A6C0, bgComp, arenaID);
+                        Logger::log("[OverworldMP] Arena override: zone %d -> arenaID %d\n",
+                                    zoneID, arenaID);
+                    }
+                }
+            }
+        }
+    }
+
+    // --- Random battle theme via BattleSetupEffectData table ---
+    // Re-call SetUpBattleEffectComponentData with a random effect index so that:
+    //   - BGM starts/stops through the normal battle audio pipeline
+    //   - Encounter transition animation matches the selected theme
+    //   - Both players pick the same theme (deterministic seed from station XOR)
+    // Only for single battles — double/multi use COMM_DOUBLE which properly
+    // formats the "Double battle with [name]" text.
+    if (commRule == 0) {
+        // BattleSetupEffectId indices from BattleDataTable:
+        //   15 = TR_NORMAL  (regular trainer)   → BA002 / BA102
+        //   37 = TR_GYMLEADER1 (gym leader)     → BA003 / BA103
+        //   25 = TR_RIVAL1_1 (rival Barry)      → BA004 / BA102
+        //   23 = TR_CHAMP1 (champion Shirona)   → BA008 / BA105
+        //   53 = TR_T (Cyrus)                   → Play_bgm_or_vs_vs07 / Play_bgm_or_wn_win06
+        static const int32_t effectPool[] = { 15, 37, 25, 23, 53 };
+        static constexpr int POOL_SIZE = sizeof(effectPool) / sizeof(effectPool[0]);
+
+        // Deterministic seed: XOR of both station indices — both players compute
+        // the same value regardless of who is requester/accepter.
+        uint32_t seed = (uint32_t)(myStation ^ partnerStation);
+        seed *= 2654435761u; // Knuth multiplicative hash
+        int32_t pick = (int32_t)(seed % POOL_SIZE);
+
+        void* btlEff = bsp->instance()->fields.btlEffComponent;
+        if (btlEff != nullptr) {
+            // SetUpBattleEffectComponentData @ 0x0187B7E0
+            _ILExternal::external<void>(0x0187B7E0, btlEff, effectPool[pick], -1, 0, 0);
+            Logger::log("[OverworldMP] Battle effect override: effectIdx=%d (pick %d/%d)\n",
+                        effectPool[pick], pick, POOL_SIZE);
+        }
+    } else {
+        Logger::log("[OverworldMP] Double battle — keeping COMM_DOUBLE effect\n");
+    }
 
     // Log PIA session state — type-2 transports need Gaming state (4 or 5)
     {
@@ -1731,15 +1898,88 @@ void overworldMPSetupAndStartBattle() {
         }
     }
 
+    // Battle transition: bypass the encounter effect entirely.
+    // EncountStart(0) would play the wild grass encounter animation, and
+    // EncountStart(1) crashes because it expects real trainer IDs.
+    // The Union Room doesn't use EncountStart at all — it goes through
+    // BattleMatchingManager.  We take a similar approach: use EncountStart
+    // only for its setup side-effects (stop player, hide poketch, set
+    // _updateType=Encount), then immediately skip the encounter effect
+    // state machine and trigger the battle scene with a simple fade-out.
+    auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
+
+    // Clear emote balloons before the battle transition starts — prevents
+    // the accept emote (heart) from rendering on top of the transition.
+    for (int i = 0; i < MAX_ACTIVE_BALLOONS; i++) {
+        if (s_activeBalloons[i].balloon != nullptr) {
+            FieldCanvas::DeleteBalloon(s_activeBalloons[i].balloon, true);
+            s_activeBalloons[i].balloon = nullptr;
+        }
+    }
+
     // Suppress overworld packet reading so the battle system's ExCallback
     // gets clean PacketReaders (both share the same object per packet).
     overworldMPSetInBattleScene(true);
 
     // Start the battle scene via FieldManager
-    auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
     if (fm != nullptr) {
+        // 1. EncountStart does essential setup: SetSaveObj, PlayIdle,
+        //    StopBicycleDecelerate, _updateType=2, HidePoketch.
         fm->EncountStart(0, 0, 0);
-        Logger::log("[OverworldMP] EncountStart called — transitioning to battle\n");
+
+        // 2. Immediately skip the encounter effect state machine.
+        //    _encountUpdateType=4 (End) prevents EncountUpdate from
+        //    loading the wild grass effect or any encounter sequence.
+        fm->fields._encountUpdateType = 4;  // EncountUpdateType.End
+
+        // 3. PrepareOperationStatic — normally called in EncountUpdate
+        //    state 0, we call it ourselves since we skipped that state.
+        //    BattleConnector::PrepareOperationStatic @ 0x1D69360
+        _ILExternal::external<void>(0x1D69360);
+
+        // 4. Audio transition — replicate what EncountUpdate state 1 does:
+        //    stop field BGM and start battle intro BGM.
+        {
+            // AudioManager::get_Instance() -> PostEvent(stopFieldBGM)
+            auto* amInstance = Audio::AudioManager::get_Instance();
+            if (amInstance != nullptr) {
+                // Stop field BGM: event hash 0x35f93cfe, callbackFlags=0x100009
+                // AudioManager::PostEvent(this, eventId, callbackFlags, isThroughSameEvent) @ 0x021EB100
+                _ILExternal::external<uint32_t>(0x021EB100, amInstance,
+                    (uint32_t)0x35f93cfe, (uint32_t)0x100009, (bool)false);
+                Logger::log("[OverworldMP] Stopped field BGM\n");
+
+                // Get battle BGM event name from BattleEffectComponentData
+                void* btlEff = bsp->instance()->fields.btlEffComponent;
+                if (btlEff != nullptr) {
+                    // BattleEffectComponentData::get_battleBgm() @ 0x0187B510
+                    auto* bgmStr = (System::String::Object*)
+                        _ILExternal::external<void*>(0x0187B510, btlEff);
+                    if (bgmStr != nullptr && bgmStr->fields.m_stringLength > 0) {
+                        // AkSoundEngine::GetIDFromString(string) @ 0x02465FA0
+                        uint32_t bgmId = _ILExternal::external<uint32_t>(0x02465FA0, bgmStr);
+                        // Play battle BGM
+                        _ILExternal::external<uint32_t>(0x021EB100, amInstance,
+                            bgmId, (uint32_t)0x100009, (bool)false);
+                        Logger::log("[OverworldMP] Started battle BGM (id=0x%08x)\n", bgmId);
+                    } else {
+                        Logger::log("[OverworldMP] No battleBgm string in effect data\n");
+                    }
+                }
+            }
+        }
+
+        // 5. Fade to black — Fader::set_fadeMode(0=Color) + FadeOut(0.5s)
+        //    This replaces the wild encounter animation with a clean fade.
+        //    Fader::set_fadeMode @ 0x209D490, Fader::FadeOut(float) @ 0x209E5E0
+        _ILExternal::external<void>(0x209D490, 0);     // fadeMode = Color
+        _ILExternal::external<void>(0x209E5E0, 0.5f);  // FadeOut(0.5s)
+
+        // 6. Tell the Sequencer it's time to load the battle scene.
+        //    PlayerWork::set_isEncount(true) @ 0x2CEF7C0
+        _ILExternal::external<void>(0x2CEF7C0, true);
+
+        Logger::log("[OverworldMP] Battle transition: fade-to-black (bypassed encounter effect)\n");
     } else {
         Logger::log("[OverworldMP] ERROR: FieldManager instance is null\n");
     }
@@ -1822,7 +2062,29 @@ void overworldMPCheckInteraction() {
         auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
         if (fm != nullptr && fm->fields._updateType == 0) {
             overworldMPSetInBattleScene(false);
-            // Restore local party to pre-battle HP/PP/status
+
+            // Stop battle BGM and restart field BGM (matching base game sequence)
+            auto* amInstance = Audio::AudioManager::get_Instance();
+            if (amInstance != nullptr) {
+                // AudioManager::StopBgm() @ 0x21EB770 — posts Wwise event 0x3ffbcd36
+                // and clears the BGM slot (offset 0x5c)
+                _ILExternal::external<void>(0x021EB770, amInstance);
+                // AudioManager::SetBgmEvent(eventId, isThroughSameEvent) @ 0x21EB840
+                // posts 0x642ccdc3 to restore the field BGM
+                _ILExternal::external<void>(0x021EB840, amInstance,
+                    (uint32_t)0x642ccdc3, (uint32_t)0, (uint32_t)0);
+            }
+            Logger::log("[OverworldMP] Battle ended — stopped battle BGM, restored field BGM\n");
+
+            // Clear team-up battle state (CreateLocalClient hook flag, etc.)
+            overworldMPClearTeamUpBattleState();
+
+            // Team-up post-battle: copy battle party back (EXP/HP/PP),
+            // Player B rewards/whiteout
+            overworldMPHandleTeamUpPostBattle();
+
+            // Restore local party to pre-battle HP/PP/status (PvP only —
+            // no-op for team-up since no snapshot is taken)
             overworldMPRestorePartyAfterBattle();
         }
         return;
@@ -1843,7 +2105,12 @@ void overworldMPCheckInteraction() {
         if (s_interact.tradeStartDelay > 0.0f) {
             s_interact.tradeStartDelay -= 0.01666667f;
             if (s_interact.tradeStartDelay <= 0.0f) {
-                if (s_pendingRequestType == InteractionType::Battle) {
+                if (s_pendingRequestType == InteractionType::TeamUp) {
+                    Logger::log("[OverworldMP] Accept delay elapsed — completing team-up handshake\n");
+                    overworldMPTeamUp(s_interact.targetStationIndex);
+                    s_interact.Reset();
+                    closeInteractionMenu();
+                } else if (s_pendingRequestType == InteractionType::Battle) {
                     Logger::log("[OverworldMP] Accept delay elapsed — launching battle (subtype=%d)\n",
                                 (int)s_pendingBattleSubtype);
                     overworldMPStartBattle(s_interact.targetStationIndex, s_pendingBattleSubtype);
@@ -1852,6 +2119,22 @@ void overworldMPCheckInteraction() {
                     overworldMPStartTrade(s_interact.targetStationIndex);
                 }
             }
+        }
+        return;
+    }
+
+    // Trade: waiting for BoxWindow prefab to finish preloading
+    if (s_interact.state == InteractState::TradeLoadingBox) {
+        s_interact.timeoutTimer -= 0.01666667f;
+        if (isBoxWindowInObjectPool()) {
+            Logger::log("[OverworldMP] BoxWindow preload complete — opening\n");
+            openTradeBoxWindow(s_tradePartnerStation);
+        } else if (s_interact.timeoutTimer <= 0.0f) {
+            Logger::log("[OverworldMP] BoxWindow preload timed out\n");
+            s_boxWindowPreloading = false;
+            resetTradeState();
+            s_interact.Reset();
+            closeInteractionMenu();
         }
         return;
     }
@@ -1949,6 +2232,13 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::BattleStarting) {
         extern void overworldMPSetupAndStartBattle();
         overworldMPSetupAndStartBattle();
+        return;
+    }
+
+    // Team-up battle: partner received TEAMUP_BATTLE, entering battle scene
+    if (s_interact.state == InteractState::TeamUpBattleStarting) {
+        overworldMPSetupTeamUpBattle();
+        s_interact.Reset();
         return;
     }
 

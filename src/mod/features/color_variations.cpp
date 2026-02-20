@@ -181,10 +181,30 @@ HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
     }
 };
 
+// When true, OnEnable applies the remote player's ColorIndex instead of the
+// local custom save-data override.  Set by the overworld MP system before
+// Instantiate so that the OnEnable hook applies the correct preset.
+extern bool g_owmpSkipCustomColorOverride;
+// Remote player's color preset index, set before Instantiate. -1 = not set.
+extern int32_t g_owmpRemoteColorId;
+
 HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
     static void Callback(ColorVariation::Object* __this) {
+        // For remote MP entities: set the color index BEFORE Orig so that
+        // the vanilla OnEnable initializes with the correct preset.
+        if (g_owmpSkipCustomColorOverride && g_owmpRemoteColorId >= 0) {
+            __this->fields.ColorIndex = g_owmpRemoteColorId;
+        }
         Orig(__this);
-        UpdateColorVariation(__this);
+        if (g_owmpSkipCustomColorOverride) {
+            // Apply remote color — Orig has now set up propertyBlock and renderers
+            if (g_owmpRemoteColorId >= 0) {
+                __this->fields.ColorIndex = g_owmpRemoteColorId;
+            }
+            UpdateColorVariation(__this);
+        } else {
+            UpdateColorVariation(__this);
+        }
     }
 };
 
