@@ -126,4 +126,10 @@ enum class ContextMenuID : int32_t {
     INCENSE_HISUI = 118,
     INCENSE_GALAR = 119,
     INCENSE_CANCEL = 120,
+
+    // Overworld Multiplayer
+    OWMP_BATTLE = 121,
+    OWMP_TRADE = 122,
+    OWMP_EMOTE = 123,
+    OWMP_CANCEL = 124,
 };

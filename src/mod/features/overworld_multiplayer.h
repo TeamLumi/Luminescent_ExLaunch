@@ -1,0 +1,285 @@
+#pragma once
+
+#include "externals/il2cpp-api.h"
+
+#include "externals/Dpr/NetworkUtils/SessionConnector.h"
+#include "externals/OpcState.h"
+#include "externals/UnityEngine/Vector3.h"
+
+// Maximum players in an overworld multiplayer session (same as underground)
+static constexpr int32_t OW_MP_MAX_PLAYERS = 8;
+
+// Position list length for interpolation (matches OpcController.POS_LIST_LENGTH)
+static constexpr int32_t OW_MP_POS_LIST_LENGTH = 20;
+
+// Proximity radius for interaction prompt (in world units)
+static constexpr float OW_MP_CONTACT_RADIUS = 2.0f;
+
+// Position sync interval in seconds (~20 Hz)
+static constexpr float OW_MP_POS_SYNC_INTERVAL_SEC = 0.05f;
+
+// Zone change grace period in seconds — defer all MP processing after a zone transition.
+// Crash window observed at 700-950ms; 1.0s provides sufficient margin.
+static constexpr float OW_MP_ZONE_CHANGE_GRACE_SEC = 1.0f;
+
+// Network data IDs (matching existing ANetData<T> DataID constants)
+static constexpr uint8_t NET_DATA_ID_POS = 2;        // NetPosData
+static constexpr uint8_t NET_DATA_ID_ZONE = 23;       // NetZoneData (0x17)
+static constexpr uint8_t NET_DATA_ID_POS_ZONE = 67;   // NetPosZoneData (0x43)
+
+// Custom overworld MP packet DataIDs (0xC0+ range, avoids existing 2-67)
+static constexpr uint8_t OWMP_DATA_ID_POSITION      = 0xC0; // Position/avatar broadcast
+static constexpr uint8_t OWMP_DATA_ID_EMOTE          = 0xC1; // Emote broadcast
+static constexpr uint8_t OWMP_DATA_ID_INTERACT_REQ   = 0xC2; // Interaction request (targeted)
+static constexpr uint8_t OWMP_DATA_ID_INTERACT_RESP  = 0xC3; // Interaction response (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TRADE_POKE     = 0xC4; // Trade pokemon data (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TRADE_CONFIRM   = 0xC5; // Trade confirmation (targeted)
+static constexpr uint8_t OWMP_DATA_ID_BATTLE_PARTY    = 0xC6; // Battle party data (targeted, chunked)
+static constexpr uint8_t OWMP_DATA_ID_BATTLE_READY    = 0xC7; // Battle scene sync (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_DISBAND  = 0xC8; // Team-up disband notification
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE   = 0xC9; // Team-up battle initiation
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE_ACK = 0xCA; // Team-up battle acknowledgement
+
+// 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
+// exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
+static constexpr uint8_t BATTLE_PARTY_SUB_HEADER = 0;  // Header: memberCount + MYSTATUS + subtype
+static constexpr uint8_t BATTLE_PARTY_SUB_POKE   = 1;  // Single Pokemon: pokeIndex + 344 bytes
+
+// Per-remote-player state tracked by the overworld multiplayer system
+struct FieldPlayerNetData {
+    int32_t stationIndex;
+    int32_t areaID;
+    UnityEngine::Vector3::Object position;
+    float rotationY;
+    OpcState::OnlineState onlineState;
+    bool isActive;           // true if this slot is occupied
+    bool isSpawned;          // true if entity is currently in the scene
+    bool isMoving;           // true if position changed between last two packets
+    bool isRunning;          // true if movement speed suggests running (vs walking)
+    int32_t avatarId;
+    int32_t colorId;
+    char playerNameBuf[52];  // native ASCII copy (max 12 chars + null + padding)
+    bool playerNameSet;      // true once we've received the name
+    bool isBicycle;          // remote player is riding a bicycle
+    // Previous received position — used for movement detection
+    float prevPosX;
+    float prevPosZ;
+
+    // Deferred color refresh — Unity renderers may not be ready on the same
+    // frame as Instantiate, so we re-apply UpdateColorVariation after a short delay.
+    float colorRefreshTimer;
+
+    // Follow pokemon (Walk Together) state
+    int32_t followMonsNo;       // 0 = no follow pokemon
+    uint8_t followFormNo;
+    uint8_t followSex;
+    bool    followIsRare;
+    bool    followPokeActive;    // remote player has a follow pokemon
+    bool    followPokeSpawned;   // we've spawned their pokemon entity
+    float   followPokeScale;     // FieldWalkingScale from catalog
+    float   followPokeSpawnTimer; // scale-in animation countdown (0.3s → 0)
+    float   followPokeTargetX;   // trail target position (player's previous position)
+    float   followPokeTargetY;
+    float   followPokeTargetZ;
+    void*   followPokeEntity;    // FieldPokemonEntity::Object*
+
+    void Clear() {
+        stationIndex = -1;
+        areaID = 0;
+        position = {};
+        rotationY = 0.0f;
+        onlineState = OpcState::OnlineState::NONE;
+        isActive = false;
+        isSpawned = false;
+        isMoving = false;
+        isRunning = false;
+        isBicycle = false;
+        avatarId = 0;
+        colorId = 0;
+        memset(playerNameBuf, 0, sizeof(playerNameBuf));
+        playerNameSet = false;
+        prevPosX = 0.0f;
+        prevPosZ = 0.0f;
+        colorRefreshTimer = 0.0f;
+        followMonsNo = 0;
+        followFormNo = 0;
+        followSex = 0;
+        followIsRare = false;
+        followPokeActive = false;
+        followPokeSpawned = false;
+        followPokeScale = 1.0f;
+        followPokeSpawnTimer = 0.0f;
+        followPokeTargetX = 0.0f;
+        followPokeTargetY = 0.0f;
+        followPokeTargetZ = 0.0f;
+        followPokeEntity = nullptr;
+    }
+};
+
+// Interaction state for the local player
+enum class InteractionState : int32_t {
+    None = 0,               // No interaction in progress
+    MenuOpen = 1,           // Context menu is showing
+    WaitingResponse = 2,    // Sent interaction request, waiting for response
+    ReceivedRequest = 3,    // Received request, showing accept/reject dialog
+    InTrade = 4,            // In trade screen
+    InBattle = 5,           // In battle
+};
+
+// Interaction request types (sent in 0xC2 packet)
+enum class InteractionType : uint8_t {
+    Battle = 0,
+    Trade = 1,
+    TeamUp = 2,
+};
+
+// Battle subtypes
+enum class BattleSubtype : uint8_t {
+    Single = 0,
+    Double = 1,
+};
+
+// Emote IDs (matching underground OnlinePlayerCharacter constants)
+static constexpr uint8_t EMOTE_ID_TALK        = 9;
+static constexpr uint8_t EMOTE_ID_BATTLE      = 15;
+static constexpr uint8_t EMOTE_ID_TRADE       = 16;
+static constexpr uint8_t EMOTE_ID_CROSS       = 20;  // rejection / no
+static constexpr uint8_t EMOTE_ID_LIKES       = 28;  // heart / yes
+static constexpr uint8_t EMOTE_ID_EXCLAMATION = 29;
+
+// Overall state of the overworld multiplayer system
+enum class OverworldMPState : int32_t {
+    Disabled = 0,            // Setting is off
+    Initializing = 1,        // Starting network session
+    Searching = 2,           // Session created, waiting for peers
+    Connected = 3,           // Active session with peer communication
+    Disconnecting = 4,       // Tearing down session
+    Error = 5,               // Network error occurred
+};
+
+// Global overworld multiplayer state
+struct OverworldMPContext {
+    OverworldMPState state;
+    int32_t myAreaID;
+    int32_t frameCounter;
+    FieldPlayerNetData remotePlayers[OW_MP_MAX_PLAYERS];
+    void* spawnedEntities[OW_MP_MAX_PLAYERS]; // FieldObjectEntity::Object*
+
+    void Initialize() {
+        state = OverworldMPState::Disabled;
+        myAreaID = 0;
+        frameCounter = 0;
+        for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
+            remotePlayers[i].Clear();
+            spawnedEntities[i] = nullptr;
+        }
+    }
+};
+
+// Access the global context
+OverworldMPContext& getOverworldMPContext();
+
+// Check if overworld MP is currently enabled and active
+bool isOverworldMPActive();
+
+// Start/stop the overworld multiplayer session
+void overworldMPStart();
+void overworldMPStop();
+
+// Called each frame from FieldManager.Update hook
+void overworldMPUpdate(float deltaTime);
+
+// Called on area change from FieldManager.OnZoneChange hook
+void overworldMPOnAreaChange(int32_t newAreaID);
+
+// Handle a remote player joining/leaving
+void overworldMPOnPlayerJoin(int32_t stationIndex);
+void overworldMPOnPlayerLeave(int32_t stationIndex);
+
+// Spawn/despawn a remote player's entity in the scene
+void overworldMPSpawnEntity(int32_t stationIndex);
+void overworldMPDespawnEntity(int32_t stationIndex);
+void overworldMPDespawnAllEntities();
+
+// Send local player's position to peers
+void overworldMPSendPosition();
+
+// Send area change notification to peers
+void overworldMPSendAreaChange(int32_t areaID);
+
+// Find the closest remote player entity within contact radius, returns station index or -1
+int32_t overworldMPFindNearestPlayer(UnityEngine::Vector3::Object localPos);
+
+// Interaction menu entry point
+void overworldMPShowInteractionMenu(int32_t targetStationIndex);
+
+// Send an emote to all peers
+void overworldMPSendEmote(uint8_t emoteId);
+
+// Display emote balloon above a remote player's entity
+void overworldMPShowRemoteEmote(int32_t stationIndex, uint8_t emoteId);
+
+// Send an interaction request to a specific player
+void overworldMPSendInteractionRequest(int32_t targetStation, InteractionType type, BattleSubtype subtype);
+
+// Send an interaction response to a specific player
+void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted);
+
+// Get current interaction state
+InteractionState overworldMPGetInteractionState();
+
+// Show incoming request dialog to the local player (called from 0xC2 receive handler)
+void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType type, BattleSubtype battleSubtype = BattleSubtype::Single);
+
+// Called when the partner accepts/declines our request (from 0xC3 receive handler)
+void overworldMPOnRequestAccepted(int32_t partnerStation);
+void overworldMPOnRequestDeclined(int32_t partnerStation);
+
+// Check for A-button interaction with nearby remote players (called from overworldMPUpdate)
+void overworldMPCheckInteraction();
+
+// Tick emote balloon timers and delete expired balloons (called from overworldMPUpdate)
+void overworldMPTickBalloons(float deltaTime);
+
+// Start trade flow after handshake accept (called from overworldMPOnRequestAccepted)
+void overworldMPStartTrade(int32_t partnerStation);
+
+// Send trade pokemon data to partner
+void overworldMPSendTradePoke(int32_t targetStation, int32_t partySlot, uint8_t* data, int32_t size);
+
+// Send trade confirmation to partner
+void overworldMPSendTradeConfirm(int32_t targetStation, bool confirmed);
+
+// Called from 0xC4/0xC5 receive handlers to notify the trade state machine
+void overworldMPOnTradePokeReceived(int32_t fromStation, int32_t partySlot, uint8_t* data, int32_t size);
+void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed);
+
+// Battle: send local party data to partner (0xC6 packet)
+void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype);
+
+// Battle: called from 0xC6 receive handler
+void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_t size);
+
+// Battle: start battle flow after handshake accept
+void overworldMPStartBattle(int32_t partnerStation, BattleSubtype subtype);
+
+// Battle: send BATTLE_READY sync packet to partner (0xC7 packet)
+void overworldMPSendBattleReady(int32_t targetStation);
+
+// Battle: called from 0xC7 receive handler
+void overworldMPOnBattleReadyReceived(int32_t fromStation);
+
+// Battle scene flag — suppresses overworld packet reading so the battle
+// system's ReceivePacketExCallback gets clean PacketReaders.
+void overworldMPSetInBattleScene(bool inBattle);
+bool overworldMPIsInBattleScene();
+
+// Restore local party to pre-battle state (HP/PP/status) after a PvP battle.
+// Called when the battle scene ends and _updateType returns to 0.
+void overworldMPRestorePartyAfterBattle();
+
+// Check if a specific station index is still connected
+bool overworldMPIsStationConnected(int32_t stationIndex);
+
+// Set the interaction state to TeamUpBattleStarting (called from team_up.cpp)
+void overworldMPSetTeamUpBattleStarting();

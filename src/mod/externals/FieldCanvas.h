@@ -12,6 +12,16 @@ struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
         bool isNPCTradeEnd;
     };
 
+    // Returns a Balloon GameObject displayed above the target transform.
+    // type = emote ID (matches OnlinePlayerCharacter constants)
+    static inline void* SetBalloon(int32_t type, void* targetTransform) {
+        return external<void*>(0x01782250, type, targetTransform);
+    }
+
+    static inline void DeleteBalloon(void* balloon, bool isDirect = false) {
+        external<void>(0x01782510, balloon, isDirect);
+    }
+
     static inline void OpenAreaNameWindow(System::String* labelName) {
         external<void>(0x01786970, labelName);
     }
@@ -22,5 +32,9 @@ struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
 
     static inline void PlayDemoOrStock(Dpr::Demo::DemoBase::Object* demo) {
         external<void>(0x0177f2c0, demo);
+    }
+
+    static inline void PlayDemo(Dpr::Demo::DemoBase::Object* demo, bool useAssetUnloader) {
+        external<void>(0x1786EC0, demo, useAssetUnloader);
     }
 };

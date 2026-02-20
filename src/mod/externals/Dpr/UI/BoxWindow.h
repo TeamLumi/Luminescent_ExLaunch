@@ -6,10 +6,20 @@
 #include "externals/Dpr/UI/UIWindow.h"
 #include "externals/Dpr/UI/BoxStatusPanel.h"
 #include "externals/Dpr/UI/BoxTray.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/Action.h"
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
+        static inline StaticILMethod<0x04C96730, BoxWindow> Method$$CreateUIWindow {};
+
+        struct SelectedPokemon : ILClass<SelectedPokemon, 0x04C63490> {
+            struct Fields {
+                Pml::PokePara::PokemonParam::Object* Param;
+                int32_t TrayIndex;      // -1 = party, 0+ = box tray
+                int32_t IndexInTray;    // slot within party/tray
+            };
+        };
         struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
             struct Fields {
                 int32_t dispMode;
@@ -197,6 +207,10 @@ namespace Dpr::UI {
 
         inline void Open(OpenParam::Object* param, System::Action::Object* onSelected, int32_t prevWindowId) {
             external<void>(0x01cb64c0, this, param, onSelected, prevWindowId);
+        }
+
+        static inline void LimitBox(bool enabled) {
+            external<void>(0x1CB8770, enabled);
         }
     };
 }

@@ -73,6 +73,11 @@ namespace UnityEngine {
             };
         }
 
+        inline void set_eulerAngles(UnityEngine::Vector3::Object value) {
+            UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
+            external<void>(0x0299d560, this, valueProxy);
+        }
+
         inline void set_localEulerAngles(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
             external<void>(0x0299d770, this, valueProxy);

@@ -135,6 +135,11 @@ namespace Pml::PokePara {
             return external<uint32_t>(0x02043620, this);
         }
 
+        // Sets HP to max, clears sick status, recovers all 4 move PPs @ 0x2043C20
+        inline void RecoverAll() {
+            external<void>(0x02043C20, this);
+        }
+
         inline void SetGetBall(uint32_t value) {
             external<void>(0x0204b840, this, value);
         }

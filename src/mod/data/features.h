@@ -59,6 +59,7 @@ static constexpr const char* FEATURES[] = {
     "Select Poffin Case",
     "Fake StopData",
     "Surf End Check",
+    "Overworld Multiplayer",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
