@@ -1,6 +1,8 @@
 #include "externals/Dpr/Box/BoxPokemonWork.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
+#include "externals/PlayerWork.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/Pml/PokeParty.h"
 
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
@@ -22,11 +24,16 @@ bool PartyBoxRelease(Dpr::EvScript::EvDataManager::Object* manager)
 
             if (!IsNullOrEgg(param))
             {
-                Logger::log("Calling ClearPokemon with tray index %d and index %d\n", trayIndex, index);
-                Dpr::Box::BoxPokemonWork::Object::ClearPokemon(trayIndex, index);
+                if (trayIndex > -1)
+                {
+                    Logger::log("Calling ClearPokemon with tray index %d and index %d\n", trayIndex, index);
+                    Dpr::Box::BoxPokemonWork::ClearPokemon(trayIndex, index); }
+                else
+                {
+                    Logger::log("Calling RemoveMember with index %d\n", index);
+                    PlayerWork::get_playerParty()->RemoveMember(index); }
             }
         }
     }
-
     return true;
 }
