@@ -7,9 +7,9 @@
 // ---------------------------------------------------------------------------
 // Team-Up: Cooperative overworld multiplayer (double battles)
 // ---------------------------------------------------------------------------
-// When two players "Team Up", wild and trainer encounters become double
-// battles with BTL_MULTIMODE_PP_AA (mode 2): both humans control one
-// Pokemon each, the other two slots are AI (wild/trainer).
+// When two players "Team Up", trainer encounters become double battles
+// with PP_AA (multiMode=2): both humans control one Pokemon each (slots 0,2),
+// the other two slots (1,3) are AI enemies from the same trainer.
 
 // PokePara full data size (same as overworld_multiplayer.cpp)
 static constexpr int32_t TEAMUP_POKE_FULL_DATA_SIZE = 344;

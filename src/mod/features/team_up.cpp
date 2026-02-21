@@ -68,6 +68,59 @@ static inline void normalTrainer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*
     _ILExternal::external<void>(0x1F6EE00, bsp, clientId, trainerID);
 }
 
+// ---------------------------------------------------------------------------
+// Battle effect helper: TR_MULTI animation + trainer-specific BGM
+// ---------------------------------------------------------------------------
+// TR_MULTI (68) gives us the 2v2 multi-battle intro animation, but it also
+// overrides the BGM to the generic multi-battle theme. This helper sets up
+// the trainer's original effect first to capture the correct BGM strings,
+// then applies TR_MULTI for the animation, and restores the BGM overrides.
+//
+// BattleEffectComponentData layout:
+//   +0x10: battleBgm override (String*, null = fall through to template)
+//   +0x18: winBgm override (String*, null = fall through to template)
+//   +0x20: template pointer (BattleSetupEffectData from table)
+//   +0x28: effectBattleID, +0x30: soundEventName, +0x38: cmdSeq
+//
+// RVAs:
+//   SetUpBattleEffectComponentData: 0x0187B7E0
+//   get_battleBgm: 0x0187B510  (checks +0x10 first, falls through to template+0x28)
+//   get_winBgm:    0x0187B570  (checks +0x18 first, falls through to template+0x30)
+//   set_battleBgm: 0x0187B560  (writes +0x10 + GC barrier)
+//   set_winBgm:    0x0187B5C0  (writes +0x18 + GC barrier)
+
+static constexpr int32_t TR_MULTI = 68;
+
+static void setupTeamUpBattleEffect(void* btlEffComponent, int32_t trainerEffectID) {
+    if (btlEffComponent == nullptr) return;
+
+    if (trainerEffectID >= 0 && trainerEffectID != TR_MULTI) {
+        // 1. Set up with trainer's original effect to get correct BGM
+        _ILExternal::external<void>(0x0187B7E0, btlEffComponent,
+            trainerEffectID, (int32_t)-1, (int32_t)0, (uint64_t)0);
+
+        // 2. Read BGM strings (overrides are null, falls through to template)
+        void* savedBgm    = (void*)_ILExternal::external<uintptr_t>(0x0187B510, btlEffComponent);
+        void* savedWinBgm = (void*)_ILExternal::external<uintptr_t>(0x0187B570, btlEffComponent);
+
+        // 3. Override with TR_MULTI for 2v2 intro animation + cmdSeq
+        _ILExternal::external<void>(0x0187B7E0, btlEffComponent,
+            TR_MULTI, (int32_t)-1, (int32_t)0, (uint64_t)0);
+
+        // 4. Restore trainer's BGM as overrides (get_battleBgm checks +0x10 first)
+        _ILExternal::external<void>(0x0187B560, btlEffComponent, savedBgm);
+        _ILExternal::external<void>(0x0187B5C0, btlEffComponent, savedWinBgm);
+
+        Logger::log("[TeamUp] Battle effect: TR_MULTI animation + trainer effect %d BGM\n",
+                    trainerEffectID);
+    } else {
+        // No trainer effect available or already TR_MULTI — just use TR_MULTI
+        _ILExternal::external<void>(0x0187B7E0, btlEffComponent,
+            TR_MULTI, (int32_t)-1, (int32_t)0, (uint64_t)0);
+        Logger::log("[TeamUp] Battle effect: TR_MULTI (default BGM)\n");
+    }
+}
+
 // Split trainer party between two AI slots (defined in trainer_double_battle.cpp)
 extern void splitTrainerParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
                                int slot1, int slot3);
@@ -543,83 +596,46 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         -1, nullptr, nullptr, nullptr,                                   // slot 3: empty
         nullptr, nullptr, 0, 0);
 
-    Logger::log("[TeamUp] Player A: SetupBattleComm complete, rearranging for PP_AA...\n");
+    Logger::log("[TeamUp] Player A: SetupBattleComm complete, setting up PP_AA...\n");
 
-    // Rearrange from PvP layout [us, partner, empty, empty]
-    // to PP_AA layout [us, AI_trainer1, partner, AI_trainer2]
+    // PP_AA layout: [us(0), enemy1(1), partner(2), enemy2(3)]
+    // SetupBattleComm put us=slot0, partner=slot1. Rearrange: move partner 1→2.
     auto* fields = &bsp->instance()->fields;
 
-    // Move slot 1 (partner) → slot 2
-    if (fields->party != nullptr && fields->party->max_length >= 4) {
-        auto* slot1Party = fields->party->m_Items[1];
-        auto* slot2Party = fields->party->m_Items[2];
-        if (slot1Party != nullptr) {
-            if (slot2Party == nullptr) {
-                slot2Party = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
-                _ILExternal::external<void>(0x2055D10, slot2Party);
-                fields->party->m_Items[2] = slot2Party;
-            }
-            int32_t cnt = slot1Party->fields.m_memberCount;
-            for (int i = 0; i < cnt && i < 6; i++) {
-                auto* s = slot1Party->GetMemberPointer(i);
-                auto* d = slot2Party->GetMemberPointer(i);
-                if (s && d && s->fields.m_accessor && d->fields.m_accessor) {
-                    uint8_t tmp[344];
-                    _ILExternal::external<void>(0x24A4470, s->fields.m_accessor, tmp);
-                    _ILExternal::external<void>(0x24A4550, d->fields.m_accessor, tmp);
-                }
-            }
-            slot2Party->fields.m_memberCount = cnt;
-        }
+    // Rearrange: swap slot 1 ↔ slot 2 (partner goes to slot 2, slot 1 freed for enemy)
+    if (fields->party != nullptr && fields->party->max_length > 2) {
+        auto* tmp = fields->party->m_Items[1];
+        fields->party->m_Items[1] = fields->party->m_Items[2];
+        fields->party->m_Items[2] = tmp;
+    }
+    if (fields->playerStatus != nullptr && fields->playerStatus->max_length > 2) {
+        auto* tmp = fields->playerStatus->m_Items[1];
+        fields->playerStatus->m_Items[1] = fields->playerStatus->m_Items[2];
+        fields->playerStatus->m_Items[2] = tmp;
+    }
+    if (fields->stations != nullptr && fields->stations->max_length > 2) {
+        auto tmp = fields->stations->m_Items[1];
+        fields->stations->m_Items[1] = fields->stations->m_Items[2];
+        fields->stations->m_Items[2] = tmp;
     }
 
-    // Move stations: slot 1 → slot 2
-    if (fields->stations != nullptr && fields->stations->max_length >= 4) {
-        fields->stations->m_Items[2] = fields->stations->m_Items[1];
-        fields->stations->m_Items[1] = -1;
-        fields->stations->m_Items[3] = -1;
-    }
-
-    // Move playerStatus: slot 1 → slot 2
-    if (fields->playerStatus != nullptr && fields->playerStatus->max_length >= 4) {
-        auto* st1 = fields->playerStatus->m_Items[1];
-        auto* st2 = fields->playerStatus->m_Items[2];
-        if (st1 != nullptr && st2 != nullptr) {
-            st2->fields.name = st1->fields.name;
-            st2->fields.sex = st1->fields.sex;
-            st2->fields.lang = st1->fields.lang;
-            st2->fields.id = st1->fields.id;
-            st2->fields.fashion = st1->fields.fashion;
-            st2->fields.body_type = st1->fields.body_type;
-            st2->fields.hat = st1->fields.hat;
-            st2->fields.shoes = st1->fields.shoes;
-        }
-    }
-
-    // Manual PP_AA setup
     fields->multiMode = 2;  // PP_AA
     fields->commPos = 0;    // We (Player A) control slot 0
 
     // Trainer: competitor=TRAINER
     fields->competitor = (Dpr::Battle::Logic::BtlCompetitor)1;
-    // normalTrainer for BOTH slots — slot 3 needs full infrastructure (partyDesc, tr_data)
-    // or BtlNet server init crashes at step 5
-    _ILExternal::external<void>(0x1F6EE00, bsp, (int32_t)1, tu.battleTrainerID);
-    if (tu.battleTrainerID2 > 0) {
-        // Already-double: second trainer in slot 3
-        _ILExternal::external<void>(0x1F6EE00, bsp, (int32_t)3, tu.battleTrainerID2);
-    } else {
-        // Single trainer: set up full slot 3, then split Pokemon between slots
-        _ILExternal::external<void>(0x1F6EE00, bsp, (int32_t)3, tu.battleTrainerID);
-        splitTrainerParty(bsp, 1, 3);
-    }
-    // btlEffComponent: use the trainer's BattleEffectID for correct intro/BGM
-    int32_t effIdx = (tu.battleEffectID >= 0) ? tu.battleEffectID : 0x10;
+    // Fill enemy slots 1 and 3 with the trainer
+    normalTrainer(bsp, 1, tu.battleTrainerID);
+    normalTrainer(bsp, 3, tu.battleTrainerID);
+    // Split or duplicate the trainer's party between the two enemy slots
+    splitTrainerParty(bsp, 1, 3);
+
+    // btlEffComponent: use TR_MULTI (68) for 2v2 intro animation, but restore
+    // the trainer's original BGM so gym leaders etc. keep their unique music.
     if (fields->btlEffComponent != nullptr)
-        _ILExternal::external<void>(0x0187B7E0, fields->btlEffComponent,
-            effIdx, (int32_t)-1, (int32_t)0, (uint64_t)0);
-    Logger::log("[TeamUp] Player A: trainer PP_AA setup (trainer=%d/%d, effect=%d)\n",
-                tu.battleTrainerID, tu.battleTrainerID2, effIdx);
+        setupTeamUpBattleEffect(fields->btlEffComponent, tu.battleEffectID);
+    Logger::log("[TeamUp] Player A: PP_AA setup (trainer=%d, effectID=%d)\n",
+                tu.battleTrainerID, tu.battleEffectID);
 
     // Override arena (SetupBattleComm hardcodes Union Room arena 0x2b)
     if (tu.battleArenaID > 0) {
@@ -715,6 +731,7 @@ void overworldMPSetupTeamUpBattle() {
     void* emptyCapsule = (void*)s_emptyCapsuleArray;
 
     // Call SetupBattleComm like PvP: 2 active players in slots 0/1, commRule=1 (double).
+    // commPos=1 temporarily — will become 2 after rearrangement.
     Dpr::EncountTools::SetupBattleComm(bsp, 0, 1/*double*/, 1/*commPos*/, regulation,
         tu.partnerStation, partnerParty, &partnerStatus, emptyCapsule,  // slot 0: partner
         myStation, myTrimmedParty, &myStatus, emptyCapsule,             // slot 1: us (temp)
@@ -722,82 +739,46 @@ void overworldMPSetupTeamUpBattle() {
         -1, nullptr, nullptr, nullptr,                                   // slot 3: empty
         nullptr, nullptr, 0, 0);
 
-    Logger::log("[TeamUp] Player B: SetupBattleComm complete, rearranging for PP_AA...\n");
+    Logger::log("[TeamUp] Player B: SetupBattleComm complete, setting up PP_AA...\n");
 
-    // Rearrange BSP from PvP layout [partner, us, empty, empty]
-    // to PP_AA layout [partner, AI_trainer1, us, AI_trainer2]
+    // PP_AA layout: [partner(0), enemy1(1), us(2), enemy2(3)]
+    // SetupBattleComm put partner=slot0, us=slot1. Rearrange: move us 1→2.
     auto* bspFields = &bsp->instance()->fields;
 
-    // Move slot 1 (us) → slot 2
-    if (bspFields->party != nullptr && bspFields->party->max_length >= 4) {
-        auto* slot1Party = bspFields->party->m_Items[1];
-        auto* slot2Party = bspFields->party->m_Items[2];
-        if (slot1Party != nullptr) {
-            if (slot2Party == nullptr) {
-                slot2Party = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
-                _ILExternal::external<void>(0x2055D10, slot2Party);
-                bspFields->party->m_Items[2] = slot2Party;
-            }
-            int32_t cnt = slot1Party->fields.m_memberCount;
-            for (int i = 0; i < cnt && i < 6; i++) {
-                auto* src = slot1Party->GetMemberPointer(i);
-                auto* dst = slot2Party->GetMemberPointer(i);
-                if (src && dst && src->fields.m_accessor && dst->fields.m_accessor) {
-                    uint8_t tmp[344];
-                    _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmp);
-                    _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmp);
-                }
-            }
-            slot2Party->fields.m_memberCount = cnt;
-        }
+    // Rearrange: swap slot 1 ↔ slot 2 (us goes to slot 2, slot 1 freed for enemy)
+    if (bspFields->party != nullptr && bspFields->party->max_length > 2) {
+        auto* tmp = bspFields->party->m_Items[1];
+        bspFields->party->m_Items[1] = bspFields->party->m_Items[2];
+        bspFields->party->m_Items[2] = tmp;
+    }
+    if (bspFields->playerStatus != nullptr && bspFields->playerStatus->max_length > 2) {
+        auto* tmp = bspFields->playerStatus->m_Items[1];
+        bspFields->playerStatus->m_Items[1] = bspFields->playerStatus->m_Items[2];
+        bspFields->playerStatus->m_Items[2] = tmp;
+    }
+    if (bspFields->stations != nullptr && bspFields->stations->max_length > 2) {
+        auto tmp = bspFields->stations->m_Items[1];
+        bspFields->stations->m_Items[1] = bspFields->stations->m_Items[2];
+        bspFields->stations->m_Items[2] = tmp;
     }
 
-    // Move station: slot 1 → slot 2
-    if (bspFields->stations != nullptr && bspFields->stations->max_length >= 4) {
-        bspFields->stations->m_Items[2] = bspFields->stations->m_Items[1];
-        bspFields->stations->m_Items[1] = -1;
-        bspFields->stations->m_Items[3] = -1;
-    }
-
-    // Move playerStatus: slot 1 → slot 2
-    if (bspFields->playerStatus != nullptr && bspFields->playerStatus->max_length >= 4) {
-        auto* status1 = bspFields->playerStatus->m_Items[1];
-        auto* status2 = bspFields->playerStatus->m_Items[2];
-        if (status1 != nullptr && status2 != nullptr) {
-            status2->fields.name = status1->fields.name;
-            status2->fields.sex = status1->fields.sex;
-            status2->fields.lang = status1->fields.lang;
-            status2->fields.id = status1->fields.id;
-            status2->fields.fashion = status1->fields.fashion;
-            status2->fields.body_type = status1->fields.body_type;
-            status2->fields.hat = status1->fields.hat;
-            status2->fields.shoes = status1->fields.shoes;
-        }
-    }
-
-    // Manual PP_AA setup — commPos=2 for Player B
     bspFields->multiMode = 2;  // PP_AA
     bspFields->commPos = 2;    // We (Player B) control slot 2
 
     // Trainer: competitor=TRAINER
     bspFields->competitor = (Dpr::Battle::Logic::BtlCompetitor)1;
-    // normalTrainer for BOTH slots — slot 3 needs full infrastructure (partyDesc, tr_data)
-    _ILExternal::external<void>(0x1F6EE00, bsp, (int32_t)1, tu.battleTrainerID);
-    if (tu.battleTrainerID2 > 0) {
-        // Already-double: second trainer in slot 3
-        _ILExternal::external<void>(0x1F6EE00, bsp, (int32_t)3, tu.battleTrainerID2);
-    } else {
-        // Single trainer: set up full slot 3, then split Pokemon between slots
-        _ILExternal::external<void>(0x1F6EE00, bsp, (int32_t)3, tu.battleTrainerID);
-        splitTrainerParty(bsp, 1, 3);
-    }
-    // btlEffComponent: use the trainer's BattleEffectID (forwarded from Player A)
-    int32_t effIdx = (tu.battleEffectID >= 0) ? tu.battleEffectID : 0x10;
+    // Fill enemy slots 1 and 3 with the trainer
+    normalTrainer(bsp, 1, tu.battleTrainerID);
+    normalTrainer(bsp, 3, tu.battleTrainerID);
+    // Split or duplicate the trainer's party between the two enemy slots
+    splitTrainerParty(bsp, 1, 3);
+
+    // btlEffComponent: use TR_MULTI (68) for 2v2 intro animation, but restore
+    // the trainer's original BGM so gym leaders etc. keep their unique music.
     if (bspFields->btlEffComponent != nullptr)
-        _ILExternal::external<void>(0x0187B7E0, bspFields->btlEffComponent,
-            effIdx, (int32_t)-1, (int32_t)0, (uint64_t)0);
-    Logger::log("[TeamUp] Player B: trainer PP_AA setup (trainer=%d/%d, effect=%d)\n",
-                tu.battleTrainerID, tu.battleTrainerID2, effIdx);
+        setupTeamUpBattleEffect(bspFields->btlEffComponent, tu.battleEffectID);
+    Logger::log("[TeamUp] Player B: PP_AA setup (trainer=%d, effectID=%d)\n",
+                tu.battleTrainerID, tu.battleEffectID);
 
     // Override arena with received arenaID
     if (tu.battleArenaID > 0) {
@@ -819,9 +800,9 @@ void overworldMPSetupTeamUpBattle() {
     // but the encounter update reads from PlayerWork's BSP for audio.
     auto* pwBsp = PlayerWork::get_battleSetupParam();
     if (pwBsp != nullptr && pwBsp->instance()->fields.btlEffComponent != nullptr) {
-        _ILExternal::external<void>(0x0187B7E0, pwBsp->instance()->fields.btlEffComponent,
-            effIdx, (int32_t)-1, (int32_t)0, (uint64_t)0);
-        Logger::log("[TeamUp] Player B: set btlEff on PlayerWork BSP (effIdx=%d)\n", effIdx);
+        setupTeamUpBattleEffect(pwBsp->instance()->fields.btlEffComponent, tu.battleEffectID);
+        Logger::log("[TeamUp] Player B: set btlEff on PlayerWork BSP (effectID=%d)\n",
+                    tu.battleEffectID);
     }
 
     // Audio transition: stop field BGM and start battle BGM manually.
@@ -883,7 +864,7 @@ static void copyBackBattleParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* 
     }
 
     auto& tu = overworldMPGetTeamUpState();
-    int32_t mySlot = tu.isInitiator ? 0 : 2;  // commPos
+    int32_t mySlot = tu.isInitiator ? 0 : 2;  // commPos (PP_AA: slot 0=Player A, 2=Player B)
 
     Logger::log("[TeamUp] copyBack: isInitiator=%d mySlot=%d partyLen=%d\n",
                 (int)tu.isInitiator, mySlot, fields->party->max_length);
@@ -1059,19 +1040,17 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             Logger::log("[TeamUp] Overrode trainer result to LOSS (abnormal ending)\n");
         }
 
-        // PP_AA commPos=2 fix: the battle engine computes the result relative to
-        // commPos. In PP_AA, commPos 0 and 2 are on the same team, but the engine
-        // treats commPos=2 as the opposing side, inverting win/loss. Fix by flipping.
-        if (!tu.isInitiator && fields->commPos == 2) {
+        // PP_AA: BtlNet inverts the result for the non-server player (Player B),
+        // because in vanilla PvP the non-server is always the opponent. But in
+        // our team-up, Player B is an ALLY — so re-invert to undo the BtlNet flip.
+        if (!tu.isInitiator) {
             int32_t origResult = fields->result;
-            if (fields->result == 0) fields->result = 1;
-            else if (fields->result == 1) fields->result = 0;
-            if (origResult != fields->result) {
-                fields->getMoney = -fields->getMoney; // flip money sign too
-                Logger::log("[TeamUp] Player B result fix: %d -> %d (commPos=2 inversion)\n",
-                            origResult, fields->result);
-            }
+            fields->result = (fields->result == 1) ? 0 : 1;
+            Logger::log("[TeamUp] Player B result inverted: %d -> %d (undo BtlNet ally flip)\n",
+                        origResult, fields->result);
         }
+        Logger::log("[TeamUp] Final result: %d, getMoney: %d\n",
+                    fields->result, fields->getMoney);
 
         // Cache final result for post-battle handler (Player B rewards/whiteout)
         tu.battleResult = fields->result;
