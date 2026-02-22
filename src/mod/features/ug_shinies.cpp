@@ -1,5 +1,8 @@
 #include "exlaunch.hpp"
 
+#include "externals/Audio/AudioManager.h"
+#include "externals/Dpr/Message/MessageMsgFile.h"
+#include "externals/Dpr/UI/ShopItemItem.h"
 #include "externals/GameData/DataManager.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/SmartPoint/AssetAssistant/AssetManager.h"
@@ -10,6 +13,9 @@
 #include "externals/UgResManager.h"
 
 #include "logger/logger.h"
+
+const int32_t AUDIOEVENTID_SHINY = 753281501;
+const int32_t AUDIOEVENTID_TEST = 3075682360;
 
 HOOK_DEFINE_INLINE(UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
@@ -52,8 +58,37 @@ HOOK_DEFINE_REPLACE(UgResManager$$AppendAsset_ShinyFix) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(UgMainProc$$OnSceneInit_ShinySound) {
+    static void Callback(UgMainProc::Object* __this) {
+        Orig(__this);
+
+        // Check if there's at least one shiny generated
+        auto arr = __this->fields._ugMons->instance()->fields;
+        for (int32_t i=0; i<arr._size; i++) {
+            if (arr._items->m_Items[i]->fields.pokeParam->cast<Pml::PokePara::CoreParam>()->IsRare()) {
+                Logger::log("[UgMainProc$$OnSceneInit] Found shiny! In slot %d\n", i);
+                Audio::AudioManager::getClass()->initIfNeeded();
+                Audio::AudioManager::get_Instance()->PlaySe(AUDIOEVENTID_SHINY, nullptr);
+                break;
+            }
+        }
+    }
+};
+
 
 void exl_ug_shinies_main() {
     UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix::InstallAtOffset(0x018d5ea0);
     UgResManager$$AppendAsset_ShinyFix::InstallAtOffset(0x01b1b110);
+    UgMainProc$$OnSceneInit_ShinySound::InstallAtOffset(0x018d2af0);
+
+    using namespace exl::armv8::inst;
+    using namespace exl::armv8::reg;
+
+    exl::patch::CodePatcher p(0);
+    auto inst = nn::vector<exl::patch::Instruction> {
+        { 0x02057cec, Nop() }, // Do not add category 1 (spheres) items to UG sellers
+        { 0x02057e40, Nop() }, // Do not add category 1 (spheres) items to UG sellers
+    };
+    p.WriteInst(inst);
+
 }
