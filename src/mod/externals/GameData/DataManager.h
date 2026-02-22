@@ -60,5 +60,9 @@ namespace GameData {
         static inline XLSXContent::PokemonInfo::SheetCatalog::Object* GetPokemonCatalog(int32_t monsNo, int32_t formNo, Pml::Sex sex, bool isRare, bool isEgg) {
             return external<XLSXContent::PokemonInfo::SheetCatalog::Object*>(0x02cc76a0, monsNo, formNo, sex, isRare, isEgg);
         }
+
+        static inline float GetFieldCommonParam(int32_t paramIndex) {
+            return external<float>(0x02cc4780, paramIndex);
+        }
     };
 }

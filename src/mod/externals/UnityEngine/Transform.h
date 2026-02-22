@@ -4,6 +4,7 @@
 
 #include "externals/System/String.h"
 #include "externals/UnityEngine/Component.h"
+#include "externals/UnityEngine/Vector2.h"
 #include "externals/UnityEngine/Vector3.h"
 
 namespace UnityEngine {
@@ -14,6 +15,10 @@ namespace UnityEngine {
 
         inline void SetParent(UnityEngine::Transform* parent, bool worldPositionStays) {
             external<void>(0x0299e340, this, parent, worldPositionStays);
+        }
+
+        inline void SetParent(UnityEngine::Transform* p) {
+            external<void>(0x0299e2e0, this, p);
         }
 
         inline void SetSiblingIndex(int32_t index) {
@@ -82,6 +87,18 @@ namespace UnityEngine {
         inline void set_localScale(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
             external<void>(0x0299e000, this, valueProxy);
+        }
+
+        inline UnityEngine::Vector2::Object get_sizeDelta() {
+            return {
+                .fields = external<UnityEngine::Vector2::Fields>(0x02696610, this)
+            };
+        }
+
+        inline void RotateAround(UnityEngine::Vector3::Object point, UnityEngine::Vector3::Object axis, float angle) {
+            UnityEngine::Vector3::Fields pointProxy = { .x = point.fields.x, .y = point.fields.y, .z = point.fields.z };
+            UnityEngine::Vector3::Fields axisProxy = { .x = axis.fields.x, .y = axis.fields.y, .z = axis.fields.z };
+            external<void>(0x0299ec40, this, pointProxy, axisProxy, angle);
         }
 
         // utility functions

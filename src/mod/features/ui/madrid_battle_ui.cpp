@@ -458,7 +458,7 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnShow) {
 HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this,
                          Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex,
-                         Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* dest) {
+                         Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
         Logger::log("[BUIWazaList$$Initialize] we're in\n");
         Orig(__this, bpp, pokeIndex, dest);
 
@@ -642,7 +642,7 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem_SwitchActionListCoroutine$$MoveNext) {
 HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectAction_Start) {
     static void Callback(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this,
                          Dpr::Battle::Logic::BattleViewBase::SelectActionParam::Object** param,
-                         Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* dest) {
+                         Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
         Logger::log("[BattleViewUISystem$$CMD_UI_SelectAction_Start] we're in\n");
         system_load_typeinfo(0x2476);
         system_load_typeinfo(0x24a1);
@@ -651,12 +651,12 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectAction_Start) {
         UnityEngine::Debug::Log(System::String::Create("[BattleUI]SelectAction"));
         __this->fields._actionList->Initialize(param);
         __this->fields._actionParam = *param;
-        __this->fields._currentPoke = (*param)->fields.pActPoke;
+        __this->fields._currentPoke = (*param)->fields.pActPoke->instance();
 
         if ((*param)->fields.pokeIndex == 0)
             __this->fields._swapWaitPokemon = nullptr;
 
-        __this->fields._wazaList->Initialize((*param)->fields.pActPoke, (*param)->fields.pokeIndex, dest);
+        __this->fields._wazaList->Initialize((*param)->fields.pActPoke->instance(), (*param)->fields.pokeIndex, dest);
 
         __this->SwitchShowActionList(true, !__this->IsOpenedStatus(), !__this->fields._wazaList->fields._IsShow_k__BackingField);
     }
@@ -699,7 +699,7 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectAction_ForceQuit) {
 HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_Start) {
     static void Callback(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this,
                          Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex,
-                         Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* dest) {
+                         Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
         // Do nothing, we want to skip to combat
         Logger::log("[BattleViewUISystem$$CMD_UI_SelectWaza_Start] we're in\n");
     }
@@ -745,6 +745,22 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit) {
 };
 
 
+HOOK_DEFINE_INLINE(BTL_CLIENT$$selact_Fight$$Seq7_SEQ_WAIT_UNSEL_WAZA_MSG) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        Logger::log("[BTL_CLIENT$$selact_Fight] Sequence 7\n");
+        auto battleViewBase = (Dpr::Battle::Logic::BattleViewBase::Object*)ctx->X[0];
+        auto btlClient = (Dpr::Battle::Logic::BTL_CLIENT::Object*)ctx->X[19];
+
+        auto newAction = Dpr::Battle::Logic::BattleViewBase::SelectActionParam::newInstance();
+        btlClient->setupSelectActionUIParam(newAction, btlClient->fields.m_procPoke, btlClient->fields.m_procPokeIdx);
+        btlClient->fields.m_procActionUIRet->fields.value.fields.raw = btlClient->fields.m_actionParam->m_Items[btlClient->fields.m_procActionIndex].fields.raw;
+        btlClient->fields.m_procActionUIRet->fields.value.set_fight_cmd(0);
+
+        battleViewBase->virtual_CMD_UI_SelectAction_Start(&newAction, btlClient->fields.m_procActionUIRet);
+    }
+};
+
+
 void exl_madrid_ui_main() {
     BUIActionList$$OnUpdate::InstallAtOffset(0x01e8bdb0);
     BUIActionList$$OnSubmitPokeBall::InstallAtOffset(0x01e8c1b0);
@@ -770,4 +786,6 @@ void exl_madrid_ui_main() {
     BattleViewUISystem$$CMD_UI_SelectWaza_Wait::InstallAtOffset(0x01e76ac0);
     BattleViewUISystem$$CMD_UI_SelectWaza_End::InstallAtOffset(0x01e76b40);
     BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit::InstallAtOffset(0x01e76b70);
+
+    BTL_CLIENT$$selact_Fight$$Seq7_SEQ_WAIT_UNSEL_WAZA_MSG::InstallAtOffset(0x01f54570);
 }

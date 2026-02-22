@@ -35,4 +35,7 @@ namespace exl::armv8::inst {
     static_assert(LdrRegisterImmediate(reg::W28, reg::X29).Value()      == 0xB94003BC, "");
     static_assert(LdrRegisterImmediate(reg::X30, reg::SP).Value()       == 0xF94003FE, "");
     static_assert(LdrRegisterImmediate(reg::LR, reg::SP).Value()        == 0xF94003FE, "");
+
+    // ldr x2, [x19, #0x28]
+    static_assert(LdrRegisterImmediate(reg::X2, reg::X19, 0x5 /*X19 + 0x28*/).Value() == 0xF9401662);
 }

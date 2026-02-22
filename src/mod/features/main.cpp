@@ -7,6 +7,7 @@
 #include "helpers/fsHelper.h"
 #include "nn/fs/fs_mount.hpp"
 #include "nn/err.h"
+#include "data/features.h"
 
 void CallFeatureHooks()
 {
@@ -112,6 +113,20 @@ void CallFeatureHooks()
         exl_text_color_main();
     if (IsActivatedFeature(array_index(FEATURES, "Language UI Fixes")))
         exl_language_ui_fixes_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Move Tutor Relearner")))
+        exl_move_tutor_relearner_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Player Select")))
+        exl_player_select_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Intro Professor Pokémon")))
+        exl_intro_professor_pokemon_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Pushable Entities")))
+        exl_pushable_entities_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Select Poffin Case")))
+        exl_select_poffin_case_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Fake StopData")))
+        exl_fake_stopdata_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
+        exl_surf_end_check_main();
     if (IsActivatedFeature(array_index(FEATURES, "Custom UI")))
         exl_custom_ui_main();
 

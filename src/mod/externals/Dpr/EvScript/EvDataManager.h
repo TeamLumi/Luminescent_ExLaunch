@@ -4,10 +4,14 @@
 
 #include "externals/Dpr/EvScript/EvScriptData.h"
 #include "externals/Dpr/Item/ItemInfo.h"
+#include "externals/Dpr/UI/UIWindow.h"
 #include "externals/Effect/EffectInstance.h"
 #include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
+#include "externals/FieldAnimatorController.h"
+#include "externals/LocalKoukan.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/System/Action.h"
 #include "externals/System/MulticastDelegate.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
@@ -17,6 +21,13 @@
 #include "externals/UnityEngine/Vector2.h"
 #include "externals/UnityEngine/Vector2Int.h"
 #include "externals/UnityEngine/Vector3.h"
+
+struct FieldEventEntity;
+struct FieldObjectEntity;
+
+namespace System::Collections::Generic {
+    struct List$$FieldObjectEntity;
+}
 
 namespace Dpr::EvScript {
     struct EvDataManager : ILClass<EvDataManager, 0x04c59c50> {
@@ -49,12 +60,14 @@ namespace Dpr::EvScript {
             };
         };
 
-        struct EventEndDelegate : ILClass<EventEndDelegate> {
-            struct Fields : System::MulticastDelegate::Fields {
-                void* Entity;
-                int32_t State;
-                float Time;
-            };
+        struct EventEndDelegate : ILClass<EventEndDelegate, 0x04c5ea10> {
+            struct Fields : System::MulticastDelegate::Fields {};
+
+            static inline StaticILMethod<0x04c7d2b8> PTR_Method$$EvDataManager_WarpUpdateEnd {};
+
+            inline void ctor(void* target, MethodInfo* method) {
+                external<void>(0x019b23d0, this, target, method);
+            }
         };
 
         struct EntityParam : ILClass<EntityParam> {
@@ -129,6 +142,16 @@ namespace Dpr::EvScript {
             }
         };
 
+        struct DisplayClass1624_0 : ILClass<DisplayClass1624_0, 0x04c5f050> {
+            struct Fields {
+                LocalKoukan::Operation::Object* op;
+            };
+
+            inline void ctor() {
+                external<void>(0x019ae820, this);
+            }
+        };
+
         enum class TalkState : int32_t {
             Init = 0,
             EndWait = 1,
@@ -154,7 +177,7 @@ namespace Dpr::EvScript {
             void * _se_datas;
             void * _voice_datas;
             UnityEngine::Vector2Int::Object _eventEndPosition;
-            void * _posEventLabelReserve;
+            System::String::Object* _posEventLabelReserve;
             void * _entityParamList;
             void * _stopRoot;
             bool _isInitFirstMap;
@@ -299,7 +322,7 @@ namespace Dpr::EvScript {
             int32_t _effSeq;
             bool _pc_window_close;
             int32_t _dendou;
-            void * _umaAnimatorCtr;
+            FieldAnimatorController::Array* _umaAnimatorCtr;
             bool _isOpenCustomBallTrainer;
             int32_t _nicknamePlacementSequence;
             Effect::EffectInstance::Array * _scriptEffects;
@@ -336,7 +359,7 @@ namespace Dpr::EvScript {
             bool isSpBtlAruseus;
             void * Debug_01_DebugLabel;
             void * DebugSceneEventLabel;
-            void * _fieldObjectEntity;
+            System::Collections::Generic::List$$FieldObjectEntity* _fieldObjectEntity;
             void * _FieldKinomiGrowEntity;
             void * _AssetReqOpeList;
             void * _loadObjectList;
@@ -356,6 +379,8 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c7cf70, bool, System::String::Object*>    Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
         static inline StaticILMethod<0x04c7cfd0>                                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
         static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
+        static inline StaticILMethod<0x04c7d040, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
+        static inline StaticILMethod<0x04c7d1e0, Dpr::UI::UIWindow::Object*>       Method$$EvDataManager_EvCmd_USE_SPECIAL_ITEM_b__1719_0 {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {
@@ -364,11 +389,25 @@ namespace Dpr::EvScript {
             return Method$$EvCmdCallWazaOmoidashiUiParty;
         };
 
+        static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiTutor = nullptr;
+        static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiTutor(Il2CppMethodPointer method) {
+            if (Method$$EvCmdCallWazaOmoidashiUiTutor == nullptr)
+                Method$$EvCmdCallWazaOmoidashiUiTutor = (*PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi)->copyWith(method);
+            return Method$$EvCmdCallWazaOmoidashiUiTutor;
+        };
+
         static inline MethodInfo* Method$$EvCmdCallWazaOshieUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOshieUiParty(Il2CppMethodPointer method) {
             if (Method$$EvCmdCallWazaOshieUiParty == nullptr)
                 Method$$EvCmdCallWazaOshieUiParty = (*PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith(method);
             return Method$$EvCmdCallWazaOshieUiParty;
+        };
+
+        static inline MethodInfo* Method$$EvCmdCallWazaOshieUiTutor = nullptr;
+        static MethodInfo* getMethod$$EvCmdCallWazaOshieUiTutor(Il2CppMethodPointer method) {
+            if (Method$$EvCmdCallWazaOshieUiTutor == nullptr)
+                Method$$EvCmdCallWazaOshieUiTutor = (*PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi)->copyWith(method);
+            return Method$$EvCmdCallWazaOshieUiTutor;
         };
 
         static inline MethodInfo* Method$$EvCmdNameInPoke_OnCompleteAYou = nullptr;
@@ -427,6 +466,34 @@ namespace Dpr::EvScript {
 
         inline void SetBattleReturn() {
             external<void>(0x02c45c90, this);
+        }
+
+        inline bool CallWazaUICommon(int32_t bootType, Pml::PokePara::PokemonParam::Object* pokemonParam, System::Action::Object* resultCallback, int32_t oshieWazaNo) {
+            return external<bool>(0x02c92530, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
+        }
+
+        inline FieldObjectEntity* GetFieldObject(int32_t id) {
+            return external<FieldObjectEntity*>(0x02c491c0, this, id);
+        }
+
+        inline FieldObjectEntity* Find_fieldObjectEntity(System::String::Object* id) {
+            return external<FieldObjectEntity*>(0x02c48c00, this, id);
+        }
+
+        inline FieldEventEntity* FindEventDoorEntity(System::String::Object* name) {
+            return external<FieldEventEntity*>(0x02c88930, this, name);
+        }
+
+        inline void PlayerInputActive(bool active, bool animation) {
+            external<void>(0x02c45e10, this, active, animation);
+        }
+
+        inline int32_t SetupHeroMoveGridCenterFrontDir(UnityEngine::RectInt::Object* stopGridArea, UnityEngine::Vector2Int::Object* nowGrid, UnityEngine::Vector2Int::Object* oldGrid) {
+            return external<int32_t>(0x02c47760, this, stopGridArea, nowGrid, oldGrid);
+        }
+
+        inline bool UpdateEvdata(float time, bool sp_script) {
+            return external<bool>(0x02c42ea0, this, time, sp_script);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {

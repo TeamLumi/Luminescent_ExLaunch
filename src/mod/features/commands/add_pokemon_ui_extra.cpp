@@ -1,7 +1,7 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/PlayerWork.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/Dpr/UI/UIManager.h"
@@ -30,8 +30,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
         if (azukariyaSeq == 0) {
             SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
             auto uiManager = Dpr::UI::UIManager::get_Instance();
-            Dpr::UI::UIZukanRegister::Object* uiZukanReg = uiManager->CreateUIWindow(
-                    UIWindowID::ZUKAN_REGISTER, Dpr::UI::UIManager::Method$$CreateUIWindow_UIZukanRegister_);
+            auto uiZukanReg = uiManager->CreateUIWindow<Dpr::UI::UIZukanRegister>(UIWindowID::ZUKAN_REGISTER);
 
             MethodInfo* mi = Dpr::EvScript::EvDataManager::getMethod$$EvCmdAddPokemonUIExtra((Il2CppMethodPointer) &EvCmdAddPokemonUIExtra);
             auto onComplete = System::Action::getClass(
@@ -45,15 +44,43 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             auto item = GetWorkOrIntValue(args->m_Items[4]);
             auto maxIVs = GetWorkOrIntValue(args->m_Items[5]);
             auto ball = GetWorkOrIntValue(args->m_Items[6]);
+            auto shiny = -1; // Defaults to regular shiny calculation in case arg not given
+            auto gender = -1; // Defaults to regular gender calculation in case arg not given
+            auto formArg = -1; // Defaults to no variant in case arg not given
+            auto nature = -1; // Defaults to regular nature calculation in case arg not given
+            auto ability = -1; // Defaults to regular ability calculation in case arg not given
+
+            if (args->max_length >= 8) {
+                shiny = GetWorkOrIntValue(args->m_Items[7]);
+            }
+            if (args->max_length >= 9) {
+                gender = GetWorkOrIntValue(args->m_Items[8]);
+            }
+            if (args->max_length >= 10) {
+                formArg = GetWorkOrIntValue(args->m_Items[9]);
+            }
+            if (args->max_length >= 11) {
+                nature = GetWorkOrIntValue(args->m_Items[10]);
+            }
+            if (args->max_length >= 12) {
+                ability = GetWorkOrIntValue(args->m_Items[11]);
+            }
 
             Pml::PokePara::InitialSpec::Object* initialSpec = Pml::PokePara::InitialSpec::newInstance();
             initialSpec->fields.monsno = monsNo;
             initialSpec->fields.formno = formNo;
             initialSpec->fields.level = level;
             initialSpec->fields.talentVNum = maxIVs;
+            if (gender >= 0) initialSpec->fields.sex = gender;
+            if (nature >= 0) initialSpec->fields.seikaku = nature;
+            if (ability >= 0) initialSpec->fields.tokuseiIndex = ability;
             auto coreParam = Pml::PokePara::PokemonParam::newInstance(initialSpec)->cast<Pml::PokePara::CoreParam>();
             if (item != 0) coreParam->SetItem(item);
             coreParam->SetGetBall(ball);
+            if (shiny == 0) coreParam->SetRareType(Pml::PokePara::RareType::NOT_RARE); // Never shiny
+            if (shiny == 1) coreParam->SetRareType(Pml::PokePara::RareType::CAPTURED); // Shiny
+            if (shiny == 2) coreParam->SetRareType(Pml::PokePara::RareType::DISTRIBUTED); // Square shiny
+            if (formArg >= 0) coreParam->SetMultiPurposeWork(formArg);
 
             PlayerWork::getClass()->initIfNeeded();
             auto pMyStatus = PlayerWork::get_playerStatus();

@@ -1,12 +1,15 @@
 #pragma once
 
 #include "romdata/data/Arena.h"
+#include "romdata/data/BoxOpenParam.h"
 #include "romdata/data/ColorSet.h"
 #include "romdata/data/FormHeldItemMon.h"
 #include "romdata/data/HoneyTreeEncounters.h"
 #include "romdata/data/IntroData.h"
 #include "romdata/data/LocalTrade.h"
+#include "romdata/data/OutfitData.h"
 #include "romdata/data/ShinyRates.h"
+#include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
 #include "romdata/data/UnbreakablePokeItem.h"
@@ -54,8 +57,8 @@ nn::vector<int32_t> GetActivatedLanguages();
 // Checks if a given language is available on the language select screen.
 bool IsLanguageActivated(int32_t langID);
 
-// Returns the available Color Variation presets in the intro.
-nn::vector<int32_t> GetIntroColorVariationPresets();
+// Returns the data about the professor's Pokémon in the intro.
+RomData::ProfessorMon GetProfessorMon();
 
 // Returns the extra arena data.
 RomData::Arena GetExtraArenaData(int32_t arena);
@@ -74,5 +77,26 @@ nn::vector<uint32_t> GetVariantRates(int32_t monsno, int32_t formno, int32_t zon
 
 // Rolls for a variant based on the form rates for the given Pokémon at the given zoneID.
 int32_t RollForVariant(int32_t monsno, int32_t formno, int32_t zoneID);
+
+// Returns the full Move Tutor move list of the given Pokémon.
+nn::vector<int32_t> GetMoveTutorLearnset(int32_t monsno, int32_t formno);
+
+// Checks if a given move is available to be learned by Move Tutor for the given Pokémon.
+bool IsMoveLearnableByTutor(int32_t monsno, int32_t formno, int32_t move);
+
+// Returns the full move list of the given tutor.
+nn::vector<int32_t> GetMoveTutorTable(int32_t id);
+
+// Returns the Smeargle color data for the given zoneID.
+RomData::SmeargleColor GetSmeargleColorData(int32_t zoneID);
+
+// Rolls a Smeargle color based on the data for the given zoneID.
+int32_t RollForSmeargleColor(int32_t zoneID);
+
+// Returns the extra BoxOpenParam data.
+RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
+
+// Returns Outfit Availability data for the given dressID.
+RomData::OutfitData GetOutfitData(int32_t dressID);
 
 void LoadFeaturesFromJSON(nn::json j);

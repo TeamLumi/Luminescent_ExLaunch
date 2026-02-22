@@ -59,9 +59,28 @@ namespace ui {
                     _.value = 0;
                 });
 
-                _.Button([spicyValue, dryValue, sweetValue, bitterValue, sourValue, smoothnessValue](Button &_) {
+                auto *levelValue = _.InputInt([](InputInt &_) {
+                    _.label = "Level";
+                    _.min = 0;
+                    _.max = 100;
+                    _.value = 0;
+                });
+
+                auto *generateNameValue = _.Checkbox([](Checkbox &_) {
+                    _.label = "Automatically Generate Name";
+                    _.enabled = true;
+                });
+
+                auto *nameValue = _.InputInt([](InputInt &_) {
+                    _.label = "Name ID";
+                    _.min = 0;
+                    _.max = 29;
+                    _.value = 0;
+                });
+
+                _.Button([spicyValue, dryValue, sweetValue, bitterValue, sourValue, smoothnessValue, levelValue, generateNameValue, nameValue](Button &_) {
                     _.label = "Add Poffin";
-                    _.onClick = [spicyValue, dryValue, sweetValue, bitterValue, sourValue, smoothnessValue]() {
+                    _.onClick = [spicyValue, dryValue, sweetValue, bitterValue, sourValue, smoothnessValue, levelValue, generateNameValue, nameValue]() {
                         system_load_typeinfo(0x4521);
 
                         DPData::PoffinSaveData::Object poffinSaveData = PlayerWork::get_poffinSaveData();
@@ -73,7 +92,14 @@ namespace ui {
                         flavors->m_Items[2] = (uint8_t)sweetValue->value;
                         flavors->m_Items[3] = (uint8_t)bitterValue->value;
                         flavors->m_Items[4] = (uint8_t)sourValue->value;
-                        newPoffin.ctor(28, 100, (uint8_t)smoothnessValue->value, flavors);
+
+                        auto nameId = (uint8_t)nameValue->value;
+                        auto level = (uint8_t)levelValue->value;
+
+                        if (generateNameValue->enabled)
+                            nameId = (uint8_t)GeneratePoffinName(flavors->m_Items[0], flavors->m_Items[1], flavors->m_Items[2], flavors->m_Items[3], flavors->m_Items[4], level);
+
+                        newPoffin.ctor(nameId, level, (uint8_t)smoothnessValue->value, flavors);
                         (&poffinSaveData)->AddPoffin(newPoffin);
 
                         Logger::log("Added Poffin\n");

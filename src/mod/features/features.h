@@ -79,6 +79,9 @@ void exl_evolution_methods_main();
 // Redirects TM learnsets to external JSON files that contain more data.
 void exl_extended_tm_learnsets_main();
 
+// Allows using FieldEventEntity components in a map prefab to simulate stopdata.
+void exl_fake_stopdata_main();
+
 // Allows dynamically changing Pokémon icons based on the Pokémon's Form Argument.
 void exl_form_arg_icons_main();
 
@@ -95,11 +98,20 @@ void exl_gender_neutral_boutique_main();
 // Replaces every instance of Hidden Power being shown as "Normal" type with its actual type for the Pokémon.
 void exl_hidden_power_ui_main();
 
+// Allows configuring Rowan's Pokémon in the intro.
+void exl_intro_professor_pokemon_main();
+
 // Allows configuring the available languages on the language select screen.
 void exl_language_select_main();
 
+// Fixes bugs with specific UI elements not matching the player's language.
+void exl_language_ui_fixes_main();
+
 // Adds the Level Cap functionality.
 void exl_level_cap_main();
+
+// Uniformizes local trades across languages and allows extending the table in RomFS.
+void exl_local_trades_main();
 
 //
 void exl_madrid_ui_main();
@@ -107,17 +119,17 @@ void exl_madrid_ui_main();
 //
 void exl_mega_evolution_main();
 
-// Fixes bugs with specific UI elements not matching the player's language.
-void exl_language_ui_fixes_main();
-
-// Uniformizes local trades across languages and allows extending the table in RomFS.
-void exl_local_trades_main();
+// Adds an extra type of move relearner UI that loads a specific tutor table.
+void exl_move_tutor_relearner_main();
 
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
 
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
+
+// Allows configuring the controls on the player select screen.
+void exl_player_select_main();
 
 // Fixes Poké Radar bugs and improves chain rates.
 void exl_poke_radar_fixes_main();
@@ -126,8 +138,11 @@ void exl_poke_radar_fixes_main();
 // Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
 
-// Replaces pickup ranges with new ranges abiding by Lumi level caps
+// Replaces pickup ranges with new ranges abiding by Lumi level caps.
 void exl_pickup_main();
+
+// Allows making pushable entities (placedata) which stop at a specific attribute.
+void exl_pushable_entities_main();
 
 // Tweaks the move relearner menu to include owned TMs.
 void exl_relearn_tms_main();
@@ -138,6 +153,9 @@ void exl_relumi_dex_ui();
 
 // Remaps the controls.
 void exl_remap_main();
+
+// Adds an extra type of Poffin Case UI that allows selecting a Poffin for other purposes.
+void exl_select_poffin_case_main();
 
 // Adds support for new settings.
 void exl_settings_main();
@@ -153,6 +171,9 @@ void exl_static_held_items_main();
 
 // Adds support for Sigma Platinum-style Sound encounters.
 void exl_sounds_main();
+
+// Disables getting out of surfing in specific zones.
+void exl_surf_end_check_main();
 
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();

@@ -3,6 +3,7 @@
 
 #include "externals/Dpr/Contest/ContestPlayerEntity.h"
 #include "externals/Dpr/UI/UIManager.h"
+#include "externals/Dpr/UI/PoketchAppEggChecker.h"
 #include "externals/Dpr/UI/ZukanCompareWeightController.h"
 #include "externals/PlayerWork.h"
 #include "externals/XLSXContent/UIDatabase.h"
@@ -112,6 +113,18 @@ HOOK_DEFINE_INLINE(ZukanCompareWeightController$$RequestLoadModel) {
     }
 };
 
+HOOK_DEFINE_TRAMPOLINE(PoketchAppEggChecker$$OnInitialize) {
+    static void Callback(Dpr::UI::PoketchAppEggChecker::Object* __this) {
+        system_load_typeinfo(0x6d81);
+        Dpr::UI::UIManager::getClass()->initIfNeeded();
+
+        auto sprite = Dpr::UI::UIManager::get_Instance()->GetAtlasSprite(SpriteAtlasID::TEXTUREMASS, System::String::Create("pm0000_00_20"));
+        __this->fields._eggImage->set_sprite(sprite);
+
+        Orig(__this);
+    }
+};
+
 void exl_uniform_ui_main() {
     // Outfit-neutral UI
     Dpr_UI_UIManager_GetCharacterBagData::InstallAtOffset(0x017c5710);
@@ -150,4 +163,7 @@ void exl_uniform_ui_main() {
     p.WriteInst(MovRegister(X1, X20));
     p.WriteInst(MovRegister(X2, X22));
     p.BranchLinkInst(0x017c3e40); // Address of LoadPokemonIcon with the PokemonParam overload
+
+    // Dynamically grab the egg sprite for the Daycare Pokétch app
+    PoketchAppEggChecker$$OnInitialize::InstallAtOffset(0x01a06710);
 };

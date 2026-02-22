@@ -1,12 +1,37 @@
 #pragma once
 
 #include "externals/il2cpp-api.h"
+
+#include "externals/TMPro/Extents.h"
+#include "externals/TMPro/TMP_ColorGradient.h"
+#include "externals/TMPro/TMP_FontStyleStack.h"
+#include "externals/TMPro/TMP_TextInfo.h"
+#include "externals/TMPro/TMP_TextProcessingStack.h"
 #include "externals/TMPro/VertexGradient.h"
-#include "externals/UnityEngine/UI/MaskableGraphic.h"
 #include "externals/UnityEngine/Color32.h"
+#include "externals/UnityEngine/Material.h"
+#include "externals/UnityEngine/Matrix4x4.h"
+#include "externals/UnityEngine/UI/MaskableGraphic.h"
+#include "externals/UnityEngine/Vector4.h"
 
 namespace TMPro {
     struct TMP_Text : ILClass<TMP_Text> {
+        struct SpecialCharacter : ILStruct<SpecialCharacter> {
+            struct Fields {
+                void* character;
+                void* fontAsset;
+                UnityEngine::Material::Object* material;
+                int32_t materialIndex;
+            };
+        };
+
+        struct TextBackingContainer : ILStruct<TextBackingContainer> {
+            struct Fields {
+                System::UInt32_array* m_Array;
+                int32_t m_Count;
+            };
+        };
+
         struct Fields : UnityEngine::UI::MaskableGraphic::Fields {
             System::String::Object* m_text;
             bool m_IsTextBackingStringDirty;
@@ -38,18 +63,16 @@ namespace TMPro {
             void* m_TextStyle; //TMPro_TMP_Style_o*
             int32_t m_TextStyleHashCode;
             bool m_overrideHtmlColors;
-            UnityEngine::Color32::Object m_faceColor; //UnityEngine_Color32_o
-            UnityEngine::Color32::Object m_outlineColor; //UnityEngine_Color32_o
+            UnityEngine::Color32::Object m_faceColor;
+            UnityEngine::Color32::Object m_outlineColor;
             float m_outlineWidth;
             float m_fontSize;
             float m_currentFontSize;
             float m_fontSizeBase;
-            void* m_sizeStack; //TMPro_TMP_TextProcessingStack_float__o
+            TMP_TextProcessingStack_float::Object m_sizeStack;
             int32_t m_fontWeight;
             int32_t m_FontWeightInternal;
-
-            // TODO: Insert missing classes/structs so that the rest below are aligned.
-            void* m_FontWeightStack; //TMPro_TMP_TextProcessingStack_FontWeight__o
+            TMP_TextProcessingStack_int32_t::Object m_FontWeightStack;
             bool m_enableAutoSizing;
             float m_maxFontSize;
             float m_minFontSize;
@@ -60,14 +83,14 @@ namespace TMPro {
             float m_fontSizeMax;
             int32_t m_fontStyle;
             int32_t m_FontStyleInternal;
-            void* m_fontStyleStack; //TMPro_TMP_FontStyleStack_o
+            TMP_FontStyleStack::Object m_fontStyleStack;
             bool m_isUsingBold;
             int32_t m_HorizontalAlignment;
             int32_t m_VerticalAlignment;
             int32_t m_textAlignment;
             int32_t m_lineJustification;
-            void* m_lineJustificationStack; //TMPro_TMP_TextProcessingStack_HorizontalAlignmentOptions__o
-            void* m_textContainerLocalCorners; //UnityEngine_Vector3_array*
+            TMP_TextProcessingStack_int32_t::Object m_lineJustificationStack;
+            UnityEngine::Vector3::Array* m_textContainerLocalCorners;
             float m_characterSpacing;
             float m_cSpacing;
             float m_monoSpacing;
@@ -87,8 +110,8 @@ namespace TMPro {
             float m_wordWrappingRatios;
             int32_t m_overflowMode;
             int32_t m_firstOverflowCharacterIndex;
-            void* m_linkedTextComponent; //TMPro_TMP_Text_o*
-            void* parentLinkedComponent; //TMPro_TMP_Text_o*
+            TMP_Text::Object* m_linkedTextComponent;
+            TMP_Text::Object* parentLinkedComponent;
             bool m_isTextTruncated;
             bool m_enableKerning;
             float m_GlyphHorizontalAdvanceAdjustment;
@@ -116,19 +139,19 @@ namespace TMPro {
             bool m_useMaxVisibleDescender;
             int32_t m_pageToDisplay;
             bool m_isNewPage;
-            void* m_margin; //UnityEngine_Vector4_o
+            UnityEngine::Vector4::Object m_margin;
             float m_marginLeft;
             float m_marginRight;
             float m_marginWidth;
             float m_marginHeight;
             float m_width;
-            void* m_textInfo; //TMPro_TMP_TextInfo_o*
+            TMP_TextInfo::Object* m_textInfo;
             bool m_havePropertiesChanged;
             bool m_isUsingLegacyAnimationComponent;
             void* m_transform; //UnityEngine_Transform_o*
             void* m_rectTransform; //UnityEngine_RectTransform_o*
-            void* m_PreviousRectTransformSize; //UnityEngine_Vector2_o
-            void* m_PreviousPivotPosition; //UnityEngine_Vector2_o
+            UnityEngine::Vector2::Object m_PreviousRectTransformSize;
+            UnityEngine::Vector2::Object m_PreviousPivotPosition;
             bool _autoSizeTextContainer_k__BackingField;
             bool m_autoSizeTextContainer;
             void* m_mesh; //UnityEngine_Mesh_o*
@@ -157,10 +180,10 @@ namespace TMPro {
             float m_fontScaleMultiplier;
             float tag_LineIndent;
             float tag_Indent;
-            void* m_indentStack; //TMPro_TMP_TextProcessingStack_float__o
+            TMP_TextProcessingStack_float::Object m_indentStack;
             bool tag_NoParsing;
             bool m_isParsingText;
-            void* m_FXMatrix; //UnityEngine_Matrix4x4_o
+            UnityEngine::Matrix4x4::Object m_FXMatrix;
             bool m_isFXMatrixSet;
             void* m_TextProcessingArray; //TMPro_TMP_Text_UnicodeChar_array*
             int32_t m_InternalTextProcessingArraySize;
@@ -184,39 +207,45 @@ namespace TMPro {
             float m_startOfLineAscender;
             float m_startOfLineDescender;
             float m_lineOffset;
-            void* m_meshExtents; //TMPro_Extents_o
+            Extents::Object m_meshExtents;
             UnityEngine::Color32::Object m_htmlColor;
-            void* m_colorStack; //TMPro_TMP_TextProcessingStack_Color32__o
-            void* m_underlineColorStack; //TMPro_TMP_TextProcessingStack_Color32__o
-            void* m_strikethroughColorStack; //TMPro_TMP_TextProcessingStack_Color32__o
-            void* m_HighlightStateStack; //TMPro_TMP_TextProcessingStack_HighlightState__o
-            void* m_colorGradientPreset; //TMPro_TMP_ColorGradient_o*
-            void* m_colorGradientStack; //TMPro_TMP_TextProcessingStack_TMP_ColorGradient__o
+            TMP_TextProcessingStack_Color32::Object m_colorStack;
+            TMP_TextProcessingStack_Color32::Object m_underlineColorStack;
+            TMP_TextProcessingStack_Color32::Object m_strikethroughColorStack;
+            TMP_TextProcessingStack_HighlightState::Object m_HighlightStateStack;
+            TMP_ColorGradient::Object* m_colorGradientPreset;
+            TMP_TextProcessingStack_TMP_ColorGradient::Object m_colorGradientStack;
             bool m_colorGradientPresetIsTinted;
             float m_tabSpacing;
             float m_spacing;
             void* m_TextStyleStacks; //TMPro_TMP_TextProcessingStack_int__array*
             int32_t m_TextStyleStackDepth;
-            void* m_ItalicAngleStack; //TMPro_TMP_TextProcessingStack_int__o
+            TMP_TextProcessingStack_int32_t::Object m_ItalicAngleStack;
             int32_t m_ItalicAngle;
-            void* m_actionStack; //TMPro_TMP_TextProcessingStack_int__o
+            TMP_TextProcessingStack_int32_t::Object m_actionStack;
             float m_padding;
             float m_baselineOffset;
-            void* m_baselineOffsetStack; //TMPro_TMP_TextProcessingStack_float__o
+            TMP_TextProcessingStack_float::Object m_baselineOffsetStack;
             float m_xAdvance;
             int32_t m_textElementType;
             void* m_cached_TextElement; //TMPro_TMP_TextElement_o*
-            void* m_Ellipsis; //TMPro_TMP_Text_SpecialCharacter_o
-            void* m_Underline; //TMPro_TMP_Text_SpecialCharacter_o
+            SpecialCharacter::Object m_Ellipsis;
+            SpecialCharacter::Object m_Underline;
             void* m_defaultSpriteAsset; //TMPro_TMP_SpriteAsset_o*
             void* m_currentSpriteAsset; //TMPro_TMP_SpriteAsset_o*
             int32_t m_spriteCount;
             int32_t m_spriteIndex;
             int32_t m_spriteAnimationID;
             bool m_ignoreActiveState;
-            void* m_TextBackingArray; //TMPro_TMP_Text_TextBackingContainer_o
+            TextBackingContainer::Object m_TextBackingArray; //TMPro_TMP_Text_TextBackingContainer_o
             void* k_Power; //System_Decimal_array*
         };
+
+        static_assert(offsetof(Fields, tag_NoParsing) == 0x408);
+        static_assert(offsetof(Fields, m_isParsingText) == 0x409);
+        static_assert(offsetof(Fields, m_FXMatrix) == 0x40c);
+        static_assert(offsetof(Fields, m_totalCharacterCount) == 0x468);
+        static_assert(offsetof(Fields, k_Power) == 0x698);
 
         inline void set_text(System::String::Object* value) {
             external<void>(0x01e94520, this, value);

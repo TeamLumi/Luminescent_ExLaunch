@@ -56,6 +56,10 @@ namespace System {
             return external<int32_t>(0x026f6ef0, this, value);
         }
 
+        inline bool StartsWith(String::Object* value) {
+            return external<bool>(0x026f78d0, this, value);
+        }
+
         inline String::Object* Truncate(int32_t maxLength) {
             String::Object* str = this->instance();
             if (IsNullOrEmpty(str))

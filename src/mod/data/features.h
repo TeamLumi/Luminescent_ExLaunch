@@ -52,6 +52,13 @@ static constexpr const char* FEATURES[] = {
     "Pokédex Form Flags",
     "Dialog Text Color",
     "Language UI Fixes",
+    "Move Tutor Relearner",
+    "Player Select",
+    "Intro Professor Pokémon",
+    "Pushable Entities",
+    "Select Poffin Case",
+    "Fake StopData",
+    "Surf End Check",
     "Custom UI",
 };
 
@@ -97,6 +104,7 @@ static constexpr const char* SMALL_PATCH_FEATURES[] = {
     "Affection Toggle",
     "Global Exp. Share Toggle",
     "Catch Rate Fix",
+    "Extended Flags Fixes",
 };
 
 constexpr int SMALL_PATCH_FEATURE_COUNT = sizeof(SMALL_PATCH_FEATURES) / sizeof(SMALL_PATCH_FEATURES[0]);
@@ -120,8 +128,8 @@ static constexpr const char* BATTLE_FEATURES[] = {
 constexpr int BATTLE_FEATURE_COUNT = sizeof(BATTLE_FEATURES) / sizeof(BATTLE_FEATURES[0]);
 
 static constexpr const char* FRONTIER_FEATURES[] = {
-        "Battle Hall",
-        "Battle Factory"
+    "Battle Hall",
+    "Battle Factory"
 };
 
 constexpr int FRONTIER_FEATURE_COUNT = sizeof(FRONTIER_FEATURES) / sizeof(FRONTIER_FEATURES[0]);

@@ -1,5 +1,6 @@
 #include "externals/il2cpp-api.h"
 
+#include "externals/EntityManager.h"
 #include "externals/EvData.h"
 #include "externals/FieldPoketch.h"
 #include "externals/PlayerWork.h"
@@ -80,10 +81,11 @@ void SetWorkToValue(EvData::Aregment::Object arg, int32_t value)
     }
 }
 
-bool IsNullOrEgg(Pml::PokePara::PokemonParam::Object * param)
+bool IsNullOrEgg(Pml::PokePara::PokemonParam::Object* param)
 {
-    Pml::PokePara::CoreParam::Object * coreParam = (Pml::PokePara::CoreParam::Object *)param;
-    return coreParam == nullptr || coreParam->IsNull() || coreParam->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG);
+    return param == nullptr ||
+           param->cast<Pml::PokePara::CoreParam>()->IsNull() ||
+           param->cast<Pml::PokePara::CoreParam>()->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG);
 }
 
 bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t maxedIVs, uint16_t itemno)
@@ -114,4 +116,34 @@ bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t m
     }
 
     return added;
+}
+
+UnityEngine::Transform::Object* FindTransform(System::String::Object* name)
+{
+    EntityManager::getClass()->initIfNeeded();
+
+    auto go = System::String::op_Equality(name, System::String::Create("HERO")) ?
+              EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField->cast<UnityEngine::Component>()->get_gameObject()->instance() :
+              UnityEngine::GameObject::Find(name);
+
+    if (go == nullptr)
+        return nullptr;
+    else
+        return go->get_transform();
+}
+
+FieldObjectEntity::Object* FindEntity(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg)
+{
+    switch ((EvData::ArgType)arg.fields.argType)
+    {
+        case EvData::ArgType::String:
+            return manager->Find_fieldObjectEntity(GetStringText(manager, arg))->instance();
+
+        case EvData::ArgType::Float:
+        case EvData::ArgType::Work:
+            return manager->GetFieldObject(GetWorkOrIntValue(arg))->instance();
+
+        default:
+            return nullptr;
+    }
 }

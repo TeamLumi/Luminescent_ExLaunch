@@ -1,20 +1,59 @@
 #pragma once
+
 #include "externals/il2cpp-api.h"
-#include "BoxStatusPanel.h"
-#include "BoxTray.h"
+
 #include "externals/DG/Tweening/Tween.h"
-#include "externals/System/Action.h"
-#include "externals/UnityEngine/Material.h"
+#include "externals/Dpr/UI/UIWindow.h"
+#include "externals/Dpr/UI/BoxStatusPanel.h"
+#include "externals/Dpr/UI/BoxTray.h"
 #include "externals/Dpr/UI/Cursor.h"
 #include "externals/Dpr/UI/ContextMenuWindow.h"
+#include "externals/Dpr/UI/Keyguide.h"
 #include "externals/Dpr/UI/PokemonStatusWindow.h"
-#include "Keyguide.h"
+#include "externals/System/Action.h"
 #include "externals/System/Collections/IEnumerator.h"
 #include "externals/System/Func.h"
+#include "externals/UnityEngine/Material.h"
 
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
+        struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
+            struct Fields {
+                int32_t dispMode;
+                int32_t tray;
+                int32_t index;
+                int32_t teamIndex;
+                bool isSelectParty;
+                int32_t openType;
+                int32_t selectCount;
+                int32_t targetLevel;
+                bool isEnableDying;
+                bool isEnableEgg;
+                bool isEnableTeam;
+                bool isEnableParty;
+                bool isShowSelectCount;
+                bool isEnableKeyboard;
+                bool isOpenFromBattleTeam;
+                bool isDisableUseful;
+                bool isDisableDuplicate;
+                bool isDontDuckOffBGM;
+                bool isExternalTrade;
+                bool isGMS;
+                System::Int32_array* targetsPokeNo;
+                System::Int32_array* selectNgPokeNos;
+                System::String::Object* tradeName;
+                void* selected; // System_Collections_Generic_List_BoxWindow_SelectedPokemon__o*
+                void* searchData; // Dpr_UI_BoxWindow_SEARCH_DATA_o*
+            };
+
+            static_assert(offsetof(Fields, searchData) == 0x50);
+
+            inline void ctor() {
+                external<void>(0x01a27970, this);
+            }
+        };
+
         struct __c__DisplayClass200_0 : ILClass<__c__DisplayClass200_0> {
             struct Fields {
                 BoxWindow::Object* __4__this;
@@ -33,6 +72,14 @@ namespace Dpr::UI {
             inline void ctor() {
                 external<void>(0x01a212d0, this);
             }
+        };
+
+        struct __c__DisplayClass282_0 : ILClass<__c__DisplayClass282_0> {
+            struct Fields {
+                BoxWindow::Object* __4__this;
+                BoxWindow::OpenParam::Object* reopenParam;
+                PokemonStatusWindow::Object* statusParams;
+            };
         };
 
         struct __c__DisplayClass296_0 : ILClass<__c__DisplayClass296_0, 0x04c61880> {
@@ -82,48 +129,6 @@ namespace Dpr::UI {
             inline void ctor() {
                 external<void>(0x01a27540, this);
             }
-        };
-
-        struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
-            struct Fields {
-                int32_t dispMode;
-                int32_t tray;
-                int32_t index;
-                int32_t teamIndex;
-                bool isSelectParty;
-                int32_t openType;
-                int32_t selectCount;
-                int32_t targetLevel;
-                bool isEnableDying;
-                bool isEnableEgg;
-                bool isEnableTeam;
-                bool isEnableParty;
-                bool isShowSelectCount;
-                bool isEnableKeyboard;
-                bool isOpenFromBattleTeam;
-                bool isDisableUseful;
-                bool isDisableDuplicate;
-                bool isDontDuckOffBGM;
-                bool isExternalTrade;
-                bool isGMS;
-                System::Int32_array* targetsPokeNo;
-                System::Int32_array* selectNgPokeNos;
-                System::String::Object* tradeName;
-                void* selected;
-                void* searchData;
-            };
-
-            inline void ctor() {
-                external<void>(0x01a27970, this);
-            }
-        };
-
-        struct __c__DisplayClass282_0 : ILClass<__c__DisplayClass282_0> {
-            struct Fields {
-                BoxWindow::Object* __4__this;
-                BoxWindow::OpenParam::Object* reopenParam;
-                PokemonStatusWindow::Object* statusParams;
-            };
         };
 
         static inline StaticILMethod<0x04c7ecf0> Method$$Dpr_UI_BoxWindow_OnUpdate {};
@@ -261,8 +266,7 @@ namespace Dpr::UI {
         static_assert(offsetof(Fields, _isForceClosing) == 0x3CD);
 
         struct VirtualInvokeData_OpPlayOpenWindowAnimation {
-            typedef System::Collections::IEnumerator::Object*(*Il2CppMethodPointer)(UIWindow::Object*,
-                                                                                    int32_t, UnityEngine::Events::UnityAction::Object*, const MethodInfo*);
+            typedef System::Collections::IEnumerator::Object*(*Il2CppMethodPointer)(UIWindow::Object*, int32_t, UnityEngine::Events::UnityAction::Object*, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
             const MethodInfo* method;
         };
@@ -320,7 +324,10 @@ namespace Dpr::UI {
                                     System::Func::Object* onClicked, UnityEngine::Events::UnityAction::Object* onClosed,
                                     int32_t selectIndex, uint32_t seDecide) {
             external<void>(0x01cc4ab0, this, menuItems, onClicked, onClosed, selectIndex, seDecide);
+        }
 
+        inline void Open(OpenParam::Object* param, System::Action::Object* onSelected, int32_t prevWindowId) {
+            external<void>(0x01cb64c0, this, param, onSelected, prevWindowId);
         }
     };
 }

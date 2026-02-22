@@ -1,7 +1,7 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/PlayerWork.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
 bool FirstPokeNoGet(Dpr::EvScript::EvDataManager::Object* manager)

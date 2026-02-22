@@ -3,12 +3,13 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/XLSXContent/ItemTable.h"
+#include "externals/XLSXContent/PersonalTable.h"
 
 namespace Pml {
     struct PmlUse : ILClass<PmlUse, 0x04c5b4d0> {
         struct Fields {
             bool isAutoLoad;
-            void* personalTotal; // XLSXContent_PersonalTable_o*
+            XLSXContent::PersonalTable::Object* personalTotal;
             void* growTableTotal; // XLSXContent_GrowTable_o*
             void* evolveTableTotal; // XLSXContent_EvolveTable_o*
             void* wazaOboeTotal; // XLSXContent_WazaOboeTable_o*

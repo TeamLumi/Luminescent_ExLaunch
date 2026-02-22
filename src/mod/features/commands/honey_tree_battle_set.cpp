@@ -3,7 +3,7 @@
 #include "externals/PlayerWork.h"
 #include "externals/UnityEngine/Random.h"
 
-#include "features/commands/utils/utils.h"
+#include "features/commands/utils/cmd_utils.h"
 #include "romdata/romdata.h"
 #include "logger/logger.h"
 

@@ -165,7 +165,7 @@ HOOK_DEFINE_REPLACE(Dpr_UI_PokemonStatusPanelAbility__OnUpdate) {
             if (input->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->ButtonX, false))
             {
                 SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
-                auto audioManager = Audio::AudioManager::instance();
+                auto audioManager = Audio::AudioManager::get_Instance();
 
                 audioManager->PlaySe(0x4491b890, nullptr);
 

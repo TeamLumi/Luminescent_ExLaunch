@@ -2,8 +2,8 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/Battle/Logic/BTL_ACTION_PARAM_OBJ.h"
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
-#include "externals/Dpr/Battle/Logic/BTL_ACTION.h"
 #include "externals/Dpr/Battle/View/UI/BattleViewUICanvasBase.h"
 #include "externals/Dpr/Battle/View/UI/BUIWazaButton.h"
 #include "externals/UnityEngine/GameObject.h"
@@ -24,7 +24,7 @@ namespace Dpr::Battle::View::UI {
             UnityEngine::Color::Object _ppColorWarning;
             UnityEngine::Color::Object _ppColorDanger;
             UnityEngine::Color::Object _ppColorEmpty;
-            Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* _destActionParam;
+            Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* _destActionParam;
             void* _btlvWazaInfos;
             Dpr::Battle::Logic::BTL_POKEPARAM::Object* _btlPokeParam;
             int32_t _wazaCount;
@@ -55,7 +55,7 @@ namespace Dpr::Battle::View::UI {
             external<void>(0x01d2c490, this, deltaTime);
         }
 
-        inline void Initialize(Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex, Dpr::Battle::Logic::BTL_ACTION::PARAM_OBJ::Object* dest) {
+        inline void Initialize(Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex, Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
             external<void>(0x01d2b800, this, bpp, pokeIndex, dest);
         }
 

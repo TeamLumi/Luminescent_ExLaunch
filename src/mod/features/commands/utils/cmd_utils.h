@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/EvData.h"
+#include "externals/FieldObjectEntity.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
@@ -31,3 +32,14 @@ bool AddPokemonToParty(int32_t monsno, int32_t formno, uint32_t level, uint8_t m
 // Returns the string from the provided argument if its type is string.
 // Returns "" otherwise.
 System::String::Object* GetStringText(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg);
+
+// Finds a specific transform in the scene.
+// A value of "HERO" will return the active player's transform.
+// Returns null if it can't find it.
+UnityEngine::Transform::Object* FindTransform(System::String::Object* name);
+
+// Finds a specific entity.
+// Returns the entity at the given index if the argument is a work or float.
+// Returns the entity with the given ID if the argument is a string.
+// Returns null otherwise.
+FieldObjectEntity::Object* FindEntity(Dpr::EvScript::EvDataManager::Object* manager, EvData::Aregment::Object arg);

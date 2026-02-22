@@ -11,6 +11,21 @@
 
 namespace Dpr::Demo {
     struct DemoBase : ILClass<DemoBase> {
+        struct LoadPokeAsset_d__71 : ILClass<LoadPokeAsset_d__71> {
+            struct Fields {
+                int32_t __1__state;
+                Il2CppObject* __2__current;
+                Dpr::Demo::DemoBase::Object* __4__this;
+                bool useAssetUnloader;
+                int32_t monsNo;
+                uint16_t formNo;
+                uint8_t sex;
+                bool isRare;
+                bool isEgg;
+                bool isBattleModel;
+            };
+        };
+
         struct Fields {
             void* cameraController; // Dpr_Demo_DemoCamera_o*
             void* manager; // Dpr_Demo_DemoSceneManager_o*

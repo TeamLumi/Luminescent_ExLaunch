@@ -24,7 +24,7 @@ int32_t Roll(nn::vector<uint32_t>* rates)
     int32_t currentSum = 0;
     for (size_t i=0; i<(*rates).size(); i++)
     {
-        if (roll < currentSum + (*rates)[i])
+        if (roll < currentSum + (int32_t)(*rates)[i])
             return i;
 
         currentSum += (*rates)[i];

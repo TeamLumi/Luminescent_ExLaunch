@@ -8,6 +8,7 @@
 #include "externals/DPData/Form_Enums.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/FieldCanvas.h"
+#include "externals/Pml/PmlUse.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/ZukanWork.h"
 #include "save/save.h"
@@ -71,8 +72,12 @@ void setFlyOverride(bool b) {
 
 void setFullDex(int getStatus) {
     for (int i=1; i<=DexSize; i++) {
-        ZukanWork::DebugSet(i, (DPData::GET_STATUS)getStatus, Pml::Sex::UNKNOWN, 0, true, (DPData::GET_STATUS)getStatus >= DPData::GET_STATUS::GET);
-        ZukanWork::DebugSet(i, (DPData::GET_STATUS)getStatus, Pml::Sex::UNKNOWN, 0, false, (DPData::GET_STATUS)getStatus >= DPData::GET_STATUS::GET);
+        auto formMax = Pml::PmlUse::get_Instance()->fields.personalTotal->fields.Personal->m_Items[i]->fields.form_max;
+
+        for (int j=0; j<formMax; j++) {
+            ZukanWork::DebugSet(i, (DPData::GET_STATUS)getStatus, Pml::Sex::UNKNOWN, j, true, (DPData::GET_STATUS)getStatus >= DPData::GET_STATUS::GET);
+            ZukanWork::DebugSet(i, (DPData::GET_STATUS)getStatus, Pml::Sex::UNKNOWN, j, false, (DPData::GET_STATUS)getStatus >= DPData::GET_STATUS::GET);
+        }
 
         ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::JPN);
         ZukanWork::AddLangFlag(i, Dpr::Message::MessageEnumData::MsgLangId::USA);

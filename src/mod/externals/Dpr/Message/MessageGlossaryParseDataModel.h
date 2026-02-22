@@ -2,6 +2,8 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/System/String.h"
+
 namespace Dpr::Message {
     struct MessageGlossaryParseDataModel : ILClass<MessageGlossaryParseDataModel> {
         struct Fields {
@@ -15,6 +17,10 @@ namespace Dpr::Message {
             float strWidth;
             float fontSize;
         };
+
+        inline System::String::Object* GetName() {
+            return external<System::String::Object*>(0x020ff740, this);
+        }
     };
 }
 

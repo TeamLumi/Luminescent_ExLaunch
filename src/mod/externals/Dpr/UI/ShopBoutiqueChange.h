@@ -9,5 +9,7 @@ namespace Dpr::UI {
         struct Fields : Dpr::UI::ShopBoutique::Fields {
             // TODO
         };
+
+        static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow {};
     };
 }
