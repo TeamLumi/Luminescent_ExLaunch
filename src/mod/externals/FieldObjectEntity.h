@@ -25,7 +25,7 @@ struct FieldObjectEntity : ILClass<FieldObjectEntity> {
         float _scaleEnd;
         float _scaleTime;
         float _scaleProgressTime;
-        void* EventParams;
+        Dpr::EvScript::EvDataManager::EntityParam::Object* EventParams;
     };
 
     inline UnityEngine::Vector2Int::Object get_gridPosition() {

@@ -1,14 +1,14 @@
-#include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/PlayerWork.h"
+#include "exlaunch.hpp"
 
-#include "features/commands/utils/utils.h"
-#include "logger/logger.h"
-#include "commands.h"
-#include "save/save.h"
-#include "externals/FlagWork.h"
+#include "externals/Dpr/EvScript/EvDataManager.h"
+#include "externals/Dpr/Message/MessageWordSetHelper.h"
+#include "externals/Dpr/UI/BoxWindow.h"
 #include "externals/FlagWork_Enums.h"
 
-#include "exlaunch.hpp"
+#include "features/commands/commands.h"
+#include "features/commands/utils/cmd_utils.h"
+#include "logger/logger.h"
+#include "save/save.h"
 
 bool FTR_HALL_SET_RANK(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("[_FTR_HALL_SET_RANK] \n");

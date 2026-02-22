@@ -22,7 +22,7 @@ HOOK_DEFINE_TRAMPOLINE(BoxWindow$$OpOpenMoveNext) {
                         ((Dpr::UI::UIWindow::Object*) window)->OnOpen(__this->fields.prevWindowId);
 
                         window->SetupKeyguide();
-                        auto audioManager = Audio::AudioManager::instance();
+                        auto audioManager = Audio::AudioManager::get_Instance();
                         audioManager->PlaySe(0xb53c8c80, nullptr);
                         audioManager->SetBgmEvent(0x743e45ca, false);
 
@@ -92,7 +92,7 @@ HOOK_DEFINE_TRAMPOLINE(BoxWindow$$OpOpenMoveNext) {
 
                         window->SetupKeyguide();
                         FactorySelector::UpdateDisplaySprite(window, 0);
-                        auto audioManager = Audio::AudioManager::instance();
+                        auto audioManager = Audio::AudioManager::get_Instance();
                         audioManager->PlaySe(0xb53c8c80, nullptr);
                         audioManager->SetBgmEvent(0x743e45ca, false);
 
@@ -230,7 +230,7 @@ HOOK_DEFINE_TRAMPOLINE(BoxWindow$$OpCloseMoveNext) {
 
                         if (window->fields._coOpen == nullptr)
                         {
-                            auto audioManager = Audio::AudioManager::instance();
+                            auto audioManager = Audio::AudioManager::get_Instance();
                             audioManager->PlaySe(0xb53c8c8f, nullptr);
 
                             window->fields._input->fields._inputEnabled = false;

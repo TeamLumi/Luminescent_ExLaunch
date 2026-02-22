@@ -120,7 +120,7 @@ namespace BattleFactoryPool {
         for (int32_t i = 0; i < 3; i++) {
             auto member = playerTeam->GetMemberPointer(i);
             if (member->fields.m_accessor->GetMonsNo() == selectedPoke.monsNo ||
-                member->fields.m_accessor->GetItemNo() == selectedPoke.item) {
+                member->fields.m_accessor->GetItemNo() == (uint32_t)selectedPoke.item) {
                 return true;
             }
         }
@@ -139,6 +139,15 @@ namespace BattleFactoryPool {
         }
         else {
             Logger::log("Error when parsing !\n");
+            // Default to Bulbasaur with only Pound
+            return {
+                .monsNo = 1,
+                .formNo = 0,
+                .item = 0,
+                .seikaku = 0,
+                .moves = {1, 1, 1, 1},
+                .effort = {0, 0, 0, 0, 0, 0},
+            };
         }
     }
 

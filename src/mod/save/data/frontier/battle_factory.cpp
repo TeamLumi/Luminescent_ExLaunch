@@ -29,7 +29,7 @@ nn::json FactorySaveData::PartyToJson(Pml::PokePara::SavePokeParty::Object party
     for (uint64_t i = 0; i < party.fields.memberCount; i++) {
         nn::json membersObject = nn::json::object();
         nn::json bufferJson = nn::json::array();
-        for (int j = 0; j < party.fields.members->m_Items[i].fields.buffer->max_length; j++) {
+        for (uint64_t j = 0; j < party.fields.members->m_Items[i].fields.buffer->max_length; j++) {
             bufferJson.push_back(party.fields.members->m_Items[i].fields.buffer->m_Items[j]);
         }
 
@@ -90,7 +90,7 @@ void FactorySaveData::GenerateSixRentalMons() const {
 
     int index = distribution(rng);
 
-    for (int32_t i = 0; i < pokeParamsList->max_length; i++) {
+    for (uint64_t i = 0; i < pokeParamsList->max_length; i++) {
         Logger::log("[_FTR_SUB_LOCAL_BTL_CALL] Entering clause check %d.\n", i);
         while (BattleFactoryPool::ClausesCheck(BattleFactoryPool::IndexLookup(index, GROUP_2))) {
             index = distribution(rng);

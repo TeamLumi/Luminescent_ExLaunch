@@ -35,6 +35,16 @@ namespace BattleHallPool {
         else {
             Logger::log("Error when parsing !\n");
         }
+
+        // Default to Bulbasaur with only Pound
+        return {
+            .monsNo = 1,
+            .formNo = 0,
+            .item = 0,
+            .seikaku = 0,
+            .moves = {1, 1, 1, 1},
+            .effort = {0, 0, 0, 0, 0, 0},
+        };
     }
 
     Group calculateGroup(Rank rank) {
@@ -84,6 +94,9 @@ namespace BattleHallPool {
                 Logger::log("[BHP] Failed to load JSON file or file is discarded for Group_%d.\n", groupIndex + 1);
             }
         }
+
+        // Default to Group 1
+        return Group::GROUP_1;
     }
 
     uint16_t calculateEnemyLvl(Rank rank, uint32_t pLvl, int32_t currentTypeIndex, const nn::vector<std::pair<const char *, Rank>>& allTypeRanks) {

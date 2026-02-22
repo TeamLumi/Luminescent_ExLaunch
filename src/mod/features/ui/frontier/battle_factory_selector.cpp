@@ -38,7 +38,7 @@ namespace FactorySelector {
             case ContextMenuID::FTR_FACTORY_DISPLAY_SUMMARY: {
                 system_load_typeinfo(0x2665);
                 Logger::log("[Summary]\n");
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_DONE, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_DONE, nullptr);
                 Logger::log("[Summary] Audio\n");
 //                Dpr::UI::PokemonStatusWindow::Param::Object* windowParam = Dpr::UI::PokemonStatusWindow::Param::newInstance();
 //                Logger::log("[Summary] New Instance\n");
@@ -105,7 +105,7 @@ namespace FactorySelector {
                 bool isPush = window->cast<Dpr::UI::UIWindow>()->IsPushButton(
                         Dpr::UI::UIManager::getClass()->static_fields->ButtonA, false);
                 if (isPush) {
-                    Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_UNK, nullptr);
+                    Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_UNK, nullptr);
                 }
                 break;
             }
@@ -249,7 +249,7 @@ namespace FactorySelector {
             x = Dpr::UI::UIManager::Repeat(x + 1, 0, factorySelectorColNum - 1);
             if (uiHelper::SetSelectIndex(__this, x)) {
                 UpdateDisplaySprite(__this, x);
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
@@ -257,7 +257,7 @@ namespace FactorySelector {
             x = UnityEngine::Mathf::Min(x + 1, factorySelectorColNum - 1);
             if (uiHelper::SetSelectIndex(__this, x)) {
                 UpdateDisplaySprite(__this, x);
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
@@ -266,7 +266,7 @@ namespace FactorySelector {
             x = Dpr::UI::UIManager::Repeat(x - 1, 0, factorySelectorColNum - 1);
             if (uiHelper::SetSelectIndex(__this, x)) {
                 UpdateDisplaySprite(__this, x);
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
@@ -274,7 +274,7 @@ namespace FactorySelector {
             x = UnityEngine::Mathf::Max(x - 1, 0);
             if (uiHelper::SetSelectIndex(__this, x)) {
                 UpdateDisplaySprite(__this, x);
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
     }

@@ -50,9 +50,9 @@ using namespace BattleHallPool;
 bool FTR_SUB_LOCAL_BTL_CALL(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("[_FTR_SUB_LOCAL_BTL_CALL] Generating Poke...\n");
     uint16_t level;
-    int32_t IV;
-    Group groupNo;
-    int32_t enemy1;
+    int32_t IV = 0;
+    Group groupNo = Group::GROUP_1;
+    int32_t enemy1 = 0;
     frontierIndex selectedPoke;
     Pml::PokeParty::Object* playerParty = Pml::PokeParty::newInstance();
     Pml::PokeParty::Object* trainerParty = Pml::PokeParty::newInstance();

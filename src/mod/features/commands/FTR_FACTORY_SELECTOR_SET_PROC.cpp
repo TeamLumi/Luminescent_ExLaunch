@@ -1,18 +1,16 @@
-#include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/PlayerWork.h"
+#include "exlaunch.hpp"
 
-#include "features/commands/utils/utils.h"
-#include "logger/logger.h"
-#include "commands.h"
-#include "save/save.h"
-#include "externals/Dpr/BattleMatching/BattleMatchingWork.h"
+#include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/Message/MessageWordSetHelper.h"
-#include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/BoxWindow.h"
+#include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/UIWindowID.h"
 
-#include "exlaunch.hpp"
+#include "features/commands/commands.h"
+#include "features/commands/utils/cmd_utils.h"
+#include "logger/logger.h"
+#include "save/save.h"
 
 bool FTR_FACTORY_SELECTOR_SET_PROC(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("[_FTR_FACTORY_SELECTOR_SET_PROC] \n");

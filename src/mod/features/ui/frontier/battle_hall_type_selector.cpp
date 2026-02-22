@@ -20,7 +20,7 @@ namespace HallSelector {
         }
 
         if (selectIndex == TypeSelectorIndex::SUMMARY) {
-            Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_DONE, nullptr);
+            Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_DONE, nullptr);
             Dpr::UI::PokemonStatusWindow::Param::Object *windowParam = Dpr::UI::PokemonStatusWindow::Param::newInstance();
 
             auto paramList = System::Collections::Generic::List$$PokemonParam::newInstance();
@@ -39,7 +39,7 @@ namespace HallSelector {
             __this->OpenStatusWindow(windowParam, nullptr);
 
         } else if (!isDimmed && selectIndex != TypeSelectorIndex::FAIRY) {
-            Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_DONE, nullptr);
+            Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_DONE, nullptr);
             //__this->fields._cursor->Play()
             __this->fields._input->fields._inputEnabled = false;
 
@@ -75,7 +75,7 @@ namespace HallSelector {
 
             uiWindow->OpenMessageWindow(msgWindowParam);
         } else {
-            Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_BEEP, nullptr);
+            Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_BEEP, nullptr);
         }
 
     }
@@ -99,14 +99,14 @@ namespace HallSelector {
         if (uiWindow->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, false)) {
             x = Dpr::UI::UIManager::Repeat(x + 1, 0, typeSelectorColNum - 1);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
         else if (uiWindow->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, false)) {
             x = UnityEngine::Mathf::Min(x + 1, typeSelectorColNum - 1);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
@@ -114,14 +114,14 @@ namespace HallSelector {
         else if (uiWindow->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, false)) {
             x = Dpr::UI::UIManager::Repeat(x - 1, 0, typeSelectorColNum - 1);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
         else if (uiWindow->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, false)) {
             x = UnityEngine::Mathf::Max(x - 1, 0);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
@@ -129,14 +129,14 @@ namespace HallSelector {
         else if (uiWindow->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, false)) {
             y = Dpr::UI::UIManager::Repeat(y + 1, 0, typeSelectorRowNum - 1);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
         else if (uiWindow->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, false)) {
             y = UnityEngine::Mathf::Min(y + 1, typeSelectorRowNum - 1);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
@@ -144,14 +144,14 @@ namespace HallSelector {
         else if (uiWindow->IsPushButton(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, false)) {
             y = Dpr::UI::UIManager::Repeat(y - 1, 0, typeSelectorRowNum - 1);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
 
         else if (uiWindow->IsRepeatButton(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, false)) {
             y = UnityEngine::Mathf::Max(y - 1, 0);
             if (uiHelper::SetSelectIndex(__this, x + y * typeSelectorColNum)) {
-                Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+                Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
             }
         }
     }
@@ -217,7 +217,7 @@ namespace HallSelector {
 
         FlagWork::SetFlag(FlagWork_Flag::MATRON_EVENT_CALLBACK, true);
         if (uiHelper::SetSelectIndex(boxWindow, 19)) {
-            Audio::AudioManager::instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
+            Audio::AudioManager::get_Instance()->PlaySe(AK_EVENTS_UI_COMMON_SELECT, nullptr);
         }
 
         window->fields._input->fields._inputEnabled = true;
