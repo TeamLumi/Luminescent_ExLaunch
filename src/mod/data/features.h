@@ -77,6 +77,7 @@ static constexpr const char* DEBUG_FEATURES[] = {
     "Ultra Burst Gimmick Flag",
     "Dynamax Gimmick Flag",
     "Terastallization Gimmick Flag",
+    "Message Calls Logging",
 };
 
 constexpr int DEBUG_FEATURE_COUNT = sizeof(DEBUG_FEATURES) / sizeof(DEBUG_FEATURES[0]);

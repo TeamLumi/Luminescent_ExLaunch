@@ -22,3 +22,6 @@ void exl_unity_log_main();
 
 // 100% Chance to activates a Pokemon's pickup ability after a battle.
 void exl_pickup_debug_main();
+
+// Enables logging for calls to MessageHelper$$EmitLog.
+void exl_message_log_main();

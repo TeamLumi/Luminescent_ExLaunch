@@ -15,18 +15,22 @@
 
 bool FTR_HALL_SELECTOR_SET_PROC(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("[_FTR_HALL_SELECTOR_SET_PROC] \n");
+
     system_load_typeinfo(0x43ea);
-    manager->fields._pc_window_close = false;
+
     SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
+
+    manager->fields._pc_window_close = false;
+
     Dpr::UI::UIManager::Object* uiManager = Dpr::UI::UIManager::get_Instance();
-    auto boxWindow = (Dpr::UI::BoxWindow::Object*)
-            uiManager->CreateUIWindow(UIWindowID::BATTLEHALL_TYPE_SELECT,
-                                      Dpr::UI::UIManager::Method$$CreateUIWindow_BoxWindow_);
+    auto boxWindow = (Dpr::UI::BoxWindow::Object*)uiManager->CreateUIWindow(UIWindowID::BATTLEHALL_TYPE_SELECT, Dpr::UI::UIManager::Method$$CreateUIWindow_BoxWindow_);
+
     MethodInfo* mi = *UnityEngine::Events::UnityAction::Method$$Dpr_EvScript_EvDataManager__EvCmdBoxSetProc__b__742_0;
-    auto onClosed = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::UIWindow_TypeInfo)->newInstance(manager, mi);
-    auto parentOnClosed = &(boxWindow->fields).onClosed;
-    *parentOnClosed = onClosed;
+    boxWindow->fields.onClosed = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::UIWindow_TypeInfo)->newInstance(manager, mi);
+
     FlagWork::SetWork(FlagWork_Work::WK_CURRENT_CUSTOM_UI, static_cast<int32_t>(UIWindowID::BATTLEHALL_TYPE_SELECT));
+
     boxWindow->Open(-2, true);
+
     return true;
 }

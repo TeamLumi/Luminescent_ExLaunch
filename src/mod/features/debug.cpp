@@ -19,4 +19,6 @@ void exl_debug_features_main() {
         exl_feature_log_main();
     if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Pickup 100%")))
         exl_pickup_debug_main();
+    if (IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Message Calls Logging")))
+        exl_message_log_main();
 }
