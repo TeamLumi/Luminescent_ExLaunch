@@ -1294,7 +1294,9 @@ namespace Dpr::EvScript {
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
             _SET_CAMERA_OFFSET_ANGLE = 1285,
             _SP_WILD_BTL_SET_EXTRA = 1286,
-            _NPC_JUMP = 1287,
+            _TEMOTI_BOX_GENDER = 1287,
+            _TEMOTI_BOX_SHINY = 1288,
+            _NPC_JUMP = 1289,
 
             CUSTOM_CMD_END = 1500,
         };
