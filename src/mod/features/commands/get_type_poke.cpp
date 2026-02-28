@@ -3,9 +3,9 @@
 #include "romdata/romdata.h"
 #include "logger/logger.h"
 
-// Gets a random Pokémon MonsNo and FormNo from the TypePokes JSON data based on input type.
+// Gets a random Pokémon MonsNo and FormNo from an encounter table based on input table ID.
 // Arguments:
-//   [Work, Number] typeID: The type ID to look up (0=Normal, 1=Fighting, 2=Flying, etc.)
+//   [Work, Number] tableID: The table ID to look up (e.g. type ID: 0=Normal, 1=Fighting, 2=Flying, etc.)
 //   [Work] monsNo: The work in which to put the MonsNo result.
 //   [Work] formNo: The work in which to put the FormNo result.
 bool GetTypePoke(Dpr::EvScript::EvDataManager::Object* manager)
@@ -16,12 +16,12 @@ bool GetTypePoke(Dpr::EvScript::EvDataManager::Object* manager)
 
     if (args->max_length >= 4)
     {
-        int32_t typeID = GetWorkOrIntValue(args->m_Items[1]);
+        int32_t tableID = GetWorkOrIntValue(args->m_Items[1]);
 
-        Logger::log("  Type ID: %d\n", typeID);
+        Logger::log("  Table ID: %d\n", tableID);
 
-        // Get a random Pokemon of the given type from the JSON data
-        RomData::TypePokeSlot slot = GetTypePokeSlot(typeID);
+        // Get a random Pokemon from the encounter table
+        RomData::EncounterSlot slot = GetEncounterTableSlot(tableID);
 
         Logger::log("  Result: MonsNo=%d, FormNo=%d\n", slot.monsNo, slot.formNo);
 
@@ -31,7 +31,7 @@ bool GetTypePoke(Dpr::EvScript::EvDataManager::Object* manager)
     }
     else
     {
-        Logger::log("  Error: Not enough arguments (need 3: typeID, monsNo work, formNo work)\n");
+        Logger::log("  Error: Not enough arguments (need 3: tableID, monsNo work, formNo work)\n");
     }
 
     return true;

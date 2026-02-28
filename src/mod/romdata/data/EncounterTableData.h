@@ -2,23 +2,17 @@
 
 #include "externals/il2cpp-api.h"
 #include "memory/json.h"
-#include "memory/vector.h"
 
 namespace RomData
 {
-    struct TypePokeSlot
+    struct EncounterSlot
     {
         int32_t monsNo;
         int32_t formNo;
     };
 
-    struct TypePokeList
-    {
-        nn::vector<TypePokeSlot> slots;
-    };
-
     JSON_TEMPLATE
-    void to_json(GENERIC_JSON& j, const TypePokeSlot& s) {
+    void to_json(GENERIC_JSON& j, const EncounterSlot& s) {
         j = nn::json {
             {"monsNo", s.monsNo},
             {"formNo", s.formNo},
@@ -26,20 +20,25 @@ namespace RomData
     }
 
     JSON_TEMPLATE
-    void from_json(const GENERIC_JSON& j, TypePokeSlot& s) {
+    void from_json(const GENERIC_JSON& j, EncounterSlot& s) {
         j.at("monsNo").get_to(s.monsNo);
         j.at("formNo").get_to(s.formNo);
     }
 
+    struct EncounterTableMeta
+    {
+        int32_t slotCount;
+    };
+
     JSON_TEMPLATE
-    void to_json(GENERIC_JSON& j, const TypePokeList& t) {
+    void to_json(GENERIC_JSON& j, const EncounterTableMeta& m) {
         j = nn::json {
-            {"slots", t.slots},
+            {"slotCount", m.slotCount},
         };
     }
 
     JSON_TEMPLATE
-    void from_json(const GENERIC_JSON& j, TypePokeList& t) {
-        j.at("slots").get_to(t.slots);
+    void from_json(const GENERIC_JSON& j, EncounterTableMeta& m) {
+        j.at("slotCount").get_to(m.slotCount);
     }
 }
