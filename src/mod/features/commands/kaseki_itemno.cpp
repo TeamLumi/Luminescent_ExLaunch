@@ -20,15 +20,15 @@ bool KasekiItemNo(Dpr::EvScript::EvDataManager::Object* manager)
     if (args->max_length > 3)
     {
         int32_t threshold = GetWorkOrIntValue(args->m_Items[3]);
-        const auto& entries = GetFossilEntries();
+        RomData::FossilItemList fossilItems = LoadFossilItemList();
 
         int32_t accumulatedCount = 0;
         int32_t iterIndex = 0;
         int32_t resultItemNo = 0;
 
-        for (const auto& entry : entries)
+        for (const auto& itemNo : fossilItems.items)
         {
-            auto* itemInfo = ItemWork::GetItemInfo(entry.itemNo);
+            auto* itemInfo = ItemWork::GetItemInfo(itemNo);
             if (itemInfo != nullptr)
             {
                 int32_t count = itemInfo->get_count();
@@ -37,7 +37,7 @@ bool KasekiItemNo(Dpr::EvScript::EvDataManager::Object* manager)
 
             if (threshold <= accumulatedCount)
             {
-                resultItemNo = entry.itemNo;
+                resultItemNo = itemNo;
                 break;
             }
 

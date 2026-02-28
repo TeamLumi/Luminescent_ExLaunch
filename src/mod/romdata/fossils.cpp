@@ -7,42 +7,60 @@
 
 #include "logger/logger.h"
 
-const char* fossilFilePath = "rom:/Data/ExtraData/Fossils/fossils.json";
+const char* fossilFolderPath = "rom:/Data/ExtraData/Fossils/";
 
-static RomData::FossilTable s_fossilTable;
-static bool s_loaded = false;
-
-void LoadFossilTable()
+RomData::FossilEntry GetFossilEntry(int32_t itemNo)
 {
-    if (s_loaded)
-        return;
+    nn::string filePath(fossilFolderPath);
+    filePath.append(nn::to_string(itemNo) + ".json");
 
-    nn::json j = FsHelper::loadJsonFileFromPath(fossilFilePath);
+    nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
     if (j != nullptr && !j.is_discarded())
     {
-        s_fossilTable = j.get<RomData::FossilTable>();
-        s_loaded = true;
-        Logger::log("Loaded %d fossil entries\n", (int)s_fossilTable.entries.size());
+        RomData::FossilEntry entry = {};
+        entry = j.get<RomData::FossilEntry>();
+        return entry;
     }
     else
     {
-        Logger::log("Error when parsing Fossil data!\n");
+        Logger::log("Error when parsing Fossil data for item %d!\n", itemNo);
     }
-}
 
-const nn::vector<RomData::FossilEntry>& GetFossilEntries()
-{
-    LoadFossilTable();
-    return s_fossilTable.entries;
+    return {
+        .monsNo = 0,
+        .formNo = 0,
+    };
 }
 
 int32_t GetMonsNoFromItemNo(int32_t itemNo)
 {
-    LoadFossilTable();
-    for (const auto& entry : s_fossilTable.entries)
+    RomData::FossilEntry entry = GetFossilEntry(itemNo);
+    return entry.monsNo;
+}
+
+int32_t GetFossilFormNoFromItemNo(int32_t itemNo)
+{
+    RomData::FossilEntry entry = GetFossilEntry(itemNo);
+    return entry.formNo;
+}
+
+RomData::FossilItemList LoadFossilItemList()
+{
+    nn::string filePath(fossilFolderPath);
+    filePath.append("fossil_items.json");
+
+    nn::json j = FsHelper::loadJsonFileFromPath(filePath.c_str());
+    if (j != nullptr && !j.is_discarded())
     {
-        if (entry.itemNo == itemNo)
-            return entry.monsNo;
+        RomData::FossilItemList list = {};
+        list = j.get<RomData::FossilItemList>();
+        Logger::log("Loaded %d fossil item numbers\n", (int)list.items.size());
+        return list;
     }
-    return 0;
+    else
+    {
+        Logger::log("Error when parsing fossil item list!\n");
+    }
+
+    return {};
 }

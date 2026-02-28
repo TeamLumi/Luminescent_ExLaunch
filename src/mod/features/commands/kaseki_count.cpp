@@ -13,12 +13,12 @@ bool KasekiCount(Dpr::EvScript::EvDataManager::Object* manager)
     Logger::log("_KASEKI_COUNT\n");
 
     EvData::Aregment::Array* args = manager->fields._evArg;
-    const auto& entries = GetFossilEntries();
+    RomData::FossilItemList fossilItems = LoadFossilItemList();
 
     int32_t totalCount = 0;
-    for (const auto& entry : entries)
+    for (const auto& itemNo : fossilItems.items)
     {
-        auto* itemInfo = ItemWork::GetItemInfo(entry.itemNo);
+        auto* itemInfo = ItemWork::GetItemInfo(itemNo);
         if (itemInfo != nullptr)
         {
             totalCount += itemInfo->get_count();

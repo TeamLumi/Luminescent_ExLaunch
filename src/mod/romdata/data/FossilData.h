@@ -8,7 +8,6 @@ namespace RomData
 {
     struct FossilEntry
     {
-        int32_t itemNo;
         int32_t monsNo;
         int32_t formNo;
     };
@@ -16,7 +15,6 @@ namespace RomData
     JSON_TEMPLATE
     void to_json(GENERIC_JSON& j, const FossilEntry& f) {
         j = nn::json {
-            {"itemNo", f.itemNo},
             {"monsNo", f.monsNo},
             {"formNo", f.formNo},
         };
@@ -24,25 +22,24 @@ namespace RomData
 
     JSON_TEMPLATE
     void from_json(const GENERIC_JSON& j, FossilEntry& f) {
-        j.at("itemNo").get_to(f.itemNo);
         j.at("monsNo").get_to(f.monsNo);
         j.at("formNo").get_to(f.formNo);
     }
 
-    struct FossilTable
+    struct FossilItemList
     {
-        nn::vector<FossilEntry> entries;
+        nn::vector<int32_t> items;
     };
 
     JSON_TEMPLATE
-    void to_json(GENERIC_JSON& j, const FossilTable& t) {
+    void to_json(GENERIC_JSON& j, const FossilItemList& l) {
         j = nn::json {
-            {"entries", t.entries},
+            {"items", l.items},
         };
     }
 
     JSON_TEMPLATE
-    void from_json(const GENERIC_JSON& j, FossilTable& t) {
-        j.at("entries").get_to(t.entries);
+    void from_json(const GENERIC_JSON& j, FossilItemList& l) {
+        j.at("items").get_to(l.items);
     }
 }

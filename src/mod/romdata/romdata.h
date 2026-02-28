@@ -100,10 +100,16 @@ RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
 // Returns Outfit Availability data for the given dressID.
 RomData::OutfitData GetOutfitData(int32_t dressID);
 
-// Returns the fossil entries from the JSON table.
-const nn::vector<RomData::FossilEntry>& GetFossilEntries();
+// Returns the fossil entry for the given item number, loading from {itemNo}.json on demand.
+RomData::FossilEntry GetFossilEntry(int32_t itemNo);
 
 // Returns the MonsNo for the given fossil item number, or 0 if not found.
 int32_t GetMonsNoFromItemNo(int32_t itemNo);
+
+// Returns the FormNo for the given fossil item number, or 0 if not found.
+int32_t GetFossilFormNoFromItemNo(int32_t itemNo);
+
+// Loads the list of fossil item numbers from fossil_items.json.
+RomData::FossilItemList LoadFossilItemList();
 
 void LoadFeaturesFromJSON(nn::json j);
