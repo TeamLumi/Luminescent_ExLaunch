@@ -8,6 +8,7 @@
 #include "externals/Effect/EffectInstance.h"
 #include "externals/EventCameraTable.h"
 #include "externals/EvData.h"
+#include "externals/FieldAnimatorController.h"
 #include "externals/LocalKoukan.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/Action.h"
@@ -321,7 +322,7 @@ namespace Dpr::EvScript {
             int32_t _effSeq;
             bool _pc_window_close;
             int32_t _dendou;
-            void * _umaAnimatorCtr;
+            FieldAnimatorController::Array* _umaAnimatorCtr;
             bool _isOpenCustomBallTrainer;
             int32_t _nicknamePlacementSequence;
             Effect::EffectInstance::Array * _scriptEffects;

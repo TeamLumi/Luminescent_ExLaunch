@@ -125,6 +125,8 @@ void CallFeatureHooks()
         exl_select_poffin_case_main();
     if (IsActivatedFeature(array_index(FEATURES, "Fake StopData")))
         exl_fake_stopdata_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
+        exl_surf_end_check_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

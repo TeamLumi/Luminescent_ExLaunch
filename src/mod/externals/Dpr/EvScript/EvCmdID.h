@@ -1289,7 +1289,14 @@ namespace Dpr::EvScript {
             _LEDGE_JUMP = 1279,
             _JUMP_AND_ROTATE = 1280,
             _WAIT_FOR_GAMEOBJECT = 1281,
-            _GET_TYPE_POKE = 1283,
+            _GET_GAMEOBJECT_POSITION = 1282,
+            _GAMEOBJECT_MOVE = 1283,
+            _GAMEOBJECT_ROTATE_PIVOT = 1284,
+            _SET_CAMERA_OFFSET_ANGLE = 1285,
+            _SP_WILD_BTL_SET_EXTRA = 1286,
+            _TEMOTI_BOX_GENDER = 1287,
+            _TEMOTI_BOX_SHINY = 1288,
+            _GET_TYPE_POKE = 1289,
 
             CUSTOM_CMD_END = 1500,
         };
