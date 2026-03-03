@@ -42,10 +42,11 @@ bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] result: The work in which to put the total fossil count.
 bool KasekiCount(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Looks up a fossil item number and returns the corresponding MonsNo.
+// Looks up a fossil item number and returns the corresponding MonsNo and FormNo.
 // Arguments:
-//   [Work] result: The work in which to put the MonsNo. 0 if not found.
 //   [Work, Number] itemNo: The item number to look up.
+//   [Work] monsNo: The work in which to put the MonsNo. 0 if not found.
+//   [Work] formNo: The work in which to put the FormNo. 0 if not found.
 bool ItemNoToMonsNo(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Iterates through fossil entries counting inventory items.
