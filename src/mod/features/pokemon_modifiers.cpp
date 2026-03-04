@@ -2,6 +2,8 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/BattlePokemonEntity.h"
+#include "externals/Dpr/Battle/View/BattleViewCore.h"
+#include "externals/Dpr/SequenceEditor/ParticleCreate.h"
 
 #include "logger/logger.h"
 #include "utils/utils.h"
@@ -49,7 +51,26 @@ HOOK_DEFINE_INLINE(PokemonModifiersTest) {
             }
 
             Logger::log("[PokemonModifiersTest] Totem! Adding effects for %s\n", bpe->fields._enityName->asCString().c_str());
-            bpe->fields._locators
+
+            system_load_typeinfo(0x1f1b);
+
+            auto seqSys = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._ViewSystem_k__BackingField->fields.m_iPtrSequenceSystem;
+            Logger::log("[PokemonModifiersTest] seqSys = %08X\n", seqSys);
+
+            auto iSeqView = seqSys->fields._ISequenceViewSystem;
+            Logger::log("[PokemonModifiersTest] iSeqView = %08X\n", iSeqView);
+
+            auto commandParam = Dpr::SequenceEditor::CommandParam::newInstance();
+            Logger::log("[PokemonModifiersTest] commandParam = %08X\n", commandParam);
+
+            auto baseMacro = Dpr::SequenceEditor::Macro::newInstance();
+            Logger::log("[PokemonModifiersTest] baseMacro = %08X\n", baseMacro);
+
+            commandParam->fields.Macro = Dpr::SequenceEditor::ParticleCreate::newInstance(baseMacro)->cast<Dpr::SequenceEditor::Macro>();
+            Logger::log("[PokemonModifiersTest] commandParam->fields.Macro = %08X\n", commandParam->fields.Macro);
+
+            seqSys->PreloadParticle(nullptr, iSeqView, commandParam);
+            Logger::log("[PokemonModifiersTest] Somehow... PreloadParticle called\n");
         }
         else
         {

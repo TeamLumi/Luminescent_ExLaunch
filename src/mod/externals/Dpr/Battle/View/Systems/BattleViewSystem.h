@@ -4,19 +4,20 @@
 
 #include "externals/Dpr/Battle/Logic/BattleViewBase.h"
 #include "externals/Dpr/Battle/View/BtlvBallInfo.h"
-#include "externals/Dpr/Battle/View/Systems/BTLV_WAZA_EFF_PARAM.h"
+#include "externals/Dpr/Battle/View/Objects/BtlvSound.h"
 #include "externals/Dpr/Battle/View/Systems/BattleCameraSystem.h"
+#include "externals/Dpr/Battle/View/Systems/BattleCharacterSystem.h"
+#include "externals/Dpr/Battle/View/Systems/BattleSequenceSystem.h"
+#include "externals/Dpr/Battle/View/Systems/BTLV_ATTR_EFF_PARAM.h"
+#include "externals/Dpr/Battle/View/Systems/BTLV_WAZA_EFF_PARAM.h"
 #include "externals/Dpr/Battle/View/Systems/DeadActParam.h"
+#include "externals/Dpr/Battle/View/Systems/EndGActParam.h"
 #include "externals/Dpr/Battle/View/Systems/MemberChangeActParam.h"
 #include "externals/Dpr/Battle/View/Systems/MemberOutActParam.h"
 #include "externals/Dpr/Battle/View/Systems/StartGActParam.h"
-#include "externals/Dpr/Battle/View/Systems/EndGActParam.h"
-#include "externals/Dpr/Battle/View/Systems/BattleCharacterSystem.h"
 #include "externals/Dpr/Battle/View/Systems/TrainerTalkParam.h"
-#include "externals/Dpr/Battle/View/Systems/BTLV_ATTR_EFF_PARAM.h"
-#include "externals/Dpr/Battle/View/Objects/BtlvSound.h"
-#include "externals/System/String.h"
 #include "externals/System/Nullable.h"
+#include "externals/System/String.h"
 #include "externals/UnityEngine/UI/Image.h"
 
 namespace Dpr::Battle::View::Systems {
@@ -25,7 +26,7 @@ namespace Dpr::Battle::View::Systems {
             bool m_isFinalize;
             bool m_isFinalizeFadeSkip;
             bool m_isFinishLoadObjects;
-            void* m_iPtrSequenceSystem;
+            Dpr::Battle::View::Systems::BattleSequenceSystem::Object* m_iPtrSequenceSystem;
             Dpr::Battle::View::Systems::BattleCharacterSystem::Object* m_iPtrCharacterSystem;
             Dpr::Battle::View::Systems::BattleCameraSystem::Object* m_iPtrCameraSystem;
             void* m_iPtrWeatherSystem;
