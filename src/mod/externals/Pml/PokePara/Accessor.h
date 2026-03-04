@@ -2,6 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Pml/PokePara/CoreDataBlockA.h"
 #include "externals/Pml/Sex.h"
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
@@ -257,6 +258,18 @@ namespace Pml::PokePara {
 
         inline uint32_t GetBirthPlace() {
             return external<uint32_t>(0x024a6f50, this);
+        }
+
+        inline bool DecodeAndCheckIllegalWrite() {
+            return external<bool>(0x024a42f0, this);
+        }
+
+        inline CoreDataBlockA::Object* GetCoreDataBlockA(uint8_t* _addr, bool forWrite) {
+            return external<CoreDataBlockA::Object*>(0x024a4990, this, _addr, forWrite);
+        }
+
+        inline void UpdateChecksumAndEncode() {
+            external<void>(0x024a3f20, this);
         }
     };
 }

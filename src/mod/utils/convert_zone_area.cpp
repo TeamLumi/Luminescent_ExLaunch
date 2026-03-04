@@ -5,6 +5,7 @@
 #include "data/zones.h"
 #include "externals/FlagWork_Enums.h"
 #include "externals/System/String.h"
+#include "utils/utils.h"
 
 System::String::Object* Convert_AreaID(void* typeinfo, int32_t* areaId) {
     if (*areaId >= 0 && *areaId < AREA_COUNT)

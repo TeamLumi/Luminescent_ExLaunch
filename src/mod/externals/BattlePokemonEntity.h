@@ -47,4 +47,9 @@ struct BattlePokemonEntity : ILClass<BattlePokemonEntity> {
     };
 
     static_assert(offsetof(Fields, isZIBAKOIRU) == 0x170);
+
+    // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
+    inline void SetPatcheelPattern(uint32_t rand, Pml::PokePara::PokemonParam::Object* param) {
+        external<void>(0x01d77990, this, rand, param);
+    }
 };

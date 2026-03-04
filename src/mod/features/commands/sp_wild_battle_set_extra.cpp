@@ -1,3 +1,5 @@
+#include "exlaunch.hpp"
+
 #include "data/abilities.h"
 #include "data/utils.h"
 
@@ -15,7 +17,7 @@
 
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
-#include "exlaunch.hpp"
+#include "utils/utils.h"
 
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
@@ -66,7 +68,7 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
             ability = GetWorkOrIntValue(args->m_Items[9]);
         }
         if (args->max_length >= 11) {
-            isCantUseBall = GetWorkOrIntValue(args->m_Items[10]);
+            isCantUseBall = GetWorkOrIntValue(args->m_Items[10]) != 0;
         }
         if (args->max_length >= 12) {
             overrideBGM = GetStringText(manager,args->m_Items[11]);
@@ -112,6 +114,8 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
         if (shiny == 2) coreParam->SetRareType(Pml::PokePara::RareType::DISTRIBUTED); // Square shiny
         if (formArg >= 0) coreParam->SetMultiPurposeWork(formArg);
         if (ability >= 0) coreParam->SetTokuseiIndex(ability);
+
+        SetTotem(coreParam, true);
 
         // Player position and attributes stuff
         EntityManager::getClass()->initIfNeeded();

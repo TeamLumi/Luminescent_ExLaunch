@@ -1,5 +1,6 @@
 #pragma once
 
+#include "externals/Pml/PokePara/CoreParam.h"
 #include "externals/XLSXContent/PokemonInfo.h"
 
 // Returns the "default" catalog for a monsno + formno combo.
@@ -32,3 +33,40 @@ System::String::Object* Convert_AreaID(void* typeinfo, int32_t* areaId);
 
 // Convert a zone ID to its arrive flag.
 int32_t ConvertZoneIDToArriveFlag(int32_t zoneId);
+
+
+// Get the Totem modifier flag from a CoreParam.
+bool IsTotem(Pml::PokePara::CoreParam::Object* param);
+
+// Get the Alpha modifier flag from a CoreParam.
+bool IsAlpha(Pml::PokePara::CoreParam::Object* param);
+
+// Get the Noble modifier flag from a CoreParam.
+bool IsNoble(Pml::PokePara::CoreParam::Object* param);
+
+// Get the Titan modifier flag from a CoreParam.
+bool IsTitan(Pml::PokePara::CoreParam::Object* param);
+
+// Get the Shadow modifier flag from a CoreParam.
+bool IsShadow(Pml::PokePara::CoreParam::Object* param);
+
+// Get the Purified Shadow modifier flag from a CoreParam.
+bool IsPurifiedShadow(Pml::PokePara::CoreParam::Object* param);
+
+// Set the Totem modifier flag on a CoreParam.
+void SetTotem(Pml::PokePara::CoreParam::Object* param, bool value);
+
+// Set the Alpha modifier flag on a CoreParam.
+void SetAlpha(Pml::PokePara::CoreParam::Object* param, bool value);
+
+// Set the Noble modifier flag on a CoreParam.
+void SetNoble(Pml::PokePara::CoreParam::Object* param, bool value);
+
+// Set the Titan modifier flag on a CoreParam.
+void SetTitan(Pml::PokePara::CoreParam::Object* param, bool value);
+
+// Set the Shadow modifier flag on a CoreParam.
+void SetShadow(Pml::PokePara::CoreParam::Object* param, bool value);
+
+// Set the Purified Shadow modifier flag on a CoreParam.
+void SetPurifiedShadow(Pml::PokePara::CoreParam::Object* param, bool value);

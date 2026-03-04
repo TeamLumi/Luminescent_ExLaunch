@@ -26,6 +26,13 @@ namespace UnityEngine {
             return external<bool>(0x029a3dd0, lhsProxy, rhsProxy);
         }
 
+        static inline Vector3::Object op_Multiply(Vector3::Object a, float d) {
+            UnityEngine::Vector3::Fields aProxy = { .x = a.fields.x, .y = a.fields.y, .z = a.fields.z };
+            return {
+                .fields = external<Vector3::Fields>(0x029a3d60, aProxy, d)
+            };
+        }
+
         static inline Vector3::Object get_zero() {
             return {
                 .fields = external<Vector3::Fields>(0x029a3170)

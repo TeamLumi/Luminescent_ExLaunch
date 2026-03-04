@@ -127,6 +127,8 @@ void CallFeatureHooks()
         exl_fake_stopdata_main();
     if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
         exl_surf_end_check_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Pokémon Modifiers")))
+        exl_pokemon_modifiers_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

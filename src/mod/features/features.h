@@ -122,6 +122,9 @@ void exl_move_tutor_relearner_main();
 // Adds audio feedback when "bonking" into NPCs.
 void exl_npc_collision_audio_main();
 
+// Replaces pickup ranges with new ranges abiding by Lumi level caps.
+void exl_pickup_main();
+
 // Adds nicknaming and move relearning to the party menu.
 void exl_pla_context_menu_main();
 
@@ -131,12 +134,12 @@ void exl_player_select_main();
 // Fixes Poké Radar bugs and improves chain rates.
 void exl_poke_radar_fixes_main();
 
+// Adds support for modifiers to Pokémon. (Totems, Alphas, Titans, etc.)
+void exl_pokemon_modifiers_main();
+
 // Adds support for two-button Pokétch.
 // Requires an edited PoketchWindow prefab with a second Pokétch button.
 void exl_poketch_main();
-
-// Replaces pickup ranges with new ranges abiding by Lumi level caps.
-void exl_pickup_main();
 
 // Allows making pushable entities (placedata) which stop at a specific attribute.
 void exl_pushable_entities_main();
