@@ -14,6 +14,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ChangePokeType.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_ConsumeItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Damage.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
@@ -195,6 +196,10 @@ namespace Dpr::Battle::Logic {
 
         static inline bool CheckUnbreakablePokeItem(uint16_t monsno, uint16_t itemID) {
             return external<bool>(0x01d0d780, monsno, itemID);
+        }
+
+        static inline bool FormChange(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FormChange::Description::Object** desc) {
+            return external<bool>(0x01d0cab0, args, desc);
         }
     };
 }

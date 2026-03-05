@@ -244,6 +244,10 @@ namespace Dpr::Battle::Logic {
         inline uint8_t GetFormNo() {
             return external<uint8_t>(0x01fda170, this);
         }
+
+        inline bool HENSIN_Check() {
+            return external<bool>(0x01fdd470, this);
+        }
     };
 }
 

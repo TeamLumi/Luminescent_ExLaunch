@@ -156,6 +156,15 @@ enum class ArceusForm : int32_t {
     MAX
 };
 
+enum class DarmanitanForm : int32_t {
+    UNOVAN_STANDARD = 0,
+    UNOVAN_ZEN = 1,
+    GALARIAN_STANDARD = 2,
+    GALARIAN_ZEN = 3,
+
+    MAX
+};
+
 enum class GenesectForm : int32_t {
     REGULAR = 0,
     DOUSE_DRIVE = 1,

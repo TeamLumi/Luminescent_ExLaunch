@@ -22,6 +22,9 @@ void InstallHooks_Ability_RunAway();
 // Installs hooks for Iron Fist.
 void InstallHooks_Ability_IronFist();
 
+// Adds ability handlers for Zen Mode.
+void Handlers_Move_ZenMode(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
 // Installs hooks for Gale Wings.
 void InstallHooks_Ability_GaleWings();
 
