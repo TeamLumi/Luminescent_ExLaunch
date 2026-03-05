@@ -58,6 +58,7 @@ HOOK_DEFINE_INLINE(Tokusei_system_array_new) {
         getExtraAbilityHandlers()->currentIndex = size;
 
         // DO NOT REMOVE ANY OF THESE! Disable the side effects in exl_side_handlers_main() below instead!
+        if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Sharpness")]) Handlers_Move_Sharpness(array);
 
         ctx->X[0] = (uint64_t)array;
     }
@@ -76,6 +77,7 @@ void exl_ability_handlers_main() {
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Run Away"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Iron Fist"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Gale Wings"));
+    SetActivatedAbilityHandlers(array_index(ABILITIES, "Sharpness"));
 
     InstallActivatedAbilityHooks();
 }

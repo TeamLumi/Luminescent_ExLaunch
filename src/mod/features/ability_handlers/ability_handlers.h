@@ -24,3 +24,6 @@ void InstallHooks_Ability_IronFist();
 
 // Installs hooks for Gale Wings.
 void InstallHooks_Ability_GaleWings();
+
+// Adds ability handlers for Sharpness.
+void Handlers_Move_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
