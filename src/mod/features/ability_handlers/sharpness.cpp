@@ -1,5 +1,7 @@
 #include "exlaunch.hpp"
 
+#include "features/ability_handlers/ability_handlers.h"
+
 #include "externals/Dpr/Battle/Logic/Common.h"
 #include "externals/Dpr/Battle/Logic/EventVar.h"
 #include "externals/Dpr/Battle/Logic/FX32.h"
@@ -8,7 +10,6 @@
 #include "data/abilities.h"
 #include "data/moves.h"
 #include "data/utils.h"
-#include "ability_handlers.h"
 
 using namespace Dpr::Battle::Logic;
 

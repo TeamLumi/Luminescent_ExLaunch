@@ -69,6 +69,7 @@ void InstallActivatedAbilityHooks() {
     if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Run Away")]) InstallHooks_Ability_RunAway();
     if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Iron Fist")]) InstallHooks_Ability_IronFist();
     if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Gale Wings")]) InstallHooks_Ability_GaleWings();
+    if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Mega Launcher")]) InstallHooks_Ability_MegaLauncher();
 }
 
 void exl_ability_handlers_main() {
@@ -77,6 +78,7 @@ void exl_ability_handlers_main() {
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Run Away"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Iron Fist"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Gale Wings"));
+    SetActivatedAbilityHandlers(array_index(ABILITIES, "Mega Launcher"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Sharpness"));
 
     InstallActivatedAbilityHooks();

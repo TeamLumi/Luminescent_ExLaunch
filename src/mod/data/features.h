@@ -1,7 +1,6 @@
 #pragma once
 
 static constexpr const char* FEATURES[] = {
-    "Ability Changes",
     "Alt Starters",
     "Area/Zone Codes",
     "Badge Check",

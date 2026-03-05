@@ -23,9 +23,6 @@ void exl_patches_main();
 void exl_battle_features_main();
 
 
-// Applies some basic ability changes.
-void exl_ability_changes_main();
-
 // Allows starters to be changed via external JSON files.
 void exl_alt_starters_main();
 
