@@ -44,8 +44,16 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(ObjDirChange(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE:
                     return HandleCmdStepper(ObjDirChange(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_KASEKI_COUNT:
+                    return HandleCmdStepper(KasekiCount(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ITEMNO_TO_MONSNO:
+                    return HandleCmdStepper(ItemNoToMonsNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_KASEKI_ITEMNO:
+                    return HandleCmdStepper(KasekiItemNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT:
                     return HandleCmdStepper(StopEffect(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME:
+                    return HandleCmdStepper(ReleaseUmaAnime(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO:
                     return HandleCmdStepper(PartyFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO:
@@ -138,6 +146,20 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(JumpAndRotate(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT:
                     return HandleCmdStepper(WaitForGameObject(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_GAMEOBJECT_POSITION:
+                    return HandleCmdStepper(GetGameObjectPosition(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_MOVE:
+                    return HandleCmdStepper(GameObjectMove(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT:
+                    return HandleCmdStepper(GameObjectRotatePivot(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE:
+                    return HandleCmdStepper(SetCameraOffsetAngle(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA:
+                    return HandleCmdStepper(SpWildBtlSetExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER:
+                    return HandleCmdStepper(PartyBoxGender(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY:
+                    return HandleCmdStepper(PartyBoxShiny(__this));
                 default:
                     break;
             }
@@ -148,20 +170,33 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
     }
 };
 
+// Hooks for command overrides
+void exl_commands_hooks_main() {
+    if (ACTIVATED_COMMANDS[(int)Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME])
+        Hooks_LoadUmaAnime();
+}
+
 void exl_commands_main() {
     RunEvCmdCustom::InstallAtOffset(0x02c5b290);
 
-    // Select which new commands/overrides are activated
     for (bool & i : ACTIVATED_COMMANDS)
         i = false;
 
+    // Activate command overrides
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_KASEKI_COUNT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ITEMNO_TO_MONSNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_KASEKI_ITEMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME);
+
+    // Activate new commands
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_BOX_POKE_SEIKAKU);
@@ -208,4 +243,13 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LEDGE_JUMP);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_JUMP_AND_ROTATE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_WAIT_FOR_GAMEOBJECT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_GAMEOBJECT_POSITION);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_MOVE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
+
+    exl_commands_hooks_main();
 }

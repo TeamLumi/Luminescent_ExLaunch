@@ -169,6 +169,9 @@ void exl_static_held_items_main();
 // Adds support for Sigma Platinum-style Sound encounters.
 void exl_sounds_main();
 
+// Disables getting out of surfing in specific zones.
+void exl_surf_end_check_main();
+
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 

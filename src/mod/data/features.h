@@ -58,6 +58,7 @@ static constexpr const char* FEATURES[] = {
     "Pushable Entities",
     "Select Poffin Case",
     "Fake StopData",
+    "Surf End Check",
     "Custom UI",
     "Radar Patches",
 };
@@ -104,6 +105,7 @@ static constexpr const char* SMALL_PATCH_FEATURES[] = {
     "Affection Toggle",
     "Global Exp. Share Toggle",
     "Catch Rate Fix",
+    "Extended Flags Fixes",
 };
 
 constexpr int SMALL_PATCH_FEATURE_COUNT = sizeof(SMALL_PATCH_FEATURES) / sizeof(SMALL_PATCH_FEATURES[0]);
