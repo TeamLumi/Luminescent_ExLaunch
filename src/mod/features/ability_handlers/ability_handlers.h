@@ -25,6 +25,9 @@ void InstallHooks_Ability_IronFist();
 // Adds ability handlers for Zen Mode.
 void Handlers_Move_ZenMode(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
+// Adds ability handlers for Stance Change.
+void Handlers_Move_StanceChange(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
 // Installs hooks for Gale Wings.
 void InstallHooks_Ability_GaleWings();
 
