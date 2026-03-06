@@ -201,5 +201,9 @@ namespace Dpr::Battle::Logic {
         static inline bool FormChange(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FormChange::Description::Object** desc) {
             return external<bool>(0x01d0cab0, args, desc);
         }
+
+        static inline bool GuardWazaSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, Pml::WazaData::WazaSick guardSick) {
+            return external<bool>(0x01d0e600, args, pokeID, guardSick);
+        }
     };
 }

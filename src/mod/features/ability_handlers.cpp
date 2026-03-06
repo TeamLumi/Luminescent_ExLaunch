@@ -60,6 +60,7 @@ HOOK_DEFINE_INLINE(Tokusei_system_array_new) {
         // DO NOT REMOVE ANY OF THESE! Disable the side effects in exl_ability_handlers_main() below instead!
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Zen Mode")]) Handlers_Move_ZenMode(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Stance Change")]) Handlers_Move_StanceChange(array);
+        if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Shields Down")]) Handlers_Move_ShieldsDown(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Sharpness")]) Handlers_Move_Sharpness(array);
 
         ctx->X[0] = (uint64_t)array;
@@ -83,6 +84,7 @@ void exl_ability_handlers_main() {
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Stance Change"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Gale Wings"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Mega Launcher"));
+    SetActivatedAbilityHandlers(array_index(ABILITIES, "Shields Down"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Sharpness"));
 
     InstallActivatedAbilityHooks();

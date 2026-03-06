@@ -283,5 +283,15 @@ namespace Dpr::Battle::Logic::Handler {
         static inline StaticILMethod<0x04c69790, uint8_t*> PTR_Method$$ADD_AirLock {};
 
         static inline StaticILMethod<0x04c792e0, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_AddSickFailCommon {};
+        static inline StaticILMethod<0x04c79538, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Fumin_InemuriCheck {};
+
+
+        static inline void handler_AddSickFailCommon(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            external<void>(0x01946220, args, pokeID);
+        }
+
+        static inline void handler_Fumin_InemuriCheck(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
+            external<void>(0x01945100, args, pokeID);
+        }
     };
 }

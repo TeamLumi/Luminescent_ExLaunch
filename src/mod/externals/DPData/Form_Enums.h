@@ -230,6 +230,25 @@ enum class SilvallyForm : int32_t {
     MAX
 };
 
+enum class MiniorForm : int32_t {
+    RED_METEOR = 0,
+    ORANGE_METEOR = 1,
+    YELLOW_METEOR = 2,
+    GREEN_METEOR = 3,
+    BLUE_METEOR = 4,
+    INDIGO_METEOR = 5,
+    VIOLET_METEOR = 6,
+    RED_CORE = 7,
+    ORANGE_CORE = 8,
+    YELLOW_CORE = 9,
+    GREEN_CORE = 10,
+    BLUE_CORE = 11,
+    INDIGO_CORE = 12,
+    VIOLET_CORE = 13,
+
+    MAX
+};
+
 enum class ToxtricityForm : int32_t {
     AMPED = 0,
     LOW_KEY = 1,

@@ -34,5 +34,8 @@ void InstallHooks_Ability_GaleWings();
 // Installs hooks for Mega Launcher.
 void InstallHooks_Ability_MegaLauncher();
 
+// Adds ability handlers for Shields Down.
+void Handlers_Move_ShieldsDown(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
 // Adds ability handlers for Sharpness.
 void Handlers_Move_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
