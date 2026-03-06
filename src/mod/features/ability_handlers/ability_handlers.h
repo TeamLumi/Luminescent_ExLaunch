@@ -23,10 +23,10 @@ void InstallHooks_Ability_RunAway();
 void InstallHooks_Ability_IronFist();
 
 // Adds ability handlers for Zen Mode.
-void Handlers_Move_ZenMode(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+void Handlers_Ability_ZenMode(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds ability handlers for Stance Change.
-void Handlers_Move_StanceChange(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+void Handlers_Ability_StanceChange(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Installs hooks for Gale Wings.
 void InstallHooks_Ability_GaleWings();
@@ -35,7 +35,10 @@ void InstallHooks_Ability_GaleWings();
 void InstallHooks_Ability_MegaLauncher();
 
 // Adds ability handlers for Shields Down.
-void Handlers_Move_ShieldsDown(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+void Handlers_Ability_ShieldsDown(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds ability handlers for Schooling.
+void Handlers_Ability_Schooling(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
 // Adds ability handlers for Sharpness.
-void Handlers_Move_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+void Handlers_Ability_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

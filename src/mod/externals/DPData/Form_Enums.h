@@ -207,6 +207,13 @@ enum class AegislashForm : int32_t {
     MAX
 };
 
+enum class WishiwashiForm : int32_t {
+    SOLO = 0,
+    SCHOOL = 1,
+
+    MAX
+};
+
 enum class SilvallyForm : int32_t {
     NORMAL = 0,
     FIGHTING = 1,

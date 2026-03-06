@@ -212,7 +212,7 @@ EventFactor::EventHandlerTable::Array* ADD_ZenMode_Lumi(uint8_t* prio) {
 }
 
 
-void Handlers_Move_ZenMode(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Ability_ZenMode(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetAbilityFunctionTable(getFuncTable, getExtraAbilityHandlers()->currentIndex, array_index(ABILITIES, "Zen Mode"), (Il2CppMethodPointer)&ADD_ZenMode_Lumi);
     getExtraAbilityHandlers()->currentIndex++;
 }

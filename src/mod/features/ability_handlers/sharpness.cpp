@@ -70,7 +70,7 @@ EventFactor::EventHandlerTable::Array* ADD_Sharpness(uint8_t* prio) {
     return table;
 }
 
-void Handlers_Move_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Ability_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetAbilityFunctionTable(getFuncTable, getExtraAbilityHandlers()->currentIndex, array_index(ABILITIES, "Sharpness"), (Il2CppMethodPointer)&ADD_Sharpness);
     getExtraAbilityHandlers()->currentIndex++;
 }

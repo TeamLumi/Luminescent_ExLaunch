@@ -10,6 +10,7 @@ struct ExtraAbilityHandlers {
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_ZenMode = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_StanceChange = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_ShieldsDown = nullptr;
+    Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Schooling = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Sharpness = nullptr;
     // ...
 };

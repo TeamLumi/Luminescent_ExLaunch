@@ -54,7 +54,7 @@ EventFactor::EventHandlerTable::Array* ADD_StanceChange(uint8_t* prio) {
     return table;
 }
 
-void Handlers_Move_StanceChange(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
+void Handlers_Ability_StanceChange(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable) {
     SetAbilityFunctionTable(getFuncTable, getExtraAbilityHandlers()->currentIndex, array_index(ABILITIES, "Stance Change"), (Il2CppMethodPointer)&ADD_StanceChange);
     getExtraAbilityHandlers()->currentIndex++;
 }
