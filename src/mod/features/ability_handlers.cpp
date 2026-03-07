@@ -62,6 +62,7 @@ HOOK_DEFINE_INLINE(Tokusei_system_array_new) {
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Stance Change")]) Handlers_Ability_StanceChange(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Shields Down")]) Handlers_Ability_ShieldsDown(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Schooling")]) Handlers_Ability_Schooling(array);
+        if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Disguise")]) Handlers_Ability_Disguise(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Sharpness")]) Handlers_Ability_Sharpness(array);
 
         ctx->X[0] = (uint64_t)array;
@@ -87,6 +88,7 @@ void exl_ability_handlers_main() {
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Mega Launcher"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Shields Down"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Schooling"));
+    SetActivatedAbilityHandlers(array_index(ABILITIES, "Disguise"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Sharpness"));
 
     InstallActivatedAbilityHooks();

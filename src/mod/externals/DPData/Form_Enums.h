@@ -256,6 +256,13 @@ enum class MiniorForm : int32_t {
     MAX
 };
 
+enum class MimikyuForm : int32_t {
+    DISGUISED = 0,
+    BUSTED = 1,
+
+    MAX
+};
+
 enum class ToxtricityForm : int32_t {
     AMPED = 0,
     LOW_KEY = 1,

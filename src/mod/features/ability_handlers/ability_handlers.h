@@ -40,5 +40,8 @@ void Handlers_Ability_ShieldsDown(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* 
 // Adds ability handlers for Schooling.
 void Handlers_Ability_Schooling(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
 
+// Adds ability handlers for Disguise.
+void Handlers_Ability_Disguise(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
 // Adds ability handlers for Sharpness.
 void Handlers_Ability_Sharpness(Handler::Tokusei::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
