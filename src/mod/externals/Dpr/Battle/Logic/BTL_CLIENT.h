@@ -92,7 +92,7 @@ namespace Dpr::Battle::Logic {
             bool m_fStdMsgChanged;
             bool m_b1stReadyMsgDisped;
             void* m_cmdCheckServer; // BTL_SERVER_o*
-            void* _m_viewCore; // BattleViewBase_o*
+            BattleViewBase::Object* _m_viewCore;
             void* m_viewExpGetDesc; // BattleViewBase_ExpGetDesc_o*
             void* m_viewExpGetResult; // BattleViewBase_ExpGetResult_o*
             BTL_ACTION_PARAM::Array* m_actionParam;

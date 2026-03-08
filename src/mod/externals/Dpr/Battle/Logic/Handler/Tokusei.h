@@ -293,5 +293,9 @@ namespace Dpr::Battle::Logic::Handler {
         static inline void handler_Fumin_InemuriCheck(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
             external<void>(0x01945100, args, pokeID);
         }
+
+        static inline void common_weather_change(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t weather, uint16_t boostItem, bool isPermanent) {
+            external<void>(0x01946cc0, args, pokeID, weather, boostItem, isPermanent);
+        }
     };
 }

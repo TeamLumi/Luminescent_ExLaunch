@@ -37,5 +37,9 @@ namespace Dpr::Battle::Logic {
         inline void AddArg(int32_t arg) {
             external<void>(0x01f72130, this, arg);
         }
+
+        inline void Clear() {
+            external<void>(0x01f71e70, this);
+        }
     };
 }
