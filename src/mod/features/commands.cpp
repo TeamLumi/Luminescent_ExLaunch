@@ -160,6 +160,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxGender(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY:
                     return HandleCmdStepper(PartyBoxShiny(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
+                    return HandleCmdStepper(SetPartnerPokemon(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_TYPE_POKE:
                     return HandleCmdStepper(GetTypePoke(__this));
                 default:
@@ -252,6 +254,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_TYPE_POKE);
 
     exl_commands_hooks_main();
