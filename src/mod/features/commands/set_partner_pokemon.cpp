@@ -1,3 +1,4 @@
+#include "externals/PlayerWork.h"
 #include "externals/FieldManager.h"
 #include "externals/Dpr/Field/Walking/FieldWalkingManager.h"
 
@@ -13,11 +14,21 @@ bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager)
     {
         auto index = GetWorkOrIntValue(args->m_Items[1]);
         auto fieldWalkingManager = FieldManager::getClass()->static_fields->fwMng->instance();
-        Pml::PokePara::PokemonParam::Object * poke = manager->GetPokemonParam(-1, index);
+        auto memberCount = PlayerWork::get_playerParty()->fields.m_memberCount;
 
-        Logger::log("Calling SetPartnerPoke with index %d\n", index);
-        fieldWalkingManager->SetPartnerPoke(poke);
+        if (index <= -1)
+        {
+            fieldWalkingManager->SetPartnerPoke(nullptr);
+        }
+        else if (memberCount > index)
+        {
+            Pml::PokePara::PokemonParam::Object * poke = manager->GetPokemonParam(-1, index);
+            if (!IsNullOrEgg(poke))
+            {
+                Logger::log("Calling SetPartnerPoke with index %d\n", index);
+                fieldWalkingManager->SetPartnerPoke(poke);
+            }
+        }
     }
-
     return true;
 }
