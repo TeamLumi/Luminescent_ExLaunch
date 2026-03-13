@@ -350,6 +350,7 @@ HOOK_DEFINE_REPLACE(Section_ChangeWeather_Check$$Execute) {
 };
 
 
+// CHANGE WEATHER SPAWNED BY SAND STREAM TO SNOW FOR TESTING
 HOOK_DEFINE_REPLACE(handler_Sunaokosi) {
     static void Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
         system_load_typeinfo(0x8a5b);
@@ -374,7 +375,7 @@ void InstallHooks_FieldEffect_Weather() {
     calc$$IsRainWeather::InstallAtOffset(0x01f758c0);
     Section_ChangeWeather_Check$$Execute::InstallAtOffset(0x021ae6d0);
 
-    handler_Sunaokosi::InstallAtOffset(0x01947000);
+    //handler_Sunaokosi::InstallAtOffset(0x01947000);
 
     SetActivatedFieldWeatherHandlers(array_index(BATTLE_WEATHERS, "Harsh Sunlight"));
     SetActivatedFieldWeatherHandlers(array_index(BATTLE_WEATHERS, "Rain"));

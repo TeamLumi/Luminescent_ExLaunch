@@ -63,7 +63,7 @@ HOOK_DEFINE_INLINE(Tokusei_system_array_new) {
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Shields Down")]) Handlers_Ability_ShieldsDown(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Schooling")]) Handlers_Ability_Schooling(array);
         if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Disguise")]) Handlers_Ability_Disguise(array);
-        if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Sharpness")]) Handlers_Ability_Sharpness(array);
+        //if (ACTIVATED_ABILITY_HANDLERS[array_index(ABILITIES, "Sharpness")]) Handlers_Ability_Sharpness(array);
 
         ctx->X[0] = (uint64_t)array;
     }
