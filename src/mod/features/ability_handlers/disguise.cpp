@@ -22,13 +22,13 @@ bool DisguiseCanChangeForm(BTL_POKEPARAM::Object* bpp, uint8_t nextForm) {
     return bpp->GetMonsNo() == array_index(SPECIES, "Mimikyu") && !bpp->HENSIN_Check() && bpp->GetFormNo() != (uint8_t)nextForm;
 }
 
-bool AdjustDisguiseForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbiltiy) {
+bool AdjustDisguiseForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility) {
     system_load_typeinfo(0x890f);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
     if (DisguiseCanChangeForm(bpp, (uint8_t)MimikyuForm::BUSTED)) {
-        HandlerFormChange(args, pokeID, (uint8_t)MimikyuForm::BUSTED, false, displayAbiltiy, true, BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::Bakenokawa);
+        HandlerFormChange(args, pokeID, (uint8_t)MimikyuForm::BUSTED, false, displayAbility, true, BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::Bakenokawa);
         return true;
     } else {
         return false;

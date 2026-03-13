@@ -123,14 +123,14 @@ bool ShieldsDownCanChangeForm(BTL_POKEPARAM::Object* bpp, uint8_t nextForm) {
     return bpp->GetMonsNo() == array_index(SPECIES, "Minior") && !bpp->HENSIN_Check() && bpp->GetFormNo() != (uint8_t)nextForm;
 }
 
-bool AdjustShieldsDownForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbiltiy) {
+bool AdjustShieldsDownForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility) {
     system_load_typeinfo(0x890f);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
     MiniorForm nextForm = FindNextMiniorForm(bpp);
     if (ShieldsDownCanChangeForm(bpp, (uint8_t)nextForm)) {
-        HandlerFormChange(args, pokeID, (uint8_t)nextForm, false, displayAbiltiy, true, BtlStrType::BTL_STRTYPE_STD, MiniorFormToShieldsDownStringID(nextForm));
+        HandlerFormChange(args, pokeID, (uint8_t)nextForm, false, displayAbility, true, BtlStrType::BTL_STRTYPE_STD, MiniorFormToShieldsDownStringID(nextForm));
         return true;
     } else {
         return false;

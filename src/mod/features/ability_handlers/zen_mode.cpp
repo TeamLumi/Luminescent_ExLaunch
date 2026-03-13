@@ -78,14 +78,14 @@ bool ZenModeCanChangeForm(BTL_POKEPARAM::Object* bpp, uint8_t nextForm) {
     return bpp->GetMonsNo() == array_index(SPECIES, "Darmanitan") && !bpp->HENSIN_Check() && bpp->GetFormNo() != (uint8_t)nextForm;
 }
 
-bool AdjustZenModeForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbiltiy, bool hpCheck) {
+bool AdjustZenModeForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility, bool hpCheck) {
     system_load_typeinfo(0x890f);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
     DarmanitanForm nextForm = FindNextDarmanitanForm(bpp, hpCheck);
     if (ZenModeCanChangeForm(bpp, (uint8_t)nextForm)) {
-        HandlerFormChange(args, pokeID, (uint8_t)nextForm, false, displayAbiltiy, true, BtlStrType::BTL_STRTYPE_STD, DarmanitanFormToZenModeStringID(nextForm));
+        HandlerFormChange(args, pokeID, (uint8_t)nextForm, false, displayAbility, true, BtlStrType::BTL_STRTYPE_STD, DarmanitanFormToZenModeStringID(nextForm));
         return true;
     } else {
         return false;
