@@ -449,3 +449,8 @@ bool PartyBoxGender(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
 //   [Work] result: The work in which to put the result in. 0 = Not Shiny, 1 = Shiny (captured), 2 = Shiny (distributed), -1 if null or egg.
 bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets a party Pokémon as the follower, by their index.
+// Arguments:
+//   [Work, Number] index: The index of the party Pokémon to be set as the follower.
+bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
