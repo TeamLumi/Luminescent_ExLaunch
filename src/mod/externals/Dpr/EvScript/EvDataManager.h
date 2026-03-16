@@ -499,5 +499,9 @@ namespace Dpr::EvScript {
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {
             return external<Dpr::EvScript::EvDataManager::Object*>(0x02c3d4d0);
         }
+
+        inline int32_t FieldObjectEntityAdd(void* entity) {
+            return external<int32_t>(0x02ca4f60, this, entity);
+        }
     };
 }

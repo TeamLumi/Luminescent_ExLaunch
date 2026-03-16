@@ -8,6 +8,12 @@
 #include "externals/UnityEngine/Transform.h"
 
 struct FieldPokemonEntity : ILClass<FieldPokemonEntity, 0x04c5ecf0> {
+    enum AnimIndex : int32_t {
+        ANIM_IDLE = 0,
+        ANIM_WALK = 1,
+        ANIM_RUN  = 2,
+    };
+
     struct Fields : FieldObjectEntity::Fields {
         float scale;
         void* _animationPlayer; // AnimationPlayer_o*
