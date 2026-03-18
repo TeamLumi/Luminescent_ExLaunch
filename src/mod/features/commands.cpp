@@ -44,6 +44,12 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(ObjDirChange(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE:
                     return HandleCmdStepper(ObjDirChange(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_KASEKI_COUNT:
+                    return HandleCmdStepper(KasekiCount(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ITEMNO_TO_MONSNO:
+                    return HandleCmdStepper(ItemNoToMonsNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_KASEKI_ITEMNO:
+                    return HandleCmdStepper(KasekiItemNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT:
                     return HandleCmdStepper(StopEffect(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME:
@@ -154,6 +160,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxGender(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY:
                     return HandleCmdStepper(PartyBoxShiny(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
+                    return HandleCmdStepper(SetPartnerPokemon(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_NPC_JUMP:
                     return HandleCmdStepper(NpcJump(__this));
                 default:
@@ -185,6 +193,9 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_KASEKI_COUNT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ITEMNO_TO_MONSNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_KASEKI_ITEMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME);
@@ -243,6 +254,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_NPC_JUMP);
 
     exl_commands_hooks_main();

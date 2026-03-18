@@ -1296,7 +1296,8 @@ namespace Dpr::EvScript {
             _SP_WILD_BTL_SET_EXTRA = 1286,
             _TEMOTI_BOX_GENDER = 1287,
             _TEMOTI_BOX_SHINY = 1288,
-            _NPC_JUMP = 1289,
+            _SET_TUREARUKI = 1289,
+            _NPC_JUMP = 1290,
 
             CUSTOM_CMD_END = 1500,
         };
