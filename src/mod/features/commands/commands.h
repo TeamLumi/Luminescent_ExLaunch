@@ -454,3 +454,13 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Makes an NPC entity jump using the player's JumpCalculator for trajectory.
+// Jumps in the entity's facing direction.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index of the NPC.
+//   [Work, Number] moveDistance: The number of tiles to jump forward. (Default 2.0)
+//   [Work, Number] relativeHeight: Peak height relative to start. (Default 0.75)
+//   [Work, Number] relativeLower: Landing offset relative to start. (Default -0.5)
+//   [Work, Number] duration: The time in seconds for the jump. (Default 0.5)
+bool NpcJump(Dpr::EvScript::EvDataManager::Object* manager);
