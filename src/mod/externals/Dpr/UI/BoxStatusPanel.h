@@ -37,6 +37,15 @@ namespace Dpr::UI {
             float _closePosX;
         };
 
+        // displayType: 1 = moves view, 2 = stats/judge view
+        inline void SetUp(int32_t displayType, Pml::PokePara::CoreParam::Object* pokemonParam) {
+            external<int32_t>(0x1CB0980, this, displayType, pokemonParam);
+        }
+
+        inline void Open(int32_t displayType, Pml::PokePara::CoreParam::Object* pokemonParam) {
+            external<void>(0x1CB0930, this, displayType, pokemonParam);
+        }
+
         struct DisplayClass35_0 : ILClass <DisplayClass35_0> {
             struct Fields {
                 Pml::PokePara::CoreParam * pokemonParam;

@@ -43,5 +43,14 @@ namespace Dpr::UI {
         inline void Open(Pml::PokePara::PokemonParam::Object* pokemonParam, bool isSkipAddMemberProc, int32_t prevWindowId) {
             external<void>(0x01a3cd30, this, pokemonParam, isSkipAddMemberProc, prevWindowId);
         }
+
+        // bootType=1: shows pokemon model + description only, no nickname/add-member flow
+        inline void OpenRegisterOnly(Pml::PokePara::PokemonParam::Object* pokemonParam, int32_t prevWindowId) {
+            external<void>(0x01a3ced0, this, pokemonParam, prevWindowId);
+        }
+
+        inline void Close(void* onPreClose, int32_t prevWindowId) {
+            external<void>(0x01a3d220, this, onPreClose, prevWindowId);
+        }
     };
 }
