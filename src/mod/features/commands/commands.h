@@ -2,6 +2,10 @@
 
 #include "externals/Dpr/EvScript/EvDataManager.h"
 
+// Team-up trainer flag bypass: returns true if bypass is active (skip the jump/call),
+// false if caller should fall through to Orig().
+bool IfTrFlagonBypass(Dpr::EvScript::EvDataManager::Object* manager);
+
 // HOOKS
 
 // Hooks for _LOAD_UMA_ANIME.

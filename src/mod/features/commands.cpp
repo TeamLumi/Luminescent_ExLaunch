@@ -162,6 +162,14 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxShiny(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
                     return HandleCmdStepper(SetPartnerPokemon(__this));
+
+                // Team-up trainer flag bypass: if bypass active, skip the jump/call.
+                // If not active, break to fall through to Orig() for vanilla handling.
+                case Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_JUMP:
+                case Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_CALL:
+                    if (IfTrFlagonBypass(__this))
+                        return HandleCmdStepper(true);
+                    break; // fall through to Orig()
                 default:
                     break;
             }
@@ -253,6 +261,10 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
+
+    // Team-up trainer flag bypass (vanilla commands intercepted for team-up sync)
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_JUMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_CALL);
 
     exl_commands_hooks_main();
 }

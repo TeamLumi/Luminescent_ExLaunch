@@ -129,6 +129,10 @@ void CallFeatureHooks()
         exl_ug_statue_names_main();
     if (IsActivatedFeature(array_index(FEATURES, "Underground Visible Shinies")))
         exl_ug_shinies_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Overworld Multiplayer")))
+        exl_overworld_multiplayer_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Overworld Multiplayer")))
+        exl_team_up_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

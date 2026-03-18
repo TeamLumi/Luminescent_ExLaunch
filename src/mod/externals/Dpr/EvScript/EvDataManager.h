@@ -499,5 +499,15 @@ namespace Dpr::EvScript {
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {
             return external<Dpr::EvScript::EvDataManager::Object*>(0x02c3d4d0);
         }
+
+        // Freezes field objects, disables player input, sets UpdateWait delegate
+        inline void OnOpenMenu() {
+            external<void>(0x02c46900, this);
+        }
+
+        // Resumes field objects, re-enables player input
+        inline void OnCloseMenu() {
+            external<void>(0x02c47250, this);
+        }
     };
 }

@@ -6,10 +6,20 @@
 #include "externals/Dpr/UI/UIWindow.h"
 #include "externals/Dpr/UI/BoxStatusPanel.h"
 #include "externals/Dpr/UI/BoxTray.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/System/Action.h"
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
+        static inline StaticILMethod<0x04C8FF30, BoxWindow> Method$$CreateUIWindow {};
+
+        struct SelectedPokemon : ILClass<SelectedPokemon, 0x04C63490> {
+            struct Fields {
+                Pml::PokePara::PokemonParam::Object* Param;
+                int32_t TrayIndex;      // -1 = party, 0+ = box tray
+                int32_t IndexInTray;    // slot within party/tray
+            };
+        };
         struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
             struct Fields {
                 int32_t dispMode;
@@ -44,6 +54,44 @@ namespace Dpr::UI {
             inline void ctor() {
                 external<void>(0x01a27970, this);
             }
+        };
+
+        // BoxWindow.TradeParam — TypeDefIndex 8197
+        struct TradeParam : ILClass<TradeParam, 0x04C63BA8> {
+            struct Fields {
+                int32_t selectIndex;                                      // 0x10
+                System::Action::Object* onSelected;                       // 0x18  Action<BoxWindow, SelectedPokemon[]>
+                System::Action::Object* onDecide;                         // 0x20  Action<BoxWindow>
+                System::Action::Object* onConfirm;                        // 0x28  Action<BoxWindow>
+                System::Action::Object* onComplete;                       // 0x30  Action<BoxWindow>
+                System::Action::Object* onCancelSelect;                   // 0x38  Action<BoxWindow>
+                Pml::PokePara::PokemonParam::Object* otherOriginalParam;  // 0x40
+                Pml::PokePara::PokemonParam::Object* otherPokeParam;      // 0x48
+                int32_t tradePhase;                                       // 0x50  NetTradePhase enum
+                System::String::Object* messageId;                        // 0x58
+                int32_t langId;                                           // 0x60  MsgLangId enum
+                uint32_t errorId;                                         // 0x64  ErrorCodeID
+            };
+
+            inline void ctor() {
+                external<void>(0x1A27AB0, this);  // sets selectIndex=1, errorId=10000
+            }
+        };
+
+        // BoxWindow.NetTradePhase enum values
+        enum NetTradePhase : int32_t {
+            None = 0,
+            WaitSave = 1,
+            PlayerSelecting = 2,
+            WaitSend = 3,
+            OtherPokeConfirm = 4,
+            WaitOtherDecide = 5,
+            LastConfirm = 6,
+            WaitTrading = 7,
+            Complete = 8,
+            WaitClose = 9,
+            CancelOther = 10,
+            Error = 11,
         };
 
         struct __c__DisplayClass200_0 : ILClass<__c__DisplayClass200_0> {
@@ -195,8 +243,50 @@ namespace Dpr::UI {
 
         static_assert(offsetof(Fields, _isForceClosing) == 0x3CD);
 
+        // Open with OpenParam + Action<BoxWindow, SelectedPokemon[]> onSelected
         inline void Open(OpenParam::Object* param, System::Action::Object* onSelected, int32_t prevWindowId) {
             external<void>(0x01cb64c0, this, param, onSelected, prevWindowId);
         }
+
+        // Open with OpenParam + TradeParam (trade mode — used for openType=2/3)
+        inline void Open(OpenParam::Object* param, TradeParam::Object* tradeParam, int32_t prevWindowId) {
+            external<void>(0x01cb67d0, this, param, tradeParam, prevWindowId);
+        }
+
+        // Set the partner's trainer name on the trade info panel.
+        // IMPORTANT: This also initializes _tradeInfoCanvasGroup by calling
+        // GetComponent<CanvasGroup>() on _tradeInfo and SetActive(true).
+        // Must be called before SetTradeInfo/SetOtherPokeParam when using
+        // selection-mode Open (which doesn't initialize the trade panel).
+        inline void SetTraderName(System::String::Object* name, int32_t langId) {
+            external<void>(0x1CC4810, this, name, langId);
+        }
+
+        // Show/hide the trade info panel (partner pokemon model + info)
+        inline void SetTradeInfo(bool show) {
+            external<void>(0x1CB7040, this, (uint8_t)show);
+        }
+
+        // Set the partner's pokemon data for the trade info panel display
+        inline void SetOtherPokeParam(Pml::PokePara::PokemonParam::Object* param, int32_t trainerId) {
+            external<void>(0x1CBCDD0, this, param, trainerId);
+        }
+
+        // Advance the trade phase state machine
+        inline void ToNextPhase(int32_t nextPhase) {
+            external<void>(0x1CBC6A0, this, nextPhase);
+        }
+
+        // Clear the trade selection state
+        inline void ClearTradeSelected() {
+            external<void>(0x1CBC750, this);
+        }
+
+        static inline void LimitBox(bool enabled) {
+            external<void>(0x1CB8770, enabled);
+        }
+
+        // Action<BoxWindow> TypeInfo — for onDecide/onConfirm/onComplete/onCancelSelect delegates
+        static const inline long BoxWindow_Action_TypeInfo = 0x04C69BD0;
     };
 }
