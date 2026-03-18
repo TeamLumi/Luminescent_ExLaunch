@@ -37,6 +37,26 @@ bool HoneyTreeBattleSet(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] angle: The value to set the angle to.
 bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Counts the total number of fossil items in the player's inventory.
+// Arguments:
+//   [Work] result: The work in which to put the total fossil count.
+bool KasekiCount(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Looks up a fossil item number and returns the corresponding MonsNo and FormNo.
+// Arguments:
+//   [Work, Number] itemNo: The item number to look up.
+//   [Work] monsNo: The work in which to put the MonsNo. 0 if not found.
+//   [Work] formNo: The work in which to put the FormNo. 0 if not found.
+bool ItemNoToMonsNo(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Iterates through fossil entries counting inventory items.
+// When the accumulated count reaches the threshold, returns the item number at that point.
+// Arguments:
+//   [Work] resultItemNo: The work in which to put the item number of the fossil.
+//   [Work] resultIndex: The work in which to put the index of the fossil in the iteration.
+//   [Work, Number] threshold: The count threshold to reach before returning.
+bool KasekiItemNo(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Stops a Field Effect.
 // Arguments:
 //   [Work, Number] index: The index of the field effect to stop. 0-10
@@ -415,6 +435,25 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isCantUseBall: (optional) Whether or not the player can catch the Pokémon.
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the gender of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work] result: The work in which to put the result in. 0 = Male, 1 = Female, 2 = Genderless, -1 if null or egg.
+bool PartyBoxGender(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the shiny status of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work] result: The work in which to put the result in. 0 = Not Shiny, 1 = Shiny (captured), 2 = Shiny (distributed), -1 if null or egg.
+bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets a party Pokémon as the follower, by their index.
+// Arguments:
+//   [Work, Number] index: The index of the party Pokémon to be set as the follower.
+bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Returns the player's world position with 2 decimal places of precision.
 // Coordinates are multiplied by 100 so that e.g. position 12.34 becomes 1234.

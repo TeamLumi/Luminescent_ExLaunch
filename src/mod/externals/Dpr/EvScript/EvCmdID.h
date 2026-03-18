@@ -1294,7 +1294,10 @@ namespace Dpr::EvScript {
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
             _SET_CAMERA_OFFSET_ANGLE = 1285,
             _SP_WILD_BTL_SET_EXTRA = 1286,
-            _GET_PLAYER_POS_PRECISE = 1287,
+            _TEMOTI_BOX_GENDER = 1287,
+            _TEMOTI_BOX_SHINY = 1288,
+            _SET_TUREARUKI = 1289,
+            _GET_PLAYER_POS_PRECISE = 1290,
 
             CUSTOM_CMD_END = 1500,
         };
