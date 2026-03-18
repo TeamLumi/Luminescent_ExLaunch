@@ -152,9 +152,6 @@ ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* var
 }
 
 void UpdateColorVariation(ColorVariation::Object* variation) {
-    auto name = variation->cast<UnityEngine::Component>()->get_gameObject()->cast<UnityEngine::_Object>()->get_Name()->asCString();
-    //Logger::log("Setting variation %d for %s...\n", variation->fields.ColorIndex, name.c_str());
-
     system_load_typeinfo(0x2c09);
     ColorVariation::Property::Array* properties = GetEditedProperty00(variation, variation->fields.ColorIndex);
 
@@ -181,14 +178,63 @@ HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
     }
 };
 
+// When true, OnEnable applies the remote player's ColorIndex instead of the
+// local custom save-data override.  Set by the overworld MP system before
+// Instantiate so that the OnEnable hook applies the correct preset.
+extern bool g_owmpSkipCustomColorOverride;
+// Remote player's color preset index, set before Instantiate. -1 = not set.
+extern int32_t g_owmpRemoteColorId;
+// MP battle color override flag — when true, MyStatus.GetColorID reads from
+// the actual MyStatus field (set per-slot) instead of always returning the
+// local save's color.  Also used by CardModelViewController_LoadModels to
+// apply per-slot colors from g_owmpBattleSlotColors[].
+// Set before entering battle, cleared after battle ends.
+bool g_owmpBattleColorActive = false;
+
+// Per-slot battle colors, indexed by client ID (0 = first, 1 = second, etc.).
+// Populated before battle in PvP (slots 0-1) and team-up (slots 0-3).
+// CardModelViewController_LoadModels uses a cursor to walk this array because
+// the hook fires once per trainer card model with no slot identifier.
+int32_t g_owmpBattleSlotColors[4] = {0, 0, 0, 0};
+int32_t g_owmpBattleSlotCursor = 0;
+int32_t g_owmpStoreCoreCursor = 0;
+
 HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
     static void Callback(ColorVariation::Object* __this) {
+        // For remote MP entities: set the color index BEFORE Orig so that
+        // the vanilla OnEnable initializes with the correct preset.
+        if (g_owmpSkipCustomColorOverride && g_owmpRemoteColorId >= 0) {
+            __this->fields.ColorIndex = g_owmpRemoteColorId;
+        }
         Orig(__this);
-        UpdateColorVariation(__this);
+        if (g_owmpSkipCustomColorOverride) {
+            // Apply remote color — Orig has now set up propertyBlock and renderers
+            if (g_owmpRemoteColorId >= 0) {
+                __this->fields.ColorIndex = g_owmpRemoteColorId;
+            }
+            UpdateColorVariation(__this);
+        } else {
+            UpdateColorVariation(__this);
+        }
     }
 };
 
-HOOK_DEFINE_REPLACE(GetColorID) {
+// MyStatus.GetColorID — instance method, receives 'this' (MyStatus*).
+// During MP battles, read from the actual MyStatus field (offset 0x25)
+// which we set per-slot after SetupBattleComm.  Outside MP, return the
+// local save's custom preset as before.
+HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
+    static int32_t Callback(void* __this) {
+        if (g_owmpBattleColorActive && __this != nullptr) {
+            return (int32_t)*(uint8_t*)((uintptr_t)__this + 0x25);
+        }
+        return getCustomSaveData()->playerColorVariation.playerColorID;
+    }
+};
+
+// PlayerWork.get_colorID — static method, no 'this' parameter.
+// Always returns the local player's custom preset.
+HOOK_DEFINE_REPLACE(PlayerWorkGetColorID) {
     static int32_t Callback() {
         return getCustomSaveData()->playerColorVariation.playerColorID;
     }
@@ -210,7 +256,21 @@ HOOK_DEFINE_INLINE(SetColorID_Inline) {
 HOOK_DEFINE_INLINE(SetColorID_TrainerParam_StoreCore) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto trainerData = (Dpr::Battle::Logic::TRAINER_DATA::Object*)ctx->X[1];
-        trainerData->fields.colorID = getCustomSaveData()->playerColorVariation.playerColorID;
+        if (!g_owmpBattleColorActive) {
+            int32_t saveColor = getCustomSaveData()->playerColorVariation.playerColorID;
+            trainerData->fields.colorID = saveColor;
+            Logger::log("[ColorVar] StoreCore: mpActive=0, wrote colorID=%d from save\n", saveColor);
+        } else {
+            // Battle engine creates fresh TRAINER_DATA during store_player —
+            // actively write per-slot colors from the slot array.
+            int slot = g_owmpStoreCoreCursor++;
+            if (slot < 4) {
+                trainerData->fields.colorID = g_owmpBattleSlotColors[slot];
+                Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d, wrote colorID=%d\n", slot, g_owmpBattleSlotColors[slot]);
+            } else {
+                Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d (overflow), kept colorID=%d\n", slot, trainerData->fields.colorID);
+            }
+        }
         trainerData->fields.trainerID = 0;
 
         ctx->X[1] = (uint64_t)trainerData;
@@ -223,8 +283,20 @@ HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
         auto isContest = (bool)ctx->W[2];
         auto battleCharacterEntity = (BattleCharacterEntity*)ctx->X[20];
 
-        int32_t colorID = getCustomSaveData()->playerColorVariation.playerColorID;
-        trainerParam->fields.colorID = colorID;
+        if (g_owmpBattleColorActive) {
+            // MP battle: apply per-slot color from the cursor array.
+            // This hook fires once per trainer card model in slot order.
+            int slot = g_owmpBattleSlotCursor++;
+            if (slot < 4) {
+                trainerParam->fields.colorID = g_owmpBattleSlotColors[slot];
+                Logger::log("[ColorVar] LoadModels: mpActive=1 slot=%d colorID=%d\n", slot, g_owmpBattleSlotColors[slot]);
+            }
+        } else {
+            // Non-MP battle: apply local save color to all trainer models
+            int32_t saveColor = getCustomSaveData()->playerColorVariation.playerColorID;
+            trainerParam->fields.colorID = saveColor;
+            Logger::log("[ColorVar] LoadModels: mpActive=0 colorID=%d\n", saveColor);
+        }
 
         battleCharacterEntity->Initialize(trainerParam, isContest);
     }
@@ -294,8 +366,8 @@ void exl_color_variations_main() {
     ColorVariation_LateUpdate::InstallAtOffset(0x018ecd90);
     ColorVariation_OnEnable::InstallAtOffset(0x018ecd20);
 
-    GetColorID::InstallAtOffset(0x0203d3f0);
-    GetColorID::InstallAtOffset(0x02cef820);
+    MyStatusGetColorID::InstallAtOffset(0x0203d3f0);
+    PlayerWorkGetColorID::InstallAtOffset(0x02cef820);
 
     SetColorID::InstallAtOffset(0x02cef870);
     SetColorID_Inline::InstallAtOffset(0x02cf3c7c);

@@ -17,6 +17,7 @@
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
 #include "externals/UnityEngine/Mathf.h"
+#include "externals/UnityEngine/_Object.h"
 #include "romdata/romdata.h"
 #include "save/save.h"
 
@@ -50,6 +51,9 @@ void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSett
         case array_index(SETTINGS, "Team Randomization"):
             extraSettings->randomTeamMode = (ExtraSettingsSaveData::RandomTeamMode)value;
             break;
+        case array_index(SETTINGS, "Overworld Multiplayer"):
+            extraSettings->overworldMultiplayer = value == 0; // Index 0 is "On" and index 1 is "Off"
+            break;
         default:
             config->SetValue(configId, value);
             break;
@@ -70,6 +74,8 @@ int32_t GetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraS
             return (int32_t)extraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return (int32_t)extraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Overworld Multiplayer"):
+            return extraSettings->overworldMultiplayer ? 0 : 1; // Index 0 is "On" and index 1 is "Off"
         default:
             return config->GetValue(configId);
     }
@@ -89,6 +95,8 @@ bool IsEqualValue(DPData::CONFIG::Object* config, DPData::CONFIG::Object* otherC
             return extraSettings->gameMode == otherExtraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return extraSettings->randomTeamMode == otherExtraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Overworld Multiplayer"):
+            return extraSettings->overworldMultiplayer == otherExtraSettings->overworldMultiplayer;
         default:
             return config->IsEqualValue(configId, otherConfig);
     }
@@ -152,6 +160,9 @@ int32_t MaxWindowSelectorValue(int32_t configId) {
 
         case array_index(SETTINGS, "Team Randomization"):
             return RANDOM_TEAM_MODE_COUNT - 1;
+
+        case array_index(SETTINGS, "Overworld Multiplayer"):
+            return 1; // On=0, Off=1
     }
 }
 
@@ -399,6 +410,17 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                 window->fields._activeItems->Clear();
 
                 auto parentTF = window->fields._scrollRect->fields.m_Content->cast<UnityEngine::Transform>();
+
+                // Clone the last child to create extra SettingMenuItem entries for custom settings
+                int existingCount = parentTF->get_childCount();
+                while (existingCount < SETTING_COUNT) {
+                    auto lastChild = parentTF->GetChild(existingCount - 1);
+                    auto lastGO = lastChild->cast<UnityEngine::Component>()->get_gameObject();
+                    auto clonedGO = UnityEngine::_Object::Instantiate(lastGO);
+                    clonedGO->get_transform()->SetParent(parentTF, false);
+                    existingCount++;
+                }
+
                 for (int i = 0; i < parentTF->get_childCount(); i++) {
                     auto child = parentTF->GetChild(i);
                     auto settingItem = child->cast<UnityEngine::Component>()->GetComponent(
@@ -418,6 +440,17 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                     auto mi = *Dpr::UI::SettingWindow::Method$$OnMenuItemValueChaged;
                     auto onValueChanged = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::SettingMenuItem_TypeInfo)->newInstance(window, mi);
                     settingItem->Setup(i, selectIndex, System::String::Create(SETTING_DESCRIPTION_LABELS[i]), onValueChanged);
+
+                    // Fix title text for dynamically cloned items (cloned from the previous item)
+                    if (i == array_index(SETTINGS, "Overworld Multiplayer")) {
+                        auto titleText = settingItem->cast<UnityEngine::Component>()->GetComponentInChildren<Dpr::UI::UIText>(
+                                true, UnityEngine::Component::Method$$UIText$$GetComponentInChildren);
+                        auto valueText = settingItem->instance()->fields._texts->fields._items->m_Items[0];
+                        if (titleText != nullptr && titleText != valueText) {
+                            titleText->SetupMessage(nullptr, System::String::Create("SS_option_OverworldMP"));
+                        }
+                    }
+
                     window->fields._activeItems->Add(settingItem);
                 }
 
@@ -506,6 +539,12 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
                     case array_index(SETTINGS, "Team Randomization"):
                         __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(RANDOM_TEAM_MODE_LABELS[__this->fields._selectIndex]));
                         break;
+
+                    case array_index(SETTINGS, "Overworld Multiplayer"): {
+                        static const char* OW_MP_LABELS[] = { "SS_option_OverworldMP_01", "SS_option_OverworldMP_02" };
+                        __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(OW_MP_LABELS[__this->fields._selectIndex]));
+                        break;
+                    }
                 }
 
                 int32_t index = __this->fields._selectBg->cast<UnityEngine::Behaviour>()->get_enabled() ? 0 : 1;

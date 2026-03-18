@@ -13,6 +13,10 @@ namespace Dpr {
         struct MessageManager;
     }
 
+    namespace MsgWindow {
+        struct MsgWindowManager;
+    }
+
     namespace UI {
         struct UIManager;
     }
@@ -25,6 +29,7 @@ namespace SmartPoint::AssetAssistant {
         static inline StaticILMethod<0x04c676a0, Audio::AudioManager> Method$$AudioManager$$get_Instance {};
         static inline StaticILMethod<0x04c67700, Dpr::UI::UIManager> Method$$UIManager$$get_Instance {};
         static inline StaticILMethod<0x04c676e0, Dpr::Message::MessageManager> Method$$MessageManager$$get_Instance {};
+        static inline StaticILMethod<0x04c676e8, Dpr::MsgWindow::MsgWindowManager> Method$$MsgWindowManager$$get_Instance {};
 
         template <typename T>
         static inline typename T::Object* get_Instance(ILMethod<T>& method) {
