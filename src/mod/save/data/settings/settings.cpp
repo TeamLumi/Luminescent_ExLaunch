@@ -1,7 +1,8 @@
-#include "data/aspect_ratios.h"
-#include "features/aspect_ratio.h"
+#include "data/settings.h"
+#include "data/utils.h"
 #include "helpers/fsHelper.h"
 #include "save/save.h"
+#include "utils/aspect_ratio.h"
 
 void loadExtraSettingsFromJson(const nn::json& saveFile) {
     if (saveFile.contains("lumi") && saveFile["lumi"].contains("settings")) {
@@ -9,8 +10,7 @@ void loadExtraSettingsFromJson(const nn::json& saveFile) {
 
         // Apply saved aspect ratio
         auto& settings = getCustomSaveData()->settings;
-        setTargetAspectRatio(aspectRatioEnumToFloat((int)settings.aspectRatio));
-        reapplyAspectRatioPatches();
+        applyAspectRatioSetting(array_index(SETTINGS, "Aspect Ratio"), (int32_t)settings.aspectRatio);
     }
 }
 

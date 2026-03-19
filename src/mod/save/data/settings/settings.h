@@ -59,12 +59,18 @@ struct ExtraSettingsSaveData {
 
     void FromJson(const nn::json& settings) {
         Initialize();
-        expShareEnabled = settings["expShareEnabled"].get<bool>();
-        affectionEnabled = settings["affectionEnabled"].get<bool>();
-        levelCapEnabled = settings["levelCapEnabled"].get<bool>();
-        shinyEggsEnabled = settings["shinyEggsEnabled"].get<bool>();
-        gameMode = settings["gameMode"].get<GameMode>();
-        randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
+        if (settings.contains("expShareEnabled"))
+            expShareEnabled = settings["expShareEnabled"].get<bool>();
+        if (settings.contains("affectionEnabled"))
+            affectionEnabled = settings["affectionEnabled"].get<bool>();
+        if (settings.contains("levelCapEnabled"))
+            levelCapEnabled = settings["levelCapEnabled"].get<bool>();
+        if (settings.contains("shinyEggsEnabled"))
+            shinyEggsEnabled = settings["shinyEggsEnabled"].get<bool>();
+        if (settings.contains("gameMode"))
+            gameMode = settings["gameMode"].get<GameMode>();
+        if (settings.contains("randomTeamMode"))
+            randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
         if (settings.contains("aspectRatio"))
             aspectRatio = settings["aspectRatio"].get<AspectRatio>();
     }

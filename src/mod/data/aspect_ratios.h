@@ -1,7 +1,7 @@
 #pragma once
 
 static constexpr const char* ASPECT_RATIOS[] = {
-    "16:9 (Auto)",
+    "16:9",
     "16:10",
     "21:9",
     "32:9",
@@ -15,7 +15,7 @@ static constexpr const char* ASPECT_RATIO_LABELS[] = {
 };
 
 static constexpr float ASPECT_RATIO_VALUES[] = {
-    0.0f,       // 16:9 (Auto) - disabled, use default
+    0.0f,       // 16:9 - default, no change
     1.6f,       // 16:10
     2.3333f,    // 21:9
     3.5556f,    // 32:9

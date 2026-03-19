@@ -205,5 +205,3 @@ void exl_wild_forms_main();
 // Also adds "Frisk" as an ability that raises wild Pokémon's held item rate.
 void exl_wild_held_items_main();
 
-// Patches aspect ratio enforcement to support non-16:9 displays.
-void exl_aspect_ratio_main();

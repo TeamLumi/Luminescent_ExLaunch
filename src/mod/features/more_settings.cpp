@@ -19,7 +19,7 @@
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
 #include "externals/UnityEngine/Mathf.h"
-#include "features/aspect_ratio.h"
+#include "utils/aspect_ratio.h"
 #include "romdata/romdata.h"
 #include "save/save.h"
 
@@ -31,6 +31,7 @@ void OnValueChanged(int32_t configId, int32_t value) {
     ConfigWork::getClass()->initIfNeeded();
     if (ConfigWork::getClass()->static_fields->onValueChanged != nullptr)
         ConfigWork::getClass()->static_fields->onValueChanged->Invoke(configId, value);
+    applyAspectRatioSetting(configId, value);
 }
 
 void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSettings, int32_t configId, int32_t value) {
@@ -227,11 +228,6 @@ HOOK_DEFINE_REPLACE(SettingWindow$$RevertSettings) {
                 OnValueChanged(i, GetSetting(&__this->fields._tempConfig, &tempExtraSettings, i));
             }
         }
-
-        // Revert aspect ratio to saved value
-        auto& settings = getCustomSaveData()->settings;
-        setTargetAspectRatio(aspectRatioEnumToFloat((int)settings.aspectRatio));
-        reapplyAspectRatioPatches();
     }
 };
 
@@ -243,11 +239,6 @@ HOOK_DEFINE_REPLACE(SettingWindow$$AcceptSettings) {
         memmove(PlayerWork::get_config(), &__this->fields._tempConfig, sizeof(DPData::CONFIG::Object));
 
         memmove(&getCustomSaveData()->settings, &tempExtraSettings, sizeof(ExtraSettingsSaveData));
-
-        // Apply aspect ratio setting
-        auto& settings = getCustomSaveData()->settings;
-        setTargetAspectRatio(aspectRatioEnumToFloat((int)settings.aspectRatio));
-        reapplyAspectRatioPatches();
 
         InvokeChangedValues(PlayerWork::get_config(), &getCustomSaveData()->settings);
     }
@@ -423,14 +414,6 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
 
                 auto parentTF = window->fields._scrollRect->fields.m_Content->cast<UnityEngine::Transform>();
 
-                // Clone the last child (Team Randomization) to create the Aspect Ratio entry
-                int existingCount = parentTF->get_childCount();
-                if (existingCount == SETTING_COUNT - 1) {
-                    auto lastChild = parentTF->GetChild(existingCount - 1);
-                    auto* clonedObj = UnityEngine::_Object::Instantiate(lastChild->cast<UnityEngine::Component>()->get_gameObject());
-                    clonedObj->get_transform()->SetParent(parentTF, false);
-                }
-
                 for (int i = 0; i < parentTF->get_childCount(); i++) {
                     auto child = parentTF->GetChild(i);
                     auto settingItem = child->cast<UnityEngine::Component>()->GetComponent(
@@ -525,6 +508,7 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
 
             case Dpr::UI::SettingMenuItem::ItemType::WindowSelector: {
                 nn::vector<std::string> options;
+
                 switch (__this->fields._configId) {
                     case array_index(SETTINGS, "Change Window"):
                     default:
@@ -580,4 +564,6 @@ void exl_settings_main() {
     SettingWindow_OpOpen$$MoveNext::InstallAtOffset(0x01d42830);
 
     SettingMenuItem$$SetSelectIndex::InstallAtOffset(0x01d3f1a0);
+
+    installAspectRatioHooks();
 }

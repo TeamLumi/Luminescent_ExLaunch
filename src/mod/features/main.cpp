@@ -127,9 +127,6 @@ void CallFeatureHooks()
         exl_fake_stopdata_main();
     if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
         exl_surf_end_check_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Aspect Ratio")))
-        exl_aspect_ratio_main();
-
     exl_debug_features_main();
     exl_items_changes_main();
     exl_key_items_main();
