@@ -15,6 +15,7 @@ constexpr int32_t Re_Lease_FlagCount = 15000;
 constexpr int32_t Re_Lease_SysFlagCount = 15000;
 constexpr int32_t Re_Lease_TrainerCount = 10000;
 constexpr int32_t Re_Lease_SaveItemCount = 10000;
+constexpr int32_t Re_Lease_SaveUgItemCount = 5000;
 constexpr int32_t Re_Lease_BerryCount = 1000;
 constexpr int32_t Re_Lease_BoxCount = 80;
 

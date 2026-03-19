@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "memory/string.h"
+#include "externals/System/_Object.h"
 #include "externals/System/Collections/Generic/Dictionary.h"
 #include "externals/System/Collections/Generic/List.h"
 #include "externals/System/Primitives.h"
@@ -44,6 +45,14 @@ namespace System {
             return external<String::Object*>(0x026f8ab0, format, arg0, arg1);
         }
 
+        static inline String::Object* Format(String::Object* format, Il2CppObject* arg0, Il2CppObject* arg1, Il2CppObject* arg2) {
+            return external<String::Object*>(0x026f8b10, format, arg0, arg1, arg2);
+        }
+
+        static inline String::Object* Format(String::Object* format, System::_Object::Array* args) {
+            return external<String::Object*>(0x026f8b70, format, args);
+        }
+
         inline String::Object* Substring(int32_t startIndex, int32_t length) {
             return external<String::Object*>(0x026f4560, this, startIndex, length);
         }
@@ -58,6 +67,11 @@ namespace System {
 
         inline bool StartsWith(String::Object* value) {
             return external<bool>(0x026f78d0, this, value);
+        }
+
+        // Only tested to work on int
+        static Il2CppObject* ConvertToStringObject(Il2CppClass* klass, void* ptr) {
+            return external<Il2CppObject*>(0x00252fd8, klass, ptr);
         }
 
         inline String::Object* Truncate(int32_t maxLength) {

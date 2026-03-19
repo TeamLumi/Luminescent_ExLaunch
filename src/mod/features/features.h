@@ -187,6 +187,12 @@ void exl_turn_counter_main();
 // Allows alternate forms of Pokémon roaming in the Underground.
 void exl_ug_forms_main();
 
+// Makes shiny Pokémon visible in the Underground before encountering them.
+void exl_ug_shinies_main();
+
+// Changes the bundle names for the Underground statues.
+void exl_ug_statue_names_main();
+
 // Uniformizes certain UI elements:
 // Changes all UI elements that are outfit and ColorVariation dependent to the default ones.
 // Repoints Large and DP/Pixel Pokémon sprites to the base ones.

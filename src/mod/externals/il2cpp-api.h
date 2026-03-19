@@ -307,6 +307,13 @@ struct name##_array {                                                           
     }                                                                                               \
 };
 
+#define PRIMITIVE(type, name, typeInfo)                                                          \
+typedef type name;                                                                               \
+struct name##_klass {                                                                            \
+    inline static Il2CppClass* getClass() {                                                      \
+        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(typeInfo));  \
+    }                                                                                            \
+};
 
 
 template <typename... Args>
