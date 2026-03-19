@@ -36,8 +36,16 @@ HOOK_DEFINE_REPLACE(DecideFormNoFromHoldItem) {
 HOOK_DEFINE_REPLACE(CheckUnbreakablePokeItem) {
     static bool Callback(uint16_t monsno, uint16_t itemID) {
         auto unbreakableItems = GetUnbreakablePokeItems(monsno);
-
         for (auto i : unbreakableItems.items)
+        {
+            if (itemID == i)
+            {
+                return true;
+            }
+        }
+
+        auto alwaysItems = GetAlwaysUnbreakableItems();
+        for (auto i : alwaysItems.items)
         {
             if (itemID == i)
             {
