@@ -2462,6 +2462,31 @@ static void hideMsgWindowCustomText() {
 // Show the "Waiting for partner..." message using the MsgWindow dialogue box.
 // The MsgWindow frame provides the styled background — no TMP <mark> tags needed.
 // ---------------------------------------------------------------------------
+// Replace {0}, {1}, ... placeholders in a template string with provided values.
+static char* formatMPTemplate(char* outBuf, size_t outSize,
+                               const char* tmpl,
+                               const char* const* values, int valueCount) {
+    char* dst = outBuf;
+    char* end = outBuf + outSize - 1;
+    const char* src = tmpl;
+    while (*src && dst < end) {
+        if (src[0] == '{' && src[1] >= '0' && src[1] <= '9' && src[2] == '}') {
+            int idx = src[1] - '0';
+            if (idx < valueCount && values[idx] != nullptr) {
+                size_t len = strlen(values[idx]);
+                if (dst + len > end) len = end - dst;
+                memcpy(dst, values[idx], len);
+                dst += len;
+            }
+            src += 3;
+        } else {
+            *dst++ = *src++;
+        }
+    }
+    *dst = '\0';
+    return outBuf;
+}
+
 // Load a string from the ss_multiplayer message file as C string, with fallback.
 static const char* getTUMPMessageCStr(const char* label, const char* fallback) {
     auto* mgr = Dpr::Message::MessageManager::get_Instance();
@@ -2500,20 +2525,21 @@ static void showSyncWaitMessage() {
     // TMP tags: <size=80%> shrinks text to fit the window's text area,
     // <line-height=70%> tightens the gap between lines (default is very generous).
     char msgBuf[256];
+    // MSBT has proper Name tags (ev-as). Tags: {0}=partner name
     if (tu.partnerSyncMismatch) {
-        const char* tmpl = getTUMPMessageCStr("SS_mp_PartnerReady",
-            "%s is ready!\nY: Synchronize  B: Battle solo");
+        char tmpBuf[200];
+        const char* vals[] = { partnerName };
+        formatMPTemplate(tmpBuf, sizeof(tmpBuf),
+            "{0} is ready!\nY: Synchronize  B: Battle solo", vals, 1);
         snprintf(msgBuf, sizeof(msgBuf),
-            "<size=80%%><line-height=70%%>");
-        size_t prefixLen = strlen(msgBuf);
-        snprintf(msgBuf + prefixLen, sizeof(msgBuf) - prefixLen, tmpl, partnerName);
+            "<size=80%%><line-height=70%%>%s", tmpBuf);
     } else {
-        const char* tmpl = getTUMPMessageCStr("SS_mp_WaitingPartner",
-            "Waiting on %s...\nPress B to battle solo");
+        char tmpBuf[200];
+        const char* vals[] = { partnerName };
+        formatMPTemplate(tmpBuf, sizeof(tmpBuf),
+            "Waiting on {0}...\nPress B to battle solo", vals, 1);
         snprintf(msgBuf, sizeof(msgBuf),
-            "<size=80%%><line-height=70%%>");
-        size_t prefixLen = strlen(msgBuf);
-        snprintf(msgBuf + prefixLen, sizeof(msgBuf) - prefixLen, tmpl, partnerName);
+            "<size=80%%><line-height=70%%>%s", tmpBuf);
     }
 
     showMsgWindowCustomText(msgBuf);
