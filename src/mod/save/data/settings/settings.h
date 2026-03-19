@@ -18,12 +18,20 @@ struct ExtraSettingsSaveData {
         FIXED_TEAM_1 = 2,
     };
 
+    enum class AspectRatio : int32_t {
+        AUTO_16_9 = 0,
+        _16_10 = 1,
+        _21_9 = 2,
+        _32_9 = 3,
+    };
+
     bool expShareEnabled;
     bool affectionEnabled;
     bool levelCapEnabled;
     bool shinyEggsEnabled;
     GameMode gameMode;
     RandomTeamMode randomTeamMode;
+    AspectRatio aspectRatio;
 
     void Initialize() {
         expShareEnabled = false;
@@ -32,6 +40,7 @@ struct ExtraSettingsSaveData {
         shinyEggsEnabled = false;
         gameMode = GameMode::_493;
         randomTeamMode = RandomTeamMode::RANDOM_ALWAYS;
+        aspectRatio = AspectRatio::AUTO_16_9;
     }
 
     [[nodiscard]] nn::json ToJson() const {
@@ -43,18 +52,27 @@ struct ExtraSettingsSaveData {
                     {"shinyEggsEnabled", shinyEggsEnabled},
                     {"gameMode", gameMode},
                     {"randomTeamMode", randomTeamMode},
+                    {"aspectRatio", aspectRatio},
             }}
         };
     }
 
     void FromJson(const nn::json& settings) {
         Initialize();
-        expShareEnabled = settings["expShareEnabled"].get<bool>();
-        affectionEnabled = settings["affectionEnabled"].get<bool>();
-        levelCapEnabled = settings["levelCapEnabled"].get<bool>();
-        shinyEggsEnabled = settings["shinyEggsEnabled"].get<bool>();
-        gameMode = settings["gameMode"].get<GameMode>();
-        randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
+        if (settings.contains("expShareEnabled"))
+            expShareEnabled = settings["expShareEnabled"].get<bool>();
+        if (settings.contains("affectionEnabled"))
+            affectionEnabled = settings["affectionEnabled"].get<bool>();
+        if (settings.contains("levelCapEnabled"))
+            levelCapEnabled = settings["levelCapEnabled"].get<bool>();
+        if (settings.contains("shinyEggsEnabled"))
+            shinyEggsEnabled = settings["shinyEggsEnabled"].get<bool>();
+        if (settings.contains("gameMode"))
+            gameMode = settings["gameMode"].get<GameMode>();
+        if (settings.contains("randomTeamMode"))
+            randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
+        if (settings.contains("aspectRatio"))
+            aspectRatio = settings["aspectRatio"].get<AspectRatio>();
     }
 };
 
