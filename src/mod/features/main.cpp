@@ -11,8 +11,6 @@
 
 void CallFeatureHooks()
 {
-    if (IsActivatedFeature(array_index(FEATURES, "Ability Changes")))
-        exl_ability_changes_main();
     if (IsActivatedFeature(array_index(FEATURES, "Alt Starters")))
         exl_alt_starters_main();
     if (IsActivatedFeature(array_index(FEATURES, "Area/Zone Codes")))
