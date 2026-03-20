@@ -33,7 +33,7 @@ struct ExtraSettingsSaveData {
         shinyEggsEnabled = false;
         gameMode = GameMode::_493;
         randomTeamMode = RandomTeamMode::RANDOM_ALWAYS;
-        overworldMultiplayer = false;
+        overworldMultiplayer = true;
     }
 
     [[nodiscard]] nn::json ToJson() const {

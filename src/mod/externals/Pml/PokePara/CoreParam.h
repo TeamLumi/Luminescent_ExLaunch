@@ -260,8 +260,5 @@ namespace Pml::PokePara {
             external<void>(0x02049450, this);
         }
 
-        inline bool IsRare() {
-            return external<bool>(0x0204a500, this);
-        }
     };
 }
