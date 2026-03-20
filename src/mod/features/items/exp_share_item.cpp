@@ -6,8 +6,11 @@
 #include "externals/Dpr/Battle/Logic/MyStatus.h"
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
+#include "data/features.h"
 #include "data/items.h"
 #include "data/utils.h"
+#include "features/activated_features.h"
+#include "save/save.h"
 
 using namespace Dpr::Battle::Logic;
 HOOK_DEFINE_REPLACE(CalcExp) {
@@ -29,10 +32,24 @@ HOOK_DEFINE_REPLACE(CalcExp) {
             calc->fields.getPokeLevel = (*bpp)->GetValue(BTL_POKEPARAM::ValueID::BPP_LEVEL);
             calc->fields.getPokeFriendship = (*mainModule)->GetPokeFriendship(*bpp);
             calc->fields.getPokeLanguageId = param->GetLangId();
+            calc->fields.isMatch = (*deadPoke)->CONFRONT_REC_IsMatch((*bpp)->GetID());
 
-            calc->fields.isMatch = (*deadPoke)->CONFRONT_REC_IsMatch((*bpp)->GetID()) || (*bpp)->GetItem() == array_index(ITEMS, "Exp. Share");
-            calc->fields.isGakusyuSoutiOn = false;
-            calc->fields.haveSiawasetamago = (*bpp)->GetItem() == array_index(ITEMS, "Lucky Egg");
+            auto hasExpShareItem = (*bpp)->GetItem() == array_index(ITEMS, "Exp. Share");
+            auto hasLuckyEggItem = (*bpp)->GetItem() == array_index(ITEMS, "Lucky Egg");
+
+            if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Global Exp. Share Toggle")) &&
+                !getCustomSaveData()->settings.expShareEnabled)
+            {
+                // Global Exp. Share in settings and turned off
+                calc->fields.isGakusyuSoutiOn = hasExpShareItem;
+                calc->fields.haveSiawasetamago = hasLuckyEggItem;
+            }
+            else
+            {
+                // Global Exp. Share always ON
+                calc->fields.isGakusyuSoutiOn = true;
+                calc->fields.haveSiawasetamago = hasLuckyEggItem || hasExpShareItem;
+            }
 
             system_load_typeinfo(0x47a0);
             calc::getClass()->initIfNeeded();
