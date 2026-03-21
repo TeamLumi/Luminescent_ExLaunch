@@ -164,6 +164,41 @@ void UpdateColorVariation(ColorVariation::Object* variation) {
     }
 }
 
+// Apply custom field colors from a remote player's 0xCD packet data.
+// fieldColors is 18 floats: 6 colors × 3 (RGB), alpha assumed 1.0.
+// Order: SkinFace, SkinMouth, Eyes, Eyebrows, SkinBody, Hair
+void ApplyRemoteCustomFieldColors(ColorVariation::Object* variation, const float* fieldColors) {
+    system_load_typeinfo(0x2c09);
+    ColorVariation::Property::Array* properties = variation->fields.Property00;
+    if (properties == nullptr) return;
+
+    variation->fields.ColorIndex = -1;
+
+    for (uint64_t i = 0; i < properties->max_length; i++) {
+        ColorVariation::Property::MaskColor::Array* colors = properties->m_Items[i].fields.colors;
+        if (colors == nullptr) continue;
+
+        // Map flat float array to field color slots (ColorSetID 0-5)
+        for (int slot = 0; slot < 6; slot++) {
+            if ((uint64_t)slot < colors->max_length) {
+                colors->m_Items[slot].fields.color.fields = {
+                    fieldColors[slot * 3],
+                    fieldColors[slot * 3 + 1],
+                    fieldColors[slot * 3 + 2],
+                    1.0f
+                };
+            }
+        }
+    }
+
+    // Push to renderers
+    if (variation->fields.propertyBlock != nullptr) {
+        for (uint64_t i = 0; i < properties->max_length; i++) {
+            properties->m_Items[i].Update(variation->fields.propertyBlock);
+        }
+    }
+}
+
 void SetColorIndexFromInline(exl::hook::nx64::InlineCtx* ctx, int32_t variationRegister, int32_t indexRegister) {
     auto variation = (ColorVariation::Object*)ctx->X[variationRegister];
     auto index = (int32_t)ctx->W[indexRegister];
