@@ -14,8 +14,19 @@
 
 #include "logger/logger.h"
 
+// When non-null, GetCustomColorSet returns this instead of local save data.
+// Set temporarily during battle color processing for remote player slots.
+static RomData::ColorSet* s_customColorSetOverride = nullptr;
+
+void SetCustomColorSetOverride(RomData::ColorSet* override) {
+    s_customColorSetOverride = override;
+}
+
 RomData::ColorSet GetCustomColorSet()
 {
+    if (s_customColorSetOverride != nullptr) {
+        return *s_customColorSetOverride;
+    }
     RomData::ColorSet set = {
         .fieldSkinFace = {
             getCustomSaveData()->playerColorVariation.fSkinFace.fields.r,
@@ -219,6 +230,20 @@ HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
 extern bool g_owmpSkipCustomColorOverride;
 // Remote player's color preset index, set before Instantiate. -1 = not set.
 extern int32_t g_owmpRemoteColorId;
+// Per-station captured ColorVariation pointer from OnEnable during MP Instantiate.
+// The spawn code sets g_owmpCaptureStation before Instantiate; the OnEnable hook
+// stores the component pointer into that slot.
+static constexpr int32_t OWMP_CV_MAX = 16;
+static ColorVariation::Object* g_owmpCapturedCV[OWMP_CV_MAX] = {};
+static int32_t g_owmpCaptureStation = -1;
+void owmpSetCaptureStation(int32_t station) { g_owmpCaptureStation = station; }
+ColorVariation::Object* owmpGetCapturedColorVariation(int32_t station) {
+    if (station < 0 || station >= OWMP_CV_MAX) return nullptr;
+    return g_owmpCapturedCV[station];
+}
+void owmpClearCapturedColorVariation(int32_t station) {
+    if (station >= 0 && station < OWMP_CV_MAX) g_owmpCapturedCV[station] = nullptr;
+}
 // MP battle color override flag — when true, MyStatus.GetColorID reads from
 // the actual MyStatus field (set per-slot) instead of always returning the
 // local save's color.  Also used by CardModelViewController_LoadModels to
@@ -234,6 +259,12 @@ int32_t g_owmpBattleSlotColors[4] = {0, 0, 0, 0};
 int32_t g_owmpBattleSlotCursor = 0;
 int32_t g_owmpStoreCoreCursor = 0;
 
+// Per-slot custom battle color sets for MP battles.
+// When g_owmpBattleSlotColors[slot] == -1 AND this is non-null for that slot,
+// GetCustomColorSet will return these colors instead of local save data.
+RomData::ColorSet g_owmpBattleSlotCustomColorSets[4] = {};
+bool g_owmpBattleSlotHasCustomColors[4] = {false, false, false, false};
+
 HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
     static void Callback(ColorVariation::Object* __this) {
         // For remote MP entities: set the color index BEFORE Orig so that
@@ -248,6 +279,10 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
                 __this->fields.ColorIndex = g_owmpRemoteColorId;
             }
             UpdateColorVariation(__this);
+            // Capture the pointer for the MP spawn code to retrieve
+            if (g_owmpCaptureStation >= 0 && g_owmpCaptureStation < OWMP_CV_MAX) {
+                g_owmpCapturedCV[g_owmpCaptureStation] = __this;
+            }
         } else {
             UpdateColorVariation(__this);
         }
@@ -261,7 +296,9 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
 HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
     static int32_t Callback(void* __this) {
         if (g_owmpBattleColorActive && __this != nullptr) {
-            return (int32_t)*(uint8_t*)((uintptr_t)__this + 0x25);
+            uint8_t raw = *(uint8_t*)((uintptr_t)__this + 0x25);
+            // 0xFF is -1 truncated to uint8 — means custom colors, not preset 255
+            return (raw == 0xFF) ? -1 : (int32_t)raw;
         }
         return getCustomSaveData()->playerColorVariation.playerColorID;
     }
@@ -301,7 +338,14 @@ HOOK_DEFINE_INLINE(SetColorID_TrainerParam_StoreCore) {
             int slot = g_owmpStoreCoreCursor++;
             if (slot < 4) {
                 trainerData->fields.colorID = g_owmpBattleSlotColors[slot];
-                Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d, wrote colorID=%d\n", slot, g_owmpBattleSlotColors[slot]);
+                // Set custom color override for this slot if needed
+                if (g_owmpBattleSlotColors[slot] == -1 && g_owmpBattleSlotHasCustomColors[slot]) {
+                    SetCustomColorSetOverride(&g_owmpBattleSlotCustomColorSets[slot]);
+                } else {
+                    SetCustomColorSetOverride(nullptr);
+                }
+                Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d, wrote colorID=%d custom=%d\n",
+                            slot, g_owmpBattleSlotColors[slot], (int)g_owmpBattleSlotHasCustomColors[slot]);
             } else {
                 Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d (overflow), kept colorID=%d\n", slot, trainerData->fields.colorID);
             }
@@ -324,7 +368,13 @@ HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
             int slot = g_owmpBattleSlotCursor++;
             if (slot < 4) {
                 trainerParam->fields.colorID = g_owmpBattleSlotColors[slot];
-                Logger::log("[ColorVar] LoadModels: mpActive=1 slot=%d colorID=%d\n", slot, g_owmpBattleSlotColors[slot]);
+                // If this slot has custom colors (colorId == -1), set the override
+                // so GetCustomColorSet() returns the remote's colors during Initialize
+                if (g_owmpBattleSlotColors[slot] == -1 && g_owmpBattleSlotHasCustomColors[slot]) {
+                    SetCustomColorSetOverride(&g_owmpBattleSlotCustomColorSets[slot]);
+                }
+                Logger::log("[ColorVar] LoadModels: mpActive=1 slot=%d colorID=%d custom=%d\n",
+                            slot, g_owmpBattleSlotColors[slot], (int)g_owmpBattleSlotHasCustomColors[slot]);
             }
         } else {
             // Non-MP battle: apply local save color to all trainer models
@@ -334,6 +384,8 @@ HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
         }
 
         battleCharacterEntity->Initialize(trainerParam, isContest);
+        // Clear custom color override after Initialize has processed it
+        SetCustomColorSetOverride(nullptr);
     }
 };
 

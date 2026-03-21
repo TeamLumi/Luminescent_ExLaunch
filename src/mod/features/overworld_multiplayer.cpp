@@ -1094,7 +1094,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         if (fromStation < 0 || fromStation >= OW_MP_MAX_PLAYERS) break;
 
         auto& remote = s_mpContext.remotePlayers[fromStation];
-        if (!remote.isActive) break;
+        // Don't check isActive — 0xCD can arrive before the join event due to
+        // PIA mesh event ordering. Data is preserved through join's Clear().
 
         // Read 6 field colors (RGB) + 6 battle colors (RGB) = 36 floats
         for (int c = 0; c < 18; c++)
@@ -1758,24 +1759,23 @@ void overworldMPUpdate(float deltaTime) {
             remote.colorRefreshTimer -= deltaTime;
             if (remote.colorRefreshTimer <= 0.0f) {
                 remote.colorRefreshTimer = 0.0f;
-                auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
-                auto* cvKlass = *(Il2CppClass**)exl::util::modules::GetTargetOffset(0x04C57F80);
-                if (cvKlass != nullptr && go != nullptr) {
-                    System::RuntimeTypeHandle::Object cvHandle {};
-                    cvHandle.fields.value = &cvKlass->_1.byval_arg;
-                    auto* cvType = System::Type::GetTypeFromHandle(cvHandle);
-                    auto* cvComp = (ColorVariation::Object*)_ILExternal::external<void*>(0x026a8240, go, cvType);
-                    if (cvComp != nullptr) {
-                        extern void UpdateColorVariation(ColorVariation::Object* variation);
+                // Use the pointer captured during OnEnable at Instantiate time
+                auto* cvComp = (ColorVariation::Object*)remote.colorVariationComp;
+                if (cvComp != nullptr) {
+                    extern void UpdateColorVariation(ColorVariation::Object* variation);
+                    if (remote.colorId == -1 && remote.hasCustomColors) {
+                        cvComp->fields.ColorIndex = 0;
                         UpdateColorVariation(cvComp);
-                        // Apply custom colors if this remote player uses them
-                        if (remote.colorId == -1 && remote.hasCustomColors) {
-                            extern void ApplyRemoteCustomFieldColors(ColorVariation::Object*, const float*);
-                            ApplyRemoteCustomFieldColors(cvComp, remote.customFieldColors);
-                        }
-                        Logger::log("[OverworldMP] Deferred color refresh applied for station %d (colorId=%d, custom=%d)\n",
-                                    i, cvComp->fields.ColorIndex, (int)remote.hasCustomColors);
+                        extern void ApplyRemoteCustomFieldColors(ColorVariation::Object*, const float*);
+                        ApplyRemoteCustomFieldColors(cvComp, remote.customFieldColors);
+                    } else {
+                        cvComp->fields.ColorIndex = (remote.colorId >= 0) ? remote.colorId : 0;
+                        UpdateColorVariation(cvComp);
                     }
+                    Logger::log("[OverworldMP] Deferred color refresh applied for station %d (colorId=%d, custom=%d)\n",
+                                i, cvComp->fields.ColorIndex, (int)remote.hasCustomColors);
+                } else {
+                    Logger::log("[OverworldMP] Deferred refresh: no captured CV pointer for station %d\n", i);
                 }
             }
         }
@@ -1956,9 +1956,26 @@ void overworldMPOnPlayerJoin(int32_t stationIndex) {
     Logger::log("[OverworldMP] Player joined: station %d\n", stationIndex);
 
     auto& remote = s_mpContext.remotePlayers[stationIndex];
+
+    // Preserve custom colors that may have arrived before the join event
+    // (PIA mesh sends 0xCD before the session event fires on the receiver)
+    bool savedHasCustomColors = remote.hasCustomColors;
+    float savedFieldColors[18], savedBattleColors[18];
+    if (savedHasCustomColors) {
+        memcpy(savedFieldColors, remote.customFieldColors, sizeof(savedFieldColors));
+        memcpy(savedBattleColors, remote.customBattleColors, sizeof(savedBattleColors));
+    }
+
     remote.Clear();
     remote.stationIndex = stationIndex;
     remote.isActive = true;
+
+    // Restore pre-arrived custom colors
+    if (savedHasCustomColors) {
+        remote.hasCustomColors = true;
+        memcpy(remote.customFieldColors, savedFieldColors, sizeof(savedFieldColors));
+        memcpy(remote.customBattleColors, savedBattleColors, sizeof(savedBattleColors));
+    }
 
     // Send our custom colors to the new peer
     overworldMPSendCustomColors();
@@ -2127,6 +2144,8 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     Logger::log("[OverworldMP] Step 1: Instantiate\n");
     g_owmpSkipCustomColorOverride = true;
     g_owmpRemoteColorId = remote.colorId;
+    extern void owmpSetCaptureStation(int32_t);
+    owmpSetCaptureStation(stationIndex);
     auto* prefab = (UnityEngine::_Object::Object*)loadedAsset;
     auto* go = (UnityEngine::GameObject::Object*)UnityEngine::_Object::Instantiate(prefab);
     if (go == nullptr) {
@@ -2178,57 +2197,37 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
         Logger::log("[OverworldMP] Step 4a done: pos/rot/collision set\n");
     }
 
-    // 5. Apply color variation (hair color, skin, etc.)
-    // The prefab has a ColorVariation component whose OnEnable was already triggered
-    // during Instantiate (via the ColorVariation_OnEnable hook in color_variations.cpp).
-    // We now set the remote player's colorId and re-trigger OnEnable to re-apply.
-    // Use non-generic GetComponent(Type) to avoid RGCTX issues.
-    // ColorVariation_TypeInfo @ 0x04C57F80 (from script.json: Address 80060800)
+    // 5. Color variation — use the pointer captured by ColorVariation_OnEnable
+    // during Instantiate. The TypeInfo/MethodInfo at 0x04C57F80/0x04c703e0 are
+    // permanently null, so GetComponent cannot work. The OnEnable hook fires
+    // synchronously during Instantiate and captures the component pointer.
     {
-        auto* cvKlass = *(Il2CppClass**)exl::util::modules::GetTargetOffset(0x04C57F80);
-        if (cvKlass != nullptr) {
-            System::RuntimeTypeHandle::Object cvHandle {};
-            cvHandle.fields.value = &cvKlass->_1.byval_arg;
-            auto* cvType = System::Type::GetTypeFromHandle(cvHandle);
-            auto* cvComp = (ColorVariation::Object*)_ILExternal::external<void*>(0x026a8240, go, cvType);
-            if (cvComp != nullptr) {
-                // Ensure propertyBlock exists — vanilla OnEnable (Orig) should create
-                // it, but if it didn't, Property::Update will silently skip all colors.
-                // MaterialPropertyBlock_TypeInfo @ 0x04C57D80, .ctor @ 0x26B7F30
-                if (cvComp->fields.propertyBlock == nullptr) {
-                    auto* mpbKlass = *(Il2CppClass**)exl::util::modules::GetTargetOffset(0x04C57D80);
-                    if (mpbKlass != nullptr) {
-                        auto* mpb = (UnityEngine::MaterialPropertyBlock::Object*)
-                            il2cpp_object_new(mpbKlass);
-                        _ILExternal::external<void>(0x26B7F30, mpb);
-                        cvComp->fields.propertyBlock = mpb;
-                        Logger::log("[OverworldMP] Created MaterialPropertyBlock (was null)\n");
-                    }
-                }
-
-                // Apply color variation — preset or custom
-                extern void UpdateColorVariation(ColorVariation::Object* variation);
-                if (remote.colorId == -1 && remote.hasCustomColors) {
-                    // Apply received custom field colors
-                    cvComp->fields.ColorIndex = 0; // baseline init
-                    UpdateColorVariation(cvComp);
-                    extern void ApplyRemoteCustomFieldColors(ColorVariation::Object*, const float*);
-                    ApplyRemoteCustomFieldColors(cvComp, remote.customFieldColors);
-                    Logger::log("[OverworldMP] Custom colors applied at spawn for station %d\n", stationIndex);
-                } else {
-                    cvComp->fields.ColorIndex = (remote.colorId >= 0) ? remote.colorId : 0;
-                    UpdateColorVariation(cvComp);
-                    Logger::log("[OverworldMP] ColorVariation applied: colorId=%d (requested %d) propBlock=%p\n",
-                                cvComp->fields.ColorIndex, remote.colorId, cvComp->fields.propertyBlock);
-                }
+        extern ColorVariation::Object* owmpGetCapturedColorVariation(int32_t);
+        extern void owmpClearCapturedColorVariation(int32_t);
+        auto* cvComp = owmpGetCapturedColorVariation(stationIndex);
+        owmpClearCapturedColorVariation(stationIndex);
+        if (cvComp != nullptr) {
+            remote.colorVariationComp = cvComp;
+            extern void UpdateColorVariation(ColorVariation::Object* variation);
+            if (remote.colorId == -1 && remote.hasCustomColors) {
+                cvComp->fields.ColorIndex = 0;
+                UpdateColorVariation(cvComp);
+                extern void ApplyRemoteCustomFieldColors(ColorVariation::Object*, const float*);
+                ApplyRemoteCustomFieldColors(cvComp, remote.customFieldColors);
+                Logger::log("[OverworldMP] Custom colors applied at spawn for station %d\n", stationIndex);
             } else {
-                Logger::log("[OverworldMP] No ColorVariation component on entity\n");
+                cvComp->fields.ColorIndex = (remote.colorId >= 0) ? remote.colorId : 0;
+                UpdateColorVariation(cvComp);
+                Logger::log("[OverworldMP] ColorVariation applied: colorId=%d propBlock=%p\n",
+                            cvComp->fields.ColorIndex, cvComp->fields.propertyBlock);
             }
+        } else {
+            Logger::log("[OverworldMP] WARNING: OnEnable did not capture ColorVariation\n");
         }
     }
-    // Clear the skip flags now that color setup is complete
     g_owmpSkipCustomColorOverride = false;
     g_owmpRemoteColorId = -1;
+    owmpSetCaptureStation(-1);
 
     // Schedule a deferred color refresh — Unity renderers may not have their
     // materials ready on the same frame as Instantiate, causing the initial
@@ -2411,6 +2410,7 @@ void overworldMPDespawnEntity(int32_t stationIndex) {
     }
 
     remote.isSpawned = false;
+    remote.colorVariationComp = nullptr;
     s_mpContext.spawnedEntities[stationIndex] = nullptr;
 }
 

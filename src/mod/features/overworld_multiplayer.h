@@ -88,6 +88,7 @@ struct FieldPlayerNetData {
     float   followPokeTargetY;
     float   followPokeTargetZ;
     void*   followPokeEntity;    // FieldPokemonEntity::Object*
+    void*   colorVariationComp;  // ColorVariation::Object* captured during OnEnable
 
     void Clear() {
         stationIndex = -1;
@@ -122,6 +123,7 @@ struct FieldPlayerNetData {
         followPokeTargetY = 0.0f;
         followPokeTargetZ = 0.0f;
         followPokeEntity = nullptr;
+        colorVariationComp = nullptr;
     }
 };
 

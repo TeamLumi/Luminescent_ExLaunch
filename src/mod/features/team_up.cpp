@@ -5,6 +5,7 @@
 
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 #include "externals/Dpr/Battle/Logic/TRAINER_DATA.h"
+#include "romdata/data/ColorSet.h"
 #include "externals/Dpr/EncountTools.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/DPData/MYSTATUS.h"
@@ -1345,7 +1346,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[tu.partnerStation];
-        int32_t partnerColor = (remote.colorId >= 0) ? remote.colorId : 0;
+        int32_t partnerColor = remote.colorId; // Pass -1 through for custom colors
 
         // (1) TRAINER_DATA.colorID
         void* trData = bspFields->tr_data;
@@ -1384,8 +1385,36 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         g_owmpBattleSlotColors[3] = 0;  // enemy NPC
         g_owmpBattleSlotCursor = 0;
 
-        Logger::log("[TeamUp] Player B: set colors — slot0=%d slot2=%d\n",
-                    partnerColor, localColor);
+        // (4) Custom battle colors for partner slot (if colorId == -1)
+        extern bool g_owmpBattleSlotHasCustomColors[];
+        extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+        memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+        if (partnerColor == -1 && remote.hasCustomColors) {
+            g_owmpBattleSlotHasCustomColors[0] = true;
+            // Build ColorSet from remote's custom battle colors
+            auto& cs = g_owmpBattleSlotCustomColorSets[0];
+            for (int c = 0; c < 6; c++) {
+                float* dst = (c == 0) ? &cs.fieldSkinFace.r :
+                             (c == 1) ? &cs.fieldSkinMouth.r :
+                             (c == 2) ? &cs.fieldEyes.r :
+                             (c == 3) ? &cs.fieldEyebrows.r :
+                             (c == 4) ? &cs.fieldSkinBody.r : &cs.fieldHair.r;
+                dst[0] = remote.customFieldColors[c * 3];
+                dst[1] = remote.customFieldColors[c * 3 + 1];
+                dst[2] = remote.customFieldColors[c * 3 + 2];
+                dst[3] = 1.0f;
+            }
+            float* battleBase = &cs.battleSkinFace.r;
+            for (int c = 0; c < 6; c++) {
+                battleBase[c * 4 + 0] = remote.customBattleColors[c * 3];
+                battleBase[c * 4 + 1] = remote.customBattleColors[c * 3 + 1];
+                battleBase[c * 4 + 2] = remote.customBattleColors[c * 3 + 2];
+                battleBase[c * 4 + 3] = 1.0f;
+            }
+        }
+
+        Logger::log("[TeamUp] Player B: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
+                    partnerColor, localColor, (int)remote.hasCustomColors);
     }
     {
         extern bool g_owmpBattleColorActive;
@@ -1633,7 +1662,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[tu.partnerStation];
-        int32_t partnerColor = (remote.colorId >= 0) ? remote.colorId : 0;
+        int32_t partnerColor = remote.colorId; // Pass -1 through for custom colors
 
         // (1) TRAINER_DATA.colorID
         void* trData = fields->tr_data;
@@ -1669,8 +1698,35 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         g_owmpBattleSlotColors[3] = 0;  // enemy NPC
         g_owmpBattleSlotCursor = 0;
 
-        Logger::log("[TeamUp] Player A: set colors — slot0=%d slot2=%d\n",
-                    localColor, partnerColor);
+        // (4) Custom battle colors for partner slot
+        extern bool g_owmpBattleSlotHasCustomColors[];
+        extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+        memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+        if (partnerColor == -1 && remote.hasCustomColors) {
+            g_owmpBattleSlotHasCustomColors[2] = true; // Partner is slot 2 for Player A
+            auto& cs = g_owmpBattleSlotCustomColorSets[2];
+            for (int c = 0; c < 6; c++) {
+                float* dst = (c == 0) ? &cs.fieldSkinFace.r :
+                             (c == 1) ? &cs.fieldSkinMouth.r :
+                             (c == 2) ? &cs.fieldEyes.r :
+                             (c == 3) ? &cs.fieldEyebrows.r :
+                             (c == 4) ? &cs.fieldSkinBody.r : &cs.fieldHair.r;
+                dst[0] = remote.customFieldColors[c * 3];
+                dst[1] = remote.customFieldColors[c * 3 + 1];
+                dst[2] = remote.customFieldColors[c * 3 + 2];
+                dst[3] = 1.0f;
+            }
+            float* battleBase = &cs.battleSkinFace.r;
+            for (int c = 0; c < 6; c++) {
+                battleBase[c * 4 + 0] = remote.customBattleColors[c * 3];
+                battleBase[c * 4 + 1] = remote.customBattleColors[c * 3 + 1];
+                battleBase[c * 4 + 2] = remote.customBattleColors[c * 3 + 2];
+                battleBase[c * 4 + 3] = 1.0f;
+            }
+        }
+
+        Logger::log("[TeamUp] Player A: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
+                    localColor, partnerColor, (int)remote.hasCustomColors);
     }
     {
         extern bool g_owmpBattleColorActive;
