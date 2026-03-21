@@ -2,6 +2,7 @@
 
 #include "features/overworld_multiplayer.h"
 #include "features/team_up.h"
+#include "romdata/data/ColorSet.h"
 
 #include "externals/Audio/AudioManager.h"
 #include "externals/DPData/CONFIG.h"
@@ -2621,7 +2622,7 @@ void overworldMPSetupAndStartBattle() {
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[s_battlePartnerStation];
-        int32_t remoteColor = (remote.colorId >= 0) ? remote.colorId : 0;
+        int32_t remoteColor = remote.colorId; // Pass -1 through for custom colors
 
         int32_t localSlot    = (commPos == 0) ? 0 : 1;
         int32_t opponentSlot = (commPos == 0) ? 1 : 0;
@@ -2665,8 +2666,36 @@ void overworldMPSetupAndStartBattle() {
         g_owmpBattleSlotCursor = 0;
         g_owmpStoreCoreCursor = 0;
 
-        Logger::log("[OverworldMP] Set trainer colors — local slot%d=%d, opponent slot%d=%d\n",
-                    localSlot, localColor, opponentSlot, remoteColor);
+        // (4) Custom battle colors for opponent slot (if colorId == -1)
+        extern bool g_owmpBattleSlotHasCustomColors[];
+        extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+        memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+        int32_t remoteSlotIdx = (commPos == 0) ? 1 : 0;
+        if (remoteColor == -1 && remote.hasCustomColors) {
+            g_owmpBattleSlotHasCustomColors[remoteSlotIdx] = true;
+            auto& cs = g_owmpBattleSlotCustomColorSets[remoteSlotIdx];
+            for (int c = 0; c < 6; c++) {
+                float* dst = (c == 0) ? &cs.fieldSkinFace.r :
+                             (c == 1) ? &cs.fieldSkinMouth.r :
+                             (c == 2) ? &cs.fieldEyes.r :
+                             (c == 3) ? &cs.fieldEyebrows.r :
+                             (c == 4) ? &cs.fieldSkinBody.r : &cs.fieldHair.r;
+                dst[0] = remote.customFieldColors[c * 3];
+                dst[1] = remote.customFieldColors[c * 3 + 1];
+                dst[2] = remote.customFieldColors[c * 3 + 2];
+                dst[3] = 1.0f;
+            }
+            float* battleBase = &cs.battleSkinFace.r;
+            for (int c = 0; c < 6; c++) {
+                battleBase[c * 4 + 0] = remote.customBattleColors[c * 3];
+                battleBase[c * 4 + 1] = remote.customBattleColors[c * 3 + 1];
+                battleBase[c * 4 + 2] = remote.customBattleColors[c * 3 + 2];
+                battleBase[c * 4 + 3] = 1.0f;
+            }
+        }
+
+        Logger::log("[OverworldMP] Set trainer colors — local slot%d=%d, opponent slot%d=%d (custom=%d)\n",
+                    localSlot, localColor, opponentSlot, remoteColor, (int)remote.hasCustomColors);
     }
 
     // --- Override arena with current zone's battle background ---
@@ -2979,6 +3008,18 @@ void overworldMPCheckInteraction() {
             // Restore local party to pre-battle HP/PP/status (PvP only —
             // no-op for team-up since no snapshot is taken)
             overworldMPRestorePartyAfterBattle();
+
+            // Re-apply remote player colors — during the battle, OnEnable may
+            // have re-fired on field entities using GetCustomColorSet() with no
+            // override, which returns local save data instead of the remote's.
+            {
+                auto& ctx = getOverworldMPContext();
+                for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
+                    if (ctx.remotePlayers[i].isActive && ctx.remotePlayers[i].isSpawned) {
+                        ctx.remotePlayers[i].colorRefreshTimer = 0.1f;
+                    }
+                }
+            }
 
             // Restore local animation setting after PvP battle
             if (s_pvpSavedWazaeffMode >= 0) {

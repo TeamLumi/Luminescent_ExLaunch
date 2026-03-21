@@ -41,6 +41,7 @@ static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE   = 0xC9; // Team-up battle 
 static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE_ACK = 0xCA; // Team-up battle acknowledgement
 static constexpr uint8_t OWMP_DATA_ID_TEAMUP_SYNC_WAIT   = 0xCB; // Team-up sync wait (trainer rendezvous)
 static constexpr uint8_t OWMP_DATA_ID_TEAMUP_SYNC_CANCEL  = 0xCC; // Team-up sync cancel (going solo)
+static constexpr uint8_t OWMP_DATA_ID_CUSTOM_COLORS       = 0xCD; // Custom color data (reliable, on join/zone change)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -60,6 +61,9 @@ struct FieldPlayerNetData {
     bool isRunning;          // true if movement speed suggests running (vs walking)
     int32_t avatarId;
     int32_t colorId;
+    bool hasCustomColors;          // true if 0xCD custom color packet received
+    float customFieldColors[18];   // 6 field colors × RGB: SkinFace, SkinMouth, Eyes, Eyebrows, SkinBody, Hair
+    float customBattleColors[18];  // 6 battle colors × RGB: SkinFace, HairExtra, EyeLeft, EyeRight, SkinBody, Hair
     char playerNameBuf[52];  // native ASCII copy (max 12 chars + null + padding)
     bool playerNameSet;      // true once we've received the name
     bool isBicycle;          // remote player is riding a bicycle
@@ -84,6 +88,7 @@ struct FieldPlayerNetData {
     float   followPokeTargetY;
     float   followPokeTargetZ;
     void*   followPokeEntity;    // FieldPokemonEntity::Object*
+    void*   colorVariationComp;  // ColorVariation::Object* captured during OnEnable
 
     void Clear() {
         stationIndex = -1;
@@ -98,6 +103,9 @@ struct FieldPlayerNetData {
         isBicycle = false;
         avatarId = 0;
         colorId = 0;
+        hasCustomColors = false;
+        memset(customFieldColors, 0, sizeof(customFieldColors));
+        memset(customBattleColors, 0, sizeof(customBattleColors));
         memset(playerNameBuf, 0, sizeof(playerNameBuf));
         playerNameSet = false;
         prevPosX = 0.0f;
@@ -115,6 +123,7 @@ struct FieldPlayerNetData {
         followPokeTargetY = 0.0f;
         followPokeTargetZ = 0.0f;
         followPokeEntity = nullptr;
+        colorVariationComp = nullptr;
     }
 };
 
@@ -208,6 +217,9 @@ void overworldMPSendPosition();
 
 // Send area change notification to peers
 void overworldMPSendAreaChange(int32_t areaID);
+
+// Send custom color data (reliable, only when colorId == -1)
+void overworldMPSendCustomColors();
 
 // Find the closest remote player entity within contact radius, returns station index or -1
 int32_t overworldMPFindNearestPlayer(UnityEngine::Vector3::Object localPos);
