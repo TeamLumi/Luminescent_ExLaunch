@@ -99,18 +99,8 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
                         (int)tu.syncPhase, (int)tu.battlePending);
         }
 
-        // Same-area check: only convert to double if partner is in the same area
-        if (doTeamUp) {
-            auto& ctx = getOverworldMPContext();
-            int32_t ps = tu.partnerStation;
-            if (ps >= 0 && ps < OW_MP_MAX_PLAYERS && ctx.remotePlayers[ps].isActive) {
-                if (ctx.remotePlayers[ps].areaID != ctx.myAreaID) {
-                    doTeamUp = false;
-                    Logger::log("[TeamUp] Skipping: partner in different area (%d vs %d)\n",
-                                ctx.remotePlayers[ps].areaID, ctx.myAreaID);
-                }
-            }
-        }
+        // No area check — always enter sync-wait. If the partner is elsewhere,
+        // the player waits until partner arrives or presses B to go solo.
 
         if (doTeamUp) {
             // Do NOT force DOUBLE yet — keep original rule so solo fallback works.
