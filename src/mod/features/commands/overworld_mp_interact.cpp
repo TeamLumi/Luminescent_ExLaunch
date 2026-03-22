@@ -37,6 +37,7 @@
 #include "externals/Dpr/UI/UIZukanRegister.h"
 #include "externals/UnityEngine/CanvasGroup.h"
 #include "externals/UnityEngine/Component.h"
+#include "externals/UnityEngine/Time.h"
 #include "externals/UnityEngine/Vector3.h"
 
 #include "externals/Dpr/Battle/Logic/TRAINER_DATA.h"
@@ -1170,10 +1171,19 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
                     s_pendingFromStation, (int)s_pendingRequestType);
         overworldMPSendInteractionResponse(s_pendingFromStation, true);
         overworldMPShowRemoteEmote(s_pendingFromStation, EMOTE_ID_LIKES);
-        s_interact.state = InteractState::Accepted;
-        s_interact.targetStationIndex = s_pendingFromStation;
-        s_interact.tradeStartDelay = 0.3f;
-        s_pendingFromStation = -1;
+
+        if (s_pendingRequestType == InteractionType::TeamUp) {
+            // Team-up needs no UI transition — complete immediately and unlock
+            overworldMPTeamUp(s_pendingFromStation);
+            s_pendingFromStation = -1;
+            s_interact.Reset();
+            closeInteractionMenu();
+        } else {
+            s_interact.state = InteractState::Accepted;
+            s_interact.targetStationIndex = s_pendingFromStation;
+            s_interact.tradeStartDelay = 0.3f;
+            s_pendingFromStation = -1;
+        }
     } else {
         // Decline (index 1 or B-button)
         Logger::log("[OverworldMP] Declining request from station %d\n", s_pendingFromStation);
@@ -2665,12 +2675,27 @@ void overworldMPSetupAndStartBattle() {
         g_owmpBattleSlotColors[3] = 0;
         g_owmpBattleSlotCursor = 0;
         g_owmpStoreCoreCursor = 0;
+        extern int32_t g_owmpSetSkinColorCursor;
+        g_owmpSetSkinColorCursor = 0;
 
-        // (4) Custom battle colors for opponent slot (if colorId == -1)
+        // (4) Custom battle colors for ALL slots with colorId == -1.
+        // The CardModelViewController_LoadModels hook uses a cursor that may not
+        // match slot order (e.g. commPos=1 loads local model first). By populating
+        // both local and remote slots, the override is correct regardless of order.
         extern bool g_owmpBattleSlotHasCustomColors[];
         extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+        extern RomData::ColorSet GetCustomColorSet();
         memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+        int32_t localSlotIdx  = (commPos == 0) ? 0 : 1;
         int32_t remoteSlotIdx = (commPos == 0) ? 1 : 0;
+
+        // Local player's slot — populate from local save data
+        if (localColor == -1) {
+            g_owmpBattleSlotHasCustomColors[localSlotIdx] = true;
+            g_owmpBattleSlotCustomColorSets[localSlotIdx] = GetCustomColorSet();
+        }
+
+        // Remote player's slot — populate from received 0xCD packet data
         if (remoteColor == -1 && remote.hasCustomColors) {
             g_owmpBattleSlotHasCustomColors[remoteSlotIdx] = true;
             auto& cs = g_owmpBattleSlotCustomColorSets[remoteSlotIdx];
@@ -2900,16 +2925,25 @@ void overworldMPSetupAndStartBattle() {
 // ---------------------------------------------------------------------------
 
 void overworldMPOnRequestAccepted(int32_t partnerStation) {
-    Logger::log("[OverworldMP] Trade/battle accepted with station %d — deferring start\n", partnerStation);
+    Logger::log("[OverworldMP] Request accepted with station %d (type=%d)\n",
+                partnerStation, (int)s_pendingRequestType);
 
     // Show accept emote balloon above the partner's entity
     overworldMPShowRemoteEmote(partnerStation, EMOTE_ID_LIKES);
 
-    // Defer trade start to next frames (avoids opening UI from callback context)
-    s_pendingFromStation = -1;
-    s_interact.state = InteractState::Accepted;
-    s_interact.targetStationIndex = partnerStation;
-    s_interact.tradeStartDelay = 0.3f;
+    if (s_pendingRequestType == InteractionType::TeamUp) {
+        // Team-up needs no UI transition — complete immediately and unlock
+        overworldMPTeamUp(partnerStation);
+        s_pendingFromStation = -1;
+        s_interact.Reset();
+        closeInteractionMenu();
+    } else {
+        // Defer trade/battle start to next frames (avoids opening UI from callback context)
+        s_pendingFromStation = -1;
+        s_interact.state = InteractState::Accepted;
+        s_interact.targetStationIndex = partnerStation;
+        s_interact.tradeStartDelay = 0.3f;
+    }
 }
 
 void overworldMPOnRequestDeclined(int32_t partnerStation) {
@@ -3033,6 +3067,22 @@ void overworldMPCheckInteraction() {
             }
         }
         return;
+    }
+
+    // Second-pass party restore — re-apply battle-modified data in case
+    // vanilla FinalizeCoroutine overwrote our deferred restore.
+    {
+        extern float s_postBattleRestoreTimer;
+        if (s_postBattleRestoreTimer > 0.0f) {
+            float dt = UnityEngine::Time::get_deltaTime();
+            s_postBattleRestoreTimer -= dt;
+            if (s_postBattleRestoreTimer <= 0.0f) {
+                s_postBattleRestoreTimer = 0.0f;
+                extern void applyDeferredPartyRestore();
+                applyDeferredPartyRestore();
+                Logger::log("[TeamUp] Second-pass party restore applied\n");
+            }
+        }
     }
 
     // Main menu, emote menu, incoming request dialog, trade menus, animation, or battle — callbacks handle transitions

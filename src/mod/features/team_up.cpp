@@ -269,6 +269,10 @@ static uint8_t s_battleModPartyBuf[TEAMUP_PARTY_LIMIT * POKE_FULL_DATA_SIZE];
 static int32_t s_battleModPartyCount = 0;
 static bool s_battleAbnormal = false;
 
+// Second-pass restore — vanilla FinalizeCoroutine may overwrite our deferred
+// restore. This timer triggers a re-apply one frame later as a safety net.
+float s_postBattleRestoreTimer = 0.0f;
+
 TeamUpState& overworldMPGetTeamUpState() {
     return s_teamUpState;
 }
@@ -350,9 +354,11 @@ static void restoreFullParty() {
                 restored, s_savedFullPartyCount);
 }
 
-// Save battle-modified party data from BSP (correct slot for this player).
+// Save battle-modified party data from BSP.
 // Called from storeBattleResult BEFORE BSP::Clear wipes the data.
 // The actual write to PlayerWork happens in overworldMPHandleTeamUpPostBattle.
+// NOTE: Always read from party[0] — the vanilla engine writes the local player's
+// result to party[0] regardless of commPos. party[2] is stale for Player B.
 static void saveBattleModifiedParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp) {
     s_battleModPartyCount = 0;
     if (bsp == nullptr) return;
@@ -360,11 +366,8 @@ static void saveBattleModifiedParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Obje
     auto* fields = &bsp->instance()->fields;
     if (fields->party == nullptr) return;
 
-    auto& tu = overworldMPGetTeamUpState();
-    int32_t mySlot = tu.isInitiator ? 0 : 2;
-
-    if ((uint64_t)mySlot >= fields->party->max_length) return;
-    auto* battleParty = fields->party->m_Items[mySlot];
+    if (fields->party->max_length < 1) return;
+    auto* battleParty = fields->party->m_Items[0];
     if (battleParty == nullptr) return;
 
     int32_t count = battleParty->fields.m_memberCount;
@@ -378,13 +381,14 @@ static void saveBattleModifiedParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Obje
             s_battleModPartyCount++;
         }
     }
-    Logger::log("[TeamUp] Saved %d battle-modified Pokemon from BSP slot %d\n",
-                s_battleModPartyCount, mySlot);
+    Logger::log("[TeamUp] Saved %d battle-modified Pokemon from BSP slot 0\n",
+                s_battleModPartyCount);
 }
 
 // Apply deferred party restore to PlayerWork.
-// Called from overworldMPHandleTeamUpPostBattle AFTER vanilla finalization.
-static void applyDeferredPartyRestore() {
+// Called from overworldMPHandleTeamUpPostBattle AFTER vanilla finalization,
+// and again from the second-pass timer as a safety net.
+void applyDeferredPartyRestore() {
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) return;
 
@@ -1268,47 +1272,58 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     // clients via SubProc_ExitCommTrainer. TRAINER(1) would route through
     // seq_EXIT_NPC which doesn't notify comm clients of the result.
 
-    // Determine dual-trainer mode: mismatched trainers with < 3 Pokemon
-    bool dualTrainer = tu.trainerPartyCount < 3 &&
-                       tu.syncTrainerID != tu.battleTrainerID &&
-                       s_myTrainerCount > 0;
-
-    if (dualTrainer) {
-        // Slot 1: initiator's trainer
+    // Fill NPC enemy slots — three cases (same logic as Player A):
+    // 1. Original double battle (enemyID1 != 0): two distinct NPC trainers
+    // 2. Dual-trainer from mismatched player encounters
+    // 3. Single trainer split across both slots
+    if (tu.battleTrainerID2 != 0) {
+        // Case 1: Original double battle — two NPC trainers (enemyID0 + enemyID1)
         normalTrainer(bsp, 1, tu.battleTrainerID);
         if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
             overwriteTrainerPartyFromBuffer(bsp, 1, tu);
         }
-        // Slot 3: Player B's own trainer
-        normalTrainer(bsp, 3, tu.syncTrainerID);
-        // Overwrite slot 3 with captured trainer party (pre-SetupBattleComm)
-        auto* party3 = bspFields->party->m_Items[3];
-        if (party3 != nullptr) {
-            for (int i = 0; i < s_myTrainerCount; i++) {
-                auto* poke = party3->GetMemberPointer(i);
-                if (poke && poke->fields.m_accessor) {
-                    _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
-                        &s_myTrainerBuf[i * TEAMUP_POKE_FULL_DATA_SIZE]);
-                }
-            }
-            party3->fields.m_memberCount = s_myTrainerCount;
-        }
-        Logger::log("[TeamUp] Player B: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
-                    tu.battleTrainerID, tu.trainerPartyCount, tu.syncTrainerID, s_myTrainerCount);
+        normalTrainer(bsp, 3, tu.battleTrainerID2);
+        Logger::log("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
+                    tu.battleTrainerID, tu.trainerPartyCount, tu.battleTrainerID2);
     } else {
-        // Split initiator's party — use partner's trainer ID for slot 3 if mismatched
-        // (gives both trainer models/AI even when splitting a single party)
-        normalTrainer(bsp, 1, tu.battleTrainerID);
-        int32_t slot3ID = (tu.syncTrainerID != tu.battleTrainerID && tu.syncTrainerID != 0)
-                          ? tu.syncTrainerID : tu.battleTrainerID;
-        normalTrainer(bsp, 3, slot3ID);
-        if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
-            overwriteTrainerPartyFromBuffer(bsp, 1, tu);
-        }
-        splitTrainerParty(bsp, 1, 3);
-        if (slot3ID != tu.battleTrainerID) {
-            Logger::log("[TeamUp] Player B: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
-                        tu.battleTrainerID, slot3ID);
+        bool dualTrainer = tu.trainerPartyCount < 3 &&
+                           tu.syncTrainerID != tu.battleTrainerID &&
+                           s_myTrainerCount > 0;
+
+        if (dualTrainer) {
+            // Case 2: Mismatched encounters — Player B's own trainer in slot 3
+            normalTrainer(bsp, 1, tu.battleTrainerID);
+            if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
+                overwriteTrainerPartyFromBuffer(bsp, 1, tu);
+            }
+            normalTrainer(bsp, 3, tu.syncTrainerID);
+            auto* party3 = bspFields->party->m_Items[3];
+            if (party3 != nullptr) {
+                for (int i = 0; i < s_myTrainerCount; i++) {
+                    auto* poke = party3->GetMemberPointer(i);
+                    if (poke && poke->fields.m_accessor) {
+                        _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+                            &s_myTrainerBuf[i * TEAMUP_POKE_FULL_DATA_SIZE]);
+                    }
+                }
+                party3->fields.m_memberCount = s_myTrainerCount;
+            }
+            Logger::log("[TeamUp] Player B: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
+                        tu.battleTrainerID, tu.trainerPartyCount, tu.syncTrainerID, s_myTrainerCount);
+        } else {
+            // Case 3: Single trainer split across both slots
+            normalTrainer(bsp, 1, tu.battleTrainerID);
+            int32_t slot3ID = (tu.syncTrainerID != tu.battleTrainerID && tu.syncTrainerID != 0)
+                              ? tu.syncTrainerID : tu.battleTrainerID;
+            normalTrainer(bsp, 3, slot3ID);
+            if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
+                overwriteTrainerPartyFromBuffer(bsp, 1, tu);
+            }
+            splitTrainerParty(bsp, 1, 3);
+            if (slot3ID != tu.battleTrainerID) {
+                Logger::log("[TeamUp] Player B: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
+                            tu.battleTrainerID, slot3ID);
+            }
         }
     }
 
@@ -1384,14 +1399,24 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         g_owmpBattleSlotColors[2] = localColor;
         g_owmpBattleSlotColors[3] = 0;  // enemy NPC
         g_owmpBattleSlotCursor = 0;
+        extern int32_t g_owmpSetSkinColorCursor;
+        g_owmpSetSkinColorCursor = 0;
 
-        // (4) Custom battle colors for partner slot (if colorId == -1)
+        // (4) Custom battle colors for ALL slots with colorId == -1
         extern bool g_owmpBattleSlotHasCustomColors[];
         extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+        extern RomData::ColorSet GetCustomColorSet();
         memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+
+        // Local player (slot 2) — from local save data
+        if (localColor == -1) {
+            g_owmpBattleSlotHasCustomColors[2] = true;
+            g_owmpBattleSlotCustomColorSets[2] = GetCustomColorSet();
+        }
+
+        // Partner (slot 0) — from received 0xCD packet data
         if (partnerColor == -1 && remote.hasCustomColors) {
             g_owmpBattleSlotHasCustomColors[0] = true;
-            // Build ColorSet from remote's custom battle colors
             auto& cs = g_owmpBattleSlotCustomColorSets[0];
             for (int c = 0; c < 6; c++) {
                 float* dst = (c == 0) ? &cs.fieldSkinFace.r :
@@ -1570,8 +1595,10 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     // clients via SubProc_ExitCommTrainer. TRAINER(1) would route through
     // seq_EXIT_NPC which doesn't notify comm clients of the result.
 
-    // Determine dual-trainer mode: mismatched trainers with < 3 Pokemon
-    // Call normalTrainer for slot 1 first to get the trainer's party count
+    // Fill NPC enemy slots — three cases:
+    // 1. Original double battle (enemyID1 != 0): two distinct NPC trainers
+    // 2. Dual-trainer from mismatched player encounters: each player's trainer
+    // 3. Single trainer split across both slots
     normalTrainer(bsp, 1, tu.battleTrainerID);
     int32_t myTrainerCount = 0;
     if (fields->party != nullptr && fields->party->max_length > 1 &&
@@ -1579,41 +1606,46 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         myTrainerCount = fields->party->m_Items[1]->fields.m_memberCount;
     }
 
-    bool dualTrainer = myTrainerCount < 3 &&
-                       tu.partnerTrainerValid &&
-                       tu.partnerTrainerID != tu.battleTrainerID;
-
-    if (dualTrainer) {
-        // Slot 3: Player B's trainer
-        normalTrainer(bsp, 3, tu.partnerTrainerID);
-        // Overwrite slot 3 with Player B's trainer party from ACK
-        auto* party3 = fields->party->m_Items[3];
-        if (party3 != nullptr) {
-            int32_t ptCount = tu.partnerTrainerCount;
-            if (ptCount > 6) ptCount = 6;
-            for (int i = 0; i < ptCount; i++) {
-                int32_t bufOff = i * TEAMUP_POKE_FULL_DATA_SIZE;
-                if (bufOff + TEAMUP_POKE_FULL_DATA_SIZE > tu.partnerTrainerBufSize) break;
-                auto* poke = party3->GetMemberPointer(i);
-                if (poke && poke->fields.m_accessor) {
-                    _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
-                        &tu.partnerTrainerBuf[bufOff]);
-                }
-            }
-            party3->fields.m_memberCount = ptCount;
-        }
-        Logger::log("[TeamUp] Player A: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
-                    tu.battleTrainerID, myTrainerCount, tu.partnerTrainerID, tu.partnerTrainerCount);
+    if (tu.battleTrainerID2 != 0) {
+        // Case 1: Original double battle — two NPC trainers (enemyID0 + enemyID1)
+        normalTrainer(bsp, 3, tu.battleTrainerID2);
+        Logger::log("[TeamUp] Player A: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
+                    tu.battleTrainerID, myTrainerCount, tu.battleTrainerID2);
     } else {
-        // Split initiator's party — use partner's trainer ID for slot 3 if mismatched
-        // (gives both trainer models/AI even when splitting a single party)
-        int32_t slot3ID = (tu.partnerTrainerID != tu.battleTrainerID && tu.partnerTrainerID != 0)
-                          ? tu.partnerTrainerID : tu.battleTrainerID;
-        normalTrainer(bsp, 3, slot3ID);
-        splitTrainerParty(bsp, 1, 3);
-        if (slot3ID != tu.battleTrainerID) {
-            Logger::log("[TeamUp] Player A: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
-                        tu.battleTrainerID, slot3ID);
+        bool dualTrainer = myTrainerCount < 3 &&
+                           tu.partnerTrainerValid &&
+                           tu.partnerTrainerID != tu.battleTrainerID;
+
+        if (dualTrainer) {
+            // Case 2: Mismatched encounters — Player B's trainer in slot 3
+            normalTrainer(bsp, 3, tu.partnerTrainerID);
+            auto* party3 = fields->party->m_Items[3];
+            if (party3 != nullptr) {
+                int32_t ptCount = tu.partnerTrainerCount;
+                if (ptCount > 6) ptCount = 6;
+                for (int i = 0; i < ptCount; i++) {
+                    int32_t bufOff = i * TEAMUP_POKE_FULL_DATA_SIZE;
+                    if (bufOff + TEAMUP_POKE_FULL_DATA_SIZE > tu.partnerTrainerBufSize) break;
+                    auto* poke = party3->GetMemberPointer(i);
+                    if (poke && poke->fields.m_accessor) {
+                        _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+                            &tu.partnerTrainerBuf[bufOff]);
+                    }
+                }
+                party3->fields.m_memberCount = ptCount;
+            }
+            Logger::log("[TeamUp] Player A: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
+                        tu.battleTrainerID, myTrainerCount, tu.partnerTrainerID, tu.partnerTrainerCount);
+        } else {
+            // Case 3: Single trainer split across both slots
+            int32_t slot3ID = (tu.partnerTrainerID != tu.battleTrainerID && tu.partnerTrainerID != 0)
+                              ? tu.partnerTrainerID : tu.battleTrainerID;
+            normalTrainer(bsp, 3, slot3ID);
+            splitTrainerParty(bsp, 1, 3);
+            if (slot3ID != tu.battleTrainerID) {
+                Logger::log("[TeamUp] Player A: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
+                            tu.battleTrainerID, slot3ID);
+            }
         }
     }
 
@@ -1635,8 +1667,8 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     // the trainer's original BGM so gym leaders etc. keep their unique music.
     if (fields->btlEffComponent != nullptr)
         setupTeamUpBattleEffect(fields->btlEffComponent, tu.battleEffectID);
-    Logger::log("[TeamUp] Player A: PP_AA setup (trainer=%d, effectID=%d, dualTrainer=%d)\n",
-                tu.battleTrainerID, tu.battleEffectID, (int)dualTrainer);
+    Logger::log("[TeamUp] Player A: PP_AA setup (trainer=%d/%d, effectID=%d)\n",
+                tu.battleTrainerID, tu.battleTrainerID2, tu.battleEffectID);
 
     // Override arena — SetupBattleComm hardcodes Union Room arena 0x2b.
     // We must always override when battleArenaID was set by the trainer encounter.
@@ -1697,13 +1729,24 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         g_owmpBattleSlotColors[2] = partnerColor;
         g_owmpBattleSlotColors[3] = 0;  // enemy NPC
         g_owmpBattleSlotCursor = 0;
+        extern int32_t g_owmpSetSkinColorCursor;
+        g_owmpSetSkinColorCursor = 0;
 
-        // (4) Custom battle colors for partner slot
+        // (4) Custom battle colors for ALL slots with colorId == -1
         extern bool g_owmpBattleSlotHasCustomColors[];
         extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+        extern RomData::ColorSet GetCustomColorSet();
         memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+
+        // Local player (slot 0) — from local save data
+        if (localColor == -1) {
+            g_owmpBattleSlotHasCustomColors[0] = true;
+            g_owmpBattleSlotCustomColorSets[0] = GetCustomColorSet();
+        }
+
+        // Partner (slot 2) — from received 0xCD packet data
         if (partnerColor == -1 && remote.hasCustomColors) {
-            g_owmpBattleSlotHasCustomColors[2] = true; // Partner is slot 2 for Player A
+            g_owmpBattleSlotHasCustomColors[2] = true;
             auto& cs = g_owmpBattleSlotCustomColorSets[2];
             for (int c = 0; c < 6; c++) {
                 float* dst = (c == 0) ? &cs.fieldSkinFace.r :
@@ -1842,7 +1885,8 @@ void overworldMPHandleTeamUpPostBattle() {
 
     // On a team WIN, one player's Pokemon may all be fainted (the partner
     // finished the fight). Revive the first non-egg Pokemon to 1 HP to
-    // prevent the whiteout sequence from triggering.
+    // prevent the whiteout sequence from triggering. On a LOSS, let the
+    // normal Pokemon Center whiteout flow happen.
     if (tu.battleResult == 1) {
         auto* party = PlayerWork::get_playerParty();
         if (party != nullptr) {
@@ -1869,6 +1913,13 @@ void overworldMPHandleTeamUpPostBattle() {
                 }
             }
         }
+    }
+
+    // Schedule a second-pass restore as a safety net — vanilla FinalizeCoroutine
+    // may copy BSP.party[0] to PlayerWork AFTER our applyDeferredPartyRestore,
+    // overwriting the correct data. Re-apply after a short delay.
+    if (s_battleModPartyCount > 0 && !s_battleAbnormal) {
+        s_postBattleRestoreTimer = 0.5f;
     }
 
     // Clear battle state
@@ -2007,6 +2058,18 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         tu.battleResult = fields->result;
         tu.battleGetMoney = fields->getMoney;
 
+        // On LOSS: switch competitor from COMM(3) back to TRAINER(1) so the
+        // exit sequence uses seq_EXIT_NPC instead of seq_EXIT_COMM. This
+        // ensures the event script sees the loss result and triggers whiteout.
+        // On WIN, keep COMM(3) so the comm sync works properly.
+        if (fields->result == 0) {
+            fields->competitor = (Dpr::Battle::Logic::BtlCompetitor)1; // BTL_COMPETITOR_TRAINER
+            Logger::log("[TeamUp] LOSS: switched competitor to TRAINER for proper exit sequence\n");
+        }
+
+        // On loss, skip the deferred restore — vanilla TRAINER exit handles whiteout.
+        // Only save battle-modified data on win, where we need EXP/damage persistence.
+
         // Save state for deferred restore in post-battle handler.
         // We CANNOT restore PlayerWork's party here because the vanilla
         // FinalizeCoroutine continues AFTER storeBattleResult and copies
@@ -2017,8 +2080,9 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         s_battleModPartyCount = 0;
 
         if (!abnormal) {
-            // Normal ending — save battle-modified Pokemon from correct BSP slot.
-            // This data is needed for EXP/HP/PP persistence.
+            // Normal ending (win or loss) — save battle-modified Pokemon from
+            // BSP slot 0. Needed for both EXP persistence and party correctness
+            // (Player B's party[0] has Player A's data, deferred restore fixes it).
             saveBattleModifiedParty(bsp);
         }
         Logger::log("[TeamUp] storeBattleResult: deferred restore (abnormal=%d, battleMod=%d)\n",

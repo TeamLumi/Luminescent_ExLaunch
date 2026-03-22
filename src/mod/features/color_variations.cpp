@@ -395,9 +395,25 @@ HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_InlineColorID) {
     }
 };
 
+static int32_t g_owmpSetSkinColorCursor = 0;
+
 HOOK_DEFINE_INLINE(BattleCharacterEntity$$SetSkinColor_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        // During MP battles, set the custom color override before UpdateColorVariation
+        // runs inside SetColorIndexFromInline. Without this, GetCustomColorSet() returns
+        // local save data for all models because the LoadModels override was already cleared.
+        if (g_owmpBattleColorActive) {
+            int slot = g_owmpSetSkinColorCursor++;
+            if (slot < 4 && g_owmpBattleSlotColors[slot] == -1 && g_owmpBattleSlotHasCustomColors[slot]) {
+                SetCustomColorSetOverride(&g_owmpBattleSlotCustomColorSets[slot]);
+            } else {
+                SetCustomColorSetOverride(nullptr);
+            }
+        }
         SetColorIndexFromInline(ctx, 8, 19);
+        if (g_owmpBattleColorActive) {
+            SetCustomColorSetOverride(nullptr);
+        }
     }
 };
 
