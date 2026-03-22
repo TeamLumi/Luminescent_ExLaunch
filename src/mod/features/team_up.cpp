@@ -1405,13 +1405,29 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         // (4) Custom battle colors for ALL slots with colorId == -1
         extern bool g_owmpBattleSlotHasCustomColors[];
         extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
-        extern RomData::ColorSet GetCustomColorSet();
         memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
 
-        // Local player (slot 2) — from local save data
+        Logger::log("[TeamUp] Player B: color setup start (local=%d, partner=%d, hasCustom=%d)\n",
+                    localColor, partnerColor, (int)remote.hasCustomColors);
+
+        // Local player (slot 2) — build from save data directly
+        // (Don't call GetCustomColorSet here — it can crash during BSP setup)
         if (localColor == -1) {
             g_owmpBattleSlotHasCustomColors[2] = true;
-            g_owmpBattleSlotCustomColorSets[2] = GetCustomColorSet();
+            auto& lcs = g_owmpBattleSlotCustomColorSets[2];
+            auto& cv = getCustomSaveData()->playerColorVariation;
+            lcs.fieldSkinFace  = { cv.fSkinFace.fields.r,  cv.fSkinFace.fields.g,  cv.fSkinFace.fields.b,  cv.fSkinFace.fields.a };
+            lcs.fieldSkinMouth = { cv.fSkinMouth.fields.r, cv.fSkinMouth.fields.g, cv.fSkinMouth.fields.b, cv.fSkinMouth.fields.a };
+            lcs.fieldEyes      = { cv.fEyes.fields.r,      cv.fEyes.fields.g,      cv.fEyes.fields.b,      cv.fEyes.fields.a };
+            lcs.fieldEyebrows  = { cv.fEyebrows.fields.r,  cv.fEyebrows.fields.g,  cv.fEyebrows.fields.b,  cv.fEyebrows.fields.a };
+            lcs.fieldSkinBody  = { cv.fSkinBody.fields.r,  cv.fSkinBody.fields.g,  cv.fSkinBody.fields.b,  cv.fSkinBody.fields.a };
+            lcs.fieldHair      = { cv.fHair.fields.r,      cv.fHair.fields.g,      cv.fHair.fields.b,      cv.fHair.fields.a };
+            lcs.battleSkinFace = { cv.bSkinFace.fields.r,  cv.bSkinFace.fields.g,  cv.bSkinFace.fields.b,  cv.bSkinFace.fields.a };
+            lcs.battleHairExtra= { cv.bHairExtra.fields.r, cv.bHairExtra.fields.g, cv.bHairExtra.fields.b, cv.bHairExtra.fields.a };
+            lcs.battleEyeLeft  = { cv.bEyeLeft.fields.r,   cv.bEyeLeft.fields.g,   cv.bEyeLeft.fields.b,   cv.bEyeLeft.fields.a };
+            lcs.battleEyeRight = { cv.bEyeRight.fields.r,  cv.bEyeRight.fields.g,  cv.bEyeRight.fields.b,  cv.bEyeRight.fields.a };
+            lcs.battleSkinBody = { cv.bSkinBody.fields.r,  cv.bSkinBody.fields.g,  cv.bSkinBody.fields.b,  cv.bSkinBody.fields.a };
+            lcs.battleHair     = { cv.bHair.fields.r,      cv.bHair.fields.g,      cv.bHair.fields.b,      cv.bHair.fields.a };
         }
 
         // Partner (slot 0) — from received 0xCD packet data
@@ -1735,13 +1751,25 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         // (4) Custom battle colors for ALL slots with colorId == -1
         extern bool g_owmpBattleSlotHasCustomColors[];
         extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
-        extern RomData::ColorSet GetCustomColorSet();
         memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
 
-        // Local player (slot 0) — from local save data
+        // Local player (slot 0) — build from save data directly
         if (localColor == -1) {
             g_owmpBattleSlotHasCustomColors[0] = true;
-            g_owmpBattleSlotCustomColorSets[0] = GetCustomColorSet();
+            auto& lcs = g_owmpBattleSlotCustomColorSets[0];
+            auto& cv = getCustomSaveData()->playerColorVariation;
+            lcs.fieldSkinFace  = { cv.fSkinFace.fields.r,  cv.fSkinFace.fields.g,  cv.fSkinFace.fields.b,  cv.fSkinFace.fields.a };
+            lcs.fieldSkinMouth = { cv.fSkinMouth.fields.r, cv.fSkinMouth.fields.g, cv.fSkinMouth.fields.b, cv.fSkinMouth.fields.a };
+            lcs.fieldEyes      = { cv.fEyes.fields.r,      cv.fEyes.fields.g,      cv.fEyes.fields.b,      cv.fEyes.fields.a };
+            lcs.fieldEyebrows  = { cv.fEyebrows.fields.r,  cv.fEyebrows.fields.g,  cv.fEyebrows.fields.b,  cv.fEyebrows.fields.a };
+            lcs.fieldSkinBody  = { cv.fSkinBody.fields.r,  cv.fSkinBody.fields.g,  cv.fSkinBody.fields.b,  cv.fSkinBody.fields.a };
+            lcs.fieldHair      = { cv.fHair.fields.r,      cv.fHair.fields.g,      cv.fHair.fields.b,      cv.fHair.fields.a };
+            lcs.battleSkinFace = { cv.bSkinFace.fields.r,  cv.bSkinFace.fields.g,  cv.bSkinFace.fields.b,  cv.bSkinFace.fields.a };
+            lcs.battleHairExtra= { cv.bHairExtra.fields.r, cv.bHairExtra.fields.g, cv.bHairExtra.fields.b, cv.bHairExtra.fields.a };
+            lcs.battleEyeLeft  = { cv.bEyeLeft.fields.r,   cv.bEyeLeft.fields.g,   cv.bEyeLeft.fields.b,   cv.bEyeLeft.fields.a };
+            lcs.battleEyeRight = { cv.bEyeRight.fields.r,  cv.bEyeRight.fields.g,  cv.bEyeRight.fields.b,  cv.bEyeRight.fields.a };
+            lcs.battleSkinBody = { cv.bSkinBody.fields.r,  cv.bSkinBody.fields.g,  cv.bSkinBody.fields.b,  cv.bSkinBody.fields.a };
+            lcs.battleHair     = { cv.bHair.fields.r,      cv.bHair.fields.g,      cv.bHair.fields.b,      cv.bHair.fields.a };
         }
 
         // Partner (slot 2) — from received 0xCD packet data

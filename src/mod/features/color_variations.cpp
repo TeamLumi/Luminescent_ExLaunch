@@ -395,7 +395,7 @@ HOOK_DEFINE_INLINE(EvDataManager$$LoadObjectCreate_Asset_InlineColorID) {
     }
 };
 
-static int32_t g_owmpSetSkinColorCursor = 0;
+int32_t g_owmpSetSkinColorCursor = 0;
 
 HOOK_DEFINE_INLINE(BattleCharacterEntity$$SetSkinColor_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
