@@ -258,23 +258,23 @@ namespace Dpr::UI {
         // GetComponent<CanvasGroup>() on _tradeInfo and SetActive(true).
         // Must be called before SetTradeInfo/SetOtherPokeParam when using
         // selection-mode Open (which doesn't initialize the trade panel).
-        inline void SetTraderName(System::String::Object* name, int32_t langId) {
-            external<void>(0x1CC4810, this, name, langId);
+        inline void SetTraderName(System::String::Object* traderName, int32_t langID) {
+            external<void>(0x1CC4810, this, traderName, langID);
         }
 
         // Show/hide the trade info panel (partner pokemon model + info)
-        inline void SetTradeInfo(bool show) {
-            external<void>(0x1CB7040, this, (uint8_t)show);
+        inline void SetTradeInfo(bool isEnable) {
+            external<void>(0x1CB7040, this, (uint8_t)isEnable);
         }
 
         // Set the partner's pokemon data for the trade info panel display
-        inline void SetOtherPokeParam(Pml::PokePara::PokemonParam::Object* param, int32_t gameVersion) {
-            external<void>(0x1CBCDD0, this, param, gameVersion);
+        inline void SetOtherPokeParam(Pml::PokePara::PokemonParam::Object* param, int32_t cassetVersion) {
+            external<void>(0x1CBCDD0, this, param, cassetVersion);
         }
 
         // Advance the trade phase state machine
-        inline void ToNextPhase(int32_t nextPhase) {
-            external<void>(0x1CBC6A0, this, nextPhase);
+        inline void ToNextPhase(int32_t next = 0) {
+            external<void>(0x1CBC6A0, this, next);
         }
 
         // Clear the trade selection state

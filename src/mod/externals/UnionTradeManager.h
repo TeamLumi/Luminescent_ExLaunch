@@ -17,11 +17,13 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
         END = 4,
     };
 
-    struct BoxPokeData {
-        Pml::PokePara::PokemonParam::Object* pokeParam;  // 0x0
-        bool isTeam;                                       // 0x8
-        int32_t teamIndex;                                 // 0xC
-        int32_t teamPos;                                   // 0x10
+    struct BoxPokeData : ILStruct<BoxPokeData> {
+        struct Fields {
+            Pml::PokePara::PokemonParam::Object* pokeParam;  // 0x0
+            bool isTeam;                                       // 0x8
+            int32_t teamIndex;                                 // 0xC
+            int32_t teamPos;                                   // 0x10
+        };
     };
 
     struct TargetTranerParam : ILClass<TargetTranerParam, 0x04c659f0> {
@@ -41,7 +43,6 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
         void* myPlayer;                                    // 0x10  OnlinePlayerCharacter
         void* securityController;                          // 0x18  TradeSecurityController
         int32_t tradeTargetIndex;                          // 0x20
-        int32_t _pad_24;                                   // 0x24  padding
         void* tradeSelectModel;                            // 0x28  TradeSelectPokeModel
         BoxPokeData boxMyPokeData;                         // 0x30  (value type, 0x18 bytes)
         Pml::PokePara::PokemonParam::Object* targetPokemonParam; // 0x48

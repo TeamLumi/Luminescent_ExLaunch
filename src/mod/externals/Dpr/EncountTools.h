@@ -31,19 +31,19 @@ namespace Dpr {
             Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
             int32_t networkType, int32_t commRule, uint8_t commPos,
             void* regulation,
-            int32_t station0, Pml::PokeParty::Object* party0, void* mystatus0, void* capsule0,
-            int32_t station1, Pml::PokeParty::Object* party1, void* mystatus1, void* capsule1,
-            int32_t station2, Pml::PokeParty::Object* party2, void* mystatus2, void* capsule2,
-            int32_t station3, Pml::PokeParty::Object* party3, void* mystatus3, void* capsule3,
+            int32_t stationIndex0, Pml::PokeParty::Object* party0, void* mystatus0, void* capsuleDatas0,
+            int32_t stationIndex1, Pml::PokeParty::Object* party1, void* mystatus1, void* capsuleDatas1,
+            int32_t stationIndex2, Pml::PokeParty::Object* party2, void* mystatus2, void* capsuleDatas2,
+            int32_t stationIndex3, Pml::PokeParty::Object* party3, void* mystatus3, void* capsuleDatas3,
             System::String::Object* bgm, System::String::Object* winBgm,
-            uint32_t gameLimitSec, uint32_t cmdLimitSec)
+            uint32_t GameLimitSec, uint32_t CommandLimitSec)
         {
             external<void>(0x2C3DA90, bsp, networkType, commRule, commPos, regulation,
-                station0, party0, mystatus0, capsule0,
-                station1, party1, mystatus1, capsule1,
-                station2, party2, mystatus2, capsule2,
-                station3, party3, mystatus3, capsule3,
-                bgm, winBgm, gameLimitSec, cmdLimitSec);
+                stationIndex0, party0, mystatus0, capsuleDatas0,
+                stationIndex1, party1, mystatus1, capsuleDatas1,
+                stationIndex2, party2, mystatus2, capsuleDatas2,
+                stationIndex3, party3, mystatus3, capsuleDatas3,
+                bgm, winBgm, GameLimitSec, CommandLimitSec);
         }
 
     };

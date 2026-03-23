@@ -49,8 +49,8 @@ namespace Dpr::UI {
             external<void>(0x01a3ced0, this, pokemonParam, prevWindowId);
         }
 
-        inline void Close(void* onPreClose, int32_t prevWindowId) {
-            external<void>(0x01a3d220, this, onPreClose, prevWindowId);
+        inline void Close(void* onClosed_, int32_t nextWindowId) {
+            external<void>(0x01a3d220, this, onClosed_, nextWindowId);
         }
     };
 }

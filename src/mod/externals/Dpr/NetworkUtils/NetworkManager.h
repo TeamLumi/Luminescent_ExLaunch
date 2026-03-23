@@ -17,15 +17,25 @@ namespace Dpr::NetworkUtils {
         };
 
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
-            void* _dicErrorMsg;         // 0x18 Dict<int,string>
-            void* _dicErrorDialogInfo;  // 0x20 Dict<int,ErrorDialogInfo>
-            bool _isProcessingInternetGo; // 0x28
+            void* sessionErrorLogTable;     // 0x18 Dictionary<int,string>
+            void* networkErrorDialogTable;  // 0x20 Dictionary<int,SheetErrorDialogInfo>
+            bool processingInternetGo;      // 0x28
             // padding to 0x30
-            void* _sessionConnector;    // 0x30 SessionConnector*
-            void* _networkParam;        // 0x38 NetworkParam*
-            void* _packetReader;        // 0x40 PacketReader*
-            void* _packetWriter;        // 0x48 PacketWriter*
-            void* _packetWriterRe;      // 0x50 PacketWriterRe*
+            void* sessionConnector;         // 0x30 SessionConnector*
+            void* networkParam;             // 0x38 NetworkParam*
+            void* packetReader;             // 0x40 PacketReader*
+            void* packetWriter;             // 0x48 PacketWriter*
+            void* packetWriterRe;           // 0x50 PacketWriterRe*
+            void* checkRequest;             // 0x58 IlcaNetServerValidate.CheckRequest
+            void* checkResponse;            // 0x60 IlcaNetServerValidate.CheckResponse
+            void* validateResult;           // 0x68 RequestValidateResult
+            void* singleValidateCheckResult;// 0x70 ValidateCheckResult
+            void* pluralValidateCheckResult;// 0x78 ValidateCheckPluralResult
+            void* gmsTradeResult;           // 0x88 GMSTradeResult
+            void* appletResult;             // 0x90 ErrorAppletResult
+            void* showMsgWindow;            // 0x98 ShowMessageWindow
+            int32_t systemErrorDialogOpenCount; // 0xA0
+            int32_t systemErrorDialogCode; // 0xA4 ErrorCodeID
         };
 
         static inline bool IsShowApplicationErrorDialog() {
@@ -40,9 +50,9 @@ namespace Dpr::NetworkUtils {
         // onComplete: Action<StartSessionResult> or nullptr
         // 0x1DE6810
         static inline void StartSessionRandomJoin(int32_t networkType, int32_t gamingStartMode,
-                                                   int16_t matchingType, int16_t maxPlayers,
-                                                   void* onComplete) {
-            external<void>(0x1DE6810, networkType, gamingStartMode, matchingType, maxPlayers, onComplete);
+                                                   uint16_t gameMode, uint16_t playerNumMax,
+                                                   void* onCompleteStartSession) {
+            external<void>(0x1DE6810, networkType, gamingStartMode, gameMode, playerNumMax, onCompleteStartSession);
         }
 
         // 0x1DE9150 — leave the current session (static, accesses singleton)
@@ -66,14 +76,13 @@ namespace Dpr::NetworkUtils {
         }
 
         // 0x1DE8BD0 — send reliable packet to all (static)
-        // pw: PacketWriter*, sendType: transport type
-        static inline int32_t SendReliablePacketToAll(void* pw, int32_t sendType) {
-            return external<int32_t>(0x1DE8BD0, pw, sendType);
+        static inline int32_t SendReliablePacketToAll(void* packetWriterRe, int32_t transportType = 0) {
+            return external<int32_t>(0x1DE8BD0, packetWriterRe, transportType);
         }
 
         // 0x1DE8CE0 — send unreliable packet to all (static)
-        static inline int32_t SendUnReliablePacketToAll(void* pw, int32_t sendType) {
-            return external<int32_t>(0x1DE8CE0, pw, sendType);
+        static inline int32_t SendUnReliablePacketToAll(void* packetWriter, int32_t transportType = 0) {
+            return external<int32_t>(0x1DE8CE0, packetWriter, transportType);
         }
 
         // 0x1DE7C20 — get singleton's unreliable PacketWriter (static)
@@ -97,8 +106,8 @@ namespace Dpr::NetworkUtils {
         }
 
         // 0x1DEAB20 — session event callback (instance, hooked for overworld MP)
-        inline void OnSessionEvent(uint64_t sessionEventData) {
-            external<void>(0x1DEAB20, this, sessionEventData);
+        inline void OnSessionEvent(uint64_t sessionEvent) {
+            external<void>(0x1DEAB20, this, sessionEvent);
         }
     };
 }

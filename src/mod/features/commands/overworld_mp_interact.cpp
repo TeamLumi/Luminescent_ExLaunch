@@ -1448,8 +1448,8 @@ static bool tryStartDemoTrade(Pml::PokePara::PokemonParam::Object* myPoke,
     demo->ctor();
 
     // Set pokemon params (matches NPC trade flow: offsets 0xC8 and 0xD0)
-    demo->fields.MyPokeParam = myPoke;
-    demo->fields.FriendPokeParam = partnerPoke;
+    demo->fields.MyPokeParam_Copy = myPoke;
+    demo->fields.FriendPokeParam_Copy = partnerPoke;
 
     // Get trainer IDs and partner name for SetParam
     auto* playerStatus = PlayerWork::get_playerStatus();

@@ -23,17 +23,23 @@ namespace Dpr::Demo {
         };
 
         struct Fields : Dpr::Demo::DemoBase::Fields {
-            void* timeLine;                                        // abs 0xC0 (TimeLineBinder*)
-            Pml::PokePara::PokemonParam::Object* MyPokeParam;     // abs 0xC8
-            Pml::PokePara::PokemonParam::Object* FriendPokeParam; // abs 0xD0
-            void* _field_d8;                                       // abs 0xD8
-            void* _field_e0;                                       // abs 0xE0
-            void* _field_e8;                                       // abs 0xE8
-            int32_t nowState;                                      // abs 0xF0
-            int32_t _pad_f4;                                       // abs 0xF4
-            Param::Object* _param;                                 // abs 0xF8
-            void* _field_100;                                      // abs 0x100
-            bool _isReady;                                         // abs 0x108
+            void* timeLine;                                                // 0xC0 TimeLineBinder
+            Pml::PokePara::PokemonParam::Object* MyPokeParam_Copy;        // 0xC8
+            Pml::PokePara::PokemonParam::Object* FriendPokeParam_Copy;    // 0xD0
+            // BoxPokeData FriendPokeParam at 0xD8 (struct, not pointer)
+            void* _friendPokeParam_pokeParam;                              // 0xD8
+            bool _friendPokeParam_isTeam;                                  // 0xE0
+            int32_t _friendPokeParam_teamIndex;                            // 0xE4
+            int32_t _friendPokeParam_teamPos;                              // 0xE8
+            int32_t nowState;                                              // 0xF0 TradeState enum
+            Param::Object* _param;                                         // 0xF8
+            void* receiver;                                                // 0x100 MarkerReceiver
+            bool isTimelineComplete;                                       // 0x108
+            int32_t Debug_RemoveEffectsNum;                                // 0x10C
+            bool UsePreGetCheck;                                           // 0x110
+            bool IsGetMonsNo;                                              // 0x111
+            bool IsGetEvolvedMonsNo;                                       // 0x112
+            void* displayTime;                                             // 0x118 float[]
         };
 
         inline void ctor() {

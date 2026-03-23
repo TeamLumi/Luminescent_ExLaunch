@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/OpcController.h"
+#include "externals/UnityEngine/GameObject.h"
 
 struct OpcManager : ILClass<OpcManager> {
     struct CharaData : ILStruct<CharaData> {
@@ -50,7 +51,7 @@ struct OpcManager : ILClass<OpcManager> {
         external<void>(0x01e11460, this, stationIndex, isGameObjectDestroy);
     }
 
-    inline void DestroyCharacterObject(Il2CppObject* gameObj) {
+    inline void DestroyCharacterObject(UnityEngine::GameObject::Object* gameObj) {
         external<void>(0x01e11600, this, gameObj);
     }
 
