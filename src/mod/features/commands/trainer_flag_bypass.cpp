@@ -13,8 +13,9 @@
 // Returns true (bypass active, skip the jump/call) or false (not bypassing,
 // caller should fall through to Orig).
 bool IfTrFlagonBypass(Dpr::EvScript::EvDataManager::Object* manager) {
+    if (!overworldMPIsTeamedUp()) return false;
     auto& tu = overworldMPGetTeamUpState();
-    if (tu.isTeamedUp && tu.bypassTrainerFlag) {
+    if (tu.bypassTrainerFlag) {
         // Bypass: pretend trainer flag is NOT set — don't jump/call.
         // Return true = command complete, script advances to next command.
         return true;

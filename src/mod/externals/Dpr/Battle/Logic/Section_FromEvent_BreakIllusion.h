@@ -9,7 +9,6 @@ namespace Dpr::Battle::Logic {
         struct Description : ILClass<Description> {
             struct Fields {
                 uint8_t targetPokeID;
-                uint8_t _padding[7];
                 StrParam::Object* successMessage;
             };
         };

@@ -33,7 +33,7 @@ struct ExtraSettingsSaveData {
         shinyEggsEnabled = false;
         gameMode = GameMode::_493;
         randomTeamMode = RandomTeamMode::RANDOM_ALWAYS;
-        overworldMultiplayer = true;
+        overworldMultiplayer = false;
     }
 
     [[nodiscard]] nn::json ToJson() const {
@@ -58,8 +58,7 @@ struct ExtraSettingsSaveData {
         shinyEggsEnabled = settings["shinyEggsEnabled"].get<bool>();
         gameMode = settings["gameMode"].get<GameMode>();
         randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
-        if (settings.contains("overworldMultiplayer"))
-            overworldMultiplayer = settings["overworldMultiplayer"].get<bool>();
+        overworldMultiplayer = settings["overworldMultiplayer"].get<bool>();
     }
 };
 
