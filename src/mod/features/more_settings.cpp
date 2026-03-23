@@ -1,6 +1,7 @@
 #include "exlaunch.hpp"
 
 #include "data/game_modes.h"
+#include "data/overworld_multiplayer.h"
 #include "data/random_team_modes.h"
 #include "data/settings.h"
 #include "data/utils.h"
@@ -162,7 +163,7 @@ int32_t MaxWindowSelectorValue(int32_t configId) {
             return RANDOM_TEAM_MODE_COUNT - 1;
 
         case array_index(SETTINGS, "Overworld Multiplayer"):
-            return 1; // On=0, Off=1
+            return OVERWORLD_MP_OPTION_COUNT - 1;
     }
 }
 
@@ -540,11 +541,9 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
                         __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(RANDOM_TEAM_MODE_LABELS[__this->fields._selectIndex]));
                         break;
 
-                    case array_index(SETTINGS, "Overworld Multiplayer"): {
-                        static const char* OW_MP_LABELS[] = { "SS_option_OverworldMP_01", "SS_option_OverworldMP_02" };
-                        __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(OW_MP_LABELS[__this->fields._selectIndex]));
+                    case array_index(SETTINGS, "Overworld Multiplayer"):
+                        __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(OVERWORLD_MP_LABELS[__this->fields._selectIndex]));
                         break;
-                    }
                 }
 
                 int32_t index = __this->fields._selectBg->cast<UnityEngine::Behaviour>()->get_enabled() ? 0 : 1;

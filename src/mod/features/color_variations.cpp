@@ -14,6 +14,10 @@
 
 #include "logger/logger.h"
 
+// MyStatus.colorID field offset — used to read/write per-slot colorID
+// in comm battles. The field is a uint8_t at this offset in the MyStatus object.
+static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+
 // When non-null, GetCustomColorSet returns this instead of local save data.
 // Set temporarily during battle color processing for remote player slots.
 static RomData::ColorSet* s_customColorSetOverride = nullptr;
@@ -296,7 +300,7 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
 HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
     static int32_t Callback(void* __this) {
         if (g_owmpBattleColorActive && __this != nullptr) {
-            uint8_t raw = *(uint8_t*)((uintptr_t)__this + 0x25);
+            uint8_t raw = *(uint8_t*)((uintptr_t)__this + MYSTATUS_COLORID_OFFSET);
             // 0xFF is -1 truncated to uint8 — means custom colors, not preset 255
             return (raw == 0xFF) ? -1 : (int32_t)raw;
         }

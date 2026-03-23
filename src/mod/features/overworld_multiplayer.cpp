@@ -2376,7 +2376,7 @@ static void spawnQueueStartLoad(int32_t stationIndex) {
     SmartPoint::AssetAssistant::Sequencer::getClass()->initIfNeeded();
 
     auto* coroutine = Dpr::SubContents::Utils::LoadAsset(path, action);
-    SmartPoint::AssetAssistant::Sequencer::Start(coroutine);
+    SmartPoint::AssetAssistant::Sequencer::Start((System::Collections::IEnumerator::Object*)coroutine);
 }
 
 void overworldMPDespawnEntity(int32_t stationIndex) {
@@ -2605,7 +2605,7 @@ static void overworldMPSpawnFollowPokemon(int32_t stationIndex) {
     // Start async asset load
     SmartPoint::AssetAssistant::Sequencer::getClass()->initIfNeeded();
     auto* coroutine = Dpr::SubContents::Utils::LoadAsset(fullPath, action);
-    SmartPoint::AssetAssistant::Sequencer::Start(coroutine);
+    SmartPoint::AssetAssistant::Sequencer::Start((System::Collections::IEnumerator::Object*)coroutine);
 }
 
 // ---------------------------------------------------------------------------

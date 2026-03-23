@@ -1379,15 +1379,16 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             }
         }
 
-        // (2) MyStatus.colorID (byte at object offset 0x25)
+        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
+        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
         auto* bspInst = PlayerWork::get_battleSetupParam();
         if (bspInst != nullptr) {
             auto* statusArr = bspInst->instance()->fields.playerStatus;
             if (statusArr != nullptr) {
                 if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                    *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + 0x25) = (uint8_t)partnerColor;
+                    *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
                 if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                    *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + 0x25) = (uint8_t)localColor;
+                    *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
             }
         }
 
@@ -1728,13 +1729,14 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
             }
         }
 
-        // (2) MyStatus.colorID (byte at object offset 0x25)
+        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
+        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
         auto* statusArr = fields->playerStatus;
         if (statusArr != nullptr) {
             if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + 0x25) = (uint8_t)localColor;
+                *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
             if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + 0x25) = (uint8_t)partnerColor;
+                *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
         }
 
         // (3) Slot color array + cursor for CardModelViewController
