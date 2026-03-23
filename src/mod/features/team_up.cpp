@@ -68,8 +68,9 @@ HOOK_DEFINE_TRAMPOLINE(AreaNameWindowSetNameText) {
     // Instance method: (this, labelName, MethodInfo*)
     static void Callback(void* __this, System::String::Object* labelName, MethodInfo* mi) {
         if (s_useCustomAreaText) {
-            // nameText (TextMeshProUGUI) is at offset 0x20 in AreaNameWindow
-            void* nameText = *(void**)((uintptr_t)__this + 0x20);
+            // nameText (TextMeshProUGUI) field in AreaNameWindow
+            static constexpr uintptr_t AREANAMEWINDOW_NAMETEXT = 0x20;
+            void* nameText = *(void**)((uintptr_t)__this + AREANAMEWINDOW_NAMETEXT);
             if (nameText != nullptr) {
                 auto* customStr = System::String::Create(s_customAreaTextBuf);
                 if (customStr != nullptr) {
@@ -185,8 +186,8 @@ static void setupTeamUpBattleEffect(void* btlEffComponent, int32_t trainerEffect
             trainerEffectID, (int32_t)-1, (int32_t)0, (uint64_t)0);
 
         // 2. Read BGM strings (overrides are null, falls through to template)
-        void* savedBgm    = (void*)_ILExternal::external<uintptr_t>(0x0187B510, btlEffComponent);
-        void* savedWinBgm = (void*)_ILExternal::external<uintptr_t>(0x0187B570, btlEffComponent);
+        auto* savedBgm    = _ILExternal::external<void*>(0x0187B510, btlEffComponent);
+        auto* savedWinBgm = _ILExternal::external<void*>(0x0187B570, btlEffComponent);
 
         // 3. Override with TR_MULTI for 2v2 intro animation + cmdSeq
         _ILExternal::external<void>(0x0187B7E0, btlEffComponent,
@@ -901,11 +902,7 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
     auto* localParty = PlayerWork::get_playerParty();
     if (localParty == nullptr) return nullptr;
 
-    auto* partyKlass = (Il2CppClass*)localParty->klass;
-    if (partyKlass == nullptr) return nullptr;
-
-    auto* party = (Pml::PokeParty::Object*)il2cpp_object_new(partyKlass);
-    _ILExternal::external<void>(0x2055D10, party); // PokeParty::ctor()
+    auto* party = Pml::PokeParty::newInstance();
 
     int32_t validCount = 0;
     for (int i = 0; i < count; i++) {
@@ -1160,8 +1157,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         return;
     }
 
-    auto* myTrimmedParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
-    _ILExternal::external<void>(0x2055D10, myTrimmedParty);
+    auto* myTrimmedParty = Pml::PokeParty::newInstance();
     int32_t myCount = myParty->fields.m_memberCount;
     if (myCount > TEAMUP_PARTY_LIMIT) myCount = TEAMUP_PARTY_LIMIT;
     for (int i = 0; i < myCount; i++) {
@@ -1517,8 +1513,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         return;
     }
 
-    auto* myTrimmedParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
-    _ILExternal::external<void>(0x2055D10, myTrimmedParty);
+    auto* myTrimmedParty = Pml::PokeParty::newInstance();
     int32_t myCount = myParty->fields.m_memberCount;
     if (myCount > TEAMUP_PARTY_LIMIT) myCount = TEAMUP_PARTY_LIMIT;
     for (int i = 0; i < myCount; i++) {
@@ -2007,13 +2002,22 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpIsExpSeqEnable) {
 
 HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
     static void Callback(void* mainModule, MethodInfo* mi) {
-        bool teamed = overworldMPIsTeamedUp();
-        auto& tu = overworldMPGetTeamUpState();
+        // Fast path: for non-team-up battles, just call Orig and return.
+        // Minimizes our frame's presence on the stack to avoid .eh_frame
+        // incompatibility crashes during the game's exception handling.
+        if (!overworldMPIsTeamedUp()) {
+            Orig(mainModule, mi);
+            return;
+        }
 
-        // --- Pre-Orig diagnostics ---
-        // Capture raw engine state BEFORE storeBattleResult/checkWinner modifies it.
-        // mainModule+0x8c = judgeResult (set by NotifyBattleResult during battle)
-        // mainModule+0x94 = myClientId (this console's commPos in the battle)
+        auto& tu = overworldMPGetTeamUpState();
+        if (tu.battleType != 1) {
+            Orig(mainModule, mi);
+            return;
+        }
+
+        // --- Team-up battle path ---
+        // Pre-Orig diagnostics for team-up battles only
         uint32_t preJudgeResult = *(uint32_t*)((uintptr_t)mainModule + 0x8c);
         uint8_t myClientId = *(uint8_t*)((uintptr_t)mainModule + 0x94);
 
@@ -2031,9 +2035,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         Orig(mainModule, mi);
 
         Logger::log("[TeamUp] storeBattleResult hook: teamed=%d battleType=%d isInitiator=%d\n",
-                    (int)teamed, (int)tu.battleType, (int)tu.isInitiator);
-        if (!teamed) return;
-        if (tu.battleType != 1) return; // only trainer team-up battles
+                    (int)true, (int)tu.battleType, (int)tu.isInitiator);
 
         // Get BSP from MainModule+0x10
         auto* bsp = *(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object**)

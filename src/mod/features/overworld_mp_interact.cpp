@@ -155,28 +155,31 @@ static void* getInteractMsgWindowTMP() {
     auto* mgr = Dpr::MsgWindow::MsgWindowManager::get_Instance();
     if (mgr == nullptr) return nullptr;
 
-    void* msgWindow = mgr->get_MsgWindow();
+    auto* msgWindow = mgr->get_MsgWindow();
     if (msgWindow == nullptr) return nullptr;
 
-    // WindowMessage at MsgWindow+0x28
-    void* windowMessage = *(void**)((uintptr_t)msgWindow + 0x28);
+    // MsgWindow field offsets (from IL2CPP struct layout)
+    static constexpr uintptr_t MSGWINDOW_WINDOWMESSAGE = 0x28;
+    static constexpr uintptr_t WINDOWMESSAGE_TEXTCONTAINER = 0x18;
+    static constexpr uintptr_t TEXTCONTAINER_TEXTARRAY = 0x20;
+    static constexpr uintptr_t WINDOWMSGTEXT_TMP = 0x18;
+
+    void* windowMessage = *(void**)((uintptr_t)msgWindow + MSGWINDOW_WINDOWMESSAGE);
     if (windowMessage == nullptr) return nullptr;
 
-    // MsgTextContainer at WindowMessage+0x18
-    void* msgTextContainer = *(void**)((uintptr_t)windowMessage + 0x18);
+    void* msgTextContainer = *(void**)((uintptr_t)windowMessage + WINDOWMESSAGE_TEXTCONTAINER);
     if (msgTextContainer == nullptr) return nullptr;
 
-    // WindowMsgText[] (Il2CppArray) at MsgTextContainer+0x20
-    void* textArray = *(void**)((uintptr_t)msgTextContainer + 0x20);
+    void* textArray = *(void**)((uintptr_t)msgTextContainer + TEXTCONTAINER_TEXTARRAY);
     if (textArray == nullptr) return nullptr;
 
-    uint64_t maxLength = *(uint64_t*)((uintptr_t)textArray + 0x18);
+    uint64_t maxLength = *(uint64_t*)((uintptr_t)textArray + 0x18); // Il2CppArray.max_length
     if (maxLength == 0) return nullptr;
 
-    void* windowMsgText = *(void**)((uintptr_t)textArray + 0x20);
+    void* windowMsgText = *(void**)((uintptr_t)textArray + 0x20); // Il2CppArray.m_Items[0]
     if (windowMsgText == nullptr) return nullptr;
 
-    void* tmp = *(void**)((uintptr_t)windowMsgText + 0x18);
+    void* tmp = *(void**)((uintptr_t)windowMsgText + WINDOWMSGTEXT_TMP);
     if (tmp == nullptr) return nullptr;
 
     s_cachedInteractMsgTMP = tmp;
@@ -2361,14 +2364,8 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
         return nullptr;
     }
 
-    // Create a new PokeParty via ctor — creates 6 empty PokemonParam slots
-    auto* partyKlass = (Il2CppClass*)localParty->klass;
-    if (partyKlass == nullptr) {
-        Logger::log("[OverworldMP] ERROR: PokeParty class is null\n");
-        return nullptr;
-    }
-    auto* party = (Pml::PokeParty::Object*)il2cpp_object_new(partyKlass);
-    _ILExternal::external<void>(0x2055D10, party); // PokeParty::ctor()
+    // Create a new PokeParty — creates 6 empty PokemonParam slots
+    auto* party = Pml::PokeParty::newInstance();
 
     // Deserialize directly into the party's existing slots — matching how
     // the base game's CopyFrom works (slot-to-slot, no AddMember/GetMonsNo check).

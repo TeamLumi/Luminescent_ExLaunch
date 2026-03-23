@@ -12,6 +12,7 @@
 #include "romdata/data/ColorSet.h"
 #include "romdata/romdata.h"
 
+#include "features/overworld_multiplayer.h"
 #include "logger/logger.h"
 
 // Per-slot MyStatus pointers — stored during battle setup so the
@@ -237,12 +238,8 @@ HOOK_DEFINE_REPLACE(ColorVariation_LateUpdate) {
     }
 };
 
-// When true, OnEnable applies the remote player's ColorIndex instead of the
-// local custom save-data override.  Set by the overworld MP system before
-// Instantiate so that the OnEnable hook applies the correct preset.
-extern bool g_owmpSkipCustomColorOverride;
-// Remote player's color preset index, set before Instantiate. -1 = not set.
-extern int32_t g_owmpRemoteColorId;
+// g_owmpSkipCustomColorOverride and g_owmpRemoteColorId declared in
+// overworld_multiplayer.h, defined in overworld_multiplayer.cpp
 // Per-station captured ColorVariation pointer from OnEnable during MP Instantiate.
 // The spawn code sets g_owmpCaptureStation before Instantiate; the OnEnable hook
 // stores the component pointer into that slot.
