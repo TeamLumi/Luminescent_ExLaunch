@@ -65,8 +65,8 @@ namespace Dpr::NetworkUtils {
         }
 
         // 0x1BC65C0
-        static inline bool FinishSession() {
-            return external<bool>(0x1BC65C0);
+        inline bool FinishSession() {
+            return external<bool>(0x1BC65C0, this);
         }
 
         // 0x1BC6650

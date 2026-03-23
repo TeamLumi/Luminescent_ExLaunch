@@ -43,8 +43,8 @@ namespace UnityEngine {
 
         // Non-generic AddComponent(Type) — uses Unity's internal AddComponent
         // @ 0x26b1880
-        inline void* AddComponentByType(System::Type::Object* componentType) {
-            return external<void*>(0x26b1880, this, componentType);
+        inline UnityEngine::Component::Object* AddComponentByType(System::Type::Object* componentType) {
+            return external<UnityEngine::Component::Object*>(0x26b1880, this, componentType);
         }
 
         inline UnityEngine::Transform::Object* get_transform() {

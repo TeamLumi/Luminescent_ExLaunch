@@ -14,14 +14,14 @@ namespace Dpr::SubContents {
         }
 
         // Returns IEnumerator — pass result to Sequencer::Start()
-        static inline Il2CppObject* LoadAsset(System::String::Object* path, System::Action::Object* onLoad, bool isVariant = false, bool useAssetUnloader = true, int32_t id = 0) {
-            return external<Il2CppObject*>(0x01868950, path, onLoad, isVariant, useAssetUnloader, id);
+        static inline Il2CppObject* LoadAsset(System::String::Object* path, System::Action::Object* OnLoad, bool isVariant = false, bool useAssetUnloader = true, int32_t id = 0) {
+            return external<Il2CppObject*>(0x01868950, path, OnLoad, isVariant, useAssetUnloader, id);
         }
 
         // Returns prefixed asset bundle name for pokemon model (e.g., "pokemons/field/" + name)
         // Ghidra @ 0x186B360: does String.Concat(prefix, assetBundleName)
-        static inline System::String::Object* GetPokemonAssetbundleName(System::String::Object* name) {
-            return external<System::String::Object*>(0x0186B360, name);
+        static inline System::String::Object* GetPokemonAssetbundleName(System::String::Object* AssetBundleName) {
+            return external<System::String::Object*>(0x0186B360, AssetBundleName);
         }
     };
 }

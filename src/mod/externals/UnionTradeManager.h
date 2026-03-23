@@ -132,7 +132,7 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
     inline void RecivePokeData(Pml::PokePara::PokemonParam::Object* param) {
         external<void>(0x17E4F20, this, param);
     }
-    inline void SetTargetTradePoke(Pml::PokePara::PokemonParam::Object* param) {
+    inline void SetTargetTradeDemoPoke(Pml::PokePara::PokemonParam::Object* param) {
         external<void>(0x17E4FD0, this, param);
     }
     inline void StartOpenTradeBoxWindow(int32_t index, bool isFirst) {

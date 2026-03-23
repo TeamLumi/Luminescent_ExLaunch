@@ -4,18 +4,8 @@
 
 struct AnimationPlayer : ILClass<AnimationPlayer> {
     struct Fields {
-        void* _graph;           // 0x10 PlayableGraph (16 bytes)
-        char _graph_pad[8];     // PlayableGraph is 16 bytes total
-        void* _mixer;           // 0x20 Playable (16 bytes)
-        char _mixer_pad[8];
-        void* _output;          // 0x30 AnimationPlayableOutput (16 bytes)
-        char _output_pad[8];
-        void* _animator;        // 0x40 Animator*
-        void* _playables;       // 0x48 AnimationClipPlayable[]
-        float _increase;        // 0x50
-        float _weight;          // 0x54
-        int32_t _activePort;    // 0x58
-        // ...rest omitted
+        // Fields omitted — only methods are used.
+        // Define proper types for PlayableGraph, Playable, etc. if fields are needed.
     };
 
     inline int32_t get_currentIndex() {

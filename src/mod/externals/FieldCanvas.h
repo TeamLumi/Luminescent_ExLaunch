@@ -2,6 +2,7 @@
 
 #include "externals/Dpr/Demo/DemoBase.h"
 #include "externals/System/String.h"
+#include "externals/UnityEngine/Transform.h"
 
 struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
     struct StaticFields {
@@ -14,8 +15,8 @@ struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
 
     // Returns a Balloon GameObject displayed above the target transform.
     // type = emote ID (matches OnlinePlayerCharacter constants)
-    static inline void* SetBalloon(int32_t type, void* targetTransform) {
-        return external<void*>(0x01782250, type, targetTransform);
+    static inline void* SetBalloon(int32_t type, UnityEngine::Transform* parent) {
+        return external<void*>(0x01782250, type, parent);
     }
 
     static inline void DeleteBalloon(void* balloon, bool isDirect = false) {
