@@ -49,16 +49,12 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
         TargetTranerParam::Object* targetTranerParam;      // 0x50
         Pml::PokePara::PokemonParam::Object* selectMyPokemonParam; // 0x58
         bool isRecruiment;                                 // 0x60
-        uint8_t _pad_61[7];                                // 0x61  padding
         void* msgWindow;                                   // 0x68  TradeFlowMsgWindow
         bool isError;                                      // 0x70
         bool isLoadingBox;                                 // 0x71
-        uint8_t _pad_72[6];                                // 0x72  padding
         System::Action::Object* _LeaveUnion;               // 0x78
         TradeFlowState currentState;                       // 0x80
     };
-
-    static_assert(offsetof(Fields, currentState) == 0x70);
 
     // Properties
     inline int32_t get_tradeTargetIndex() {

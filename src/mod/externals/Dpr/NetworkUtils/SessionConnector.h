@@ -14,6 +14,13 @@ namespace Dpr::NetworkUtils {
     using INL1::IlcaNetSessionState;
     using INL1::IlcaNetSessionNetworkType;
 
+    struct StartSessionResult : ILStruct<StartSessionResult> {
+        struct Fields {
+            int32_t errorType;   // SessionErrorType
+            bool bIsSuccess;
+        };
+    };
+
     struct SessionConnector : ILClass<SessionConnector> {
         struct Fields {
             void* DEFAULT_ATTRIBUTE_VALUE;                  // uint[]
@@ -21,7 +28,7 @@ namespace Dpr::NetworkUtils {
             void* onSessionEvent;                           // Action<SessionEventData>
             void* onSessionError;                           // Action<SessionErrorType>
             void* onFinishSession;                          // Action
-            void* sessionResult;                            // StartSessionResult
+            StartSessionResult::Object sessionResult;
             SessionEventData::Object sessionEventData;
             void* sessionSetting;                           // IlcaNetSessionSetting
             IlcaNetSessionState nowSessionState;

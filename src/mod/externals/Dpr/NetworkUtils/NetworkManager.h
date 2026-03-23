@@ -2,6 +2,9 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/NetworkUtils/SessionEventData.h"
+#include "externals/INL1/PacketWriter.h"
+#include "externals/INL1/PacketWriterRe.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 
 namespace Dpr::NetworkUtils {
@@ -76,23 +79,23 @@ namespace Dpr::NetworkUtils {
         }
 
         // 0x1DE8BD0 — send reliable packet to all (static)
-        static inline int32_t SendReliablePacketToAll(void* packetWriterRe, int32_t transportType = 0) {
+        static inline int32_t SendReliablePacketToAll(INL1::PacketWriterRe::Object* packetWriterRe, int32_t transportType = 0) {
             return external<int32_t>(0x1DE8BD0, packetWriterRe, transportType);
         }
 
         // 0x1DE8CE0 — send unreliable packet to all (static)
-        static inline int32_t SendUnReliablePacketToAll(void* packetWriter, int32_t transportType = 0) {
+        static inline int32_t SendUnReliablePacketToAll(INL1::PacketWriter::Object* packetWriter, int32_t transportType = 0) {
             return external<int32_t>(0x1DE8CE0, packetWriter, transportType);
         }
 
         // 0x1DE7C20 — get singleton's unreliable PacketWriter (static)
-        static inline void* get_PacketWriter() {
-            return external<void*>(0x1DE7C20);
+        static inline INL1::PacketWriter::Object* get_PacketWriter() {
+            return external<INL1::PacketWriter::Object*>(0x1DE7C20);
         }
 
         // 0x1DE7C90 — get singleton's reliable PacketWriterRe (static)
-        static inline void* get_PacketWriterRe() {
-            return external<void*>(0x1DE7C90);
+        static inline INL1::PacketWriterRe::Object* get_PacketWriterRe() {
+            return external<INL1::PacketWriterRe::Object*>(0x1DE7C90);
         }
 
         // 0x1DEA7F0 — per-frame update (ticks SessionConnector + CheckReceivePacket)
@@ -106,7 +109,8 @@ namespace Dpr::NetworkUtils {
         }
 
         // 0x1DEAB20 — session event callback (instance, hooked for overworld MP)
-        inline void OnSessionEvent(uint64_t sessionEvent) {
+        // Takes SessionEventData by value (8 bytes = fits in register)
+        inline void OnSessionEvent(Dpr::NetworkUtils::SessionEventData::Object sessionEvent) {
             external<void>(0x1DEAB20, this, sessionEvent);
         }
     };

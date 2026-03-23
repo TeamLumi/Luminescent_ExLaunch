@@ -428,7 +428,7 @@ void overworldMPTeamUp(int32_t partnerStation) {
 static void sendTeamUpDisband(int32_t targetStation) {
     if (!isOverworldMPActive()) return;
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     il2cpp_vcall_void(pw, PW_RESET);
@@ -466,7 +466,7 @@ void overworldMPOnTeamUpDisbandReceived(int32_t fromStation) {
 static void sendSyncWait(int32_t targetStation) {
     if (!isOverworldMPActive()) return;
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     auto& tu = s_teamUpState;
@@ -492,7 +492,7 @@ static void sendSyncWait(int32_t targetStation) {
 static void sendSyncCancel(int32_t targetStation, uint8_t reason) {
     if (!isOverworldMPActive()) return;
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     il2cpp_vcall_void(pw, PW_RESET);
@@ -734,7 +734,7 @@ void overworldMPTeamUpAutoDisband() {
 static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
                                     uint8_t battleType, int32_t arenaID,
                                     int32_t weatherType, int32_t trainerID) {
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     auto* party = PlayerWork::get_playerParty();

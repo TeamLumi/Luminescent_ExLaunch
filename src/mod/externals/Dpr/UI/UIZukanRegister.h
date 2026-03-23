@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/UI/UIWindow.h"
+#include "externals/UnityEngine/Events/UnityAction.h"
 #include "externals/Dpr/UI/ZukanDescriptionPanel.h"
 #include "externals/UnityEngine/RectTransform.h"
 #include "externals/Dpr/UI/UIMsgWindowController.h"
@@ -49,7 +50,7 @@ namespace Dpr::UI {
             external<void>(0x01a3ced0, this, pokemonParam, prevWindowId);
         }
 
-        inline void Close(void* onClosed_, int32_t nextWindowId) {
+        inline void Close(UnityEngine::Events::UnityAction::Object* onClosed_, int32_t nextWindowId) {
             external<void>(0x01a3d220, this, onClosed_, nextWindowId);
         }
     };

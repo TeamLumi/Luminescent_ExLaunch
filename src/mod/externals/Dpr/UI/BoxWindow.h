@@ -264,7 +264,7 @@ namespace Dpr::UI {
 
         // Show/hide the trade info panel (partner pokemon model + info)
         inline void SetTradeInfo(bool isEnable) {
-            external<void>(0x1CB7040, this, (uint8_t)isEnable);
+            external<void>(0x1CB7040, this, isEnable);
         }
 
         // Set the partner's pokemon data for the trade info panel display

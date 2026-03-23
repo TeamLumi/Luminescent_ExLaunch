@@ -35,15 +35,12 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     int32_t total = party1->fields.m_memberCount;
 
     if (total <= 1) {
-        // Only 1 Pokemon: keep it in slot 1, copy to slot 3
+        // Only 1 Pokemon: keep it in slot 1, copy to slot 3 using PokemonParam copy ctor
         party1->fields.m_memberCount = 1;
         auto* src = party1->GetMemberPointer(0);
         auto* dst = party3->GetMemberPointer(0);
-        if (src != nullptr && dst != nullptr &&
-            src->fields.m_accessor != nullptr && dst->fields.m_accessor != nullptr) {
-            uint8_t tmpBuf[344];
-            _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmpBuf);
-            _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmpBuf);
+        if (src != nullptr && dst != nullptr) {
+            dst->ctor(src);
         }
         party3->fields.m_memberCount = 1;
         Logger::log("[TeamUp] Trainer has 1 Pokemon — duplicated to both AI slots\n");
@@ -53,15 +50,12 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     // Split: slot 1 gets first ceil(N/2), slot 3 gets remaining
     int32_t half = (total + 1) / 2;
 
-    // Copy Pokemon from party1[half..N] into party3[0..]
+    // Copy Pokemon from party1[half..N] into party3[0..] using PokemonParam copy ctor
     for (int i = 0; i < total - half; i++) {
         auto* src = party1->GetMemberPointer(half + i);
         auto* dst = party3->GetMemberPointer(i);
-        if (src != nullptr && dst != nullptr &&
-            src->fields.m_accessor != nullptr && dst->fields.m_accessor != nullptr) {
-            uint8_t tmpBuf[344];
-            _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmpBuf);
-            _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmpBuf);
+        if (src != nullptr && dst != nullptr) {
+            dst->ctor(src);
         }
     }
     party1->fields.m_memberCount = half;
