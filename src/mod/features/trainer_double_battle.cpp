@@ -12,15 +12,10 @@
 
 using namespace Dpr::Battle::Logic;
 
-// normalTrainer @ 0x1F6EE00 — fills a BSP party slot with trainer AI data
-// Signature: void normalTrainer(BATTLE_SETUP_PARAM* bsp, int32_t clientId, int32_t trainerID)
-static inline void normalTrainer(BATTLE_SETUP_PARAM::Object* bsp, int32_t clientId, int32_t trainerID) {
-    _ILExternal::external<void>(0x1F6EE00, bsp, clientId, trainerID);
-}
+// normalTrainer is now declared inline in team_up.h
 
 // Split trainer party between two AI slots (for single-trainer team-up)
-// Non-static: also called from team_up.cpp for ACK handler and Player B setup
-// If slot3's party doesn't exist, creates one (so normalTrainer is not needed for slot3)
+// Declaration in team_up.h — called from team_up.cpp as well
 void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     auto* fields = &bsp->instance()->fields;
     if (fields->party == nullptr || (uint32_t)slot3 >= fields->party->max_length) return;

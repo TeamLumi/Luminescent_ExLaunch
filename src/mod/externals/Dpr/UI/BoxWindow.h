@@ -10,10 +10,10 @@
 #include "externals/System/Action.h"
 
 namespace Dpr::UI {
-    struct BoxWindow : ILClass<BoxWindow> {
+    struct BoxWindow : ILClass<BoxWindow, 0x04C5CA38> {
         static inline StaticILMethod<0x04C8FF30, BoxWindow> Method$$CreateUIWindow {};
 
-        struct SelectedPokemon : ILClass<SelectedPokemon, 0x04C63490> {
+        struct SelectedPokemon : ILClass<SelectedPokemon, 0x04C61890> {
             struct Fields {
                 Pml::PokePara::PokemonParam::Object* Param;
                 int32_t TrayIndex;      // -1 = party, 0+ = box tray
@@ -57,7 +57,7 @@ namespace Dpr::UI {
         };
 
         // BoxWindow.TradeParam — TypeDefIndex 8197
-        struct TradeParam : ILClass<TradeParam, 0x04C63BA8> {
+        struct TradeParam : ILClass<TradeParam, 0x04C617B8> {
             struct Fields {
                 int32_t selectIndex;                                      // 0x10
                 System::Action::Object* onSelected;                       // 0x18  Action<BoxWindow, SelectedPokemon[]>
@@ -287,6 +287,6 @@ namespace Dpr::UI {
         }
 
         // Action<BoxWindow> TypeInfo — for onDecide/onConfirm/onComplete/onCancelSelect delegates
-        static const inline long BoxWindow_Action_TypeInfo = 0x04C69BD0;
+        static const inline long BoxWindow_Action_TypeInfo = 0x04C653D0;
     };
 }

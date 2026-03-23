@@ -151,11 +151,7 @@ bool    s_tuAccumIsAck = false;    // true if accumulating ACK (not initial BATT
 uint8_t s_tuAccumTrainerCount = 0;    // expected trainer party members (from header)
 uint8_t s_tuAccumTrainerReceived = 0; // how many trainer POKE sub-packets received so far
 
-// normalTrainer @ 0x1F6EE00 — fills a BSP party slot with trainer AI data
-static inline void normalTrainer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
-                                  int32_t clientId, int32_t trainerID) {
-    _ILExternal::external<void>(0x1F6EE00, bsp, clientId, trainerID);
-}
+// normalTrainer declared inline in team_up.h
 
 // ---------------------------------------------------------------------------
 // Battle effect helper: TR_MULTI animation + trainer-specific BGM
@@ -210,9 +206,7 @@ static void setupTeamUpBattleEffect(void* btlEffComponent, int32_t trainerEffect
     }
 }
 
-// Split trainer party between two AI slots (defined in trainer_double_battle.cpp)
-extern void splitTrainerParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
-                               int slot1, int slot3);
+// normalTrainer and splitTrainerParty declared in team_up.h
 
 // Cached BSP pointer for Player A's in-flight battle modification
 // Non-static: also accessed from trainer_double_battle.cpp via extern

@@ -130,6 +130,8 @@ void CallFeatureHooks()
     if (IsActivatedFeature(array_index(FEATURES, "Overworld Multiplayer"))) {
         exl_overworld_multiplayer_main();
         exl_team_up_main();
+        extern void exl_trainer_flag_bypass_main();
+        exl_trainer_flag_bypass_main();
     }
 
     exl_debug_features_main();

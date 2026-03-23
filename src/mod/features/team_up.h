@@ -178,5 +178,16 @@ void overworldMPOnSyncWaitReceived(int32_t fromStation, int32_t trainerID,
 // Called from packet handler when TEAMUP_SYNC_CANCEL (0xCC) arrives
 void overworldMPOnSyncCancelReceived(int32_t fromStation, uint8_t reason);
 
+// --- Battle helpers (defined in trainer_double_battle.cpp) ---
+
+// Fill a BSP party slot with trainer AI data
+// normalTrainer @ 0x1F6EE00
+inline void normalTrainer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp, int32_t clientId, int32_t trainerID) {
+    _ILExternal::external<void>(0x1F6EE00, bsp, clientId, trainerID);
+}
+
+// Split a single trainer's party between two AI slots for PP_AA double battles
+void splitTrainerParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3);
+
 // Install team-up hooks
 void exl_team_up_main();
