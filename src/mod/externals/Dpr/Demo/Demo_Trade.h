@@ -42,8 +42,8 @@ namespace Dpr::Demo {
 
         inline void SetParam(int32_t myId, int32_t friendId,
                              System::String::Object* friendName,
-                             bool isMiracle, int32_t langId) {
-            external<void>(0x0197C950, this, myId, friendId, friendName, isMiracle, langId);
+                             bool isMiracle, int32_t msgLangId) {
+            external<void>(0x0197C950, this, myId, friendId, friendName, isMiracle, msgLangId);
         }
     };
 }

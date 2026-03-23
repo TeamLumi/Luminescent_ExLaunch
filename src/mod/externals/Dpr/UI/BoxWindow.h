@@ -268,8 +268,8 @@ namespace Dpr::UI {
         }
 
         // Set the partner's pokemon data for the trade info panel display
-        inline void SetOtherPokeParam(Pml::PokePara::PokemonParam::Object* param, int32_t trainerId) {
-            external<void>(0x1CBCDD0, this, param, trainerId);
+        inline void SetOtherPokeParam(Pml::PokePara::PokemonParam::Object* param, int32_t gameVersion) {
+            external<void>(0x1CBCDD0, this, param, gameVersion);
         }
 
         // Advance the trade phase state machine

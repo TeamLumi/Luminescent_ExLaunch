@@ -87,13 +87,13 @@ namespace Dpr::NetworkUtils {
         }
 
         // 0x1DEA7F0 — per-frame update (ticks SessionConnector + CheckReceivePacket)
-        inline void OnUpdate() {
-            external<void>(0x1DEA7F0, this);
+        inline void OnUpdate(float deltaTime) {
+            external<void>(0x1DEA7F0, this, deltaTime);
         }
 
         // 0x1DEAB00 — per-frame late update
-        inline void OnLateUpdate() {
-            external<void>(0x1DEAB00, this);
+        inline void OnLateUpdate(float deltaTime) {
+            external<void>(0x1DEAB00, this, deltaTime);
         }
 
         // 0x1DEAB20 — session event callback (instance, hooked for overworld MP)

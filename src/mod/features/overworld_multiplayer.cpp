@@ -1415,7 +1415,7 @@ void overworldMPStop() {
     auto* nmInstance = getNMInstance();
     if (nmInstance != nullptr) {
         Dpr::NetworkUtils::NetworkManager::LeaveSession();
-        Dpr::NetworkUtils::SessionConnector::FinishSession();
+        Dpr::NetworkUtils::NetworkManager::FinishSession();
     }
 
     // Reset readiness flags so a future session start works correctly

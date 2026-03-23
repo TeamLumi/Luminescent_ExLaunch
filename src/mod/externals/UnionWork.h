@@ -5,7 +5,7 @@
 struct UnionWork : ILClass<UnionWork, 0x04c59c98> {
 
     enum CommunicationState : int32_t {
-        COMM_NONE = 0,
+        NONE = 0,
         BATTLE = 1,
         TRADE = 2,
         RECODE = 3,
@@ -15,7 +15,7 @@ struct UnionWork : ILClass<UnionWork, 0x04c59c98> {
     };
 
     enum BoxState : int32_t {
-        BOX_NONE = 0,
+        NONE = 0,
         INVALID_DATA = 1,
         ERROR_SERVER = 2,
         ERROR_MINE = 3,
@@ -62,21 +62,20 @@ struct UnionWork : ILClass<UnionWork, 0x04c59c98> {
     //   communicationState = 0x80
     //   isGaming = 0x3C
     //   nowTargetStationIndex = 0x88
-    //   boxState = 0x50
-    static inline int32_t* getNowTargetStationIndexPtr() {
-        auto* typeInfo = (Il2CppClass*)getClass();
-        if (typeInfo == nullptr) return nullptr;
-        auto* statics = *(uint8_t**)(((uint8_t*)typeInfo) + 0xB8);
-        return (int32_t*)(statics + 0x88);
-    }
+    struct StaticFields {
+        // Fields at offsets from il2cpp static fields base.
+        // Only the fields we use are listed; many omitted.
+        uint8_t _padding[0x88];          // offsets 0x00-0x87
+        int32_t nowTargetStationIndex;   // 0x88
+    };
 
     static inline void setNowTargetStationIndex(int32_t index) {
-        auto* ptr = getNowTargetStationIndexPtr();
-        if (ptr != nullptr) *ptr = index;
+        getClass()->initIfNeeded();
+        getClass()->static_fields->nowTargetStationIndex = index;
     }
 
     static inline int32_t getNowTargetStationIndex() {
-        auto* ptr = getNowTargetStationIndexPtr();
-        return (ptr != nullptr) ? *ptr : -1;
+        getClass()->initIfNeeded();
+        return getClass()->static_fields->nowTargetStationIndex;
     }
 };
