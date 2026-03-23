@@ -1256,7 +1256,7 @@ static bool ensureNetworkManagerSingleton() {
     }
 
     auto* nm = (Dpr::NetworkUtils::NetworkManager::Object*)component;
-    Logger::log("[OverworldMP] _sessionConnector: %p\n", nm->fields._sessionConnector);
+    Logger::log("[OverworldMP] _sessionConnector: %p\n", nm->fields.sessionConnector);
 
     // 6. Manually call NM.Start() — Unity's non-generic AddComponent(Type)
     //    doesn't reliably trigger Start(). NM.Start creates the IE_Start
@@ -1457,7 +1457,7 @@ void overworldMPUpdate(float deltaTime) {
         // The old check (sc->fields.callObjPtr != nullptr) was broken because
         // callObjPtr is set during NM's .ctor, not by IE_Start.
         if (s_nmOnUpdateReady) {
-            auto* sc = (Dpr::NetworkUtils::SessionConnector::Object*)nm->fields._sessionConnector;
+            auto* sc = (Dpr::NetworkUtils::SessionConnector::Object*)nm->fields.sessionConnector;
             Logger::log("[OverworldMP] IE_Start completed after %.2fs (NM.OnUpdate fired)\n",
                         s_initWaitTime);
 
@@ -1465,7 +1465,7 @@ void overworldMPUpdate(float deltaTime) {
             // NetworkParam and call DoStartSession. This lets the Sequencer-
             // driven PIA state machine handle PlatformInitialize naturally.
             // Match the underground's working NP values exactly (netType=0).
-            void* np = nm->fields._networkParam;
+            void* np = nm->fields.networkParam;
             _ILExternal::external<void>(0x1BC62B0, np);  // NetworkParam.Reset
             *(int32_t*)((uintptr_t)np + 0x10) = 0;       // networkType = 0 (matches underground)
             *(int32_t*)((uintptr_t)np + 0x18) = 0;       // gamingStartMode = 0
@@ -1494,8 +1494,8 @@ void overworldMPUpdate(float deltaTime) {
             // Without this, PIA error transitions (e.g., after a player
             // disconnects) fire NM's error handler → ErrorApplet.
             // SC Fields: +0x20=onSessionEvent, +0x28=onSessionError, +0x30=onFinishSession
-            if (nm->fields._sessionConnector != nullptr) {
-                auto* sc = (void*)nm->fields._sessionConnector;
+            if (nm->fields.sessionConnector != nullptr) {
+                auto* sc = (void*)nm->fields.sessionConnector;
                 *(void**)((uintptr_t)sc + 0x20) = nullptr; // onSessionEvent
                 *(void**)((uintptr_t)sc + 0x28) = nullptr; // onSessionError
                 *(void**)((uintptr_t)sc + 0x30) = nullptr; // onFinishSession

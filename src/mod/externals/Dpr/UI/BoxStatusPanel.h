@@ -4,6 +4,7 @@
 
 #include "externals/Dpr/UI/UIText.h"
 #include "externals/Pml/PokePara/CoreParam.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/UI/Image.h"
@@ -37,13 +38,12 @@ namespace Dpr::UI {
             float _closePosX;
         };
 
-        // displayType: 1 = moves view, 2 = stats/judge view
-        inline void SetUp(int32_t displayType, Pml::PokePara::CoreParam::Object* pokemonParam) {
-            external<int32_t>(0x1CB0980, this, displayType, pokemonParam);
+        inline bool SetUp(int32_t mode, Pml::PokePara::PokemonParam::Object* pokemonParam) {
+            return external<bool>(0x1CB0980, this, mode, pokemonParam);
         }
 
-        inline void Open(int32_t displayType, Pml::PokePara::CoreParam::Object* pokemonParam) {
-            external<void>(0x1CB0930, this, displayType, pokemonParam);
+        inline void Open(int32_t mode, Pml::PokePara::PokemonParam::Object* pokemonParam) {
+            external<void>(0x1CB0930, this, mode, pokemonParam);
         }
 
         struct DisplayClass35_0 : ILClass <DisplayClass35_0> {
