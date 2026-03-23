@@ -21,8 +21,4 @@ void showAreaName();
 void setFlyOverride(bool enabled);
 void setFullDex(int getStatus);
 
-// Overlay system — renders text independent of FieldManager state
-void ui_showOverlay(const char* text);
-void ui_hideOverlay();
-
 #define ROOT getRootElement()

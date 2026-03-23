@@ -87,7 +87,7 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
         }
 
         auto& tu = overworldMPGetTeamUpState();
-        bool doTeamUp = tu.isTeamedUp && partnerID == 0 &&
+        bool doTeamUp = overworldMPIsTeamedUp() && partnerID == 0 &&
                         !PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR);
 
         // Guard: if a team-up sync/battle is already in flight, don't double-trigger.
