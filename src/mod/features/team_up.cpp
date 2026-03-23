@@ -68,8 +68,9 @@ HOOK_DEFINE_TRAMPOLINE(AreaNameWindowSetNameText) {
     // Instance method: (this, labelName, MethodInfo*)
     static void Callback(void* __this, System::String::Object* labelName, MethodInfo* mi) {
         if (s_useCustomAreaText) {
-            // nameText (TextMeshProUGUI) is at offset 0x20 in AreaNameWindow
-            void* nameText = *(void**)((uintptr_t)__this + 0x20);
+            // nameText (TextMeshProUGUI) field in AreaNameWindow
+            static constexpr uintptr_t AREANAMEWINDOW_NAMETEXT = 0x20;
+            void* nameText = *(void**)((uintptr_t)__this + AREANAMEWINDOW_NAMETEXT);
             if (nameText != nullptr) {
                 auto* customStr = System::String::Create(s_customAreaTextBuf);
                 if (customStr != nullptr) {
@@ -151,11 +152,7 @@ bool    s_tuAccumIsAck = false;    // true if accumulating ACK (not initial BATT
 uint8_t s_tuAccumTrainerCount = 0;    // expected trainer party members (from header)
 uint8_t s_tuAccumTrainerReceived = 0; // how many trainer POKE sub-packets received so far
 
-// normalTrainer @ 0x1F6EE00 — fills a BSP party slot with trainer AI data
-static inline void normalTrainer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
-                                  int32_t clientId, int32_t trainerID) {
-    _ILExternal::external<void>(0x1F6EE00, bsp, clientId, trainerID);
-}
+// normalTrainer declared inline in team_up.h
 
 // ---------------------------------------------------------------------------
 // Battle effect helper: TR_MULTI animation + trainer-specific BGM
@@ -189,8 +186,8 @@ static void setupTeamUpBattleEffect(void* btlEffComponent, int32_t trainerEffect
             trainerEffectID, (int32_t)-1, (int32_t)0, (uint64_t)0);
 
         // 2. Read BGM strings (overrides are null, falls through to template)
-        void* savedBgm    = (void*)_ILExternal::external<uintptr_t>(0x0187B510, btlEffComponent);
-        void* savedWinBgm = (void*)_ILExternal::external<uintptr_t>(0x0187B570, btlEffComponent);
+        auto* savedBgm    = _ILExternal::external<void*>(0x0187B510, btlEffComponent);
+        auto* savedWinBgm = _ILExternal::external<void*>(0x0187B570, btlEffComponent);
 
         // 3. Override with TR_MULTI for 2v2 intro animation + cmdSeq
         _ILExternal::external<void>(0x0187B7E0, btlEffComponent,
@@ -210,9 +207,7 @@ static void setupTeamUpBattleEffect(void* btlEffComponent, int32_t trainerEffect
     }
 }
 
-// Split trainer party between two AI slots (defined in trainer_double_battle.cpp)
-extern void splitTrainerParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
-                               int slot1, int slot3);
+// normalTrainer and splitTrainerParty declared in team_up.h
 
 // Cached BSP pointer for Player A's in-flight battle modification
 // Non-static: also accessed from trainer_double_battle.cpp via extern
@@ -434,7 +429,7 @@ void overworldMPTeamUp(int32_t partnerStation) {
 static void sendTeamUpDisband(int32_t targetStation) {
     if (!isOverworldMPActive()) return;
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     il2cpp_vcall_void(pw, PW_RESET);
@@ -472,7 +467,7 @@ void overworldMPOnTeamUpDisbandReceived(int32_t fromStation) {
 static void sendSyncWait(int32_t targetStation) {
     if (!isOverworldMPActive()) return;
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     auto& tu = s_teamUpState;
@@ -498,7 +493,7 @@ static void sendSyncWait(int32_t targetStation) {
 static void sendSyncCancel(int32_t targetStation, uint8_t reason) {
     if (!isOverworldMPActive()) return;
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     il2cpp_vcall_void(pw, PW_RESET);
@@ -740,7 +735,7 @@ void overworldMPTeamUpAutoDisband() {
 static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
                                     uint8_t battleType, int32_t arenaID,
                                     int32_t weatherType, int32_t trainerID) {
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     auto* party = PlayerWork::get_playerParty();
@@ -907,11 +902,7 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
     auto* localParty = PlayerWork::get_playerParty();
     if (localParty == nullptr) return nullptr;
 
-    auto* partyKlass = (Il2CppClass*)localParty->klass;
-    if (partyKlass == nullptr) return nullptr;
-
-    auto* party = (Pml::PokeParty::Object*)il2cpp_object_new(partyKlass);
-    _ILExternal::external<void>(0x2055D10, party); // PokeParty::ctor()
+    auto* party = Pml::PokeParty::newInstance();
 
     int32_t validCount = 0;
     for (int i = 0; i < count; i++) {
@@ -1166,8 +1157,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         return;
     }
 
-    auto* myTrimmedParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
-    _ILExternal::external<void>(0x2055D10, myTrimmedParty);
+    auto* myTrimmedParty = Pml::PokeParty::newInstance();
     int32_t myCount = myParty->fields.m_memberCount;
     if (myCount > TEAMUP_PARTY_LIMIT) myCount = TEAMUP_PARTY_LIMIT;
     for (int i = 0; i < myCount; i++) {
@@ -1379,16 +1369,18 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             }
         }
 
-        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
-        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+        // (2) Store MyStatus pointers for the MyStatusGetColorID hook
+        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
+        extern void owmpClearBattleMyStatus();
+        owmpClearBattleMyStatus();
         auto* bspInst = PlayerWork::get_battleSetupParam();
         if (bspInst != nullptr) {
             auto* statusArr = bspInst->instance()->fields.playerStatus;
             if (statusArr != nullptr) {
                 if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                    *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
+                    owmpSetBattleMyStatus(0, statusArr->m_Items[0]);
                 if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                    *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
+                    owmpSetBattleMyStatus(2, statusArr->m_Items[2]);
             }
         }
 
@@ -1521,8 +1513,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         return;
     }
 
-    auto* myTrimmedParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
-    _ILExternal::external<void>(0x2055D10, myTrimmedParty);
+    auto* myTrimmedParty = Pml::PokeParty::newInstance();
     int32_t myCount = myParty->fields.m_memberCount;
     if (myCount > TEAMUP_PARTY_LIMIT) myCount = TEAMUP_PARTY_LIMIT;
     for (int i = 0; i < myCount; i++) {
@@ -1729,14 +1720,16 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
             }
         }
 
-        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
-        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+        // (2) Store MyStatus pointers for the MyStatusGetColorID hook
+        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
+        extern void owmpClearBattleMyStatus();
+        owmpClearBattleMyStatus();
         auto* statusArr = fields->playerStatus;
         if (statusArr != nullptr) {
             if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
+                owmpSetBattleMyStatus(0, statusArr->m_Items[0]);
             if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
+                owmpSetBattleMyStatus(2, statusArr->m_Items[2]);
         }
 
         // (3) Slot color array + cursor for CardModelViewController

@@ -193,6 +193,11 @@ OverworldMPContext& getOverworldMPContext();
 // Check if overworld MP is currently enabled and active
 bool isOverworldMPActive();
 
+// Cross-module state used by color_variations.cpp during Instantiate.
+// Set before Instantiate so ColorVariation_OnEnable applies the remote preset.
+extern bool g_owmpSkipCustomColorOverride;
+extern int32_t g_owmpRemoteColorId;
+
 // Start/stop the overworld multiplayer session
 void overworldMPStart();
 void overworldMPStop();

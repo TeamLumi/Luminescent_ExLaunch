@@ -22,7 +22,7 @@ void HandlerFieldEffectMudSportFieldWazaPower(EventFactor::EventHandlerArgs::Obj
     Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, FX32::CONST_0_333);
 }
 
-EventFactor::EventHandlerTable::Array* ADD_FieldEffect_MudSport(uint8_t sub_param) {
+EventFactor::EventHandlerTable::Array* ADD_FieldEffect_MudSport() {
     EventFactor::EventHandlerTable::Array* table = getExtraFieldEffectHandlers()->HandlerTable_MudSport;
     if (table == nullptr) {
         table = CreateFieldEffectEventHandlerTable(1);

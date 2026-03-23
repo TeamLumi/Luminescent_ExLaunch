@@ -259,6 +259,5 @@ namespace Pml::PokePara {
         inline void ChangeEgg() {
             external<void>(0x02049450, this);
         }
-
     };
 }

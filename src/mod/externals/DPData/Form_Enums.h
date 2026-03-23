@@ -156,15 +156,6 @@ enum class ArceusForm : int32_t {
     MAX
 };
 
-enum class DarmanitanForm : int32_t {
-    UNOVAN_STANDARD = 0,
-    UNOVAN_ZEN = 1,
-    GALARIAN_STANDARD = 2,
-    GALARIAN_ZEN = 3,
-
-    MAX
-};
-
 enum class GenesectForm : int32_t {
     REGULAR = 0,
     DOUSE_DRIVE = 1,
@@ -200,20 +191,6 @@ enum class VivillonForm : int32_t {
     MAX
 };
 
-enum class AegislashForm : int32_t {
-    SHIELD = 0,
-    BLADE = 1,
-
-    MAX
-};
-
-enum class WishiwashiForm : int32_t {
-    SOLO = 0,
-    SCHOOL = 1,
-
-    MAX
-};
-
 enum class SilvallyForm : int32_t {
     NORMAL = 0,
     FIGHTING = 1,
@@ -233,32 +210,6 @@ enum class SilvallyForm : int32_t {
     DRAGON = 15,
     DARK = 16,
     FAIRY = 17,
-
-    MAX
-};
-
-enum class MiniorForm : int32_t {
-    RED_METEOR = 0,
-    ORANGE_METEOR = 1,
-    YELLOW_METEOR = 2,
-    GREEN_METEOR = 3,
-    BLUE_METEOR = 4,
-    INDIGO_METEOR = 5,
-    VIOLET_METEOR = 6,
-    RED_CORE = 7,
-    ORANGE_CORE = 8,
-    YELLOW_CORE = 9,
-    GREEN_CORE = 10,
-    BLUE_CORE = 11,
-    INDIGO_CORE = 12,
-    VIOLET_CORE = 13,
-
-    MAX
-};
-
-enum class MimikyuForm : int32_t {
-    DISGUISED = 0,
-    BUSTED = 1,
 
     MAX
 };

@@ -163,13 +163,7 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                 case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
                     return HandleCmdStepper(SetPartnerPokemon(__this));
 
-                // Team-up trainer flag bypass: if bypass active, skip the jump/call.
-                // If not active, break to fall through to Orig() for vanilla handling.
-                case Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_JUMP:
-                case Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_CALL:
-                    if (IfTrFlagonBypass(__this))
-                        return HandleCmdStepper(true);
-                    break; // fall through to Orig()
+                // Team-up trainer flag bypass moved to proper hooks in trainer_flag_bypass.cpp
                 default:
                     break;
             }

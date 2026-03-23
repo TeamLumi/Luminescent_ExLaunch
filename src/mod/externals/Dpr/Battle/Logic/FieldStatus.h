@@ -36,13 +36,5 @@ namespace Dpr::Battle::Logic {
         inline BtlGround GetGround() {
             return external<BtlGround>(0x018fb760, this);
         }
-
-        inline uint8_t GetWeather() {
-            return external<uint8_t>(0x018fa830, this);
-        }
-
-        inline uint32_t GetWeatherRemainingTurn() {
-            return external<uint32_t>(0x018fa850, this);
-        }
     };
 }

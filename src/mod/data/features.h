@@ -1,6 +1,7 @@
 #pragma once
 
 static constexpr const char* FEATURES[] = {
+    "Ability Changes",
     "Alt Starters",
     "Area/Zone Codes",
     "Badge Check",
@@ -58,8 +59,6 @@ static constexpr const char* FEATURES[] = {
     "Select Poffin Case",
     "Fake StopData",
     "Surf End Check",
-    "Underground Statue Names",
-    "Underground Visible Shinies",
     "Overworld Multiplayer",
 };
 

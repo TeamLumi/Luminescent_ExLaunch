@@ -2624,7 +2624,7 @@ void overworldMPSendPosition() {
     float yaw = player->cast<BaseEntity>()->fields.yawAngle;
 
     // Get the singleton's unreliable PacketWriter
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriter();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriter();
     if (pw == nullptr) return;
 
     // Get local player's avatar/fashion ID and color ID
@@ -2706,7 +2706,7 @@ void overworldMPSendAreaChange(int32_t areaID) {
     }
 
     // Get the singleton's reliable PacketWriterRe
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     // Get local player's avatar/fashion ID and color ID
@@ -2774,7 +2774,7 @@ void overworldMPSendCustomColors() {
     int32_t myColorId = getCustomSaveData()->playerColorVariation.playerColorID;
     if (myColorId != -1) return; // Only send when using custom colors
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     il2cpp_vcall_void(pw, PW_RESET);
@@ -2844,7 +2844,7 @@ void overworldMPSendEmote(uint8_t emoteId) {
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriter();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriter();
     if (pw == nullptr) return;
 
     // Packet: [DataID:0xC1][emoteId:1] = 2 bytes
@@ -2863,7 +2863,7 @@ void overworldMPSendInteractionRequest(int32_t targetStation, InteractionType ty
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     // Packet: [DataID:0xC2][targetStation:4][type:1][subtype:1] = 7 bytes
@@ -2891,7 +2891,7 @@ void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted) {
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     // Packet: [DataID:0xC3][targetStation:4][accepted:1] = 6 bytes
@@ -2917,7 +2917,7 @@ void overworldMPSendTradePoke(int32_t targetStation, int32_t partySlot, uint8_t*
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     // Packet: [DataID:0xC4][targetStation:4][partySlot:1][pokeData:344 as 86 ints]
@@ -2945,7 +2945,7 @@ void overworldMPSendTradeConfirm(int32_t targetStation, bool confirmed) {
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     // Packet: [DataID:0xC5][targetStation:4][confirmed:1]
@@ -2971,7 +2971,7 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     uint32_t memberCount = party->fields.m_memberCount;
@@ -3084,7 +3084,7 @@ void overworldMPSendBattleReady(int32_t targetStation) {
         return;
     }
 
-    void* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
     // Packet: [DataID:0xC7][targetStation:4]

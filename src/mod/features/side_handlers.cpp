@@ -64,6 +64,9 @@ HOOK_DEFINE_INLINE(Side_system_array_new) {
 };
 
 void InstallActivatedSideEffectHooks() {
+    // Existing Stubbed Vanilla Methods
+    InstallHooks_SideEffect_LuckyChant();
+
     // DO NOT REMOVE ANY OF THESE! Disable the side effects in exl_side_handlers_main() below instead!
     if (ACTIVATED_SIDE_HANDLERS[array_index(SIDE_EFFECTS, "Lucky Chant")]) InstallHooks_SideEffect_LuckyChant();
 }

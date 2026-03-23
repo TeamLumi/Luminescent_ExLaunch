@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/TradeSelectPokeModel.h"
 #include "externals/System/Action.h"
 #include "externals/System/String.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
@@ -43,22 +44,18 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
         void* myPlayer;                                    // 0x10  OnlinePlayerCharacter
         void* securityController;                          // 0x18  TradeSecurityController
         int32_t tradeTargetIndex;                          // 0x20
-        void* tradeSelectModel;                            // 0x28  TradeSelectPokeModel
+        TradeSelectPokeModel::Object* tradeSelectModel;     // 0x28
         BoxPokeData boxMyPokeData;                         // 0x30  (value type, 0x18 bytes)
         Pml::PokePara::PokemonParam::Object* targetPokemonParam; // 0x48
         TargetTranerParam::Object* targetTranerParam;      // 0x50
         Pml::PokePara::PokemonParam::Object* selectMyPokemonParam; // 0x58
         bool isRecruiment;                                 // 0x60
-        uint8_t _pad_61[7];                                // 0x61  padding
         void* msgWindow;                                   // 0x68  TradeFlowMsgWindow
         bool isError;                                      // 0x70
         bool isLoadingBox;                                 // 0x71
-        uint8_t _pad_72[6];                                // 0x72  padding
         System::Action::Object* _LeaveUnion;               // 0x78
         TradeFlowState currentState;                       // 0x80
     };
-
-    static_assert(offsetof(Fields, currentState) == 0x70);
 
     // Properties
     inline int32_t get_tradeTargetIndex() {
@@ -112,8 +109,8 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
     inline void Error() {
         external<void>(0x17E4C30, this);
     }
-    inline void* GetTradeSlectPokeModel() {
-        return external<void*>(0x17E4DD0, this);
+    inline TradeSelectPokeModel::Object* GetTradeSlectPokeModel() {
+        return external<TradeSelectPokeModel::Object*>(0x17E4DD0, this);
     }
     inline TradeFlowState GetCurrentState() {
         return external<TradeFlowState>(0x17E4DE0, this);

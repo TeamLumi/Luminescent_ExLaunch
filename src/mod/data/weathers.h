@@ -34,7 +34,6 @@ static constexpr const char* BATTLE_WEATHERS[] = {
         "Heavy Rain",
         "Extremely Harsh Sunlight",
         "Strong Winds",
-        "Snow",
 };
 
 constexpr int BATTLE_WEATHER_COUNT = sizeof(BATTLE_WEATHERS) / sizeof(BATTLE_WEATHERS[0]);

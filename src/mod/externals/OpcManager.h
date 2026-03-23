@@ -18,13 +18,13 @@ struct OpcManager : ILClass<OpcManager> {
     };
 
     struct Fields {
-        void* _OpcControllers;                      // List<OpcController>
-        void* _CopyOpcControllers;                  // List<OpcController>
-        void* _DataTable;                           // UnionCharacterTable.SheetSheet1[]
-        void* _ColorDataTable;                      // UnionNpcColorTable.SheetSheet1[]
-        int32_t characterCreateCount;
-        void* _RequestNetDataCallback;              // Action<byte>
-        int32_t _CreateMaxCharacterCount;
+        void* _OpcControllers;                      // 0x10 List<OpcController>
+        void* _CopyOpcControllers;                  // 0x18 List<OpcController>
+        void* _DataTable;                           // 0x20 UnionCharacterTable.SheetSheet1[]
+        void* _ColorDataTable;                      // 0x28 UnionNpcColorTable.SheetSheet1[]
+        int32_t characterCreateCount;               // 0x30
+        void* _RequestNetDataCallback;              // 0x38 Action<byte>
+        int32_t _CreateMaxCharacterCount;           // 0x40
     };
 
     inline OpcController::Object* GetOpc(int32_t id) {
