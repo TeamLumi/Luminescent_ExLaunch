@@ -1373,16 +1373,18 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             }
         }
 
-        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
-        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+        // (2) Store MyStatus pointers for the MyStatusGetColorID hook
+        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
+        extern void owmpClearBattleMyStatus();
+        owmpClearBattleMyStatus();
         auto* bspInst = PlayerWork::get_battleSetupParam();
         if (bspInst != nullptr) {
             auto* statusArr = bspInst->instance()->fields.playerStatus;
             if (statusArr != nullptr) {
                 if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                    *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
+                    owmpSetBattleMyStatus(0, statusArr->m_Items[0]);
                 if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                    *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
+                    owmpSetBattleMyStatus(2, statusArr->m_Items[2]);
             }
         }
 
@@ -1723,14 +1725,16 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
             }
         }
 
-        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
-        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+        // (2) Store MyStatus pointers for the MyStatusGetColorID hook
+        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
+        extern void owmpClearBattleMyStatus();
+        owmpClearBattleMyStatus();
         auto* statusArr = fields->playerStatus;
         if (statusArr != nullptr) {
             if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                *(uint8_t*)((uintptr_t)statusArr->m_Items[0] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
+                owmpSetBattleMyStatus(0, statusArr->m_Items[0]);
             if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                *(uint8_t*)((uintptr_t)statusArr->m_Items[2] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
+                owmpSetBattleMyStatus(2, statusArr->m_Items[2]);
         }
 
         // (3) Slot color array + cursor for CardModelViewController

@@ -14,9 +14,18 @@
 
 #include "logger/logger.h"
 
-// MyStatus.colorID field offset — used to read/write per-slot colorID
-// in comm battles. The field is a uint8_t at this offset in the MyStatus object.
-static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+// Per-slot MyStatus pointers — stored during battle setup so the
+// MyStatusGetColorID hook can match __this to the correct slot and
+// return g_owmpBattleSlotColors[slot] without hijacking MyStatus bytes.
+static void* s_battleMyStatusPtrs[4] = {};
+
+void owmpSetBattleMyStatus(int32_t slot, void* myStatus) {
+    if (slot >= 0 && slot < 4) s_battleMyStatusPtrs[slot] = myStatus;
+}
+
+void owmpClearBattleMyStatus() {
+    for (int i = 0; i < 4; i++) s_battleMyStatusPtrs[i] = nullptr;
+}
 
 // When non-null, GetCustomColorSet returns this instead of local save data.
 // Set temporarily during battle color processing for remote player slots.
@@ -294,15 +303,17 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
 };
 
 // MyStatus.GetColorID — instance method, receives 'this' (MyStatus*).
-// During MP battles, read from the actual MyStatus field (offset 0x25)
-// which we set per-slot after SetupBattleComm.  Outside MP, return the
-// local save's custom preset as before.
+// During MP battles, match __this against stored per-slot MyStatus pointers
+// to return the correct slot's colorID from g_owmpBattleSlotColors[].
+// Outside MP, return the local player's custom preset from save data.
 HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
     static int32_t Callback(void* __this) {
         if (g_owmpBattleColorActive && __this != nullptr) {
-            uint8_t raw = *(uint8_t*)((uintptr_t)__this + MYSTATUS_COLORID_OFFSET);
-            // 0xFF is -1 truncated to uint8 — means custom colors, not preset 255
-            return (raw == 0xFF) ? -1 : (int32_t)raw;
+            for (int i = 0; i < 4; i++) {
+                if (s_battleMyStatusPtrs[i] == __this) {
+                    return g_owmpBattleSlotColors[i];
+                }
+            }
         }
         return getCustomSaveData()->playerColorVariation.playerColorID;
     }

@@ -2654,16 +2654,16 @@ void overworldMPSetupAndStartBattle() {
             }
         }
 
-        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
-        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+        // (2) Store MyStatus pointers for the MyStatusGetColorID hook to match
+        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
+        extern void owmpClearBattleMyStatus();
+        owmpClearBattleMyStatus();
         auto* statusArr = bsp->instance()->fields.playerStatus;
         if (statusArr != nullptr && statusArr->max_length >= 2) {
-            auto* localMS  = statusArr->m_Items[localSlot];
-            auto* remoteMS = statusArr->m_Items[opponentSlot];
-            if (localMS != nullptr)
-                *(uint8_t*)((uintptr_t)localMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
-            if (remoteMS != nullptr)
-                *(uint8_t*)((uintptr_t)remoteMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)remoteColor;
+            if (statusArr->m_Items[localSlot] != nullptr)
+                owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
+            if (statusArr->m_Items[opponentSlot] != nullptr)
+                owmpSetBattleMyStatus(opponentSlot, statusArr->m_Items[opponentSlot]);
         }
 
         // (3) Slot color array + cursors for CardModelViewController and StoreCore
@@ -3018,6 +3018,8 @@ void overworldMPCheckInteraction() {
             {
                 extern bool g_owmpBattleColorActive;
                 g_owmpBattleColorActive = false;
+                extern void owmpClearBattleMyStatus();
+                owmpClearBattleMyStatus();
             }
 
             // Stop battle BGM and restart field BGM (matching base game sequence)
