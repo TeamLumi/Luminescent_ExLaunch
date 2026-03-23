@@ -4,6 +4,7 @@
 
 #include "externals/Audio/AudioInstance.h"
 #include "externals/System/Action.h"
+#include "externals/System/Collections/IEnumerator.h"
 #include "externals/System/String.h"
 #include "externals/UnityEngine/Events/UnityAction.h"
 
@@ -14,8 +15,8 @@ namespace Dpr::SubContents {
         }
 
         // Returns IEnumerator — pass result to Sequencer::Start()
-        static inline Il2CppObject* LoadAsset(System::String::Object* path, System::Action::Object* OnLoad, bool isVariant = false, bool useAssetUnloader = true, int32_t id = 0) {
-            return external<Il2CppObject*>(0x01868950, path, OnLoad, isVariant, useAssetUnloader, id);
+        static inline System::Collections::IEnumerator::Object* LoadAsset(System::String::Object* path, System::Action::Object* OnLoad, bool isVariant = false, bool useAssetUnloader = true, int32_t id = 0) {
+            return external<System::Collections::IEnumerator::Object*>(0x01868950, path, OnLoad, isVariant, useAssetUnloader, id);
         }
 
         // Returns prefixed asset bundle name for pokemon model (e.g., "pokemons/field/" + name)

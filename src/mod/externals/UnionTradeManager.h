@@ -44,7 +44,7 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
         void* myPlayer;                                    // 0x10  OnlinePlayerCharacter
         void* securityController;                          // 0x18  TradeSecurityController
         int32_t tradeTargetIndex;                          // 0x20
-        void* tradeSelectModel;                            // 0x28  TradeSelectPokeModel
+        TradeSelectPokeModel::Object* tradeSelectModel;     // 0x28
         BoxPokeData boxMyPokeData;                         // 0x30  (value type, 0x18 bytes)
         Pml::PokePara::PokemonParam::Object* targetPokemonParam; // 0x48
         TargetTranerParam::Object* targetTranerParam;      // 0x50

@@ -74,17 +74,18 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
             rule = (int32_t) BtlRule::BTL_RULE_DOUBLE;
         }
 
-        auto& tu = overworldMPGetTeamUpState();
-        bool doTeamUp = overworldMPIsTeamedUp() && partnerID == 0 &&
-                        !PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR);
+        bool doTeamUp = false;
+        if (overworldMPIsTeamedUp() && partnerID == 0 &&
+            !PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR)) {
+            auto& tu = overworldMPGetTeamUpState();
+            doTeamUp = true;
 
-        // Guard: if a team-up sync/battle is already in flight, don't double-trigger.
-        // This can happen if the event script calls _TRAINER_BTL_SET again (e.g., if
-        // _updateType!=2 allows the script dispatcher to re-invoke the command handler).
-        if (doTeamUp && (tu.battlePending || tu.syncPhase != SyncPhase::SYNC_NONE)) {
-            doTeamUp = false;
-            Logger::log("[TeamUp] Skipping: sync/battle already in flight (phase=%d, pending=%d)\n",
-                        (int)tu.syncPhase, (int)tu.battlePending);
+            // Guard: if a team-up sync/battle is already in flight, don't double-trigger.
+            if (tu.battlePending || tu.syncPhase != SyncPhase::SYNC_NONE) {
+                doTeamUp = false;
+                Logger::log("[TeamUp] Skipping: sync/battle already in flight (phase=%d, pending=%d)\n",
+                            (int)tu.syncPhase, (int)tu.battlePending);
+            }
         }
 
         // No area check — always enter sync-wait. If the partner is elsewhere,
@@ -111,6 +112,8 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
         Orig(battleSetupParam, arenaID, mapAttrib, weatherType, rule, enemyID0, enemyID1, partnerID, method);
 
         if (!doTeamUp) return;
+
+        auto& tu = overworldMPGetTeamUpState();
 
         // Cache BSP pointer — it will be modified when sync match is confirmed
         extern Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* s_teamUpBSP;

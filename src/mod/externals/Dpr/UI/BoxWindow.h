@@ -285,8 +285,6 @@ namespace Dpr::UI {
         static inline void LimitBox(bool enabled) {
             external<void>(0x1CB8770, enabled);
         }
-
-        // Action<BoxWindow> TypeInfo — for onDecide/onConfirm/onComplete/onCancelSelect delegates
-        static const inline long BoxWindow_Action_TypeInfo = 0x04C653D0;
+        // Action<BoxWindow> TypeInfo is in System::Action::BoxWindow_TypeInfo
     };
 }

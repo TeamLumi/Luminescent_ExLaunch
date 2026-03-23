@@ -2,11 +2,10 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/Dpr/MsgWindow/MsgWindow.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 
 namespace Dpr::MsgWindow {
-    struct MsgWindow;
-
     struct MsgWindowManager : ILClass<MsgWindowManager> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             // TODO
@@ -18,8 +17,8 @@ namespace Dpr::MsgWindow {
         }
 
         // MsgWindow @ 0x01dd9800
-        inline MsgWindow* get_MsgWindow() {
-            return external<MsgWindow*>(0x01dd9800, this);
+        inline MsgWindow::Object* get_MsgWindow() {
+            return external<MsgWindow::Object*>(0x01dd9800, this);
         }
 
         static inline bool get_IsOpenWindow() {
