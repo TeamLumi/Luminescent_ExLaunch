@@ -26,8 +26,7 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     auto* party3 = fields->party->m_Items[slot3];
     if (party3 == nullptr) {
         // Create a new PokeParty for slot 3 (no normalTrainer was called for this slot)
-        party3 = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)party1->klass);
-        _ILExternal::external<void>(0x2055D10, party3); // PokeParty::ctor()
+        party3 = Pml::PokeParty::newInstance();
         fields->party->m_Items[slot3] = party3;
         Logger::log("[TeamUp] Created new party for slot %d\n", slot3);
     }

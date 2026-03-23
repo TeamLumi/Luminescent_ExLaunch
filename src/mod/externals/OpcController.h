@@ -5,9 +5,8 @@
 #include "externals/AnimationPlayer.h"
 #include "externals/FieldObjectEntity.h"
 #include "externals/OnlinePlayerCharacter.h"
+#include "externals/OpcManager.h"
 #include "externals/UnityEngine/Vector2.h"
-
-struct OpcManager;
 
 struct OpcController : ILClass<OpcController> {
     struct Fields : OnlinePlayerCharacter::Fields {
@@ -18,7 +17,7 @@ struct OpcController : ILClass<OpcController> {
         AnimationPlayer::Object* _AnimationPlayer;
         float _RotY;
         bool _IsAnimStop;
-        void* _CharaData;                           // OpcManager.CharaData (boxed struct)
+        OpcManager::CharaData::Object _CharaData;    // OpcManager.CharaData (value type)
         bool isUseDashAnimation;
         bool _isInitialized;
         float _moveThreshold;

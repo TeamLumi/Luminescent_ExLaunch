@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Pml/PokePara/PokemonParam.h"
+#include "externals/TradeSelectPokeModel.h"
 #include "externals/System/Action.h"
 #include "externals/System/String.h"
 #include "externals/Dpr/Message/MessageEnumData.h"
@@ -108,8 +109,8 @@ struct UnionTradeManager : ILClass<UnionTradeManager, 0x04c658e8> {
     inline void Error() {
         external<void>(0x17E4C30, this);
     }
-    inline void* GetTradeSlectPokeModel() {
-        return external<void*>(0x17E4DD0, this);
+    inline TradeSelectPokeModel::Object* GetTradeSlectPokeModel() {
+        return external<TradeSelectPokeModel::Object*>(0x17E4DD0, this);
     }
     inline TradeFlowState GetCurrentState() {
         return external<TradeFlowState>(0x17E4DE0, this);
