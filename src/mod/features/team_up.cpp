@@ -1972,19 +1972,8 @@ void overworldMPClearTeamUpBattleState() {
 // MainModule::GetEscapeMode hook
 // ---------------------------------------------------------------------------
 // With competitor=COMM(3), GetEscapeMode returns BTL_ESCAPE_MODE_CONFIRM (2)
-// showing a "Forfeit" button. Override to NG (1) for team-up trainer battles
-// so the player can't forfeit a cooperative PvE battle.
-//
-// GetEscapeMode @ 0x2034BB0
-
-HOOK_DEFINE_TRAMPOLINE(TeamUpGetEscapeMode) {
-    static int32_t Callback(void* mainModule, MethodInfo* mi) {
-        if (overworldMPIsTeamedUp() && overworldMPGetTeamUpState().battleType == 1) {
-            return 1; // BTL_ESCAPE_MODE_NG — can't run/forfeit
-        }
-        return Orig(mainModule, mi);
-    }
-};
+// GetEscapeMode — merged into battle_escape_flag.cpp to avoid hook conflict.
+// The team-up check is now part of MainModule_GetEscapeMode in that file.
 
 // ---------------------------------------------------------------------------
 // MainModule::IsExpSeqEnable hook
@@ -2933,8 +2922,7 @@ void exl_team_up_main() {
     // Hook setupseq_comm_start_server to bypass step 3 PP_AA+wireless block
     TeamUpCommStartServer::InstallAtOffset(0x2033AF0);
 
-    // Hook GetEscapeMode to disable forfeit in PP_AA PvE battles
-    TeamUpGetEscapeMode::InstallAtOffset(0x2034BB0);
+    // GetEscapeMode hook merged into battle_escape_flag.cpp
 
     // Hook IsExpSeqEnable to allow EXP gain with competitor=COMM(3)
     TeamUpIsExpSeqEnable::InstallAtOffset(0x2034BF0);

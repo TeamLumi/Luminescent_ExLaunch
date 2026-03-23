@@ -23,7 +23,7 @@ struct OpcController : ILClass<OpcController> {
         bool _isInitialized;
         float _moveThreshold;
         System::String::Object* _TalkLabel;
-        UnityEngine::Vector2::Object _ContactSize;
+        UnityEngine::Vector2::Fields _ContactSize;
         float _Speed;
         float _RotSpeed;
         float _TargetDistance;
@@ -35,14 +35,7 @@ struct OpcController : ILClass<OpcController> {
         float _IdleTransutuonTime;
     };
 
-    // Access _Entity via Object*: ctrl->fields._Entity
-    // (Can't use 'fields' in outer struct methods — only exists on Object)
-
-    // SetCharaData(OpcManager::CharaData::Object data) @ 0x01e0fc90
-    // Can't declare here — circular dependency with OpcManager.h.
-    // Call directly: external<void>(0x01e0fc90, ctrl, charaData)
-
-    inline void AddNextPosition(UnityEngine::Vector2::Object pos, float rotY) {
+    inline void AddNextPosition(UnityEngine::Vector2::Fields pos, float rotY) {
         external<void>(0x01e0fb80, this, pos, rotY);
     }
 
@@ -53,12 +46,4 @@ struct OpcController : ILClass<OpcController> {
     inline void ClearPos() {
         external<void>(0x01e0fc20, this);
     }
-};
-
-struct UgOpcController : ILClass<UgOpcController> {
-    struct Fields : OpcController::Fields {
-        void* _fieldObjectMove;  // 0xF0
-        void* OnStartFinished;  // 0xF8 — Action callback
-        bool isSwim;             // 0x100
-    };
 };
