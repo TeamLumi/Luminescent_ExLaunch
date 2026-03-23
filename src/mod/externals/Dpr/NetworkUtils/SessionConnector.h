@@ -2,41 +2,17 @@
 
 #include "externals/il2cpp-api.h"
 
+#include "externals/INL1/IlcaNetSessionState.h"
+#include "externals/INL1/IlcaNetSessionNetworkType.h"
+#include "externals/Dpr/NetworkUtils/SessionEventType.h"
+#include "externals/Dpr/NetworkUtils/SessionEventData.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 
 namespace Dpr::NetworkUtils {
 
-    // Forward declarations for networking enums/types
-    // IlcaNetSessionState mirrors INL1.IlcaNetSessionState
-    enum class IlcaNetSessionState : int32_t {
-        SS_None = 0,
-        SS_Init = 1,
-        SS_MatchingWait = 2,
-        SS_GamingFront = 3,
-        SS_Gaming = 4,
-        SS_GamingLeave = 5,
-        SS_GamingError = 6,
-        SS_Final = 7,
-        SS_Crash = 8,
-    };
-
-    enum class IlcaNetSessionNetworkType : int32_t {
-        None = 0,
-        Lan = 1,
-        Internet = 2,
-    };
-
-    enum class SessionEventType : int32_t {
-        Join = 0,
-        Leave = 1,
-    };
-
-    struct SessionEventData : ILStruct<SessionEventData> {
-        struct Fields {
-            int32_t stationIndex;
-            SessionEventType eventType;
-        };
-    };
+    // Bring INL1 enums into this namespace for backward compatibility
+    using INL1::IlcaNetSessionState;
+    using INL1::IlcaNetSessionNetworkType;
 
     struct SessionConnector : ILClass<SessionConnector> {
         struct Fields {
