@@ -2030,7 +2030,7 @@ static void preloadBoxWindow() {
     }
 
     SmartPoint::AssetAssistant::Sequencer::getClass()->initIfNeeded();
-    SmartPoint::AssetAssistant::Sequencer::Start(coroutine);
+    SmartPoint::AssetAssistant::Sequencer::Start((System::Collections::IEnumerator::Object*)coroutine);
 
     s_boxWindowPreloading = true;
     Logger::log("[OverworldMP] BoxWindow preload coroutine started\n");
@@ -2654,15 +2654,16 @@ void overworldMPSetupAndStartBattle() {
             }
         }
 
-        // (2) MyStatus.colorID (byte at object offset 0x25)
+        // (2) MyStatus.colorID (byte at MYSTATUS_COLORID_OFFSET)
+        static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
         auto* statusArr = bsp->instance()->fields.playerStatus;
         if (statusArr != nullptr && statusArr->max_length >= 2) {
             auto* localMS  = statusArr->m_Items[localSlot];
             auto* remoteMS = statusArr->m_Items[opponentSlot];
             if (localMS != nullptr)
-                *(uint8_t*)((uintptr_t)localMS + 0x25) = (uint8_t)localColor;
+                *(uint8_t*)((uintptr_t)localMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
             if (remoteMS != nullptr)
-                *(uint8_t*)((uintptr_t)remoteMS + 0x25) = (uint8_t)remoteColor;
+                *(uint8_t*)((uintptr_t)remoteMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)remoteColor;
         }
 
         // (3) Slot color array + cursors for CardModelViewController and StoreCore
