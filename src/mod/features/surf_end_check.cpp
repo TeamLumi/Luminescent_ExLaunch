@@ -9,14 +9,14 @@
 #include "logger/logger.h"
 
 HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity$$CheckEndSwim) {
-    static void Callback(FieldPlayerEntity::Object* __this, UnityEngine::Vector2::Object inputDir) {
+    static bool Callback(FieldPlayerEntity::Object* __this, UnityEngine::Vector2::Fields inputDir) {
         if (PlayerWork::get_zoneID() == array_index(ZONES, "Distortion World 1")) {
-            Logger::log("[FieldPlayerEntity$$CheckEndSwim] We're in the DW, so ignore swim end\n");
-            return;
+            //Logger::log("[FieldPlayerEntity$$CheckEndSwim] We're in the DW, so ignore swim end\n");
+            return false;
         }
         else {
-            Logger::log("[FieldPlayerEntity$$CheckEndSwim] We're NOT in the DW, so CheckEndSwim\n");
-            Orig(__this, inputDir);
+            //Logger::log("[FieldPlayerEntity$$CheckEndSwim] We're NOT in the DW, so CheckEndSwim\n");
+            return Orig(__this, inputDir);
         }
     }
 };

@@ -193,9 +193,6 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
                     }
                     else
                     {
-                        disp->fields.learnWazaNo = __this->fields.param.fields.LearnWazaNo;
-                        disp->fields.unlearnWazaNo = disp->fields.selectWazaNo;
-
                         Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
                         Dpr::Message::MessageWordSetHelper::SetWazaNameWord(0, disp->fields.selectWazaNo);
                         labelName = System::String::Create("SS_waza_remember_043");
