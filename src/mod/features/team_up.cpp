@@ -2002,13 +2002,22 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpIsExpSeqEnable) {
 
 HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
     static void Callback(void* mainModule, MethodInfo* mi) {
-        bool teamed = overworldMPIsTeamedUp();
-        auto& tu = overworldMPGetTeamUpState();
+        // Fast path: for non-team-up battles, just call Orig and return.
+        // Minimizes our frame's presence on the stack to avoid .eh_frame
+        // incompatibility crashes during the game's exception handling.
+        if (!overworldMPIsTeamedUp()) {
+            Orig(mainModule, mi);
+            return;
+        }
 
-        // --- Pre-Orig diagnostics ---
-        // Capture raw engine state BEFORE storeBattleResult/checkWinner modifies it.
-        // mainModule+0x8c = judgeResult (set by NotifyBattleResult during battle)
-        // mainModule+0x94 = myClientId (this console's commPos in the battle)
+        auto& tu = overworldMPGetTeamUpState();
+        if (tu.battleType != 1) {
+            Orig(mainModule, mi);
+            return;
+        }
+
+        // --- Team-up battle path ---
+        // Pre-Orig diagnostics for team-up battles only
         uint32_t preJudgeResult = *(uint32_t*)((uintptr_t)mainModule + 0x8c);
         uint8_t myClientId = *(uint8_t*)((uintptr_t)mainModule + 0x94);
 
@@ -2026,9 +2035,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         Orig(mainModule, mi);
 
         Logger::log("[TeamUp] storeBattleResult hook: teamed=%d battleType=%d isInitiator=%d\n",
-                    (int)teamed, (int)tu.battleType, (int)tu.isInitiator);
-        if (!teamed) return;
-        if (tu.battleType != 1) return; // only trainer team-up battles
+                    (int)true, (int)tu.battleType, (int)tu.isInitiator);
 
         // Get BSP from MainModule+0x10
         auto* bsp = *(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object**)
