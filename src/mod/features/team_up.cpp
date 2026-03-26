@@ -10,6 +10,7 @@
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/DPData/MYSTATUS.h"
 #include "externals/FieldManager.h"
+#include "externals/UnityEngine/Time.h"
 #include "externals/FlagWork.h"
 #include "externals/FlagWork_Enums.h"
 #include "externals/GameManager.h"
@@ -286,10 +287,14 @@ void overworldMPSaveFullParty() {
     if (s_savedFullPartyCount > 6) s_savedFullPartyCount = 6;
     for (int i = 0; i < s_savedFullPartyCount; i++) {
         auto* poke = party->GetMemberPointer(i);
-        if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-            _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor,
-                &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
+        if (poke == nullptr || poke->fields.m_accessor == nullptr) {
+            // Truncate — never record more slots than successfully serialized
+            s_savedFullPartyCount = i;
+            Logger::log("[TeamUp] WARNING: truncated save at slot %d (null accessor)\n", i);
+            break;
         }
+        _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor,
+            &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
     }
     Logger::log("[TeamUp] Saved full party: %d members\n", s_savedFullPartyCount);
 }
@@ -300,9 +305,8 @@ static void restoreNonParticipatingPokemon() {
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) return;
 
-    // CRITICAL: Restore member count FIRST — GetMemberPointer returns null for
-    // indices >= m_memberCount. The battle engine reduces m_memberCount to
-    // TEAMUP_PARTY_LIMIT (3), so accessing slot 3+ fails without this.
+    // Temporarily set member count high so GetMemberPointer can access slots 3+.
+    // The battle engine reduces m_memberCount to TEAMUP_PARTY_LIMIT (3).
     int32_t prevCount = party->fields.m_memberCount;
     party->fields.m_memberCount = s_savedFullPartyCount;
 
@@ -318,6 +322,8 @@ static void restoreNonParticipatingPokemon() {
                         i, poke, poke ? poke->fields.m_accessor : nullptr);
         }
     }
+    // Set final count = participating slots + successfully restored slots
+    party->fields.m_memberCount = TEAMUP_PARTY_LIMIT + restored;
     Logger::log("[TeamUp] Restored %d/%d non-participating Pokemon (slots %d-%d, prevCount=%d)\n",
                 restored, s_savedFullPartyCount - TEAMUP_PARTY_LIMIT,
                 TEAMUP_PARTY_LIMIT, s_savedFullPartyCount - 1, prevCount);
@@ -716,7 +722,7 @@ void overworldMPTeamUpAutoDisband() {
         if (s_battlePendingTimer < 0.0f) {
             s_battlePendingTimer = DEFERRED_ENCOUNT_TIMEOUT;
         }
-        s_battlePendingTimer -= 0.01666667f;
+        s_battlePendingTimer -= UnityEngine::Time::get_deltaTime();
         if (s_battlePendingTimer <= 0.0f) {
             Logger::log("[TeamUp] battlePending timeout (non-deferred) — clearing\n");
             s_teamUpState.battlePending = false;
@@ -1121,22 +1127,23 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     Logger::log("[TeamUp] Received TEAMUP_BATTLE: type=%d trainer=%d — setting up Player B BSP\n",
                 (int)tu.battleType, tu.battleTrainerID);
 
-    tu.isInitiator = false;
-    tu.partnerPartyValid = true;
-
-    // Send ACK with our own party
-    overworldMPSendTeamUpBattleAck(fromStation);
-
-    // --- Modify Player B's BSP to PP_AA ---
+    // Validate BSP BEFORE sending ACK — if BSP is null, we can't set up
+    // the team-up battle and must not tell Player A we're ready.
     auto* bsp = s_teamUpBSP;
     if (bsp == nullptr) {
         bsp = PlayerWork::get_battleSetupParam();
     }
     if (bsp == nullptr) {
-        Logger::log("[TeamUp] ERROR: Player B BSP is null\n");
+        Logger::log("[TeamUp] ERROR: Player B BSP is null — cannot ACK\n");
         tu.syncPhase = SyncPhase::SYNC_NONE;
         return;
     }
+
+    tu.isInitiator = false;
+    tu.partnerPartyValid = true;
+
+    // Send ACK with our own party (BSP validated above)
+    overworldMPSendTeamUpBattleAck(fromStation);
 
     int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
 
@@ -1958,6 +1965,9 @@ void overworldMPClearTeamUpBattleState() {
     s_teamUpCreateLocalClientActive = false;
     s_teamUpBSP = nullptr;
     s_expSecondPassDone = false;
+    s_postBattleRestoreTimer = 0.0f; // Cancel second-pass restore — ClearState runs on
+                                     // the same frame as the first restore, so the timer
+                                     // would find s_battleModPartyCount stale if we zeroed it.
     Logger::log("[TeamUp] Battle state cleared\n");
 }
 

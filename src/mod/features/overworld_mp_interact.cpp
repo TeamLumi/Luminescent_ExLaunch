@@ -1325,6 +1325,7 @@ static void resetTradeState() {
     s_myTradeTrayIndex = -1;
     s_myTradeIsBox = false;
     s_boxWindow = nullptr;
+    s_boxWindowPreloading = false;
     s_myTradePokeParam = nullptr;
     s_partnerTradePokeParam = nullptr;
     memset(s_myTradePokeData, 0, sizeof(s_myTradePokeData));
@@ -2409,15 +2410,15 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
                     i, monsNo, seikaku, level);
 
         if (monsNo <= 0 || monsNo > 905) {
-            Logger::log("[OverworldMP] REJECT[%d]: invalid monsNo=%d — excluded from party\n", monsNo, i);
+            Logger::log("[OverworldMP] REJECT[%d]: invalid monsNo=%d — excluded from party\n", i, monsNo);
             break;  // Stop at first invalid member (party must be contiguous)
         }
         if (seikaku < 0 || seikaku >= 25) {
-            Logger::log("[OverworldMP] REJECT[%d]: invalid seikaku=%d — excluded from party\n", seikaku, i);
+            Logger::log("[OverworldMP] REJECT[%d]: invalid seikaku=%d — excluded from party\n", i, seikaku);
             break;
         }
         if (level == 0 || level > 100) {
-            Logger::log("[OverworldMP] REJECT[%d]: invalid level=%u — excluded from party\n", level, i);
+            Logger::log("[OverworldMP] REJECT[%d]: invalid level=%u — excluded from party\n", i, level);
             break;
         }
         validCount++;
@@ -2970,7 +2971,10 @@ void overworldMPRestorePartyAfterBattle() {
         return;
     }
 
-    for (int i = 0; i < s_partySnapshotCount && i < party->fields.m_memberCount; i++) {
+    // Restore member count to pre-battle value unconditionally
+    party->fields.m_memberCount = s_partySnapshotCount;
+
+    for (int i = 0; i < s_partySnapshotCount; i++) {
         auto* poke = party->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             // Deserialize_FullData (raw pointer) @ 0x24A4550
@@ -3095,9 +3099,11 @@ void overworldMPCheckInteraction() {
         return;
     }
 
+    float dt = UnityEngine::Time::get_deltaTime();
+
     // Incoming request pending — wait a few frames before showing dialog
     if (s_interact.state == InteractState::IncomingRequestPending) {
-        s_interact.incomingRequestDelay -= 0.01666667f;
+        s_interact.incomingRequestDelay -= dt;
         if (s_interact.incomingRequestDelay <= 0.0f) {
             Logger::log("[OverworldMP] Incoming request delay elapsed — showing dialog\n");
             showIncomingRequestDialog();
@@ -3108,7 +3114,7 @@ void overworldMPCheckInteraction() {
     // TradePreview — UIZukanRegister is open, waiting for open animation to finish
     // before showing MsgWindow + Yes/No on top of it
     if (s_interact.state == InteractState::TradePreview) {
-        s_interact.incomingRequestDelay -= 0.01666667f;
+        s_interact.incomingRequestDelay -= dt;
         if (s_interact.incomingRequestDelay <= 0.0f) {
             Logger::log("[OverworldMP] UIZukanRegister open delay elapsed — showing MsgWindow + Yes/No\n");
             showInteractMsgWindow(s_tradeConfirmMsgBuf);
@@ -3134,11 +3140,12 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::TradeWarningMsg) {
         // Grace period: ignore input for the first few frames so a held A/B
         // from the previous menu callback doesn't instantly dismiss this.
+        static bool s_warningPrevAB = false;
         if (s_interact.incomingRequestDelay > 0.0f) {
-            s_interact.incomingRequestDelay -= 0.01666667f;
+            s_interact.incomingRequestDelay -= dt;
+            s_warningPrevAB = false; // Reset during grace period
             return;
         }
-        static bool s_warningPrevAB = false;
         nn::hid::NpadBaseState padState = {};
         nn::hid::NpadStyleSet styleSet = nn::hid::GetNpadStyleSet(0);
         if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleFullKey)) {
@@ -3169,7 +3176,7 @@ void overworldMPCheckInteraction() {
     // Accepted — waiting for context menu close animation before starting activity
     if (s_interact.state == InteractState::Accepted) {
         if (s_interact.tradeStartDelay > 0.0f) {
-            s_interact.tradeStartDelay -= 0.01666667f;
+            s_interact.tradeStartDelay -= dt;
             if (s_interact.tradeStartDelay <= 0.0f) {
                 if (s_pendingRequestType == InteractionType::TeamUp) {
                     Logger::log("[OverworldMP] Accept delay elapsed — completing team-up handshake\n");
@@ -3191,7 +3198,7 @@ void overworldMPCheckInteraction() {
 
     // Trade: waiting for BoxWindow prefab to finish preloading
     if (s_interact.state == InteractState::TradeLoadingBox) {
-        s_interact.timeoutTimer -= 0.01666667f;
+        s_interact.timeoutTimer -= dt;
         if (isBoxWindowInObjectPool()) {
             Logger::log("[OverworldMP] BoxWindow preload complete — opening\n");
             openTradeBoxWindow(s_tradePartnerStation);
@@ -3207,7 +3214,7 @@ void overworldMPCheckInteraction() {
 
     // Trade: waiting for partner's pokemon selection
     if (s_interact.state == InteractState::TradeWaitPartner) {
-        s_tradeWaitTimeout -= 0.01666667f;
+        s_tradeWaitTimeout -= dt;
         if (s_partnerPokeReceived) {
             Logger::log("[OverworldMP] Partner pokemon received — showing preview\n");
             showTradePreview();
@@ -3223,7 +3230,7 @@ void overworldMPCheckInteraction() {
 
     // Trade: waiting for partner's final confirmation
     if (s_interact.state == InteractState::TradeWaitFinal) {
-        s_tradeWaitTimeout -= 0.01666667f;
+        s_tradeWaitTimeout -= dt;
         if (s_partnerConfirmReceived) {
             if (s_partnerConfirmValue) {
                 Logger::log("[OverworldMP] Partner confirmed trade — executing swap\n");
@@ -3246,7 +3253,7 @@ void overworldMPCheckInteraction() {
 
     // Main menu closed, waiting to open emote sub-menu
     if (s_interact.state == InteractState::EmoteMenuPending) {
-        s_interact.emoteMenuDelay -= 0.01666667f; // ~1 frame at 30fps
+        s_interact.emoteMenuDelay -= dt; // ~1 frame at 30fps
         if (s_interact.emoteMenuDelay <= 0.0f) {
             overworldMPShowEmoteMenu();
         }
@@ -3257,7 +3264,7 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::BattleMenuOpen) {
         if (s_interact.emoteMenuDelay > 0.0f) {
             // Delay phase: waiting for main menu close animation
-            s_interact.emoteMenuDelay -= 0.01666667f;
+            s_interact.emoteMenuDelay -= dt;
             if (s_interact.emoteMenuDelay <= 0.0f) {
                 overworldMPShowBattleSubmenu();
             }
@@ -3268,7 +3275,7 @@ void overworldMPCheckInteraction() {
 
     // Battle: exchanging party data with partner
     if (s_interact.state == InteractState::BattleExchangeParty) {
-        s_battleExchangeTimeout -= 0.01666667f;
+        s_battleExchangeTimeout -= dt;
         if (s_battleExchangeTimeout <= 0.0f) {
             Logger::log("[OverworldMP] Battle party exchange timed out\n");
             resetBattleState();
@@ -3290,7 +3297,7 @@ void overworldMPCheckInteraction() {
 
     // Battle: waiting for both sides to be ready (sync handshake)
     if (s_interact.state == InteractState::BattleSyncWait) {
-        s_battleSyncTimeout -= 0.01666667f;
+        s_battleSyncTimeout -= dt;
         if (s_battleSyncTimeout <= 0.0f) {
             Logger::log("[OverworldMP] Battle sync timed out — partner never sent READY\n");
             resetBattleState();
@@ -3318,7 +3325,7 @@ void overworldMPCheckInteraction() {
 
     // Update timeout for waiting state
     if (s_interact.state == InteractState::WaitingResponse) {
-        s_interact.timeoutTimer -= 0.01666667f;
+        s_interact.timeoutTimer -= dt;
         if (s_interact.timeoutTimer <= 0.0f) {
             Logger::log("[OverworldMP] Interaction timed out\n");
             s_interact.Reset();

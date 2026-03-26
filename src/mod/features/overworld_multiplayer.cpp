@@ -449,14 +449,15 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         // Read player name (UTF-16 chars)
         uint8_t nameLen = 0;
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &nameLen);
-        if (nameLen > 0 && nameLen <= 12) {
-            uint8_t nameBytes[28]; // max 12 chars * 2 bytes + padding
+        static constexpr int MAX_NAME_CHARS = 12;
+        if (nameLen > 0 && nameLen <= MAX_NAME_CHARS) {
+            uint8_t nameBytes[MAX_NAME_CHARS * 2]; // UTF-16 bytes
             for (int i = 0; i < nameLen * 2; i++) {
                 il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &nameBytes[i]);
             }
             // Store as native ASCII to avoid GC collecting managed string pointers
             if (!remote.playerNameSet) {
-                int asciiLen = (nameLen > 48) ? 48 : nameLen;
+                int asciiLen = nameLen; // already bounded by MAX_NAME_CHARS
                 for (int i = 0; i < asciiLen; i++) {
                     uint16_t c = (uint16_t)(nameBytes[i * 2] | (nameBytes[i * 2 + 1] << 8));
                     remote.playerNameBuf[i] = (c < 128) ? (char)c : '?';
@@ -950,6 +951,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         }
 
         case 1: { // POKE (partner's party Pokemon)
+            if (s_tuAccumFromStation < 0) break; // No HEADER received yet
             uint8_t pokeIndex = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
             if (pokeIndex >= 6) break;
@@ -963,7 +965,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                     bufOffset += 4;
                 }
             }
-            s_tuAccumReceivedCount++;
+            if (pokeIndex < s_tuAccumMemberCount)
+                s_tuAccumReceivedCount++;
             tu.partnerPartyBufSize = s_tuAccumMemberCount * POKE_FULL_DATA_SIZE;
             tu.partnerPartyCount = s_tuAccumMemberCount;
 
@@ -984,6 +987,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         }
 
         case 2: { // TRAINER_POKE (trainer party Pokemon — from initiator or from ACK)
+            if (s_tuAccumFromStation < 0) break; // No HEADER received yet
             uint8_t pokeIndex = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
             if (pokeIndex >= 6) break;
@@ -1004,7 +1008,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                     bufOffset += 4;
                 }
             }
-            s_tuAccumTrainerReceived++;
+            if (pokeIndex < s_tuAccumTrainerCount)
+                s_tuAccumTrainerReceived++;
 
             if (s_tuAccumIsAck) {
                 tu.partnerTrainerBufSize = s_tuAccumTrainerCount * POKE_FULL_DATA_SIZE;
