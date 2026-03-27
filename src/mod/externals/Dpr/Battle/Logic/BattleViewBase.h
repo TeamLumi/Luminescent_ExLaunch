@@ -2,8 +2,6 @@
 
 #include "externals/il2cpp-api.h"
 
-#include "externals/System/Primitives.h"
-
 namespace Dpr::Battle::Logic {
     struct BTL_ACTION_PARAM_OBJ;
     struct BTL_CLIENT;
@@ -50,30 +48,6 @@ namespace Dpr::Battle::Logic {
 
         struct VirtualInvokeData_CMD_UI_SelectWaza_Restart {
             typedef void(*Il2CppMethodPointer)(BattleViewBase::Object*, uint8_t, const MethodInfo*);
-            Il2CppMethodPointer methodPtr;
-            const MethodInfo* method;
-        };
-
-        struct VirtualInvokeData_CMD_StartMsgStd {
-            typedef void(*Il2CppMethodPointer)(BattleViewBase::Object*, uint16_t, System::Int32_array*, const MethodInfo*);
-            Il2CppMethodPointer methodPtr;
-            const MethodInfo* method;
-        };
-
-        struct VirtualInvokeData_CMD_WaitMsg {
-            typedef bool(*Il2CppMethodPointer)(BattleViewBase::Object*, const MethodInfo*);
-            Il2CppMethodPointer methodPtr;
-            const MethodInfo* method;
-        };
-
-        struct VirtualInvokeData_CMD_ChangeWheather {
-            typedef void(*Il2CppMethodPointer)(BattleViewBase::Object*, uint8_t, const MethodInfo*);
-            Il2CppMethodPointer methodPtr;
-            const MethodInfo* method;
-        };
-
-        struct VirtualInvokeData_CMD_ChangeWheather_Wait {
-            typedef bool(*Il2CppMethodPointer)(BattleViewBase::Object*, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
             const MethodInfo* method;
         };
@@ -223,10 +197,10 @@ namespace Dpr::Battle::Logic {
             VirtualInvokeData _141_CMD_WaitForceQuitPokeSelect;
             VirtualInvokeData _142_CMD_StartMsg;
             VirtualInvokeData _143_CMD_StartMsgWaza;
-            VirtualInvokeData_CMD_StartMsgStd _144_CMD_StartMsgStd;
+            VirtualInvokeData _144_CMD_StartMsgStd;
             VirtualInvokeData _145_CMD_StartMsgSet;
             VirtualInvokeData _146_CMD_StartMsgTrainer;
-            VirtualInvokeData_CMD_WaitMsg _147_CMD_WaitMsg;
+            VirtualInvokeData _147_CMD_WaitMsg;
             VirtualInvokeData _148_CMD_WaitMsg_WithoutHide;
             VirtualInvokeData _149_CMD_HideMsg;
             VirtualInvokeData _150_CMD_ACT_WazaEffect_Start;
@@ -324,8 +298,8 @@ namespace Dpr::Battle::Logic {
             VirtualInvokeData _242_CMD_EFFECT_WaitBallThrow;
             VirtualInvokeData _243_CMD_EFFECT_WaitBallThrowTrainer;
             VirtualInvokeData _244_CMD_EFFECT_DrawEnableTimer;
-            VirtualInvokeData_CMD_ChangeWheather _245_CMD_ChangeWheather;
-            VirtualInvokeData_CMD_ChangeWheather_Wait _246_CMD_ChangeWheather_Wait;
+            VirtualInvokeData _245_CMD_ChangeWheather;
+            VirtualInvokeData _246_CMD_ChangeWheather_Wait;
             VirtualInvokeData _247_CMD_ChangeGround;
             VirtualInvokeData _248_CMD_ChangeGround_Wait;
             VirtualInvokeData _249_CMD_FadeOutBGM;
@@ -374,34 +348,14 @@ namespace Dpr::Battle::Logic {
             return external<int32_t>(0x01888200, this, pos);
         }
 
-        inline void virtual_CMD_UI_SelectAction_Start(BattleViewBase::SelectActionParam::Object** param, BTL_ACTION_PARAM_OBJ* dest) {
-            (*(this->instance()->klass->vtable)._115_CMD_UI_SelectAction_Start.methodPtr)
-                    (this->instance(), param, dest, this->instance()->klass->vtable._115_CMD_UI_SelectAction_Start.method);
-        }
-
         inline void virtual_CMD_UI_SelectWaza_Restart(uint8_t pokeIndex) {
             (*(this->instance()->klass->vtable)._121_CMD_UI_SelectWaza_Restart.methodPtr)
                     (this->instance(), pokeIndex, this->instance()->klass->vtable._121_CMD_UI_SelectWaza_Restart.method);
         }
 
-        inline void virtual_CMD_StartMsgStd(uint16_t strID, System::Int32_array* args) {
-            (*(this->instance()->klass->vtable)._144_CMD_StartMsgStd.methodPtr)
-                    (this->instance(), strID, args, this->instance()->klass->vtable._144_CMD_StartMsgStd.method);
-        }
-
-        inline bool virtual_CMD_WaitMsg() {
-            return (*(this->instance()->klass->vtable)._147_CMD_WaitMsg.methodPtr)
-                    (this->instance(), this->instance()->klass->vtable._147_CMD_WaitMsg.method);
-        }
-
-        inline void virtual_CMD_ChangeWheather(uint8_t weather) {
-            (*(this->instance()->klass->vtable)._245_CMD_ChangeWheather.methodPtr)
-                    (this->instance(), weather, this->instance()->klass->vtable._245_CMD_ChangeWheather.method);
-        }
-
-        inline bool virtual_CMD_ChangeWheather_Wait() {
-            return (*(this->instance()->klass->vtable)._246_CMD_ChangeWheather_Wait.methodPtr)
-                    (this->instance(), this->instance()->klass->vtable._246_CMD_ChangeWheather_Wait.method);
+        inline void virtual_CMD_UI_SelectAction_Start(BattleViewBase::SelectActionParam::Object** param, BTL_ACTION_PARAM_OBJ* dest) {
+            (*(this->instance()->klass->vtable)._115_CMD_UI_SelectAction_Start.methodPtr)
+                    (this->instance(), param, dest, this->instance()->klass->vtable._115_CMD_UI_SelectAction_Start.method);
         }
     };
 }

@@ -4,10 +4,17 @@
 
 struct AnimationPlayer : ILClass<AnimationPlayer> {
     struct Fields {
-        // TODO
+        // Fields omitted — only methods are used.
+        // Define proper types for PlayableGraph, Playable, etc. if fields are needed.
     };
 
     inline int32_t get_currentIndex() {
         return external<int32_t>(0x0211d8a0, this);
+    }
+
+    // Play animation clip by index. duration=0 for instant switch.
+    // Clip indices: 0=Idle, 1=Walk, 2=Run (see clip_names.h FIELD_MON_CLIPS)
+    inline void Play(int32_t index, float duration = 0.0f, float startTime = 0.0f) {
+        external<void>(0x0211e9b0, this, index, duration, startTime);
     }
 };

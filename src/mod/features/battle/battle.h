@@ -2,8 +2,8 @@
 
 #include "exlaunch.hpp"
 
-// Adds support for new ability effects in battle.
-void exl_ability_handlers_main();
+// Adds support for new ability effects in battle. (Not yet implemented)
+//void exl_ability_handlers_main();
 
 // Adds support for battle status UI.
 void exl_battle_situation_main();

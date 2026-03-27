@@ -64,5 +64,9 @@ namespace Dpr::UI {
         inline void Open(Param::Object* param) {
             external<void>(0x01ec0bc0, this, param);
         }
+
+        inline void Close(UnityEngine::Events::UnityAction::Object* onClosed_) {
+            external<void>(0x01ec0db0, this, onClosed_);
+        }
     };
 }

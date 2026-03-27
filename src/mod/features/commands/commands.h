@@ -4,6 +4,9 @@
 
 // HOOKS
 
+// Team-up trainer flag bypass hooks (installed in trainer_flag_bypass.cpp)
+void exl_trainer_flag_bypass_main();
+
 // Hooks for _LOAD_UMA_ANIME.
 // Loads an asset bundle holding animation data.
 // Arguments:

@@ -172,17 +172,11 @@ HOOK_DEFINE_INLINE(Field_system_array_new) {
     }
 };
 
-void InstallActivatedFieldEffectHooks() {
-    // DO NOT REMOVE ANY OF THESE! Disable the side effects in exl_field_handlers_main() below instead!
-    if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Weather")]) InstallHooks_FieldEffect_Weather();
-}
-
 void exl_field_handlers_main() {
     Dpr_Battle_Logic_FieldStatus_initWork::InstallAtOffset(0x018fa2b0);
     Section_FieldEffect_End_Execute::InstallAtOffset(0x021b53f0);
     Field_system_array_new::InstallAtOffset(0x01904274);
 
-    SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Weather"));
     SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Mud Sport"));
     SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Water Sport"));
 
@@ -205,6 +199,4 @@ void exl_field_handlers_main() {
         { 0x02170b2c, CmpImmediate(W20, 11 + getExtraFieldEffectHandlers()->count) },
     };
     p.WriteInst(inst);
-
-    InstallActivatedFieldEffectHooks();
 }

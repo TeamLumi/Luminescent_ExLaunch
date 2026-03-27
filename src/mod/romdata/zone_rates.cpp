@@ -48,20 +48,14 @@ nn::vector<uint32_t> GetFormRates(int32_t monsno, int32_t zoneID)
         return zoneRates.rates;
     }
 
-    // Default - Empty list
-    return {};
+    // Default - Only Form 0
+    return { 100 };
 }
 
 int32_t RollForForm(int32_t monsno, int32_t zoneID)
 {
     auto rates = GetFormRates(monsno, zoneID);
     return Roll(&rates);
-}
-
-bool ExistFormRates(int32_t monsno, int32_t zoneID)
-{
-    auto rates = GetFormRates(monsno, zoneID);
-    return !rates.empty();
 }
 
 nn::vector<uint32_t> GetVariantRates(int32_t monsno, int32_t formno, int32_t zoneID)

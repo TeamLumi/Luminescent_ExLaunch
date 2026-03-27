@@ -11,6 +11,8 @@
 
 void CallFeatureHooks()
 {
+    if (IsActivatedFeature(array_index(FEATURES, "Ability Changes")))
+        exl_ability_changes_main();
     if (IsActivatedFeature(array_index(FEATURES, "Alt Starters")))
         exl_alt_starters_main();
     if (IsActivatedFeature(array_index(FEATURES, "Area/Zone Codes")))
@@ -125,10 +127,12 @@ void CallFeatureHooks()
         exl_fake_stopdata_main();
     if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
         exl_surf_end_check_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Underground Statue Names")))
-        exl_ug_statue_names_main();
-    if (IsActivatedFeature(array_index(FEATURES, "Underground Visible Shinies")))
-        exl_ug_shinies_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Overworld Multiplayer"))) {
+        exl_overworld_multiplayer_main();
+        exl_team_up_main();
+        extern void exl_trainer_flag_bypass_main();
+        exl_trainer_flag_bypass_main();
+    }
 
     exl_debug_features_main();
     exl_items_changes_main();

@@ -131,12 +131,25 @@ namespace Pml::PokePara {
             return external<uint32_t>(0x02043970, this);
         }
 
+        inline void SetHp(uint32_t hp) {
+            external<void>(0x020439F0, this, hp);
+        }
+
         inline uint32_t GetMaxHp() {
             return external<uint32_t>(0x02043620, this);
         }
 
+        // Sets HP to max, clears sick status, recovers all 4 move PPs @ 0x2043C20
+        inline void RecoverAll() {
+            external<void>(0x02043C20, this);
+        }
+
         inline void SetGetBall(uint32_t value) {
             external<void>(0x0204b840, this, value);
+        }
+
+        inline bool IsRare() {
+            return external<bool>(0x0204a500, this);
         }
 
         inline void SetRareType(RareType type) {
@@ -245,10 +258,6 @@ namespace Pml::PokePara {
 
         inline void ChangeEgg() {
             external<void>(0x02049450, this);
-        }
-
-        inline bool IsRare() {
-            return external<bool>(0x0204a500, this);
         }
     };
 }

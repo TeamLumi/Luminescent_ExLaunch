@@ -253,6 +253,10 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         external<void>(0x02ced920, index, value);
     }
 
+    static inline int32_t GetMoney() {
+        return external<int32_t>(0x2CE2DD0);
+    }
+
     static inline void SetMoney(int32_t money) {
         external<void>(0x02cefc80, money);
     }
@@ -305,6 +309,11 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
         return external<bool>(0x02ce2cd0);
     }
 
+    // Returns current fashion/dress index (maps to CharacterDressData table)
+    static inline int32_t get_playerFashion() {
+        return external<int32_t>(0x02cee8f0);
+    }
+
     static inline int32_t get_defaultPokeType() {
         return external<int32_t>(0x02cf1320);
     }
@@ -351,10 +360,6 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
         return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
-    }
-
-    static inline int32_t get_transitionZoneID() {
-        return external<int32_t>(0x02cef090);
     }
 
     static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
