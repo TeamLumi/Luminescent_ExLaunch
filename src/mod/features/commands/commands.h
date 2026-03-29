@@ -454,3 +454,11 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the player's world position with 2 decimal places of precision.
+// Coordinates are multiplied by 100 so that e.g. position 12.34 becomes 1234.
+// Arguments:
+//   [Work] x: Work to store the x coordinate * 100.
+//   [Work] y: Work to store the y coordinate * 100.
+//   [Work] z: Work to store the z coordinate * 100.
+bool GetPlayerPosPrecise(Dpr::EvScript::EvDataManager::Object* manager);
