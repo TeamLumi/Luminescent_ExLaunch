@@ -454,3 +454,8 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
+
+// _LEDGE_JUMP also supports NPC entities:
+//   _LEDGE_JUMP(moveDistance, relativeHeight, relativeLower, duration) — player jump
+//   _LEDGE_JUMP('NPC_NAME', moveDistance, relativeHeight, relativeLower, duration) — NPC jump
+// When the first argument is an entity reference, that entity jumps instead of the player.
