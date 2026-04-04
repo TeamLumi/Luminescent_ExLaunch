@@ -91,14 +91,16 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
 
         if (args->max_length > 1) {
             auto firstArg = args->m_Items[1];
-            // ArgType::String = 5, ArgType::Work = 2 — entity can be string or work/number
-            // FindEntity returns non-null for valid entity refs
             auto* entity = FindEntity(manager, firstArg);
-            if (entity != nullptr && entity != player->cast<FieldObjectEntity>()) {
-                // First arg is a valid non-player entity — NPC mode
-                jumpTarget = entity;
-                jumpTargetIsPlayer = false;
-                paramOffset = 2; // shift remaining params
+            if (entity != nullptr) {
+                // First arg is an entity reference — shift params
+                paramOffset = 2;
+                if (entity != player->cast<FieldObjectEntity>()) {
+                    // Non-player entity — NPC mode
+                    jumpTarget = entity;
+                    jumpTargetIsPlayer = false;
+                }
+                // If entity == player, stay in player mode with shifted params
             }
         }
 
