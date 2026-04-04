@@ -162,7 +162,6 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxShiny(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
                     return HandleCmdStepper(SetPartnerPokemon(__this));
-                // _NPC_JUMP merged into _LEDGE_JUMP (entity as first arg)
                 default:
                     break;
             }
@@ -254,7 +253,5 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
-    // _NPC_JUMP removed — merged into _LEDGE_JUMP
-
     exl_commands_hooks_main();
 }
