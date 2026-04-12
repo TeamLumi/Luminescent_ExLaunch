@@ -66,6 +66,12 @@ namespace Dpr::UI {
                     Method$$OnSelectedIncenseBurner = (*Method$$DisplayClass144_0_UseFormChange)->copyWith(method);
                 return Method$$OnSelectedIncenseBurner;
             };
+            static inline MethodInfo* Method$$OnSelectedProVitaminCase = nullptr;
+            static MethodInfo* getMethod$$OnSelectedProVitaminCase(Il2CppMethodPointer method) {
+                if (Method$$OnSelectedProVitaminCase == nullptr)
+                    Method$$OnSelectedProVitaminCase = (*Method$$DisplayClass144_0_UseFormChange)->copyWith(method);
+                return Method$$OnSelectedProVitaminCase;
+            };
 
             inline void ctor() {
                 external<void>(0x01be1910, this);
