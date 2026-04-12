@@ -454,3 +454,11 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the specified effort value of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to get the EV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work] result: The work in which to put the result.
+bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
