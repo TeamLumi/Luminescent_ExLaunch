@@ -1280,18 +1280,21 @@ static constexpr const char* ITEMS[] = {
     "1276",
     "1277",
     "Rotom Catalog",
-    "★And458",
-    "★And15",
-    "★And337",
-    "★And603",
-    "★And390",
-    "★Sgr6879",
-    "★Sgr6859",
-    "★Sgr6913",
-    "★Sgr7348",
-    "★Sgr7121",
-    "★Sgr6746",
-    "★Sgr7194",
+
+    // Custom Key Items
+
+    "Custom Key Item 1",
+    "Custom Key Item 2",
+    "Custom Key Item 3",
+    "Custom Key Item 4",
+    "Custom Key Item 5",
+    "Custom Key Item 6",
+    "Custom Key Item 7",
+    "Custom Key Item 8",
+    "Custom Key Item 9",
+    "Custom Key Item 10",
+    "Custom Key Item 11",
+    "Custom Key Item 12",
 
     // Luminescent Items
     "GS Ball", // ★Sgr7337
@@ -1303,7 +1306,7 @@ static constexpr const char* ITEMS[] = {
     "Shadow Badge", // ★Del7882
     "General Badge", // ★Del7906
     "Moon Badge", // ★Del7852
-    "1300", // ★Psc596
+    "Magikarp Biscuit", // ★Psc596
     "Incense Burner", // ★Psc361
     "Mewtwo Armor", // ★Psc510
     "Infinite Repel", // ★Psc437
