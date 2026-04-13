@@ -164,6 +164,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetPartnerPokemon(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EFFORT_VALUE:
                     return HandleCmdStepper(PartyBoxEffortValue(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE:
+                    return HandleCmdStepper(SetEffortValue(__this));
                 default:
                     break;
             }
@@ -256,6 +258,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EFFORT_VALUE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
 
     exl_commands_hooks_main();
 }

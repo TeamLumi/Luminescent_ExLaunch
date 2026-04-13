@@ -1298,6 +1298,7 @@ namespace Dpr::EvScript {
             _TEMOTI_BOX_SHINY = 1288,
             _SET_TUREARUKI = 1289,
             _TEMOTI_BOX_EFFORT_VALUE = 1290,
+            _SET_EFFORT_VALUE = 1291,
 
             CUSTOM_CMD_END = 1500,
         };
