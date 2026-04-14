@@ -10,7 +10,7 @@ void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displa
         if (fromBag)
         {
             Dpr::UI::UIBag::Object* bag = bagDisplayClass->fields.CS___8__locals1->fields.__4__this;
-            bag->Close(nullptr, 0, true);
+            bag->Close(bag->fields.onClosed, bag->fields._prevWindowId, true);
 
             System::String::Object* labelName = System::String::Create("ev_keyitem_pro_vitamin_case_bag");
             manager->JumpLabel(labelName, nullptr);
