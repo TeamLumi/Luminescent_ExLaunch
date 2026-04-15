@@ -1299,6 +1299,7 @@ namespace Dpr::EvScript {
             _SET_TUREARUKI = 1289,
             _TEMOTI_BOX_EFFORT_VALUE = 1290,
             _SET_EFFORT_VALUE = 1291,
+            _CUSTOM_NUMBER_INPUT = 1292,
 
             CUSTOM_CMD_END = 1500,
         };

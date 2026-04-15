@@ -1,0 +1,61 @@
+#include "externals/Dpr/EvScript/EvDataManager.h"
+#include "externals/Dpr/UI/SoftwareKeyboard.h"
+#include "externals/System/Int32.h"
+
+#include "logger/logger.h"
+#include "utils/cmd_utils.h"
+
+void OnCompleted(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
+    if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
+        Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
+        EvData::Aregment::Array* args = manager->fields._evArg;
+
+        int32_t resultNumber = 0;
+        System::Int32Class::TryParse(resultText, &resultNumber);
+
+        SetWorkToValue(args->m_Items[1], resultNumber);
+
+        Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
+        Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 0; // Done
+    }
+    else {
+        Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
+        Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 2; // Error
+    }
+}
+
+bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager) {
+
+    EvData::Aregment::Array* args = manager->fields._evArg;
+
+    Logger::log("_CUSTOM_NUMBER_INPUT\n");
+    system_load_typeinfo(0x43e0);
+
+    manager->fields._softwareKeyboardSubState = 1; // In progress
+
+    auto dispClass831 = Dpr::EvScript::EvDataManager::DisplayClass831_0::newInstance();
+    auto swKeyboardParam = Dpr::UI::SoftwareKeyboard::Param::newInstance();
+
+    int32_t maxLength = GetWorkOrIntValue(args->m_Items[2]);
+    System::String::Object* headerLabel = GetStringText(manager,args->m_Items[3]);
+
+    swKeyboardParam->fields.keyboardMode = 1;
+    swKeyboardParam->fields.text = System::String::Create("");
+    swKeyboardParam->fields.textMinLength = 1;
+    swKeyboardParam->fields.textMaxLength = maxLength;
+    swKeyboardParam->fields.headerText = Dpr::UI::SoftwareKeyboard::GetMessageText(headerLabel);
+    swKeyboardParam->fields.subText = nullptr;
+    swKeyboardParam->fields.guideText = nullptr;
+    swKeyboardParam->fields.okText = nullptr;
+    swKeyboardParam->fields.invalidCharFlag = 4;
+
+    MethodInfo* onInputCheckMI = *Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck;
+    System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(manager, onInputCheckMI);
+
+    MethodInfo* onCompletedMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_OnCompleteCustomNumberInput((Il2CppMethodPointer)&OnCompleted);
+    UnityEngine::Events::UnityAction::Object* onCompleted = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompletedMI);
+
+    Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onCompleted);
+
+    return manager->fields._softwareKeyboardSubState == 0;
+}

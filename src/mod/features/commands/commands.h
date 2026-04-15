@@ -470,3 +470,10 @@ bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] stat: Statistic to set the EV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
 //   [Work, Number] newValue: The value to set the EV to.
 bool SetEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Keyboard numpad input with a specified maximum length and header label.
+// Arguments:
+//   [Work] resultNumber: The number that was input.
+//   [Work, Number] maxLength: Maximum number of digits that the player can input.
+//   [String] headerLabel: Message Label containing text to be displayed in the header.
+bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);

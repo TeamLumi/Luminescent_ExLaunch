@@ -129,6 +129,19 @@ namespace Dpr::EvScript {
             }
         };
 
+        struct DisplayClass831_0 : ILClass<DisplayClass831_0, 0x04c5ee28> {
+            struct Fields {
+                EvDataManager::Object * __4__this;
+                int32_t month;
+            };
+
+            static_assert(offsetof(Fields, __4__this) == 0x0);
+
+            inline void ctor() {
+                external<void>(0x019aeff0, this);
+            }
+        };
+
         struct DisplayClass1544_0 : ILClass<DisplayClass1544_0, 0x04c5f000> {
             struct Fields {
                 EvDataManager::Object* __4__this;
@@ -381,6 +394,8 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
         static inline StaticILMethod<0x04c7d040, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
         static inline StaticILMethod<0x04c7d1e0, Dpr::UI::UIWindow::Object*>       Method$$EvDataManager_EvCmd_USE_SPECIAL_ITEM_b__1719_0 {};
+        static inline StaticILMethod<0x04c77cf8, System::String::Object*, int32_t> Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck {};
+        static inline StaticILMethod<0x04c7cf78, bool, int32_t>                    Method$$EvDataManager_EvCmdBirthDayInput_OnComplete {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {
@@ -422,6 +437,13 @@ namespace Dpr::EvScript {
             if (Method$$EvCmdAddPokemonUIExtra == nullptr)
                 Method$$EvCmdAddPokemonUIExtra = (*Method$$EvDataManager_EvCmdAddPokemonUI)->copyWith(method);
             return Method$$EvCmdAddPokemonUIExtra;
+        };
+
+        static inline MethodInfo* Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput = nullptr;
+        static MethodInfo* getMethod$$EvCmdBirthDayInput_OnCompleteCustomNumberInput(Il2CppMethodPointer method) {
+            if (Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput == nullptr)
+                Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput = (*Method$$EvDataManager_EvCmdBirthDayInput_OnComplete)->copyWith(method);
+            return Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput;
         };
 
         inline bool RunEvCmd(int32_t index) {

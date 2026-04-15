@@ -166,6 +166,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxEffortValue(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE:
                     return HandleCmdStepper(SetEffortValue(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
+                    return HandleCmdStepper(CustomNumberInput(__this));
                 default:
                     break;
             }
@@ -259,6 +261,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EFFORT_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
 
     exl_commands_hooks_main();
 }
