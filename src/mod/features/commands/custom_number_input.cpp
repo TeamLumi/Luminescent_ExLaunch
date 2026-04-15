@@ -1,6 +1,6 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/UI/SoftwareKeyboard.h"
-#include "externals/System/Int32.h"
+#include "externals/System/Int32Class.h"
 
 #include "logger/logger.h"
 #include "utils/cmd_utils.h"
