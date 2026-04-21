@@ -68,7 +68,6 @@ void SetupProVitaminKeyboard(Dpr::EvScript::EvDataManager::Object* manager)
     UnityEngine::Events::UnityAction::Object* onCompleted = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompletedMI);
 
     Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onCompleted);
-
 }
 
 void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * __this, int32_t selectContextMenuId)
@@ -78,7 +77,6 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
     System::String::Object* labelName;
 
     Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
-    coreParam = (Pml::PokePara::CoreParam *)param;
 
     switch (selectContextMenuId)
     {
@@ -132,6 +130,7 @@ void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem:
 
         Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
         param = manager->GetPokemonParam(-1, index);
+        coreParam = (Pml::PokePara::CoreParam *)param;
 
         Dpr::UI::UIBag::Object * uiBag = __this;
         Dpr::UI::UIBag::__c__DisplayClass144_0::Object * displayClass144 = Dpr::UI::UIBag::__c__DisplayClass144_0::newInstance();
@@ -179,13 +178,13 @@ void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displa
 {
     if (fromBag)
     {
-        system_load_typeinfo(0x955e);
+        system_load_typeinfo(0x9a0a);
         sDisplayClassLocals = bagDisplayClass->fields.CS___8__locals1;
 
         Dpr::UI::UIBag::Object* uiBagParty = sDisplayClassLocals->fields.__4__this;
 
-        System::String::Object* SS_bag_035 = System::String::Create("SS_bag_035");
-        uiBagParty->fields.msgWindowController->OpenMsgWindow(0, SS_bag_035, false, true, nullptr, nullptr);
+        System::String::Object* SS_bag_375 = System::String::Create("SS_bag_375");
+        uiBagParty->fields.msgWindowController->OpenMsgWindow(0, SS_bag_375, false, true, nullptr, nullptr);
 
         MethodInfo* mi127 = Dpr::UI::UIBag::getMethod$$BuildContextMenu((Il2CppMethodPointer)&BuildContextMenu);
 
