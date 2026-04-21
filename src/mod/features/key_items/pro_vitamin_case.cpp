@@ -78,7 +78,6 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
     System::String::Object* labelName;
 
     Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
-    param = manager->GetPokemonParam(-1, 0);
     coreParam = (Pml::PokePara::CoreParam *)param;
 
     switch (selectContextMenuId)
@@ -127,33 +126,14 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
     uiBag->fields.msgWindowController->OpenMsgWindow(0, labelName, true, false, nullptr, action);
 }
 
-void OpenBoxParam(Dpr::UI::BoxWindow::Object* __this, int32_t openType, System::Action::Object* onSelected, int32_t prevWindowId) {
-    system_load_typeinfo(0x2672);
-
-    auto openParam = Dpr::UI::BoxWindow::OpenParam::newInstance();
-
-    Dpr::UI::UIManager::getClass()->initIfNeeded();
-    auto boxOpenParam = Dpr::UI::UIManager::get_Instance()->GetBoxOpenData(openType);
-
-    openParam->fields.openType = 0;
-    openParam->fields.selectCount = 1;
-    openParam->fields.targetLevel = 0;
-    openParam->fields.isEnableDying = true;
-    openParam->fields.isEnableEgg = false;
-    openParam->fields.isEnableParty = true;
-    openParam->fields.targetsPokeNo = boxOpenParam->fields.MonsNo->m_Items[0] != 0 ? boxOpenParam->fields.MonsNo : nullptr;
-
-    __this->Open(openParam, onSelected, prevWindowId);
-}
-
-void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__DisplayClass127_1::Object* bagDisplayClass)
+void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem::Object* pokemonPartyItem, int32_t index)
 {
-    if (fromBag)
-    {
         system_load_typeinfo(0x9a2e);
-        sDisplayClassLocals = bagDisplayClass->fields.CS___8__locals1;
 
-        Dpr::UI::UIBag::Object * uiBag = bagDisplayClass->fields.CS___8__locals1->fields.__4__this;
+        Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
+        param = manager->GetPokemonParam(-1, index);
+
+        Dpr::UI::UIBag::Object * uiBag = __this;
         Dpr::UI::UIBag::__c__DisplayClass144_0::Object * displayClass144 = Dpr::UI::UIBag::__c__DisplayClass144_0::newInstance();
         displayClass144->fields.__4__this = uiBag;
 
@@ -168,8 +148,8 @@ void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displa
         contextMenuIDVector.push_back((int32_t)ContextMenuID::CANCEL);
 
         // Create the Method Info for selection in the context menu
-        MethodInfo* mi = Dpr::UI::UIBag::__c__DisplayClass144_0::getMethod$$OnSelectedProVitaminCase((Il2CppMethodPointer)&OnSelectedProVitaminCase);
-        System::Action::Object* onSelected = System::Action::getClass(System::Action::ContextMenuID_TypeInfo)->newInstance(displayClass144, mi);
+        MethodInfo* mi144 = Dpr::UI::UIBag::__c__DisplayClass144_0::getMethod$$OnSelectedProVitaminCase((Il2CppMethodPointer)&OnSelectedProVitaminCase);
+        System::Action::Object* onSelected = System::Action::getClass(System::Action::ContextMenuID_TypeInfo)->newInstance(displayClass144, mi144);
 
         UnityEngine::Vector2::Object pivot = (UnityEngine::Vector2::Object) {
             .fields = {
@@ -193,6 +173,25 @@ void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displa
         uiBag->OpenContextMenu(contextMenuIDArray, onSelected, pivot, pos, nullptr, false, false);
         System::String::Object* SS_bag_373 = System::String::Create("SS_bag_373");
         uiBag->fields.msgWindowController->OpenMsgWindow(0, SS_bag_373, false, true, nullptr, nullptr);
+}
+
+void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__DisplayClass127_1::Object* bagDisplayClass)
+{
+    if (fromBag)
+    {
+        system_load_typeinfo(0x955e);
+        sDisplayClassLocals = bagDisplayClass->fields.CS___8__locals1;
+
+        Dpr::UI::UIBag::Object* uiBagParty = sDisplayClassLocals->fields.__4__this;
+
+        System::String::Object* SS_bag_035 = System::String::Create("SS_bag_035");
+        uiBagParty->fields.msgWindowController->OpenMsgWindow(0, SS_bag_035, false, true, nullptr, nullptr);
+
+        MethodInfo* mi127 = Dpr::UI::UIBag::getMethod$$BuildContextMenu((Il2CppMethodPointer)&BuildContextMenu);
+
+        UnityEngine::Events::UnityAction::Object* onClicked = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::PokemonPartyItem__int_TypeInfo)->newInstance(uiBagParty, mi127);
+
+        uiBagParty->StartSelectPokemonParty(onClicked);
     }
     else
     {

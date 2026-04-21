@@ -1,6 +1,7 @@
+#include "externals/Dpr/Box/BoxPokemonWork.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/Pml/PokePara/CoreParam.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
@@ -30,12 +31,17 @@ bool SetEffortValue(Dpr::EvScript::EvDataManager::Object* manager)
                         int32_t newValue = GetWorkOrIntValue(args->m_Items[4]);
                         Logger::log("Calling ChangeEffortPower with trayIndex %d, index %d, stat %d and newValue %d\n", trayIndex, index, stat, newValue);
                         auto coreParam = reinterpret_cast<Pml::PokePara::CoreParam::Object*>(param);
-                        if (stat == 0) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::HP, newValue);}
-                        if (stat == 1) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::ATK, newValue);}
-                        if (stat == 2) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::DEF, newValue);}
-                        if (stat == 3) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::SPATK, newValue);}
-                        if (stat == 4) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::SPDEF, newValue);}
-                        if (stat == 5) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::AGI, newValue);}
+                        if (stat >= 0 && stat <= 5)
+                        {
+                            if (stat == 0) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::HP, newValue);}
+                            if (stat == 1) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::ATK, newValue);}
+                            if (stat == 2) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::DEF, newValue);}
+                            if (stat == 3) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::SPATK, newValue);}
+                            if (stat == 4) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::SPDEF, newValue);}
+                            if (stat == 5) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::AGI, newValue);}
+
+                            if (trayIndex > -1) {Dpr::Box::BoxPokemonWork::UpdatePokemon(param, trayIndex, index);}
+                        }
                         else {Logger::log("Invalid stat provided\n");}
                     }
                 }

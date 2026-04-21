@@ -17,6 +17,16 @@
 
 namespace Dpr::UI {
     struct UIBag : ILClass<UIBag> {
+
+        static inline StaticILMethod<0x04c80270> Method$$OnPokemonPartyClickedToUseItem {};
+
+        static inline MethodInfo* Method$$BuildContextMenu = nullptr;
+        static MethodInfo* getMethod$$BuildContextMenu(Il2CppMethodPointer method) {
+            if (Method$$BuildContextMenu == nullptr)
+                Method$$BuildContextMenu = (*Method$$OnPokemonPartyClickedToUseItem)->copyWith(method);
+            return Method$$BuildContextMenu;
+        };
+
         struct __c__DisplayClass127_0 : ILClass<__c__DisplayClass127_0> {
             struct Fields {
                 Dpr::UI::UIBag::Object* __4__this;
@@ -121,6 +131,10 @@ namespace Dpr::UI {
             UnityEngine::Vector2::Fields pivotProxy = { .x = pivot.fields.x, .y = pivot.fields.y };
             UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
             external<void>(0x0185c1f0, this, contextMenuIDs, onSelected, pivotProxy, posProxy, onClosed, isNoDecideSe, isNoCancelSe);
+        }
+
+        inline void StartSelectPokemonParty(UnityEngine::Events::UnityAction::Object* onClicked) {
+            external<void>(0x0185c080, this, onClicked);
         }
     };
 }
