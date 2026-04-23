@@ -5,9 +5,9 @@
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
-bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager)
+bool PartyBoxEVIV(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    Logger::log("_TEMOTI_BOX_EFFORT_VALUE\n");
+    Logger::log("_TEMOTI_BOX_EV_IV\n");
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     if (args->max_length >= 2)
@@ -19,7 +19,8 @@ bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager)
             int32_t trayIndex = GetWorkOrIntValue(args->m_Items[2]);
 
             Pml::PokePara::PokemonParam::Object * param = manager->GetPokemonParam(trayIndex, index);
-            int32_t result = -1;
+            int32_t evResult = -1;
+            int32_t ivResult = -1;
 
             if (args->max_length >= 4)
             {
@@ -27,15 +28,21 @@ bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager)
 
                 if (!IsNullOrEgg(param))
                 {
-                    Logger::log("Calling GetEffortPower with tray index %d, index %d and stat %d\n", trayIndex, index, stat);
+                    Logger::log("Calling GetEffortPower and GetTalentPower with tray index %d, index %d and stat %d\n", trayIndex, index, stat);
                     auto coreParam = reinterpret_cast<Pml::PokePara::CoreParam::Object*>(param);
-                    result = static_cast<int32_t>(coreParam->GetEffortPower(stat));
-                    Logger::log("Result = %d\n", result);
+                    evResult = static_cast<int32_t>(coreParam->GetEffortPower(stat));
+                    ivResult = static_cast<int32_t>(coreParam->GetTalentPower(stat));
+                    Logger::log("Effort Value = %d, Individual Value = %d\n", evResult, ivResult);
                 }
 
                 if (args->max_length >= 5)
                 {
-                    SetWorkToValue(args->m_Items[4], result);
+                    SetWorkToValue(args->m_Items[4], evResult);
+
+                    if (args->max_length >= 6)
+                    {
+                        SetWorkToValue(args->m_Items[5], ivResult);
+                    }
                 }
             }
         }

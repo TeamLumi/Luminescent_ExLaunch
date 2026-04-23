@@ -455,13 +455,14 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Returns the specified effort value of the Pokémon at the given index and tray index.
+// Returns the specified EV and IV of the Pokémon at the given index and tray index.
 // Arguments:
 //   [Work, Number] index: The index that points to the given Pokémon.
 //   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
-//   [Work, Number] stat: Statistic to get the EV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
-//   [Work] result: The work in which to put the result.
-bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
+//   [Work, Number] stat: Statistic to get the EV and IV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work] evResult: The work in which to put the Effort Value result.
+//   [Work] ivResult: The work in which to put the Individual Value result.
+bool PartyBoxEVIV(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Sets the specified effort value of the Pokémon at the given index and tray index.
 // Arguments:
@@ -470,6 +471,14 @@ bool PartyBoxEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] stat: Statistic to set the EV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
 //   [Work, Number] newValue: The value to set the EV to.
 bool SetEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the specified individual value of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to set the IV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work, Number] newValue: The value to set the IV to.
+bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Keyboard numpad input with a specified maximum length and header label.
 // Arguments:
