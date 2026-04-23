@@ -439,11 +439,18 @@ namespace Dpr::EvScript {
             return Method$$EvCmdAddPokemonUIExtra;
         };
 
-        static inline MethodInfo* Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput = nullptr;
-        static MethodInfo* getMethod$$EvCmdBirthDayInput_OnCompleteCustomNumberInput(Il2CppMethodPointer method) {
-            if (Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput == nullptr)
-                Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput = (*Method$$EvDataManager_EvCmdBirthDayInput_OnComplete)->copyWith(method);
-            return Method$$EvCmdBirthDayInput_OnCompleteCustomNumberInput;
+        static inline MethodInfo* Method$$EvCmdBirthDayInput_CompleteCustomNumberInput = nullptr;
+        static MethodInfo* getMethod$$EvCmdBirthDayInput_CompleteCustomNumberInput(Il2CppMethodPointer method) {
+            if (Method$$EvCmdBirthDayInput_CompleteCustomNumberInput == nullptr)
+                Method$$EvCmdBirthDayInput_CompleteCustomNumberInput = (*Method$$EvDataManager_EvCmdBirthDayInput_OnComplete)->copyWith(method);
+            return Method$$EvCmdBirthDayInput_CompleteCustomNumberInput;
+        };
+
+        static inline MethodInfo* Method$$EvCmdBirthDayInput_CompleteProVitaminKeyboard = nullptr;
+        static MethodInfo* getMethod$$EvCmdBirthDayInput_CompleteProVitaminKeyboard(Il2CppMethodPointer method) {
+            if (Method$$EvCmdBirthDayInput_CompleteProVitaminKeyboard == nullptr)
+                Method$$EvCmdBirthDayInput_CompleteProVitaminKeyboard = (*Method$$EvDataManager_EvCmdBirthDayInput_OnComplete)->copyWith(method);
+            return Method$$EvCmdBirthDayInput_CompleteProVitaminKeyboard;
         };
 
         inline bool RunEvCmd(int32_t index) {

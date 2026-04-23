@@ -9,22 +9,25 @@
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/BoxWindow.h"
 #include "externals/Dpr/UI/SoftwareKeyboard.h"
+#include "externals/FlagWork.h"
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/System/Int32Class.h"
 
 static Dpr::UI::UIBag::__c__DisplayClass127_0::Object* sDisplayClassLocals = nullptr;
-static Pml::PokePara::PokemonParam::Object* param;
 static Pml::PokePara::CoreParam* coreParam;
 static int32_t stat = -1;
 
 const uint32_t PROVITAMIN_SOUND_ID = 0x45a3539d;
 
-void OpenProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
+void CompleteProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
+
     if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
 
         int32_t resultNumber = 0;
         System::Int32Class::TryParse(resultText, &resultNumber);
+
+        Logger::log("Calling ChangeEffortPower with coreParam, stat %d and resultNumber %d\n", stat, resultNumber);
 
         if (stat == 0) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::HP, resultNumber);}
         if (stat == 1) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::ATK, resultNumber);}
@@ -37,6 +40,9 @@ void OpenProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0::Obj
         Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 0; // Done
     }
     else {
+
+        Logger::log("Keyboard input error occured.\n");
+
         Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
         Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 2; // Error
     }
@@ -64,10 +70,10 @@ void SetupProVitaminKeyboard(Dpr::EvScript::EvDataManager::Object* manager)
     MethodInfo* onInputCheckMI = *Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck;
     System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(manager, onInputCheckMI);
 
-    MethodInfo* onCompletedMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_OnCompleteCustomNumberInput((Il2CppMethodPointer)&OpenProVitaminKeyboard);
-    UnityEngine::Events::UnityAction::Object* onCompleted = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompletedMI);
+    MethodInfo* onCompleteMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_CompleteProVitaminKeyboard((Il2CppMethodPointer)&CompleteProVitaminKeyboard);
+    UnityEngine::Events::UnityAction::Object* onComplete = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompleteMI);
 
-    Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onCompleted);
+    Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onComplete);
 }
 
 void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * __this, int32_t selectContextMenuId)
@@ -84,23 +90,23 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
             stat = 0;
             break;
 
-        case (int32_t)ContextMenuID::PRO_VITAMIN_ATTACK:
+        case (int32_t)ContextMenuID::PRO_VITAMIN_ATK:
             stat = 1;
             break;
 
-        case (int32_t)ContextMenuID::PRO_VITAMIN_DEFENSE:
+        case (int32_t)ContextMenuID::PRO_VITAMIN_DEF:
             stat = 2;
             break;
 
-        case (int32_t)ContextMenuID::PRO_VITAMIN_SPECIAL_ATTACK:
+        case (int32_t)ContextMenuID::PRO_VITAMIN_SPATK:
             stat = 3;
             break;
 
-        case (int32_t)ContextMenuID::PRO_VITAMIN_SPECIAL_DEFENSE:
+        case (int32_t)ContextMenuID::PRO_VITAMIN_SPDEF:
             stat = 4;
             break;
 
-        case (int32_t)ContextMenuID::PRO_VITAMIN_SPEED:
+        case (int32_t)ContextMenuID::PRO_VITAMIN_AGI:
             stat = 5;
             break;
 
@@ -129,7 +135,10 @@ void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem:
         system_load_typeinfo(0x9a2e);
 
         Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
-        param = manager->GetPokemonParam(-1, index);
+
+        Logger::log("Getting coreParam of the selected Pokemon with trayIndex -1 and index %d\n", index);
+
+        Pml::PokePara::PokemonParam::Object* param = manager->GetPokemonParam(-1, index);
         coreParam = (Pml::PokePara::CoreParam *)param;
 
         Dpr::UI::UIBag::Object * uiBag = __this;
@@ -138,12 +147,12 @@ void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem:
 
         // Build the menu so that you have every option.
         auto contextMenuIDVector = nn::vector<int32_t>();
-        contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_HP);
-        contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_ATTACK);
-        contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_DEFENSE);
-        contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_SPECIAL_ATTACK);
-        contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_SPECIAL_DEFENSE);
-        contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_SPEED);
+        if (FlagWork::GetFlag(FlagWork_Flag::FLAG_PROVITAMIN_HP)) {contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_HP);}
+        if (FlagWork::GetFlag(FlagWork_Flag::FLAG_PROVITAMIN_ATK)) {contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_ATK);}
+        if (FlagWork::GetFlag(FlagWork_Flag::FLAG_PROVITAMIN_DEF)) {contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_DEF);}
+        if (FlagWork::GetFlag(FlagWork_Flag::FLAG_PROVITAMIN_SPATK)) {contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_SPATK);}
+        if (FlagWork::GetFlag(FlagWork_Flag::FLAG_PROVITAMIN_SPDEF)) {contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_SPDEF);}
+        if (FlagWork::GetFlag(FlagWork_Flag::FLAG_PROVITAMIN_AGI)) {contextMenuIDVector.push_back((int32_t)ContextMenuID::PRO_VITAMIN_AGI);}
         contextMenuIDVector.push_back((int32_t)ContextMenuID::CANCEL);
 
         // Create the Method Info for selection in the context menu

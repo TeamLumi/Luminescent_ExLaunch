@@ -5,7 +5,8 @@
 #include "logger/logger.h"
 #include "utils/cmd_utils.h"
 
-void OnCompleted(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
+void CompleteCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
+
     if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
         Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
         EvData::Aregment::Array* args = manager->fields._evArg;
@@ -52,10 +53,10 @@ bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager) {
     MethodInfo* onInputCheckMI = *Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck;
     System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(manager, onInputCheckMI);
 
-    MethodInfo* onCompletedMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_OnCompleteCustomNumberInput((Il2CppMethodPointer)&OnCompleted);
-    UnityEngine::Events::UnityAction::Object* onCompleted = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompletedMI);
+    MethodInfo* onCompleteMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_CompleteCustomNumberInput((Il2CppMethodPointer)&CompleteCustomNumberInput);
+    UnityEngine::Events::UnityAction::Object* onComplete = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompleteMI);
 
-    Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onCompleted);
+    Dpr::UI::SoftwareKeyboard::Open(swKeyboardParam, onInputCheck, onComplete);
 
     return manager->fields._softwareKeyboardSubState == 0;
 }
