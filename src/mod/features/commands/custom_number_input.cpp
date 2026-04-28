@@ -1,6 +1,7 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/UI/SoftwareKeyboard.h"
 #include "externals/System/Int32Class.h"
+#include "externals/UnityEngine/Mathf.h"
 
 #include "logger/logger.h"
 #include "utils/cmd_utils.h"
@@ -37,7 +38,8 @@ bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager) {
     auto dispClass831 = Dpr::EvScript::EvDataManager::DisplayClass831_0::newInstance();
     auto swKeyboardParam = Dpr::UI::SoftwareKeyboard::Param::newInstance();
 
-    int32_t maxLength = GetWorkOrIntValue(args->m_Items[2]);
+    int32_t maxValue = GetWorkOrIntValue(args->m_Items[2]);
+    int32_t maxLength = (int32_t)(UnityEngine::Mathf::Log10(maxValue)) + 1;
     System::String::Object* headerLabel = GetStringText(manager,args->m_Items[3]);
 
     swKeyboardParam->fields.keyboardMode = 1;

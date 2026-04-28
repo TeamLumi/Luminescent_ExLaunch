@@ -394,8 +394,8 @@ namespace Dpr::EvScript {
         static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
         static inline StaticILMethod<0x04c7d040, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
         static inline StaticILMethod<0x04c7d1e0, Dpr::UI::UIWindow::Object*>       Method$$EvDataManager_EvCmd_USE_SPECIAL_ITEM_b__1719_0 {};
-        static inline StaticILMethod<0x04c77cf8, System::String::Object*, int32_t> Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck {};
-        static inline StaticILMethod<0x04c7cf78, bool, int32_t>                    Method$$EvDataManager_EvCmdBirthDayInput_OnComplete {};
+        static inline StaticILMethod<0x04c77cf8, System::ValueTuple2$$String$$int32, System::String::Object*, int32_t> Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck {};
+        static inline StaticILMethod<0x04c7cf78, bool, System::String::Object*>    Method$$EvDataManager_EvCmdBirthDayInput_OnComplete {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {

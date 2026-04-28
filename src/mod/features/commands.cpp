@@ -167,7 +167,7 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                 case Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE:
                     return HandleCmdStepper(SetEffortValue(__this));
             case Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE:
-                return HandleCmdStepper(SetEffortValue(__this));
+                return HandleCmdStepper(SetIndividualValue(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
                     return HandleCmdStepper(CustomNumberInput(__this));
                 default:

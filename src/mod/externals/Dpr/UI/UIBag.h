@@ -18,7 +18,7 @@
 namespace Dpr::UI {
     struct UIBag : ILClass<UIBag> {
 
-        static inline StaticILMethod<0x04c80270> Method$$OnPokemonPartyClickedToUseItem {};
+        static inline StaticILMethod<0x04c80270> PokemonPartyItem, m_value, Method$$OnPokemonPartyClickedToUseItem {};
 
         static inline MethodInfo* Method$$BuildContextMenu = nullptr;
         static MethodInfo* getMethod$$BuildContextMenu(Il2CppMethodPointer method) {

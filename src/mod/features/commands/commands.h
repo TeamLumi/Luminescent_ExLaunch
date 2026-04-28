@@ -480,9 +480,9 @@ bool SetEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] newValue: The value to set the IV to.
 bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Keyboard numpad input with a specified maximum length and header label.
+// Keyboard numpad input with a specified maximum value and header label.
 // Arguments:
 //   [Work] resultNumber: The number that was input.
-//   [Work, Number] maxLength: Maximum number of digits that the player can input.
+//   [Work, Number] maxValue: Maximum value that the player can input.
 //   [String] headerLabel: Message Label containing text to be displayed in the header.
 bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);

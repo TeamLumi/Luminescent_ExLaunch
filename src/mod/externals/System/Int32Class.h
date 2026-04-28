@@ -6,7 +6,7 @@
 namespace System {
     struct Int32Class : ILStruct<Int32Class> {
         struct Fields {
-            int32_t thisshouldsayint32_tapparentlybutitdoesntbuildthatwaysocheckwithsmathatanothernameisokaylater;
+            int32_t m_value;
         };
 
         static inline bool TryParse(System::String::Object* s, int32_t* result) {

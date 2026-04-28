@@ -61,7 +61,7 @@ void SetupProVitaminKeyboard(Dpr::EvScript::EvDataManager::Object* manager)
     swKeyboardParam->fields.text = System::String::Create("");
     swKeyboardParam->fields.textMinLength = 1;
     swKeyboardParam->fields.textMaxLength = 3;
-    swKeyboardParam->fields.headerText = System::String::Create("Input the new Effort Value for this stat:");
+    swKeyboardParam->fields.headerText = Dpr::UI::SoftwareKeyboard::GetMessageText(System::String::Create("SS_strinput_pro_vitamin"));
     swKeyboardParam->fields.subText = nullptr;
     swKeyboardParam->fields.guideText = nullptr;
     swKeyboardParam->fields.okText = nullptr;
@@ -193,7 +193,7 @@ void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displa
         Dpr::UI::UIBag::Object* uiBagParty = sDisplayClassLocals->fields.__4__this;
 
         System::String::Object* SS_bag_375 = System::String::Create("SS_bag_375");
-        uiBagParty->fields.msgWindowController->OpenMsgWindow(0, SS_bag_375, false, true, nullptr, nullptr);
+        uiBagParty->fields.msgWindowController->OpenMsgWindow(0, SS_bag_375, false, false, nullptr, nullptr);
 
         MethodInfo* mi127 = Dpr::UI::UIBag::getMethod$$BuildContextMenu((Il2CppMethodPointer)&BuildContextMenu);
 
