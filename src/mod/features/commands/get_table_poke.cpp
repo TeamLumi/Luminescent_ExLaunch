@@ -8,9 +8,9 @@
 //   [Work, Number] tableID: The table ID to look up (e.g. type ID: 0=Normal, 1=Fighting, 2=Flying, etc.)
 //   [Work] monsNo: The work in which to put the MonsNo result.
 //   [Work] formNo: The work in which to put the FormNo result.
-bool GetTypePoke(Dpr::EvScript::EvDataManager::Object* manager)
+bool GetTablePoke(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    Logger::log("_GET_TYPE_POKE\n");
+    Logger::log("_GET_TABLE_POKE\n");
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 
