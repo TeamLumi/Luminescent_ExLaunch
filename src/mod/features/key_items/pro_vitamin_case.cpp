@@ -20,6 +20,30 @@ static int32_t stat = -1;
 
 const uint32_t PROVITAMIN_SOUND_ID = 0x45a3539d;
 
+System::ValueTuple2$$Bool$$String CheckProVitaminInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState)
+{
+    system_load_typeinfo(0x9896);
+
+    auto inputCheck = Dpr::UI::SoftwareKeyboard::InputCheck(resultText, errorState);
+
+    if (!inputCheck.fields.Item1) {
+        return inputCheck;
+    }
+
+    int32_t resultNumber;
+    int32_t maxValue = 252;
+    bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
+
+    if (!parsed || resultNumber > maxValue) {
+        inputCheck.fields.Item1 = false;
+        inputCheck.fields.Item2 = Dpr::UI::SoftwareKeyboard::GetMessageText(System::String::Create("SS_strinput_041"));
+        return inputCheck;
+    }
+
+    inputCheck.fields.Item2 = nullptr;
+    return inputCheck;
+}
+
 void CompleteProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
 
     if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
@@ -67,8 +91,8 @@ void SetupProVitaminKeyboard(Dpr::EvScript::EvDataManager::Object* manager)
     swKeyboardParam->fields.okText = nullptr;
     swKeyboardParam->fields.invalidCharFlag = 4;
 
-    MethodInfo* onInputCheckMI = *Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck;
-    System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(manager, onInputCheckMI);
+    MethodInfo* onInputCheckMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_CheckProVitaminInput((Il2CppMethodPointer)&CheckProVitaminInput);
+    System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(dispClass831, onInputCheckMI);
 
     MethodInfo* onCompleteMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_CompleteProVitaminKeyboard((Il2CppMethodPointer)&CompleteProVitaminKeyboard);
     UnityEngine::Events::UnityAction::Object* onComplete = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompleteMI);

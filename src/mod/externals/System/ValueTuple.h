@@ -9,6 +9,8 @@ namespace System {
             I1 Item1;
             I2 Item2;
         };
+
+        Fields fields;
     };
 
     template <typename T, typename I1, typename I2, typename I3>
@@ -18,6 +20,8 @@ namespace System {
             I2 Item2;
             I3 Item3;
         };
+
+        Fields fields;
     };
 
     static Il2CppClass* ValueTuple2$$String$$int32_array_TypeInfo() {

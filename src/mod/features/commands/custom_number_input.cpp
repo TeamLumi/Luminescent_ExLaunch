@@ -6,6 +6,31 @@
 #include "logger/logger.h"
 #include "utils/cmd_utils.h"
 
+static int32_t maxValue;
+
+System::ValueTuple2$$Bool$$String CheckCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState) {
+
+    system_load_typeinfo(0x9896);
+
+    auto inputCheck = Dpr::UI::SoftwareKeyboard::InputCheck(resultText, errorState);
+
+    if (!inputCheck.fields.Item1) {
+        return inputCheck;
+    }
+
+    int32_t resultNumber;
+    bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
+
+    if (!parsed || resultNumber > maxValue) {
+        inputCheck.fields.Item1 = false;
+        inputCheck.fields.Item2 = Dpr::UI::SoftwareKeyboard::GetMessageText(System::String::Create("SS_strinput_041"));
+        return inputCheck;
+    }
+
+    inputCheck.fields.Item2 = nullptr;
+    return inputCheck;
+}
+
 void CompleteCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
 
     if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
@@ -38,7 +63,7 @@ bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager) {
     auto dispClass831 = Dpr::EvScript::EvDataManager::DisplayClass831_0::newInstance();
     auto swKeyboardParam = Dpr::UI::SoftwareKeyboard::Param::newInstance();
 
-    int32_t maxValue = GetWorkOrIntValue(args->m_Items[2]);
+    maxValue = GetWorkOrIntValue(args->m_Items[2]);
     int32_t maxLength = (int32_t)(UnityEngine::Mathf::Log10(maxValue)) + 1;
     System::String::Object* headerLabel = GetStringText(manager,args->m_Items[3]);
 
@@ -52,8 +77,8 @@ bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager) {
     swKeyboardParam->fields.okText = nullptr;
     swKeyboardParam->fields.invalidCharFlag = 4;
 
-    MethodInfo* onInputCheckMI = *Dpr::EvScript::EvDataManager::Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck;
-    System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(manager, onInputCheckMI);
+    MethodInfo* onInputCheckMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_CheckCustomNumberInput((Il2CppMethodPointer)&CheckCustomNumberInput);
+    System::Func::Object* onInputCheck = System::Func::getClass(System::Func::String__SoftwareKeyboard_ErrorState__ValueTuple_bool_String__TypeInfo)->newInstance(dispClass831, onInputCheckMI);
 
     MethodInfo* onCompleteMI = Dpr::EvScript::EvDataManager::getMethod$$EvCmdBirthDayInput_CompleteCustomNumberInput((Il2CppMethodPointer)&CompleteCustomNumberInput);
     UnityEngine::Events::UnityAction::Object* onComplete = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::bool_String_TypeInfo)->newInstance(dispClass831, onCompleteMI);

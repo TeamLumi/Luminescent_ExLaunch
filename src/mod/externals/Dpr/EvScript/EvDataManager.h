@@ -453,6 +453,20 @@ namespace Dpr::EvScript {
             return Method$$EvCmdBirthDayInput_CompleteProVitaminKeyboard;
         };
 
+        static inline MethodInfo* Method$$EvCmdBirthDayInput_CheckCustomNumberInput = nullptr;
+        static MethodInfo* getMethod$$EvCmdBirthDayInput_CheckCustomNumberInput(Il2CppMethodPointer method) {
+            if (Method$$EvCmdBirthDayInput_CheckCustomNumberInput == nullptr)
+                Method$$EvCmdBirthDayInput_CheckCustomNumberInput = (*Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck)->copyWith(method);
+            return Method$$EvCmdBirthDayInput_CheckCustomNumberInput;
+        };
+
+        static inline MethodInfo* Method$$EvCmdBirthDayInput_CheckProVitaminInput = nullptr;
+        static MethodInfo* getMethod$$EvCmdBirthDayInput_CheckProVitaminInput(Il2CppMethodPointer method) {
+            if (Method$$EvCmdBirthDayInput_CheckProVitaminInput == nullptr)
+                Method$$EvCmdBirthDayInput_CheckProVitaminInput = (*Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck)->copyWith(method);
+            return Method$$EvCmdBirthDayInput_CheckProVitaminInput;
+        };
+
         inline bool RunEvCmd(int32_t index) {
             return external<bool>(0x02c5b290, this, index);
         }
