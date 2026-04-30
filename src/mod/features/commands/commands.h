@@ -455,6 +455,13 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Gets a random Pokémon MonsNo and FormNo from an encounter table based on input table ID.
+// Arguments:
+//   [Work, Number] tableID: The table ID to look up (e.g. type ID: 0=Normal, 1=Fighting, 2=Flying, etc.)
+//   [Work] monsNo: The work in which to put the MonsNo result.
+//   [Work] formNo: The work in which to put the FormNo result.
+bool GetTablePoke(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Returns the specified EV and IV of the Pokémon at the given index and tray index.
 // Arguments:
 //   [Work, Number] index: The index that points to the given Pokémon.
