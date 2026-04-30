@@ -1297,6 +1297,7 @@ namespace Dpr::EvScript {
             _TEMOTI_BOX_GENDER = 1287,
             _TEMOTI_BOX_SHINY = 1288,
             _SET_TUREARUKI = 1289,
+            _GET_TABLE_POKE = 1290,
 
             CUSTOM_CMD_END = 1500,
         };
