@@ -30,6 +30,7 @@ void exl_save_dex_expansion_main() {
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
+        { 0x017da928, Movz(W19, DexSize) },
         { 0x017dbd3c, CmpImmediate(W19, DexSize - 1) },
         { 0x017dc8b4, CmpImmediate(W20, DexSize - 1) },
         { 0x017dc9d0, CmpImmediate(W19, DexSize - 1) },
