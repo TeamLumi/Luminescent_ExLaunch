@@ -60,6 +60,7 @@ static constexpr const char* FEATURES[] = {
     "Surf End Check",
     "Underground Statue Names",
     "Underground Visible Shinies",
+    "More Time Flags",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
