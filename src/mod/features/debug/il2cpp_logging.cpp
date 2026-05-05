@@ -9,7 +9,7 @@ void do_log(const char* prefix, Il2CppObject* message) {
 //    Logger::log("IL2CPP %s: %s\n", prefix, string.c_str());
 }
 
-HOOK_DEFINE_REPLACE(DebugLog) {
+/*HOOK_DEFINE_REPLACE(DebugLog) {
     static void Callback(Il2CppObject* message) {
         do_log("Debug", message);
     }
@@ -37,10 +37,17 @@ HOOK_DEFINE_REPLACE(DebugLogAssertion) {
     static void Callback(Il2CppObject* message) {
         do_log("Assertion", message);
     }
+};*/
+
+HOOK_DEFINE_TRAMPOLINE(FUN_710025c3d0_Il2CppException) {
+    static void* Callback(void* param_1, char* param_2, char* param_3, void* param_4) {
+        Logger::log("[EXCEPTION OCCURRED] %s.%s\n", param_2, param_3);
+        return Orig(param_1, param_2, param_3, param_4);
+    }
 };
 
 void exl_il2cpp_log_main() {
-    DebugLog::InstallAtOffset(0x026a9c10);
+    /*DebugLog::InstallAtOffset(0x026a9c10);
     DebugLog::InstallAtOffset(0x026a9d50);
     DebugLog::InstallAtOffset(0x026a9ea0);
     DebugLogWarning::InstallAtOffset(0x026aa660);
@@ -56,5 +63,7 @@ void exl_il2cpp_log_main() {
     DebugLogAssertion::InstallAtOffset(0x02c378d0);
     DebugLogAssertion::InstallAtOffset(0x02c378e0);
     DebugLogAssertion::InstallAtOffset(0x02c378f0);
-    DebugLogAssertion::InstallAtOffset(0x02c37900);
+    DebugLogAssertion::InstallAtOffset(0x02c37900);*/
+
+    FUN_710025c3d0_Il2CppException::InstallAtOffset(0x025c3d0);
 }

@@ -238,6 +238,12 @@ int32_t GetNextGimmick(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int
     return array_index(GIMMICKS, "None");
 }
 
+void SetGimmickRootActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, bool state) {
+    wazaList->cast<UnityEngine::Component>()->get_transform()
+            ->Find(System::String::Create("GimmickButton"))->cast<UnityEngine::Component>()
+            ->get_gameObject()->SetActive(state);
+}
+
 void SetGimmickIconActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index, bool state) {
     auto gimmickIcon = GetGimmickIconFromIndex(wazaList, index);
     if (gimmickIcon != nullptr)
@@ -245,22 +251,27 @@ void SetGimmickIconActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, 
 }
 
 void SetGimmickIconsFromFlags(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList) {
+    SetGimmickRootActive(wazaList, false);
+
     for (int32_t i=0; i<GIMMICK_COUNT; i++)
         SetGimmickIconActive(wazaList, i, false);
 
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Mega Evolution"),
-                         !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE) ||
-                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Mega Evolution Gimmick Flag")));
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Z-Move"),
-                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Z-Move Gimmick Flag")));
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Ultra Burst"),
-                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Ultra Burst Gimmick Flag")));
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Dynamax"),
-                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Dynamax Gimmick Flag")));
-    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Terastallization"),
-                         IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Terastallization Gimmick Flag")));
-
     // TODO: Add proper flags to other gimmicks
+    auto megaActive = !FlagWork::GetFlag(FlagWork_Flag::FLAG_MEGA_EVOLUTION_UNAVAILABLE) ||
+                      IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Mega Evolution Gimmick Flag"));
+    auto zActive = IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Z-Move Gimmick Flag"));
+    auto ultraBurstActive = IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Ultra Burst Gimmick Flag"));
+    auto dmaxActive = IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Dynamax Gimmick Flag"));
+    auto teraActive = IsActivatedDebugFeature(array_index(DEBUG_FEATURES, "Terastallization Gimmick Flag"));
+
+    // Enable root if any are active
+    SetGimmickRootActive(wazaList, megaActive || zActive || ultraBurstActive || dmaxActive || teraActive);
+
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Mega Evolution"), megaActive);
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Z-Move"), zActive);
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Ultra Burst"), ultraBurstActive);
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Dynamax"), dmaxActive);
+    SetGimmickIconActive(wazaList, array_index(GIMMICKS, "Terastallization"), teraActive);
 }
 
 void SetGimmickIconBackgroundActive(Dpr::Battle::View::UI::BUIWazaList::Object* wazaList, int32_t index, bool state) {
@@ -291,9 +302,11 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
 
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonX, true))
-            wazaList->OnSubmitWazaDescription();
+        // TODO: Hold?
+        /*if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonX, true))
+            wazaList->OnSubmitWazaDescription();*/
 
+        // TODO: Hold?
         if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::R, true))
             __this->OnSubmitPokeBall();
 
@@ -306,7 +319,7 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
             }
         }
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Up, true)) {
+        if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::L, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Battle Situation\n");
             if (__this->fields._IsFocus_k__BackingField && !__this->fields.isButtonAction) {
                 Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
@@ -331,20 +344,20 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
                 }
             }
         }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Left, true)) {
+        else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Y, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Pokémon\n");
             SubmitActionButton(__this, 1);
         }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Right, true)) {
+        else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::X, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Bag\n");
             SubmitActionButton(__this, 2);
         }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Down, true)) {
+        else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Plus | GameController::ButtonMask::Minus, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Run\n");
             SubmitActionButton(__this, 3);
         }
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonY, true)) {
+        if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::StickL | GameController::ButtonMask::StickR, true)) {
             Logger::log("[BUIActionList$$OnUpdate] Change gimmick\n");
             for (int32_t i=0; i<GIMMICK_COUNT; i++)
                 SetGimmickIconBackgroundActive(wazaList, i, false);
@@ -377,23 +390,19 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
             }
         }
 
-        if (Dpr::Battle::View::BtlvInput::GetPush(
-                GameController::ButtonMask::StickLUp | GameController::ButtonMask::StickRUp, true)) {
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
             if (wazaList->fields._wazaCount > 0)
                 SelectWazaButton(wazaList, 0, true);
         }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(
-                GameController::ButtonMask::StickLRight | GameController::ButtonMask::StickRRight, true)) {
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true)) {
             if (wazaList->fields._wazaCount > 1)
                 SelectWazaButton(wazaList, 1, true);
         }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(
-                GameController::ButtonMask::StickLDown | GameController::ButtonMask::StickRDown, true)) {
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true)) {
             if (wazaList->fields._wazaCount > 2)
                 SelectWazaButton(wazaList, 2, true);
         }
-        else if (Dpr::Battle::View::BtlvInput::GetPush(
-                GameController::ButtonMask::StickLLeft | GameController::ButtonMask::StickRLeft, true)) {
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true)) {
             if (wazaList->fields._wazaCount > 3)
                 SelectWazaButton(wazaList, 3, true);
         }
@@ -430,7 +439,9 @@ HOOK_DEFINE_TRAMPOLINE(BUIPokeBallList$$OnCancel) {
         Logger::log("[BUIPokeBallList$$OnCancel] custom stuff\n");
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)battleViewCore->fields._UISystem_k__BackingField->fields._wazaList)->Show(nullptr);
+        battleViewCore->fields._UISystem_k__BackingField->fields._wazaList->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Show(nullptr);
+
+        battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(false);
     }
 };
 
@@ -473,6 +484,9 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaList$$Initialize) {
             SelectWazaButton(__this, 0, false);
         else
             SelectWazaButton(__this, __this->fields._CurrentIndex_k__BackingField, false);
+
+        auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+        battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(false);
     }
 };
 

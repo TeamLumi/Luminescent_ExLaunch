@@ -9,47 +9,93 @@
 #include "externals/Dpr/Battle/View/UI/BUISituation.h"
 #include "externals/Dpr/Battle/View/UI/BUISituationDetail.h"
 #include "externals/Dpr/Message/MessageWordSetHelper.h"
+#include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/UI/PokemonIcon.h"
+#include "externals/Dpr/UI/TypePanel.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/ExtensionMethods.h"
 #include "externals/Pml/Personal/PersonalSystem.h"
 #include "externals/System/Linq/Enumerable.h"
 #include "externals/System/Math.h"
-#include "externals/System/ThrowHelper.h"
 #include "externals/UnityEngine/Sprite.h"
 
 #include "data/field_effects.h"
 #include "data/side_effects.h"
+#include "data/types.h"
 #include "data/utils.h"
 #include "data/weathers.h"
 
 #include "logger/logger.h"
 
 Dpr::Battle::View::UI::BUISituation::Object* getSituationUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
-    auto situationTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituation"));
-    auto situationGO = ((UnityEngine::Component::Object*)situationTF)->get_gameObject();
-    auto situationCmpList = (UnityEngine::Component::Array*)situationGO->GetAllComponents();
+    auto situationTF = __this->cast<UnityEngine::Component>()->get_transform()->Find(System::String::Create("BUISituation"));
+    auto situationGO = situationTF->cast<UnityEngine::Component>()->get_gameObject();
+    auto situationCmpList = situationGO->GetAllComponents();
     return (Dpr::Battle::View::UI::BUISituation::Object*)situationCmpList->m_Items[2];
 }
 
 Dpr::Battle::View::UI::BUISituationDetail::Object* getSituationDetailUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
-    auto situationDetailTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituationDetail"));
-    auto situationDetailGO = ((UnityEngine::Component::Object*)situationDetailTF)->get_gameObject();
-    auto situationDetailCmpList = (UnityEngine::Component::Array*)situationDetailGO->GetAllComponents();
+    auto situationDetailTF = __this->cast<UnityEngine::Component>()->get_transform()->Find(System::String::Create("BUISituationDetail"));
+    auto situationDetailGO = situationDetailTF->cast<UnityEngine::Component>()->get_gameObject();
+    auto situationDetailCmpList = situationDetailGO->GetAllComponents();
     return (Dpr::Battle::View::UI::BUISituationDetail::Object*)situationDetailCmpList->m_Items[4];
+}
+
+Dpr::UI::PokemonSick::Object* getSituationDetailPokemonSickUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
+    auto battleCondTF = __this->cast<UnityEngine::Component>()->get_transform()->Find(System::String::Create("BUISituationDetail"))
+            ->Find(System::String::Create("MonsInfo"))
+            ->Find(System::String::Create("BattleCond"));
+    auto battleCondGO = battleCondTF->cast<UnityEngine::Component>()->get_gameObject();
+    auto battleCondCmpList = battleCondGO->GetAllComponents();
+    return (Dpr::UI::PokemonSick::Object*)battleCondCmpList->m_Items[4];
+}
+
+Dpr::UI::TypePanel::Object* getTypePanelFromStatusPanelUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this, const char* child) {
+    auto typePanelTF = __this->cast<UnityEngine::Component>()->get_transform()->Find(System::String::Create("BUISituationDetail"))
+            ->Find(System::String::Create("MonsInfo"))
+            ->Find(System::String::Create("Status"))
+            ->Find(System::String::Create(child));
+    auto typePanelGO = typePanelTF->cast<UnityEngine::Component>()->get_gameObject();
+    auto typePanelCmpList = typePanelGO->GetAllComponents();
+    return (Dpr::UI::TypePanel::Object*)typePanelCmpList->m_Items[3];
+}
+
+Dpr::UI::TypePanel::Object* getSituationDetailType1UI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
+    return getTypePanelFromStatusPanelUI(__this, "TypePanel1");
+}
+
+Dpr::UI::TypePanel::Object* getSituationDetailType2UI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
+    return getTypePanelFromStatusPanelUI(__this, "TypePanel2");
+}
+
+Dpr::UI::TypePanel::Object* getSituationDetailTypeTeraUI(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
+    return getTypePanelFromStatusPanelUI(__this, "TeraType");
+}
+
+void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Sprite::Object* sprite)
+{
+    Logger::log("LoadSpriteToImage!\n");
+    system_load_typeinfo(0x6d82);
+
+    __this->set_sprite(sprite);
+    auto go = __this->cast<UnityEngine::Component>()->get_gameObject();
+    go->SetActive(UnityEngine::_Object::op_Inequality(sprite->cast<UnityEngine::_Object>(), nullptr));
 }
 
 HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
         Logger::log("BUISituation_Initialize\n");
+
         system_load_typeinfo(0x1f4e);
         system_load_typeinfo(0x239d);
 
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
+
         __this->fields._IsValid_k__BackingField = false;
 
-        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
-        Dpr::Battle::View::Systems::BattleViewSystem::Object* battleViewSystem = battleViewCore->fields._ViewSystem_k__BackingField;
+        auto battleViewSystem = battleViewCore->fields._ViewSystem_k__BackingField;
 
         //battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(true);
 
@@ -64,11 +110,11 @@ HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
 
             if (!battleViewSystem->virtual_GetBattlePokeParam_forUI(__this_00, __this_01->fields._index))
             {
-                ExtensionMethods::SetActive((UnityEngine::Component::Object*)__this_01, false);
+                ExtensionMethods::SetActive(__this_01->cast<UnityEngine::Component>(), false);
                 continue;
             }
 
-            ExtensionMethods::SetActive((UnityEngine::Component::Object*)__this_01, true);
+            ExtensionMethods::SetActive(__this_01->cast<UnityEngine::Component>(), true);
 
             uint8_t clientId = battleViewSystem->virtual_GetBtlvPosToClientId(__this_01->fields._index);
 
@@ -77,7 +123,6 @@ HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
             System::String::Object* trainerName = System::String::Create("");
             if (battleViewSystem->virtual_IsClientTrainerExist(clientId))
             {
-                Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
                 auto btlStr = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance;
                 trainerName = btlStr->GetFormatUITrainerName(System::String::Create("msg_ui_btl_playername"), clientId, 0);
             }
@@ -91,7 +136,7 @@ HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
         }
 
         __this->fields._CurrentIndex_k__BackingField = 1;
-        auto uiCanvasBase = (Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)__this;
+        auto uiCanvasBase = __this->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>();
         uiCanvasBase->SelectButton(__this->fields._situationButtons, 1, false, Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$BUISituationButton$$SelectButton);
 
         Logger::log("Base Initialize done!\n");
@@ -101,16 +146,18 @@ HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
 HOOK_DEFINE_REPLACE(BUISituation_OnShow) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
         Logger::log("BUISituation_OnShow\n");
+
         system_load_typeinfo(0x1f50);
+
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
 
         __this->fields._IsFocus_k__BackingField = true;
         __this->fields._IsShow_k__BackingField = true;
         __this->fields._animationState_k__BackingField = 2;
 
-        auto uiCanvasBase = (Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)__this;
+        auto uiCanvasBase = __this->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>();
         uiCanvasBase->SelectButton(__this->fields._situationButtons, __this->fields._CurrentIndex_k__BackingField, false, Dpr::Battle::View::UI::BattleViewUICanvasBase::Method$$BUISituationButton$$SelectButton);
 
-        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
 
         battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(true);
@@ -124,7 +171,8 @@ HOOK_DEFINE_REPLACE(BUISituation_OnSubmit) {
         system_load_typeinfo(0x1f51);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
-        Dpr::Battle::View::Systems::BattleViewUISystem::Object* battleViewUISystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
+
+        auto battleViewUISystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
 
         __this->fields._IsValid_k__BackingField = true;
         __this->fields._IsFocus_k__BackingField = false;
@@ -141,24 +189,27 @@ HOOK_DEFINE_REPLACE(BUISituation_OnSubmit) {
         Dpr::Battle::Logic::BTL_POKEPARAM::Object* currentMon = __this->fields._monsParams->get_Item(__this->fields._CurrentIndex_k__BackingField)->instance();
         int32_t index = monsList->IndexOf(currentMon);
 
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) __this)->Hide(false, nullptr);
+        __this->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Hide(false, nullptr);
         auto situationDetailUI = getSituationDetailUI(battleViewUISystem);
         situationDetailUI->Initialize(monsList->instance(), trainerNamesList->instance(), iconsList->instance(), index);
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) situationDetailUI)->Show(nullptr);
+        situationDetailUI->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Show(nullptr);
 
         battleViewUISystem->PlaySe(0x132562f0);
     }
 };
 
-void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Sprite::Object* sprite)
-{
-    Logger::log("LoadSpriteToImage!\n");
-    system_load_typeinfo(0x6d82);
+HOOK_DEFINE_TRAMPOLINE(BUISituation_OnCancel) {
+    static void Callback(Dpr::Battle::View::UI::BUISituationButton::Object* __this) {
+        Logger::log("BUISituation_OnCancel with %08X\n", __this);
+        Orig(__this);
+        Logger::log("BUISituation_OnCancel Orig done\n");
 
-    __this->set_sprite(sprite);
-    auto go = ((UnityEngine::Component::Object*)__this)->get_gameObject();
-    go->SetActive(UnityEngine::_Object::op_Inequality((UnityEngine::_Object::Object*)sprite, nullptr));
-}
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+
+        auto battleViewUISystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
+        battleViewUISystem->fields._cursor->SetActive(false);
+    }
+};
 
 HOOK_DEFINE_TRAMPOLINE(BUISituationButton_Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUISituationButton::Object* __this, Dpr::Battle::Logic::BTL_POKEPARAM::Object* btlParam, System::String::Object* trainerName) {
@@ -172,7 +223,7 @@ HOOK_DEFINE_TRAMPOLINE(BUISituationButton_Initialize) {
         system_load_typeinfo(0x239d);
         system_load_typeinfo(0x6d80);
 
-        auto coreParam = (Pml::PokePara::CoreParam::Object*)btlParam->GetSrcData();
+        auto coreParam = btlParam->GetSrcData()->cast<Pml::PokePara::CoreParam>();
         MethodInfo* mi = Dpr::UI::PokemonIcon::getMethod$$BUISituationLoadIcon((Il2CppMethodPointer) &LoadSpriteToImage);
         auto onLoad = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::Sprite_TypeInfo)->newInstance(__this->fields._pokeIcon, mi);
         auto uiManager = Dpr::UI::UIManager::get_Instance();
@@ -212,7 +263,7 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_fieldIDs) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         Logger::log("BUISituationDetail_ctor_fieldIDs\n");
 
-        auto fieldIds = (System::Collections::Generic::Dictionary$$int32_t$$String::Object*)ctx->X[0];
+        auto fieldIds = (System::Collections::Generic::Dictionary$$EffectType$$String::Object*)ctx->X[0];
         fieldIds->ctor();
 
         fieldIds->Add(array_index(FIELD_EFFECTS, "Trick Room"), System::String::Create("TrickRoom"));
@@ -235,13 +286,16 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_weatherIDs) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         Logger::log("BUISituationDetail_ctor_weatherIDs\n");
 
-        auto weatherIDs = (System::Collections::Generic::Dictionary$$uint8_t$$String::Object*)ctx->X[0];
+        auto weatherIDs = (System::Collections::Generic::Dictionary$$BtlWeather$$String::Object*)ctx->X[0];
         weatherIDs->ctor();
 
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Harsh Sunlight"), System::String::Create("HarshSunlight"));
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Rain"), System::String::Create("Rain"));
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Hail"), System::String::Create("Hail"));
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Sandstorm"), System::String::Create("Sandstorm"));
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Heavy Rain"), System::String::Create("HeavyRain"));
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Extremely Harsh Sunlight"), System::String::Create("ExtremelyHarshSunlight"));
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Strong Winds"), System::String::Create("StrongWinds"));
 
         ctx->X[21] = (uint64_t)weatherIDs;
     }
@@ -251,7 +305,7 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_groundIDs) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         Logger::log("BUISituationDetail_ctor_groundIDs\n");
 
-        auto groundIDs = (System::Collections::Generic::Dictionary$$uint8_t$$String::Object*)ctx->X[0];
+        auto groundIDs = (System::Collections::Generic::Dictionary$$BtlGround$$String::Object*)ctx->X[0];
         groundIDs->ctor();
 
         groundIDs->Add((uint8_t)Dpr::Battle::Logic::BtlGround::BTL_GROUND_GRASS, System::String::Create("GrassyTerrain"));
@@ -267,7 +321,7 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_sideIDs) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         Logger::log("BUISituationDetail_ctor_sideIDs\n");
 
-        auto sideIDs = (System::Collections::Generic::Dictionary$$int32_t$$String::Object*)ctx->X[0];
+        auto sideIDs = (System::Collections::Generic::Dictionary$$BtlSideEffect$$String::Object*)ctx->X[0];
         sideIDs->ctor();
 
         sideIDs->Add(array_index(SIDE_EFFECTS, "Reflect"), System::String::Create("Reflect"));
@@ -293,6 +347,9 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_sideIDs) {
         sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Wildfire"), System::String::Create("GWildfire"));
         sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Volcalith"), System::String::Create("GVolcalith"));
 
+        // TODO: Add this to the Side Handlers stuff
+        //AddSituationDetailSideEffectLabels(sideIDs);
+
         ctx->X[21] = (uint64_t)sideIDs;
     }
 };
@@ -305,44 +362,42 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
         system_load_typeinfo(0x239d);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+        Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
+        Pml::Personal::PersonalSystem::getClass()->initIfNeeded();
+        System::Math::getClass()->initIfNeeded();
+
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
-        Dpr::Battle::View::Systems::BattleViewSystem::Object* battleViewSystem = battleViewCore->fields._ViewSystem_k__BackingField;
+        auto battleViewSystem = battleViewCore->fields._ViewSystem_k__BackingField;
+        auto battleViewSystemUI = battleViewCore->fields._UISystem_k__BackingField;
 
         __this->fields._CurrentIndex_k__BackingField = 0;
 
-        if (__this->fields._pokeIndex >= __this->fields._pokeList->fields._size)
-            System::ThrowHelper::ThrowArgumentOutOfRangeException();
-
         auto btlPokeParam = __this->fields._pokeList->fields._items->m_Items[__this->fields._pokeIndex];
-        auto coreParam = (Pml::PokePara::CoreParam::Object*)btlPokeParam->GetSrcData();
+        auto coreParam = btlPokeParam->GetSrcData()->cast<Pml::PokePara::CoreParam>();
 
         bool isPlayerOwned = true;
         if ((4 < __this->fields._pokeIndex) || ((1 << (ulong)(__this->fields._pokeIndex & 0x1f) & 0x15U) == 0)) {
             isPlayerOwned = __this->fields._pokeIndex == 6;
         }
 
-        if (__this->fields._pokeIndex >= __this->fields._icons->fields._size)
-            System::ThrowHelper::ThrowArgumentOutOfRangeException();
-
         // Pokémon Sprite
         __this->fields._pokeImage->set_sprite(__this->fields._icons->fields._items->m_Items[__this->fields._pokeIndex]->fields.m_Sprite);
 
         // Level Text
-        Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
-        System::String::Object* lvlText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_lv_00"), nullptr);
+        auto lvlText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_lv_00"), nullptr);
         __this->fields._lvText->virtual_set_text(lvlText);
-        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
         Dpr::Message::MessageWordSetHelper::SetDigitWord(0, coreParam->GetLevel());
 
         // Level Value
-        System::String::Object* lvlValue = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_lv_01"), nullptr);
+        auto lvlValue = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_lv_01"), nullptr);
         __this->fields._lvValue->virtual_set_text(lvlValue);
 
         // Sex
         battleViewSystem->SetSexIcon(coreParam->GetSex(), __this->fields._genderImage);
 
         // Pokémon Name
-        System::String::Object* pokeName = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIPokeName(System::String::Create("msg_ui_btl_pokename"), btlPokeParam->GetID(), false, false);
+        auto pokeName = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIPokeName(System::String::Create("msg_ui_btl_pokename"), btlPokeParam->GetID(), false, false);
         __this->fields._nameText->virtual_set_text(pokeName);
 
         // EXP Slider
@@ -350,22 +405,20 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
             int32_t monsno = coreParam->GetMonsNo();
             uint16_t formno = coreParam->GetFormNo();
 
-            Pml::Personal::PersonalSystem::getClass()->initIfNeeded();
             Pml::Personal::PersonalSystem::LoadGrowTable(monsno, formno);
 
-            System::Math::getClass()->initIfNeeded();
             uint8_t nextLevel = System::Math::Min(coreParam->GetLevel() + 1, 100);
             uint32_t currentLevelMin = Pml::Personal::PersonalSystem::GetMinExp(coreParam->GetLevel());
             uint32_t nextLevelMin = Pml::Personal::PersonalSystem::GetMinExp(nextLevel);
 
-            UnityEngine::Transform::Object* sliderTf = ((UnityEngine::Component::Object*)__this->fields._expSlider)->get_transform()->instance();
-            ExtensionMethods::SetActive((UnityEngine::Component::Object*)sliderTf->GetParent(), true);
+            auto sliderTf = __this->fields._expSlider->cast<UnityEngine::Component>()->get_transform()->instance();
+            ExtensionMethods::SetActive(sliderTf->GetParent()->cast<UnityEngine::Component>(), true);
             __this->fields._expSlider->set_minValue(0.0f);
             __this->fields._expSlider->set_maxValue((float)(nextLevelMin - currentLevelMin));
             __this->fields._expSlider->set_value((float)(coreParam->GetExp() - currentLevelMin));
         } else {
-            UnityEngine::Transform::Object* sliderTf = ((UnityEngine::Component::Object*)__this->fields._expSlider)->get_transform()->instance();
-            ExtensionMethods::SetActive((UnityEngine::Component::Object*)sliderTf->GetParent(), false);
+            auto sliderTf = __this->fields._expSlider->cast<UnityEngine::Component>()->get_transform()->instance();
+            ExtensionMethods::SetActive(sliderTf->GetParent()->cast<UnityEngine::Component>(), false);
         }
 
         // HP Text
@@ -373,23 +426,42 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
         int32_t maxHP = btlPokeParam->GetValue(Dpr::Battle::Logic::BTL_POKEPARAM::ValueID::BPP_MAX_HP);
         Dpr::Message::MessageWordSetHelper::SetDigitWord(0, currentHP);
         Dpr::Message::MessageWordSetHelper::SetDigitWord(1, maxHP);
-        System::String::Object* hpText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_hp_00"), nullptr);
+        auto hpText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(System::String::Create("msg_ui_raidbtl_hp_00"), nullptr);
         __this->fields._hpText->virtual_set_text(hpText);
+
+        // Status Condition
+        auto pokemonSick = getSituationDetailPokemonSickUI(battleViewSystemUI);
+        pokemonSick->Setup(btlPokeParam);
+
+        // Types
+        uint8_t typing[2] = { TYPE_COUNT, TYPE_COUNT };
+        battleViewSystem->virtual_GetUiDisplay_PokeType(&typing[0], &typing[1], &btlPokeParam);
+
+        auto type1Panel = getSituationDetailType1UI(battleViewSystemUI);
+        auto type2Panel = getSituationDetailType2UI(battleViewSystemUI);
+        //auto teraTypePanel = getSituationDetailTypeTeraUI(battleViewSystemUI);
+
+        if (typing[0] != TYPE_COUNT) type1Panel->Set(typing[0]);
+        else type1Panel->Deactive();
+
+        if (typing[1] != TYPE_COUNT && typing[0] != typing[1]) type2Panel->Set(typing[1]);
+        else type2Panel->Deactive();
+
+        // TODO: Add tera type eventually
+        //if (typing[2] != TYPE_COUNT) teraTypePanel->Set(typing[2]);
+        //else teraTypePanel->Deactive();
 
         // Stat changes
         for (uint64_t i=0; i<__this->fields._params->max_length && i<__this->fields._paramIDs->max_length; i++) {
-            System::ValueTuple2$$String$$int32::Object tuple = __this->fields._paramIDs->m_Items[i];
-            System::String::Object* paramText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(tuple.fields.Item1, nullptr);
+            auto tuple = __this->fields._paramIDs->m_Items[i];
+            auto paramText = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance->GetFormatUIText(tuple.fields.Item1, nullptr);
             int32_t paramValue = btlPokeParam->GetValue((Dpr::Battle::Logic::BTL_POKEPARAM::ValueID)tuple.fields.Item2);
             __this->fields._params->m_Items[i]->Initialize(paramText, paramValue);
         }
 
         // Trainer name
         if (__this->fields._trainerNames != nullptr) {
-            if (__this->fields._pokeIndex >= __this->fields._trainerNames->fields._size)
-                System::ThrowHelper::ThrowArgumentOutOfRangeException();
-
-            System::String::Object* trainerName = __this->fields._trainerNames->fields._items->m_Items[__this->fields._pokeIndex];
+            auto trainerName = __this->fields._trainerNames->fields._items->m_Items[__this->fields._pokeIndex];
             if (System::String::IsNullOrEmpty(trainerName)) {
                 __this->fields._trainerPanel->SetActive(false);
             }
@@ -406,19 +478,16 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
 
         __this->SetPokeStatus(btlPokeParam, 0);
         __this->SetPokeStatus(btlPokeParam, 1);
-        int32_t fieldStatusCount = __this->SetFieldStatus();
+        uint64_t fieldStatusCount = __this->SetFieldStatus();
 
         // Scroll List
         if (fieldStatusCount > __this->fields._blankItems->max_length) {
-            if (__this->fields._itemButtons->fields._size < 3)
-                System::ThrowHelper::ThrowArgumentOutOfRangeException();
-
-            UnityEngine::RectTransform::Object* itemBtnTf = ((Dpr::Battle::View::UI::BUIButtonBase::Object*)__this->fields._itemButtons->fields._items->m_Items[2])->get_rectTransform();
-            UnityEngine::Vector2::Object itemBtnSizeDelta = itemBtnTf->get_sizeDelta();
+            auto itemBtnTf = __this->fields._itemButtons->fields._items->m_Items[2]->cast<Dpr::Battle::View::UI::BUIButtonBase>()->get_rectTransform();
+            auto itemBtnSizeDelta = itemBtnTf->get_sizeDelta();
             float spacing = __this->fields._verticalLayout->fields.m_ChildScaleWidth;
             int32_t btnCount = __this->fields._itemButtons->fields._size;
-            UnityEngine::Vector2::Object contentSizeDelta = __this->fields._scrollRect->fields.m_Content->get_sizeDelta();
-            UnityEngine::RectOffset::Object* padding = __this->fields._verticalLayout->fields.m_Padding;
+            auto contentSizeDelta = __this->fields._scrollRect->fields.m_Content->get_sizeDelta();
+            auto padding = __this->fields._verticalLayout->fields.m_Padding;
 
             UnityEngine::Vector2::Object newContentSizeDelta = (UnityEngine::Vector2::Object) {
                     .fields = {
@@ -428,14 +497,14 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
             };
             __this->fields._scrollRect->fields.m_Content->set_sizeDelta(newContentSizeDelta);
         } else {
-            ((UnityEngine::Behaviour::Object*)__this->fields._scrollRect)->set_enabled(false);
+            __this->fields._scrollRect->cast<UnityEngine::Behaviour>()->set_enabled(false);
         }
 
         for (uint64_t i=0; i<__this->fields._blankItems->max_length; i++)
-            ((UnityEngine::Behaviour::Object *) __this->fields._blankItems->m_Items[i])->set_enabled(i >= fieldStatusCount);
+            __this->fields._blankItems->m_Items[i]->cast<UnityEngine::Behaviour>()->set_enabled(i >= fieldStatusCount);
 
         __this->SelectButton(false);
-        UnityEngine::Vector2::Object cursorSizeDelta = ((Dpr::Battle::View::UI::BUIButtonBase::Object*)__this->fields._itemButtonPrefab)->get_rectTransform()->get_sizeDelta();
+        auto cursorSizeDelta = __this->fields._itemButtonPrefab->cast<Dpr::Battle::View::UI::BUIButtonBase>()->get_rectTransform()->get_sizeDelta();
         __this->fields._cursorBase->set_sizeDelta(cursorSizeDelta);
     }
 };
@@ -448,15 +517,23 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_OnCancel) {
 
         __this->fields._IsFocus_k__BackingField = false;
 
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object*)__this)->PlayTransitionAnimation(false);
+        __this->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->PlayTransitionAnimation(false);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
-        Dpr::Battle::View::Systems::BattleViewUISystem::Object* battleViewUISystem = battleViewCore->fields._UISystem_k__BackingField;
+        auto battleViewUISystem = battleViewCore->fields._UISystem_k__BackingField;
 
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) __this)->Hide(false, nullptr);
-        ((Dpr::Battle::View::UI::BattleViewUICanvasBase::Object *) battleViewUISystem->fields._actionList)->Show(nullptr);
+        battleViewUISystem->fields._cursor->SetActive(false);
+
+        if (UnityEngine::_Object::op_Equality(battleViewUISystem->cast<UnityEngine::_Object>(), nullptr))
+            return;
+
+        __this->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Hide(false, nullptr);
+        battleViewUISystem->fields._actionList->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Show(nullptr);
         battleViewUISystem->SwitchShowDecoImage(true);
+
+        Logger::log("[BUISituationDetail$$OnCancel] Show waza list\n");
+        battleViewUISystem->fields._wazaList->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Show(nullptr);
 
         battleViewUISystem->PlaySe(0xa4eb827e);
     }
@@ -469,6 +546,181 @@ HOOK_DEFINE_TRAMPOLINE(BUISituation_OnUpdate) {
     }
 };
 
+HOOK_DEFINE_REPLACE(BUISituationDetail_OnUpdate) {
+    static void Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this, float deltaTime) {
+        system_load_typeinfo(0x1f45);
+
+        if (!__this->fields._IsFocus_k__BackingField)
+            return;
+
+        if (Dpr::NetworkUtils::NetworkManager::IsShowApplicationErrorDialog())
+            return;
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true) ||
+            Dpr::Battle::View::BtlvInput::GetRepeat(Dpr::UI::UIManager::getClass()->static_fields->StickLDown, true)) {
+            __this->virtual_PreparaNext(true);
+        }
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true) ||
+            Dpr::Battle::View::BtlvInput::GetRepeat(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
+            __this->virtual_PreparaNext(false);
+        }
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLRight, true)) {
+            __this->OnChangePoke(true);
+        }
+        else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLLeft, true)) {
+            __this->OnChangePoke(false);
+        }
+
+        if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, true)) {
+            __this->OnCancel();
+        }
+    }
+};
+
+HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
+    static int32_t Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this) {
+        system_load_typeinfo(0x1f40);
+        system_load_typeinfo(0x1f49);
+        system_load_typeinfo(0x239d);
+
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        Dpr::Message::MessageManager::getClass()->initIfNeeded();
+        Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
+        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+
+        auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
+        auto battleViewSystem = battleViewCore->fields._ViewSystem_k__BackingField;
+        auto msgManager = Dpr::Message::MessageManager::get_Instance();
+        auto btlStr = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance;
+
+        auto btlStateMsgFile = msgManager->GetMsgFile(System::String::Create("ss_btl_state"));
+        auto slashStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_02"), nullptr);
+
+        int32_t totalCount = 0;
+
+        for (uint64_t i=0; i<FIELD_EFFECT_COUNT; i++)
+        {
+            System::String::Object* nameStr = nullptr;
+            System::String::Object* descStr = nullptr;
+            uint32_t remaining;
+            uint32_t total;
+
+            switch (i)
+            {
+                case array_index(FIELD_EFFECTS, "Weather"):
+                {
+                    auto fieldStatus = battleViewSystem->virtual_GetFieldStatus();
+                    auto weather = fieldStatus->GetWeather();
+                    if (weather != array_index(BATTLE_WEATHERS, "-BATTLE WEATHER ZERO-") && __this->fields._weatherIDs->ContainsKey(weather))
+                    {
+                        auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
+                            __this->fields._weatherIDs->get_Item(weather)->instance(),
+                            System::String::Create("_01"));
+                        Dpr::Message::MessageWordSetHelper::SetStringWord(0,
+                            btlStr->GetFormatUIText(nameLabel, btlStateMsgFile));
+
+                        nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
+
+                        auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
+                            __this->fields._weatherIDs->get_Item(weather)->instance(),
+                            System::String::Create("_02"));
+
+                        descStr = btlStr->GetFormatUIText(descLabel, btlStateMsgFile);
+
+                        battleViewSystem->virtual_GetUiDisplay_Turn_Weather(&remaining, &total);
+                    }
+                }
+                break;
+
+                case array_index(FIELD_EFFECTS, "Terrain"):
+                {
+                    auto fieldStatus = battleViewSystem->virtual_GetFieldStatus();
+                    auto terrain = fieldStatus->GetGround();
+
+                    if (terrain != Dpr::Battle::Logic::BtlGround::BTL_GROUND_NONE && __this->fields._groundIDs->ContainsKey((uint8_t)terrain))
+                    {
+                        auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
+                            __this->fields._groundIDs->get_Item((uint8_t)terrain)->instance(),
+                            System::String::Create("_01"));
+                        Dpr::Message::MessageWordSetHelper::SetStringWord(0,
+                            btlStr->GetFormatUIText(nameLabel, btlStateMsgFile));
+
+                        nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
+
+                        auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
+                            __this->fields._groundIDs->get_Item((uint8_t)terrain)->instance(),
+                            System::String::Create("_02"));
+
+                        descStr = btlStr->GetFormatUIText(descLabel, btlStateMsgFile);
+
+                        battleViewSystem->virtual_GetUiDisplay_Turn_Ground(&remaining, &total);
+                    }
+                }
+                break;
+
+                default:
+                {
+                    auto fieldStatus = battleViewSystem->virtual_GetFieldStatus();
+
+                    if (fieldStatus->CheckStatus(i) && __this->fields._fieldIDs->ContainsKey(i))
+                    {
+                        auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
+                            __this->fields._fieldIDs->get_Item(i)->instance(),
+                            System::String::Create("_01"));
+                        Dpr::Message::MessageWordSetHelper::SetStringWord(0,
+                            btlStr->GetFormatUIText(nameLabel, btlStateMsgFile));
+
+                        nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
+
+                        auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
+                            __this->fields._fieldIDs->get_Item(i)->instance(),
+                            System::String::Create("_02"));
+
+                        descStr = btlStr->GetFormatUIText(descLabel, btlStateMsgFile);
+
+                        // TODO: something else?
+                        battleViewSystem->virtual_GetUiDisplay_Turn_Ground(&remaining, &total);
+                    }
+                }
+                break;
+            }
+
+            if (nameStr != nullptr)
+            {
+                Dpr::Message::MessageWordSetHelper::SetDigitWord(0, remaining);
+                auto remainingStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_01"), nullptr);
+
+                Dpr::Message::MessageWordSetHelper::SetDigitWord(0, total);
+                auto totalStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_03"), nullptr);
+
+                auto tuple = System::ValueTuple3$$String$$String$$String::Object {
+                    .fields = {
+                        .Item1 = nameStr,
+                        .Item2 = System::String::Concat(remainingStr, slashStr, totalStr),
+                        .Item3 = descStr,
+                    }
+                };
+                __this->fields._statusTexts->Add(&tuple);
+
+                auto descButton = UnityEngine::_Object::Instantiate(__this->fields._itemButtonPrefab,
+                    ((UnityEngine::Transform*)__this->fields._scrollRect->fields.m_Content),
+                    UnityEngine::_Object::Method$$BUISituationDescriptionButton$$Instantiate_2)->instance();
+                __this->fields._itemButtons->Add(descButton);
+
+                auto index = __this->fields._itemButtons->fields._size - 1;
+                descButton->fields._index = index;
+                descButton->cast<Dpr::Battle::View::UI::BUIButtonBase>()->set_Text(tuple.fields.Item1);
+                descButton->fields._contentsText->virtual_set_text(tuple.fields.Item2);
+
+                totalCount++;
+            }
+        }
+
+        return totalCount;
+    }
+};
+
+
 void exl_battle_situation_main() {
     // Add more to OnUpdate
     BattleViewUISystem_OnUpdate::InstallAtOffset(0x01e79c04);
@@ -477,6 +729,7 @@ void exl_battle_situation_main() {
     BUISituation_Initialize::InstallAtOffset(0x01d22cb0);
     BUISituation_OnShow::InstallAtOffset(0x01d23a40);
     BUISituation_OnSubmit::InstallAtOffset(0x01d23850);
+    BUISituation_OnCancel::InstallAtOffset(0x01d23980);
 
     //BUISituation_OnUpdate::InstallAtOffset(0x01d23280);
 
@@ -489,16 +742,18 @@ void exl_battle_situation_main() {
 
     BUISituationDetail_Initialize::InstallAtOffset(0x01d23f70);
     BUISituationDetail_OnCancel::InstallAtOffset(0x01d26080);
+    BUISituationDetail_OnUpdate::InstallAtOffset(0x01d25d00);
+    BUISituationDetail_SetFieldStatus::InstallAtOffset(0x01d24f70);
 
     // Assembly Patches
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
-            { 0x01d26784, Branch(0xb4) }, // BUISituationDetail_ctor_fieldIDs skip vanilla assignments
-            { 0x01d2686c, Branch(0x94) }, // BUISituationDetail_ctor_weatherIDs skip vanilla assignments
-            { 0x01d26934, Branch(0x24) }, // BUISituationDetail_ctor_groundIDs skip vanilla assignments
-            { 0x01d2698c, Branch(0x190) }, // BUISituationDetail_ctor_sideIDs skip vanilla assignments
+        { 0x01d26784, Branch(0xb4) }, // BUISituationDetail_ctor_fieldIDs skip vanilla assignments
+        { 0x01d2686c, Branch(0x94) }, // BUISituationDetail_ctor_weatherIDs skip vanilla assignments
+        { 0x01d26934, Branch(0x24) }, // BUISituationDetail_ctor_groundIDs skip vanilla assignments
+        { 0x01d2698c, Branch(0x190) }, // BUISituationDetail_ctor_sideIDs skip vanilla assignments
     };
     p.WriteInst(inst);
 }

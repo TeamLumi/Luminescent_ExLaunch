@@ -44,5 +44,9 @@ namespace Dpr::Battle::Logic {
         inline uint32_t GetWeatherRemainingTurn() {
             return external<uint32_t>(0x018fa850, this);
         }
+
+        inline bool CheckStatus(int32_t effect) {
+            return external<bool>(0x018f54b0, this, effect);
+        }
     };
 }

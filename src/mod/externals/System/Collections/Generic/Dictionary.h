@@ -74,6 +74,10 @@ namespace System::Collections::Generic {
         inline void Add(int32_t key, V::Object* value) {
             ILClass<T>::template external<void>(0x028e5a70, this, key, value, *T::Method$$Add);
         }
+
+        inline bool ContainsKey(uint8_t key) {
+            return ILClass<T>::template external<bool>(0x028e5cd0, this, key, *T::Method$$ContainsKey);
+        }
     };
 
     template <typename T, typename V>
@@ -106,6 +110,14 @@ namespace System::Collections::Generic {
 
         inline void Add(uint8_t key, V::Object* value) {
             ILClass<T>::template external<void>(0x027c0740, this, key, value, *T::Method$$Add);
+        }
+
+        inline bool ContainsKey(uint8_t key) {
+            return ILClass<T>::template external<bool>(0x027c09a0, this, key, *T::Method$$ContainsKey);
+        }
+
+        inline V* get_Item(uint8_t key) {
+            return ILClass<T>::template external<V*>(0x027c0650, this, key, *T::Method$$get_Item);
         }
     };
 }
