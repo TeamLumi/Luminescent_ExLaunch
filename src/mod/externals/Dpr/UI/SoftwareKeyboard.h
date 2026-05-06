@@ -46,8 +46,8 @@ namespace Dpr::UI {
             return external<System::String::Object*>(0x018485e0, messageLabel);
         }
 
-        static inline System::ValueTuple2$$Bool$$String InputCheck(System::String::Object* resultText, int32_t errorState) {
-            return external<System::ValueTuple2$$Bool$$String>(0x0184a710, resultText, errorState);
+        static inline System::ValueTuple2$$Bool$$String::Object InputCheck(System::String::Object* resultText, int32_t errorState) {
+            return external<System::ValueTuple2$$Bool$$String::Object>(0x0184a710, resultText, errorState);
         }
 
         static inline bool Open(Dpr::UI::SoftwareKeyboard::Param::Object* param, System::Func::Object* onInputCheck, UnityEngine::Events::UnityAction::Object* onComplete) {

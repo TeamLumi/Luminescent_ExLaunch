@@ -18,7 +18,7 @@
 namespace Dpr::UI {
     struct UIBag : ILClass<UIBag> {
 
-        static inline StaticILMethod<0x04c80270> PokemonPartyItem, m_value, Method$$OnPokemonPartyClickedToUseItem {};
+        static inline StaticILMethod<0x04c80270, PokemonPartyItem, int32_t> Method$$OnPokemonPartyClickedToUseItem {};
 
         static inline MethodInfo* Method$$BuildContextMenu = nullptr;
         static MethodInfo* getMethod$$BuildContextMenu(Il2CppMethodPointer method) {
@@ -38,6 +38,9 @@ namespace Dpr::UI {
                 void* __9__13;
                 void* __9__19;
             };
+            inline void EndUseAction() {
+                external<void>(0x01bdd4b0, this);
+            }
 
             static inline StaticILMethod<0x04c80068> Method$$ShowItemContextMenu_EndUseAction {};
         };

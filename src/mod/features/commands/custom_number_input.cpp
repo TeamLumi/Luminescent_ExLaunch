@@ -1,6 +1,7 @@
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/UI/SoftwareKeyboard.h"
 #include "externals/System/Int32Class.h"
+#include "externals/System/ValueTuple.h"
 #include "externals/UnityEngine/Mathf.h"
 
 #include "logger/logger.h"
@@ -8,7 +9,7 @@
 
 static int32_t maxValue;
 
-System::ValueTuple2$$Bool$$String CheckCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState) {
+System::ValueTuple2$$Bool$$String::Object CheckCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState) {
 
     system_load_typeinfo(0x9896);
 
@@ -21,7 +22,7 @@ System::ValueTuple2$$Bool$$String CheckCustomNumberInput(Dpr::EvScript::EvDataMa
     int32_t resultNumber;
     bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
 
-    if (!parsed || resultNumber > maxValue) {
+    if (!parsed || resultNumber < 0 || resultNumber > maxValue) {
         inputCheck.fields.Item1 = false;
         inputCheck.fields.Item2 = Dpr::UI::SoftwareKeyboard::GetMessageText(System::String::Create("SS_strinput_041"));
         return inputCheck;
@@ -33,9 +34,10 @@ System::ValueTuple2$$Bool$$String CheckCustomNumberInput(Dpr::EvScript::EvDataMa
 
 void CompleteCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
 
-    if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
-        Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
-        EvData::Aregment::Array* args = manager->fields._evArg;
+    Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
+    EvData::Aregment::Array* args = manager->fields._evArg;
+
+    if (isSuccess) {
 
         int32_t resultNumber = 0;
         bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
@@ -47,6 +49,7 @@ void CompleteCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::
         Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 0; // Done
     }
     else {
+        SetWorkToValue(args->m_Items[1], 0);
         Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
         Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 2; // Error
     }

@@ -13,6 +13,7 @@
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/System/Int32Class.h"
+#include "externals/System/ValueTuple.h"
 
 static Dpr::UI::UIBag::__c__DisplayClass127_0::Object* sDisplayClassLocals = nullptr;
 static Pml::PokePara::CoreParam* coreParam;
@@ -20,7 +21,7 @@ static int32_t stat = -1;
 
 const uint32_t PROVITAMIN_SOUND_ID = 0x45a3539d;
 
-System::ValueTuple2$$Bool$$String CheckProVitaminInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState)
+System::ValueTuple2$$Bool$$String::Object CheckProVitaminInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState)
 {
     system_load_typeinfo(0x9896);
 
@@ -34,7 +35,7 @@ System::ValueTuple2$$Bool$$String CheckProVitaminInput(Dpr::EvScript::EvDataMana
     int32_t maxValue = 252;
     bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
 
-    if (!parsed || resultNumber > maxValue) {
+    if (!parsed || resultNumber < 0 || resultNumber > maxValue) {
         inputCheck.fields.Item1 = false;
         inputCheck.fields.Item2 = Dpr::UI::SoftwareKeyboard::GetMessageText(System::String::Create("SS_strinput_041"));
         return inputCheck;
@@ -46,7 +47,7 @@ System::ValueTuple2$$Bool$$String CheckProVitaminInput(Dpr::EvScript::EvDataMana
 
 void CompleteProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, bool isSuccess, System::String::Object* resultText) {
 
-    if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
+    if (isSuccess) {
 
         int32_t resultNumber = 0;
         bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
@@ -154,7 +155,7 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
         labelName = System::String::Create("SS_bag_374");
         uiBag->fields.msgWindowController->OpenMsgWindow(0, labelName, true, false, nullptr, action);
     }
-    else {action->Invoke();}
+    else {sDisplayClassLocals->EndUseAction();}
 }
 
 void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem::Object* pokemonPartyItem, int32_t index)
