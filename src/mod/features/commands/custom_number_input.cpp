@@ -38,7 +38,8 @@ void CompleteCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::
         EvData::Aregment::Array* args = manager->fields._evArg;
 
         int32_t resultNumber = 0;
-        System::Int32Class::TryParse(resultText, &resultNumber);
+        bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
+        if (!parsed) {resultNumber = 0;}
 
         SetWorkToValue(args->m_Items[1], resultNumber);
 
