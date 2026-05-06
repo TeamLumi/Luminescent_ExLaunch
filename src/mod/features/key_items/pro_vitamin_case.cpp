@@ -49,7 +49,8 @@ void CompleteProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0:
     if (isSuccess && !System::String::IsNullOrEmpty(resultText)) {
 
         int32_t resultNumber = 0;
-        System::Int32Class::TryParse(resultText, &resultNumber);
+        bool parsed = System::Int32Class::TryParse(resultText, &resultNumber);
+        if (!parsed) {resultNumber = 0;}
 
         Logger::log("Calling ChangeEffortPower with coreParam, stat %d and resultNumber %d\n", stat, resultNumber);
 
@@ -145,13 +146,15 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
     system_load_typeinfo(0x955c);
     System::Action::Object* action = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(sDisplayClassLocals, *Dpr::UI::UIBag::__c__DisplayClass127_0::Method$$ShowItemContextMenu_EndUseAction);
 
+    if (manager->fields._softwareKeyboardSubState == 0) {
+        SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
+        Audio::AudioManager::Object * audioManager = Audio::AudioManager::get_Instance();
+        audioManager->PlaySe(PROVITAMIN_SOUND_ID, nullptr);
 
-    SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
-    Audio::AudioManager::Object * audioManager = Audio::AudioManager::get_Instance();
-    audioManager->PlaySe(PROVITAMIN_SOUND_ID, nullptr);
-
-    labelName = System::String::Create("SS_bag_374");
-    uiBag->fields.msgWindowController->OpenMsgWindow(0, labelName, true, false, nullptr, action);
+        labelName = System::String::Create("SS_bag_374");
+        uiBag->fields.msgWindowController->OpenMsgWindow(0, labelName, true, false, nullptr, action);
+    }
+    else {action->Invoke();}
 }
 
 void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem::Object* pokemonPartyItem, int32_t index)
