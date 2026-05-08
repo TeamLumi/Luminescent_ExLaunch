@@ -48,5 +48,17 @@ namespace Dpr::Battle::Logic {
         inline bool CheckStatus(int32_t effect) {
             return external<bool>(0x018f54b0, this, effect);
         }
+
+        inline uint8_t GetDependPokeID(int32_t effect) {
+            return external<uint8_t>(0x018fb520, this, effect);
+        }
+
+        inline uint32_t GetWholeTurn(int32_t effect) {
+            return external<uint32_t>(0x018fb460, this, effect);
+        }
+
+        inline uint32_t GetPassedTurn(int32_t effect) {
+            return external<uint32_t>(0x018fb410, this, effect);
+        }
     };
 }

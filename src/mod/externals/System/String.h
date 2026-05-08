@@ -171,6 +171,8 @@ namespace System::Collections::Generic {
     struct Dictionary$$BtlSideEffect$$String : Dictionary$$int32_t<Dictionary$$BtlSideEffect$$String, System::String> {
         static inline StaticILMethod<0x04c87308> Method$$ctor {};
         static inline StaticILMethod<0x04c87310> Method$$Add {};
+        static inline StaticILMethod<0x04c6e8a0> Method$$ContainsKey {}; // NOTE: not for that specific dictionary and it'S NOT FINE
+        static inline StaticILMethod<0x04c68a90> Method$$get_Item {}; // NOTE: not for that specific dictionary but it's probably fine
     };
 
     struct Dictionary$$BtlWeather$$String : Dictionary$$uint8_t<Dictionary$$BtlWeather$$String, System::String> {

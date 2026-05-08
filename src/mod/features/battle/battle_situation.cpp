@@ -19,6 +19,9 @@
 #include "externals/System/Math.h"
 #include "externals/UnityEngine/Sprite.h"
 
+#include "features/field_handlers/field_handlers.h"
+#include "features/side_handlers/side_handlers.h"
+
 #include "data/field_effects.h"
 #include "data/side_effects.h"
 #include "data/types.h"
@@ -72,8 +75,7 @@ Dpr::UI::TypePanel::Object* getSituationDetailTypeTeraUI(Dpr::Battle::View::Syst
     return getTypePanelFromStatusPanelUI(__this, "TeraType");
 }
 
-void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Sprite::Object* sprite)
-{
+void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Sprite::Object* sprite) {
     Logger::log("LoadSpriteToImage!\n");
     system_load_typeinfo(0x6d82);
 
@@ -81,6 +83,86 @@ void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Spri
     auto go = __this->cast<UnityEngine::Component>()->get_gameObject();
     go->SetActive(UnityEngine::_Object::op_Inequality(sprite->cast<UnityEngine::_Object>(), nullptr));
 }
+
+void GetUiDisplay_Turn_FieldEffect(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, int32_t effect) {
+    *numerator = 0;
+    *denominator = 0;
+
+    auto fieldStatus = __this->virtual_GetFieldStatus();
+    if (fieldStatus->CheckStatus(effect))
+    {
+        auto clientID = __this->virtual_GetClientID();
+        auto causePokeID = fieldStatus->GetDependPokeID(effect);
+        auto wholeTurn = fieldStatus->GetWholeTurn(effect);
+        auto passedTurn = fieldStatus->GetPassedTurn(effect);
+        if (wholeTurn < 0xFF)
+            __this->virtual_GetUiDisplay_Turn(numerator, denominator, clientID, causePokeID, wholeTurn, 0, wholeTurn - passedTurn, passedTurn);
+    }
+}
+
+void GetUiDisplay_Turn_SideEffect_All(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, int32_t side, int32_t sideEffect) {
+    *numerator = 0;
+    *denominator = 0;
+
+    auto sideStatus = __this->virtual_GetSideEffectStatus(side, sideEffect);
+    if (sideStatus->IsEffective())
+    {
+        auto clientID = __this->virtual_GetClientID();
+        auto causePokeID = sideStatus->GetCausePokeID();
+        auto maxTurn = sideStatus->GetMaxTurnCount();
+        auto turnUpCount = sideStatus->GetTurnUpCount();
+        auto remainingCount = sideStatus->GetRemainingTurn();
+        auto currentCount = sideStatus->GetCurrentTurnCount();
+        __this->virtual_GetUiDisplay_Turn(numerator, denominator, clientID, causePokeID, maxTurn, turnUpCount, remainingCount, currentCount);
+    }
+}
+
+void GenerateNameAndDescStrings(Dpr::Battle::View::UI::BUISituationDetail::Object* __this, Dpr::Battle::Logic::BattleStr::Object* btlStr, Dpr::Message::MessageMsgFile::Object* msgFile, System::String::Object* effectIDStr, System::String::Object** nameStr, System::String::Object** descStr) {
+    auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"), effectIDStr, System::String::Create("_01"));
+    Dpr::Message::MessageWordSetHelper::SetStringWord(0, btlStr->GetFormatUIText(nameLabel, msgFile));
+    *nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
+
+    auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"), effectIDStr, System::String::Create("_02"));
+    *descStr = btlStr->GetFormatUIText(descLabel, msgFile);
+}
+
+void AddElementToSituationDetail(Dpr::Battle::View::UI::BUISituationDetail::Object* __this, Dpr::Battle::Logic::BattleStr::Object* btlStr, System::String::Object* nameStr, System::String::Object* descStr, uint32_t remaining, uint32_t total, System::String::Object* slashStr) {
+    auto tuple = System::ValueTuple3$$String$$String$$String::Object {
+        .fields = {
+            .Item1 = nameStr,
+            .Item2 = nullptr,
+            .Item3 = descStr,
+        }
+    };
+
+    if (remaining != 0 && total != 0)
+    {
+        Dpr::Message::MessageWordSetHelper::SetDigitWord(0, remaining);
+        auto remainingStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_01"), nullptr);
+
+        Dpr::Message::MessageWordSetHelper::SetDigitWord(0, total);
+        auto totalStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_03"), nullptr);
+
+        tuple.fields.Item2 = System::String::Concat(remainingStr, slashStr, totalStr);
+    }
+    else
+    {
+        tuple.fields.Item2 = System::String::Create("");
+    }
+
+    __this->fields._statusTexts->Add(&tuple);
+
+    auto descButton = UnityEngine::_Object::Instantiate(__this->fields._itemButtonPrefab,
+                                                        ((UnityEngine::Transform*)__this->fields._scrollRect->fields.m_Content),
+                                                        UnityEngine::_Object::Method$$BUISituationDescriptionButton$$Instantiate_2)->instance();
+    __this->fields._itemButtons->Add(descButton);
+
+    auto index = __this->fields._itemButtons->fields._size - 1;
+    descButton->fields._index = index;
+    descButton->cast<Dpr::Battle::View::UI::BUIButtonBase>()->set_Text(tuple.fields.Item1);
+    descButton->fields._contentsText->virtual_set_text(tuple.fields.Item2);
+}
+
 
 HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
@@ -275,8 +357,7 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_fieldIDs) {
         fieldIds->Add(array_index(FIELD_EFFECTS, "Fairy Lock"), System::String::Create("FairyLock"));
         fieldIds->Add(array_index(FIELD_EFFECTS, "Neutralizing Gas"), System::String::Create("NeutralizingGas"));
 
-        // TODO: Add this to the Field Handlers stuff
-        //AddSituationDetailFieldEffectLabels(fieldIds);
+        AddSituationDetailFieldEffectLabels(fieldIds);
 
         ctx->X[21] = (uint64_t)fieldIds;
     }
@@ -296,6 +377,8 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_weatherIDs) {
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Heavy Rain"), System::String::Create("HeavyRain"));
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Extremely Harsh Sunlight"), System::String::Create("ExtremelyHarshSunlight"));
         weatherIDs->Add(array_index(BATTLE_WEATHERS, "Strong Winds"), System::String::Create("StrongWinds"));
+
+        AddSituationDetailWeatherFieldEffectLabels(weatherIDs);
 
         ctx->X[21] = (uint64_t)weatherIDs;
     }
@@ -347,8 +430,7 @@ HOOK_DEFINE_INLINE(BUISituationDetail_ctor_sideIDs) {
         sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Wildfire"), System::String::Create("GWildfire"));
         sideIDs->Add(array_index(SIDE_EFFECTS, "G-Max Volcalith"), System::String::Create("GVolcalith"));
 
-        // TODO: Add this to the Side Handlers stuff
-        //AddSituationDetailSideEffectLabels(sideIDs);
+        AddSituationDetailSideEffectLabels(sideIDs);
 
         ctx->X[21] = (uint64_t)sideIDs;
     }
@@ -593,12 +675,16 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
         auto msgManager = Dpr::Message::MessageManager::get_Instance();
         auto btlStr = Dpr::Battle::Logic::BattleStr::getClass()->static_fields->s_Instance;
 
+        auto btlPokeParam = __this->fields._pokeList->fields._items->m_Items[__this->fields._pokeIndex];
+        auto coreParam = btlPokeParam->GetSrcData()->cast<Pml::PokePara::CoreParam>();
+
         auto btlStateMsgFile = msgManager->GetMsgFile(System::String::Create("ss_btl_state"));
         auto slashStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_02"), nullptr);
 
         int32_t totalCount = 0;
 
-        for (uint64_t i=0; i<FIELD_EFFECT_COUNT; i++)
+        // Field Effects
+        for (int32_t i=0; i<FIELD_EFFECT_COUNT; i++)
         {
             System::String::Object* nameStr = nullptr;
             System::String::Object* descStr = nullptr;
@@ -613,20 +699,7 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
                     auto weather = fieldStatus->GetWeather();
                     if (weather != array_index(BATTLE_WEATHERS, "-BATTLE WEATHER ZERO-") && __this->fields._weatherIDs->ContainsKey(weather))
                     {
-                        auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
-                            __this->fields._weatherIDs->get_Item(weather)->instance(),
-                            System::String::Create("_01"));
-                        Dpr::Message::MessageWordSetHelper::SetStringWord(0,
-                            btlStr->GetFormatUIText(nameLabel, btlStateMsgFile));
-
-                        nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
-
-                        auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
-                            __this->fields._weatherIDs->get_Item(weather)->instance(),
-                            System::String::Create("_02"));
-
-                        descStr = btlStr->GetFormatUIText(descLabel, btlStateMsgFile);
-
+                        GenerateNameAndDescStrings(__this, btlStr, btlStateMsgFile, __this->fields._weatherIDs->get_Item(weather)->instance(), &nameStr, &descStr);
                         battleViewSystem->virtual_GetUiDisplay_Turn_Weather(&remaining, &total);
                     }
                 }
@@ -639,20 +712,7 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
 
                     if (terrain != Dpr::Battle::Logic::BtlGround::BTL_GROUND_NONE && __this->fields._groundIDs->ContainsKey((uint8_t)terrain))
                     {
-                        auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
-                            __this->fields._groundIDs->get_Item((uint8_t)terrain)->instance(),
-                            System::String::Create("_01"));
-                        Dpr::Message::MessageWordSetHelper::SetStringWord(0,
-                            btlStr->GetFormatUIText(nameLabel, btlStateMsgFile));
-
-                        nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
-
-                        auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
-                            __this->fields._groundIDs->get_Item((uint8_t)terrain)->instance(),
-                            System::String::Create("_02"));
-
-                        descStr = btlStr->GetFormatUIText(descLabel, btlStateMsgFile);
-
+                        GenerateNameAndDescStrings(__this, btlStr, btlStateMsgFile, __this->fields._groundIDs->get_Item((uint8_t)terrain)->instance(), &nameStr, &descStr);
                         battleViewSystem->virtual_GetUiDisplay_Turn_Ground(&remaining, &total);
                     }
                 }
@@ -664,22 +724,8 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
 
                     if (fieldStatus->CheckStatus(i) && __this->fields._fieldIDs->ContainsKey(i))
                     {
-                        auto nameLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
-                            __this->fields._fieldIDs->get_Item(i)->instance(),
-                            System::String::Create("_01"));
-                        Dpr::Message::MessageWordSetHelper::SetStringWord(0,
-                            btlStr->GetFormatUIText(nameLabel, btlStateMsgFile));
-
-                        nameStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_00"), nullptr);
-
-                        auto descLabel = System::String::Concat(System::String::Create("BTR_STATE_"),
-                            __this->fields._fieldIDs->get_Item(i)->instance(),
-                            System::String::Create("_02"));
-
-                        descStr = btlStr->GetFormatUIText(descLabel, btlStateMsgFile);
-
-                        // TODO: something else?
-                        battleViewSystem->virtual_GetUiDisplay_Turn_Ground(&remaining, &total);
+                        GenerateNameAndDescStrings(__this, btlStr, btlStateMsgFile, __this->fields._fieldIDs->get_Item(i)->instance(), &nameStr, &descStr);
+                        GetUiDisplay_Turn_FieldEffect(battleViewSystem, &remaining, &total, i);
                     }
                 }
                 break;
@@ -687,34 +733,54 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
 
             if (nameStr != nullptr)
             {
-                Dpr::Message::MessageWordSetHelper::SetDigitWord(0, remaining);
-                auto remainingStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_01"), nullptr);
-
-                Dpr::Message::MessageWordSetHelper::SetDigitWord(0, total);
-                auto totalStr = btlStr->GetFormatUIText(System::String::Create("msg_ui_btl_joutai_03"), nullptr);
-
-                auto tuple = System::ValueTuple3$$String$$String$$String::Object {
-                    .fields = {
-                        .Item1 = nameStr,
-                        .Item2 = System::String::Concat(remainingStr, slashStr, totalStr),
-                        .Item3 = descStr,
-                    }
-                };
-                __this->fields._statusTexts->Add(&tuple);
-
-                auto descButton = UnityEngine::_Object::Instantiate(__this->fields._itemButtonPrefab,
-                    ((UnityEngine::Transform*)__this->fields._scrollRect->fields.m_Content),
-                    UnityEngine::_Object::Method$$BUISituationDescriptionButton$$Instantiate_2)->instance();
-                __this->fields._itemButtons->Add(descButton);
-
-                auto index = __this->fields._itemButtons->fields._size - 1;
-                descButton->fields._index = index;
-                descButton->cast<Dpr::Battle::View::UI::BUIButtonBase>()->set_Text(tuple.fields.Item1);
-                descButton->fields._contentsText->virtual_set_text(tuple.fields.Item2);
-
+                AddElementToSituationDetail(__this, btlStr, nameStr, descStr, remaining, total, slashStr);
                 totalCount++;
             }
         }
+
+        // Side Effects
+        // TODO: Currently Dictionary MethodInfos don't work :(
+        /*for (int32_t i=0; i<SIDE_EFFECT_COUNT; i++)
+        {
+            System::String::Object* nameStr = nullptr;
+            System::String::Object* descStr = nullptr;
+            uint32_t remaining;
+            uint32_t total;
+
+            auto mainModule = battleViewSystem->virtual_GetMainModule()->instance();
+            auto side = mainModule->PokeIDtoSide(btlPokeParam->GetID());
+            auto sideStatus = battleViewSystem->virtual_GetSideEffectStatus(side, i);
+
+            if (sideStatus->IsEffective() && __this->fields._sideIDs->ContainsKey(i))
+            {
+                GenerateNameAndDescStrings(__this, btlStr, btlStateMsgFile, __this->fields._sideIDs->get_Item(i)->instance(), &nameStr, &descStr);
+
+                switch (i)
+                {
+                    case array_index(SIDE_EFFECTS, "Reflect"):
+                        battleViewSystem->virtual_GetUiDisplay_Turn_Reflector(&remaining, &total, side);
+                        break;
+
+                    case array_index(SIDE_EFFECTS, "Light Screen"):
+                        battleViewSystem->virtual_GetUiDisplay_Turn_Hikarinokabe(&remaining, &total, side);
+                        break;
+
+                    case array_index(SIDE_EFFECTS, "Aurora Veil"):
+                        battleViewSystem->virtual_GetUiDisplay_Turn_AuroraVeil(&remaining, &total, side);
+                        break;
+
+                    default:
+                        GetUiDisplay_Turn_SideEffect_All(battleViewSystem, &remaining, &total, side, i);
+                        break;
+                }
+            }
+
+            if (nameStr != nullptr)
+            {
+                AddElementToSituationDetail(__this, btlStr, nameStr, descStr, remaining, total, slashStr);
+                totalCount++;
+            }
+        }*/
 
         return totalCount;
     }

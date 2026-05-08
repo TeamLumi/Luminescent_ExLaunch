@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/BattleViewBase.h"
+#include "externals/Dpr/Battle/Logic/SideEffectStatus.h"
 #include "externals/Dpr/Battle/View/BtlvBallInfo.h"
 #include "externals/Dpr/Battle/View/Systems/BTLV_WAZA_EFF_PARAM.h"
 #include "externals/Dpr/Battle/View/Systems/BattleCameraSystem.h"
@@ -18,6 +19,10 @@
 #include "externals/System/String.h"
 #include "externals/System/Nullable.h"
 #include "externals/UnityEngine/UI/Image.h"
+
+namespace Dpr::Battle::Logic {
+    struct MainModule;
+}
 
 namespace Dpr::Battle::View::Systems {
     struct BattleViewSystem : ILClass<BattleViewSystem> {
@@ -94,6 +99,12 @@ namespace Dpr::Battle::View::Systems {
 
         static_assert(offsetof(Fields, m_effectBallInfo) == 0xE0);
 
+        struct VirtualInvokeData_GetMainModule {
+            typedef Dpr::Battle::Logic::MainModule*(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VirtualInvokeData_GetBattlePokeParam_forUI {
             typedef bool(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, Dpr::Battle::Logic::BTL_POKEPARAM::Object* pDest, int32_t vpos, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
@@ -112,8 +123,20 @@ namespace Dpr::Battle::View::Systems {
             const MethodInfo* method;
         };
 
+        struct VirtualInvokeData_GetSideEffectStatus {
+            typedef Dpr::Battle::Logic::SideEffectStatus::Object*(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, int32_t side, int32_t effect, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VirtualInvokeData_IsClientTrainerExist {
             typedef bool(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint8_t clientID, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetClientID {
+            typedef uint8_t(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
             const MethodInfo* method;
         };
@@ -177,7 +200,7 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _1_Finalize;
             VirtualInvokeData _2_GetHashCode;
             VirtualInvokeData _3_ToString;
-            VirtualInvokeData _4_GetMainModule;
+            VirtualInvokeData_GetMainModule _4_GetMainModule;
             VirtualInvokeData _5_GetBattleEnv;
             VirtualInvokeData _6_GetBattleContainer;
             VirtualInvokeData _7_GetBattlePokeParam;
@@ -189,7 +212,7 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData_GetBattleParty _13_GetBattleParty;
             VirtualInvokeData _14_GetClient;
             VirtualInvokeData_GetFieldStatus _15_GetFieldStatus;
-            VirtualInvokeData _16_GetSideEffectStatus;
+            VirtualInvokeData_GetSideEffectStatus _16_GetSideEffectStatus;
             VirtualInvokeData _17_GetPosEffectStatus;
             VirtualInvokeData _18_GetBattleCompetitor;
             VirtualInvokeData _19_GetBattleRule;
@@ -201,7 +224,7 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _25_IsFriendExist;
             VirtualInvokeData_IsClientTrainerExist _26_IsClientTrainerExist;
             VirtualInvokeData _27_IsWatchMode;
-            VirtualInvokeData _28_GetClientID;
+            VirtualInvokeData_GetClientID _28_GetClientID;
             VirtualInvokeData _29_GetFriendCleintID;
             VirtualInvokeData _30_GetEnemyClientID;
             VirtualInvokeData _31_GetEnemyClientNum;
@@ -513,6 +536,11 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _337_SetIsSoundPlayingFinishCheckInvalid;
         };
 
+        inline Dpr::Battle::Logic::MainModule* virtual_GetMainModule() {
+            return (*(this->instance()->klass->vtable)._4_GetMainModule.methodPtr)
+                    (this->instance(), this->instance()->klass->vtable._4_GetMainModule.method);
+        }
+
         inline bool virtual_GetBattlePokeParam_forUI(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pDest, int32_t vpos) {
             return (*(this->instance()->klass->vtable)._8_GetBattlePokeParam_forUI.methodPtr)
                     (this->instance(), pDest, vpos, this->instance()->klass->vtable._8_GetBattlePokeParam_forUI.method);
@@ -528,9 +556,19 @@ namespace Dpr::Battle::View::Systems {
                     (this->instance(), this->instance()->klass->vtable._15_GetFieldStatus.method);
         }
 
+        inline Dpr::Battle::Logic::SideEffectStatus::Object* virtual_GetSideEffectStatus(int32_t side, int32_t effect) {
+            return (*(this->instance()->klass->vtable)._16_GetSideEffectStatus.methodPtr)
+                    (this->instance(), side, effect, this->instance()->klass->vtable._16_GetSideEffectStatus.method);
+        }
+
         inline bool virtual_IsClientTrainerExist(uint8_t clientID) {
             return (*(this->instance()->klass->vtable)._26_IsClientTrainerExist.methodPtr)
                     (this->instance(), clientID, this->instance()->klass->vtable._26_IsClientTrainerExist.method);
+        }
+
+        inline uint8_t virtual_GetClientID() {
+            return (*(this->instance()->klass->vtable)._28_GetClientID.methodPtr)
+                    (this->instance(), this->instance()->klass->vtable._28_GetClientID.method);
         }
 
         inline uint8_t virtual_GetBtlvPosToClientId(int32_t vpos) {

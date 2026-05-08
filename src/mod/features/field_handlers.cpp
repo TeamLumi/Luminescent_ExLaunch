@@ -54,6 +54,13 @@ void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* get
     elem->ctor(fieldEffect, func);
 }
 
+void AddSituationDetailFieldEffectLabels(System::Collections::Generic::Dictionary$$EffectType$$String::Object* fieldIds) {
+    if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Mud Sport")])
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Mud Sport"), System::String::Create("MudSport"));
+    if (ACTIVATED_FIELD_HANDLERS[array_index(FIELD_EFFECTS, "Water Sport")])
+        fieldIds->Add(array_index(FIELD_EFFECTS, "Water Sport"), System::String::Create("WaterSport"));
+}
+
 HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_FieldStatus_initWork) {
     static void Callback(FieldStatus::Object* __this) {
         for (int32_t i=0; i<10+getExtraFieldEffectHandlers()->count; i++)
@@ -190,19 +197,19 @@ void exl_field_handlers_main() {
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x018f54b8, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fa1c4, Movz(W20, 11 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fabc8, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018facc8, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb028, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb200, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb2e8, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb370, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb418, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb470, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb528, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x018fb598, CmpImmediate(W1, 10 + getExtraFieldEffectHandlers()->count) },
-        { 0x02170b2c, CmpImmediate(W20, 11 + getExtraFieldEffectHandlers()->count) },
+        { 0x018f54b8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fa1c4, Movz(W20, FIELD_EFFECT_COUNT + 1) },
+        { 0x018fabc8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018facc8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb028, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb200, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb2e8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb370, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb418, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb470, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb528, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x018fb598, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { 0x02170b2c, CmpImmediate(W20, FIELD_EFFECT_COUNT + 1) },
     };
     p.WriteInst(inst);
 

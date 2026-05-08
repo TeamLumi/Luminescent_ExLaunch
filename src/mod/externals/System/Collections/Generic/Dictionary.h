@@ -75,7 +75,7 @@ namespace System::Collections::Generic {
             ILClass<T>::template external<void>(0x028e5a70, this, key, value, *T::Method$$Add);
         }
 
-        inline bool ContainsKey(uint8_t key) {
+        inline bool ContainsKey(int32_t key) {
             return ILClass<T>::template external<bool>(0x028e5cd0, this, key, *T::Method$$ContainsKey);
         }
     };
