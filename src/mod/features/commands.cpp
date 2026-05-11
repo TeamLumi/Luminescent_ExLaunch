@@ -164,6 +164,14 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetPartnerPokemon(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_GET_TABLE_POKE:
                     return HandleCmdStepper(GetTablePoke(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EV_IV:
+                    return HandleCmdStepper(PartyBoxEVIV(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE:
+                    return HandleCmdStepper(SetEffortValue(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE:
+                    return HandleCmdStepper(SetIndividualValue(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
+                    return HandleCmdStepper(CustomNumberInput(__this));
                 default:
                     break;
             }
@@ -256,6 +264,10 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_TABLE_POKE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EV_IV);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
 
     exl_commands_hooks_main();
 }

@@ -24,6 +24,9 @@ bool CanUseRegisteredCustomItem(uint16_t itemno)
         case array_index(ITEMS, "Infinite Repel"): {
             return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"));
         }
+        case array_index(ITEMS, "Pro Vitamin Case"): {
+            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Pro Vitamin Case"));
+        }
         default: {
             return false;
         }
@@ -52,6 +55,13 @@ bool CustomItemBehavior(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displ
                 return true;
             }
             return false;
+        }
+        case array_index(ITEMS, "Pro Vitamin Case"): {
+             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Pro Vitamin Case"))) {
+                 UseProVitaminCase(itemId, fromBag, bagDisplayClass);
+                 return true;
+             }
+             return false;
         }
         default: {
             return false;

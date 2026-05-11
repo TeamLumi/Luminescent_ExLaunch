@@ -120,6 +120,7 @@ namespace System {
 }
 
 namespace System {
+    struct ValueTuple2$$Bool$$String : ValueTuple2<ValueTuple2$$Bool$$String, bool, System::String::Object*> {};
     struct ValueTuple2$$String$$int32 : ValueTuple2<ValueTuple2$$String$$int32, System::String::Object*, int32_t> {};
     struct ValueTuple3$$String$$String$$String : ValueTuple3<ValueTuple3$$String$$String$$String, System::String::Object*, System::String::Object*, System::String::Object*> {};
 }
