@@ -18,5 +18,9 @@ namespace UnityEngine {
         static inline int32_t Clamp(int32_t value, int32_t min, int32_t max) {
             return external<int32_t>(0x026b8d90, value, min, max);
         }
+
+        static inline float Log10(float f) {
+            return external<float>(0x026b8950, f);
+        }
     };
 }
