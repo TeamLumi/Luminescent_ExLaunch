@@ -55,12 +55,7 @@ void CompleteProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0:
 
         Logger::log("Calling ChangeEffortPower with coreParam, stat %d and resultNumber %d\n", stat, resultNumber);
 
-        if (stat == 0) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::HP, resultNumber);}
-        if (stat == 1) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::ATK, resultNumber);}
-        if (stat == 2) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::DEF, resultNumber);}
-        if (stat == 3) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::SPATK, resultNumber);}
-        if (stat == 4) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::SPDEF, resultNumber);}
-        if (stat == 5) {coreParam->ChangeEffortPower(Pml::PokePara::PowerID::AGI, resultNumber);}
+        coreParam->ChangeEffortPower((Pml::PokePara::PowerID)stat, resultNumber);
 
         Dpr::EvScript::EvDataManager::getClass()->initIfNeeded();
         Dpr::EvScript::EvDataManager::get_Instanse()->fields._softwareKeyboardSubState = 0; // Done

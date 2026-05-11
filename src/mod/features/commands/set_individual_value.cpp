@@ -33,12 +33,7 @@ bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager)
                         auto coreParam = reinterpret_cast<Pml::PokePara::CoreParam::Object*>(param);
                         if (stat >= 0 && stat <= 5)
                         {
-                            if (stat == 0) {coreParam->ChangeTalentPower(Pml::PokePara::PowerID::HP, newValue);}
-                            if (stat == 1) {coreParam->ChangeTalentPower(Pml::PokePara::PowerID::ATK, newValue);}
-                            if (stat == 2) {coreParam->ChangeTalentPower(Pml::PokePara::PowerID::DEF, newValue);}
-                            if (stat == 3) {coreParam->ChangeTalentPower(Pml::PokePara::PowerID::SPATK, newValue);}
-                            if (stat == 4) {coreParam->ChangeTalentPower(Pml::PokePara::PowerID::SPDEF, newValue);}
-                            if (stat == 5) {coreParam->ChangeTalentPower(Pml::PokePara::PowerID::AGI, newValue);}
+                            coreParam->ChangeTalentPower((Pml::PokePara::PowerID)stat, newValue);
 
                             if (trayIndex > -1) {Dpr::Box::BoxPokemonWork::UpdatePokemon(param, trayIndex, index);}
                         }
