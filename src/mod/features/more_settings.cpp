@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 
+#include "data/fps_modes.h"
 #include "data/game_modes.h"
 #include "data/random_team_modes.h"
 #include "data/settings.h"
@@ -16,6 +17,7 @@
 #include "externals/FlagWork.h"
 #include "externals/PlayerWork.h"
 #include "externals/SmartPoint/AssetAssistant/Sequencer.h"
+#include "externals/UnityEngine/Application.h"
 #include "externals/UnityEngine/Mathf.h"
 #include "romdata/romdata.h"
 #include "save/save.h"
@@ -23,6 +25,12 @@
 #include "logger/logger.h"
 
 static ExtraSettingsSaveData tempExtraSettings {};
+
+void ApplyTargetFrameRate(ExtraSettingsSaveData::FpsMode mode) {
+    auto index = (int32_t)mode;
+    if (index >= 0 && index < FPS_MODE_COUNT)
+        UnityEngine::Application::set_targetFrameRate(FPS_MODE_VALUES[index]);
+}
 
 void OnValueChanged(int32_t configId, int32_t value) {
     ConfigWork::getClass()->initIfNeeded();
@@ -50,6 +58,9 @@ void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSett
         case array_index(SETTINGS, "Team Randomization"):
             extraSettings->randomTeamMode = (ExtraSettingsSaveData::RandomTeamMode)value;
             break;
+        case array_index(SETTINGS, "Frame Rate"):
+            extraSettings->targetFpsMode = (ExtraSettingsSaveData::FpsMode)value;
+            break;
         default:
             config->SetValue(configId, value);
             break;
@@ -70,6 +81,8 @@ int32_t GetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraS
             return (int32_t)extraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return (int32_t)extraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Frame Rate"):
+            return (int32_t)extraSettings->targetFpsMode;
         default:
             return config->GetValue(configId);
     }
@@ -89,6 +102,8 @@ bool IsEqualValue(DPData::CONFIG::Object* config, DPData::CONFIG::Object* otherC
             return extraSettings->gameMode == otherExtraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return extraSettings->randomTeamMode == otherExtraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Frame Rate"):
+            return extraSettings->targetFpsMode == otherExtraSettings->targetFpsMode;
         default:
             return config->IsEqualValue(configId, otherConfig);
     }
@@ -152,6 +167,9 @@ int32_t MaxWindowSelectorValue(int32_t configId) {
 
         case array_index(SETTINGS, "Team Randomization"):
             return RANDOM_TEAM_MODE_COUNT - 1;
+
+        case array_index(SETTINGS, "Frame Rate"):
+            return FPS_MODE_COUNT - 1;
     }
 }
 
@@ -170,6 +188,8 @@ HOOK_DEFINE_TRAMPOLINE(CONFIG$$GetValue) {
 HOOK_DEFINE_REPLACE(ConfigWork$$InvokeChangedValues) {
     static void Callback(DPData::CONFIG::Object* config) {
         system_load_typeinfo(0x2e11);
+
+        ApplyTargetFrameRate(getCustomSaveData()->settings.targetFpsMode);
 
         for (int i=0; i<SETTING_COUNT; i++) {
             OnValueChanged(i, GetSetting(config, &getCustomSaveData()->settings, i));
@@ -225,6 +245,8 @@ HOOK_DEFINE_REPLACE(SettingWindow$$AcceptSettings) {
         memmove(PlayerWork::get_config(), &__this->fields._tempConfig, sizeof(DPData::CONFIG::Object));
 
         memmove(&getCustomSaveData()->settings, &tempExtraSettings, sizeof(ExtraSettingsSaveData));
+
+        ApplyTargetFrameRate(getCustomSaveData()->settings.targetFpsMode);
 
         InvokeChangedValues(PlayerWork::get_config(), &getCustomSaveData()->settings);
     }
@@ -418,6 +440,7 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                     auto mi = *Dpr::UI::SettingWindow::Method$$OnMenuItemValueChaged;
                     auto onValueChanged = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::SettingMenuItem_TypeInfo)->newInstance(window, mi);
                     settingItem->Setup(i, selectIndex, System::String::Create(SETTING_DESCRIPTION_LABELS[i]), onValueChanged);
+
                     window->fields._activeItems->Add(settingItem);
                 }
 
@@ -505,6 +528,10 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
 
                     case array_index(SETTINGS, "Team Randomization"):
                         __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(RANDOM_TEAM_MODE_LABELS[__this->fields._selectIndex]));
+                        break;
+
+                    case array_index(SETTINGS, "Frame Rate"):
+                        __this->fields._texts->fields._items->m_Items[0]->SetupMessage(nullptr, System::String::Create(FPS_MODE_LABELS[__this->fields._selectIndex]));
                         break;
                 }
 
