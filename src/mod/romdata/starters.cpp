@@ -33,6 +33,7 @@ RomData::Starter GetStarter(int32_t index)
         .monsNo = 43,
         .formNo = 0,
         .level = 5,
+        .maxIVs = 3,
         .itemNo = 0,
     };
 }
