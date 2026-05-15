@@ -95,6 +95,7 @@ constexpr int ITEM_FEATURE_COUNT = sizeof(ITEM_FEATURES) / sizeof(ITEM_FEATURES[
 
 static constexpr const char* KEY_ITEM_FEATURES[] = {
     "Clothing Trunk",
+    "Custom Key Items",
     "Incense Burner",
     "Infinite Repel",
     "Pro Vitamin Case",
