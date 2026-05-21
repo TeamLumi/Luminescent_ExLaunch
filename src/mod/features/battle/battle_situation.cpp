@@ -618,6 +618,7 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_OnCancel) {
         battleViewUISystem->fields._wazaList->cast<Dpr::Battle::View::UI::BattleViewUICanvasBase>()->Show(nullptr);
 
         battleViewUISystem->PlaySe(0xa4eb827e);
+        battleViewUISystem->fields._cursor->SetActive(false);
     }
 };
 
