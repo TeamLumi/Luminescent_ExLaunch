@@ -454,3 +454,42 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets a random Pokémon MonsNo and FormNo from an encounter table based on input table ID.
+// Arguments:
+//   [Work, Number] tableID: The table ID to look up (e.g. type ID: 0=Normal, 1=Fighting, 2=Flying, etc.)
+//   [Work] monsNo: The work in which to put the MonsNo result.
+//   [Work] formNo: The work in which to put the FormNo result.
+bool GetTablePoke(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the specified EV and IV of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to get the EV and IV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work] evResult: The work in which to put the Effort Value result.
+//   [Work] ivResult: The work in which to put the Individual Value result.
+bool PartyBoxEVIV(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the specified effort value of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to set the EV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work, Number] newValue: The value to set the EV to.
+bool SetEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the specified individual value of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to set the IV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work, Number] newValue: The value to set the IV to.
+bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Keyboard numpad input with a specified maximum value and header label.
+// Arguments:
+//   [Work] resultNumber: The number that was input.
+//   [Work, Number] maxValue: Maximum value that the player can input.
+//   [String] headerLabel: Message Label containing text to be displayed in the header.
+bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);

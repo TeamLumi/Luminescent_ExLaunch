@@ -60,6 +60,7 @@ static constexpr const char* FEATURES[] = {
     "Surf End Check",
     "Underground Statue Names",
     "Underground Visible Shinies",
+    "More Time Flags",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);
@@ -97,6 +98,7 @@ static constexpr const char* KEY_ITEM_FEATURES[] = {
     "Custom Key Items",
     "Incense Burner",
     "Infinite Repel",
+    "Pro Vitamin Case",
 };
 
 constexpr int KEY_ITEM_FEATURE_COUNT = sizeof(KEY_ITEM_FEATURES) / sizeof(KEY_ITEM_FEATURES[0]);
@@ -106,6 +108,7 @@ static constexpr const char* SMALL_PATCH_FEATURES[] = {
     "Global Exp. Share Toggle",
     "Catch Rate Fix",
     "Extended Flags Fixes",
+    "Disabled Time Travel Penalty",
 };
 
 constexpr int SMALL_PATCH_FEATURE_COUNT = sizeof(SMALL_PATCH_FEATURES) / sizeof(SMALL_PATCH_FEATURES[0]);

@@ -172,8 +172,11 @@ void exl_surf_end_check_main();
 // Adds support for alternate forms for the field swarm models.
 void exl_swarm_forms_main();
 
-// Changes the defaulkt text color for dialog boxes.
+// Changes the default text color for dialog boxes.
 void exl_text_color_main();
+
+// Adds more event flags that get reset daily.
+void exl_time_flags_main();
 
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();
