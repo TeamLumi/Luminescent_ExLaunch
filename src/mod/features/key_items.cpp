@@ -18,6 +18,20 @@ bool CanUseRegisteredCustomItem(uint16_t itemno)
         case array_index(ITEMS, "Clothing Trunk"): {
             return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Clothing Trunk"));
         }
+        case array_index(ITEMS, "Custom Key Item 1"):
+        case array_index(ITEMS, "Custom Key Item 2"):
+        case array_index(ITEMS, "Custom Key Item 3"):
+        case array_index(ITEMS, "Custom Key Item 4"):
+        case array_index(ITEMS, "Custom Key Item 5"):
+        case array_index(ITEMS, "Custom Key Item 6"):
+        case array_index(ITEMS, "Custom Key Item 7"):
+        case array_index(ITEMS, "Custom Key Item 8"):
+        case array_index(ITEMS, "Custom Key Item 9"):
+        case array_index(ITEMS, "Custom Key Item 10"):
+        case array_index(ITEMS, "Custom Key Item 11"):
+        case array_index(ITEMS, "Custom Key Item 12"): {
+            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
+        }
         case array_index(ITEMS, "Incense Burner"): {
             return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Incense Burner"));
         }
@@ -38,6 +52,24 @@ bool CustomItemBehavior(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displ
         case array_index(ITEMS, "Clothing Trunk"): {
             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Clothing Trunk"))) {
                 UseClothingTrunk(itemId, fromBag, bagDisplayClass);
+                return true;
+            }
+            return false;
+        }
+        case array_index(ITEMS, "Custom Key Item 1"):
+        case array_index(ITEMS, "Custom Key Item 2"):
+        case array_index(ITEMS, "Custom Key Item 3"):
+        case array_index(ITEMS, "Custom Key Item 4"):
+        case array_index(ITEMS, "Custom Key Item 5"):
+        case array_index(ITEMS, "Custom Key Item 6"):
+        case array_index(ITEMS, "Custom Key Item 7"):
+        case array_index(ITEMS, "Custom Key Item 8"):
+        case array_index(ITEMS, "Custom Key Item 9"):
+        case array_index(ITEMS, "Custom Key Item 10"):
+        case array_index(ITEMS, "Custom Key Item 11"):
+        case array_index(ITEMS, "Custom Key Item 12"): {
+            if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
+                UseCustomKeyItem(itemId, fromBag, bagDisplayClass);
                 return true;
             }
             return false;
