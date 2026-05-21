@@ -18,39 +18,17 @@ bool CanUseRegisteredCustomItem(uint16_t itemno)
         case array_index(ITEMS, "Clothing Trunk"): {
             return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Clothing Trunk"));
         }
-        case array_index(ITEMS, "Custom Key Item 1"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 2"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 3"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 4"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 5"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 6"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 7"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 8"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 9"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 10"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
-        case array_index(ITEMS, "Custom Key Item 11"): {
-            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
-        }
+        case array_index(ITEMS, "Custom Key Item 1"):
+        case array_index(ITEMS, "Custom Key Item 2"):
+        case array_index(ITEMS, "Custom Key Item 3"):
+        case array_index(ITEMS, "Custom Key Item 4"):
+        case array_index(ITEMS, "Custom Key Item 5"):
+        case array_index(ITEMS, "Custom Key Item 6"):
+        case array_index(ITEMS, "Custom Key Item 7"):
+        case array_index(ITEMS, "Custom Key Item 8"):
+        case array_index(ITEMS, "Custom Key Item 9"):
+        case array_index(ITEMS, "Custom Key Item 10"):
+        case array_index(ITEMS, "Custom Key Item 11"):
         case array_index(ITEMS, "Custom Key Item 12"): {
             return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"));
         }
@@ -75,86 +53,20 @@ bool CustomItemBehavior(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displ
             }
             return false;
         }
-        case array_index(ITEMS, "Custom Key Item 1"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem1(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 2"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem2(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 3"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem3(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 4"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem4(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 5"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem5(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 6"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem6(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 7"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem7(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 8"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem8(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 9"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem9(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 10"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem10(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-        }
-        case array_index(ITEMS, "Custom Key Item 11"): {
-             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                 UseCustomKeyItem11(itemId, fromBag, bagDisplayClass);
-                 return true;
-             }
-             return false;
-    }
+        case array_index(ITEMS, "Custom Key Item 1"):
+        case array_index(ITEMS, "Custom Key Item 2"):
+        case array_index(ITEMS, "Custom Key Item 3"):
+        case array_index(ITEMS, "Custom Key Item 4"):
+        case array_index(ITEMS, "Custom Key Item 5"):
+        case array_index(ITEMS, "Custom Key Item 6"):
+        case array_index(ITEMS, "Custom Key Item 7"):
+        case array_index(ITEMS, "Custom Key Item 8"):
+        case array_index(ITEMS, "Custom Key Item 9"):
+        case array_index(ITEMS, "Custom Key Item 10"):
+        case array_index(ITEMS, "Custom Key Item 11"):
         case array_index(ITEMS, "Custom Key Item 12"): {
             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Custom Key Items"))) {
-                UseCustomKeyItem12(itemId, fromBag, bagDisplayClass);
+                UseCustomKeyItem(itemId, fromBag, bagDisplayClass);
                 return true;
             }
             return false;
