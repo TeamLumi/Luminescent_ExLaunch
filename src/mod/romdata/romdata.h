@@ -15,6 +15,7 @@
 #include "romdata/data/EncounterTableData.h"
 #include "romdata/data/UnbreakablePokeItem.h"
 #include "romdata/data/FossilData.h"
+#include "romdata/data/Zone.h"
 #include "romdata/data/ZoneRates.h"
 
 // Returns the max level based on the given level cap index.
@@ -121,5 +122,8 @@ int32_t GetFossilFormNoFromItemNo(int32_t itemNo);
 
 // Loads the list of fossil item numbers from fossil_items.json.
 RomData::FossilItemList LoadFossilItemList();
+
+// Returns the extra Zone data.
+RomData::Zone GetZoneData(int32_t zoneID);
 
 void LoadFeaturesFromJSON(nn::json j);

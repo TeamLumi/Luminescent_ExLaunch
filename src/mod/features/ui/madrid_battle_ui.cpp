@@ -25,6 +25,7 @@
 #include "externals/System/Nullable.h"
 #include "externals/UnityEngine/Debug.h"
 #include "externals/UnityEngine/UI/LayoutRebuilder.h"
+#include "externals/UnityEngine/UI/Slider.h"
 
 #include "features/activated_features.h"
 #include "features/battle/battle.h"
@@ -43,6 +44,9 @@ const UnityEngine::Color::Fields SELECTED_MOVE_TEXT_COLOR = { .r = 0, .g = 0, .b
 const UnityEngine::Color::Fields NOT_SELECTED_MOVE_TEXT_COLOR = { .r = 1, .g = 1, .b = 1, .a = 1 };
 
 static int32_t selectedGimmick = array_index(GIMMICKS, "None");
+
+static float battleHeldXTime = 0.0f;
+static float battleHeldBTime = 0.0f;
 
 UnityEngine::Transform::Object* GetWazaButtonBackgroundRoot(Dpr::Battle::View::UI::BUIWazaButton::Object* btn) {
     return ((UnityEngine::Component::Object*)btn)->get_transform()
@@ -213,6 +217,16 @@ Dpr::Battle::View::UI::BUISituation::Object* GetSituationObject(Dpr::Battle::Vie
     return (Dpr::Battle::View::UI::BUISituation::Object*)situationCmpList->m_Items[2];
 }
 
+UnityEngine::UI::Slider::Object* GetBagSliderObject(Dpr::Battle::View::UI::BUIActionList::Object* actionList) {
+    auto bagTF = ((UnityEngine::Component::Object*)actionList)->get_transform()
+            ->Find(System::String::Create("ActionButtons"))
+            ->Find(System::String::Create("Bag"))
+            ->Find(System::String::Create("Button"));
+    auto bagGO = ((UnityEngine::Component::Object*)bagTF)->get_gameObject();
+    auto bagCmpList = (UnityEngine::Component::Array*)bagGO->GetAllComponents();
+    return (UnityEngine::UI::Slider::Object*)bagCmpList->m_Items[3];
+}
+
 void SetMoveDescDamageType(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc, int32_t wazaNo) {
     Logger::log("[SetMoveDescDamageType] we're in\n");
     auto type = Pml::WazaData::WazaDataSystem::GetDamageType(wazaNo);
@@ -280,6 +294,35 @@ void SetGimmickIconBackgroundActive(Dpr::Battle::View::UI::BUIWazaList::Object* 
         ((UnityEngine::Component::Object*)gimmickIcon->get_transform()->Find(System::String::Create("Active")))->get_gameObject()->SetActive(state);
 }
 
+bool IsButtonHeldFor(int32_t buttonMask, float* currentTime, float deltaTime, float totalTime, UnityEngine::UI::Slider::Object* slider) {
+    bool done = false;
+
+    if (Dpr::Battle::View::BtlvInput::GetPush(buttonMask, true)) {
+        // First frame of pressing button
+        *currentTime = 0.0f;
+    }
+
+    if (Dpr::Battle::View::BtlvInput::GetOn(buttonMask)) {
+        // Button being held
+        *currentTime += deltaTime;
+        done = *currentTime >= totalTime;
+
+        // Reset time to 0 upon completion
+        if (done) {
+            *currentTime = 0.0f;
+        }
+    }
+    else {
+        // Not being held
+        *currentTime = 0.0f;
+    }
+
+    if (slider != nullptr && UnityEngine::_Object::op_Inequality(slider->cast<UnityEngine::_Object>(), nullptr))
+        slider->set_value(*currentTime / totalTime);
+
+    return done;
+}
+
 HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
     static void Callback(Dpr::Battle::View::UI::BUIActionList::Object* __this, float deltatime) {
         system_load_typeinfo(0x1f11);
@@ -304,15 +347,18 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
 
         if (!__this->fields._isSafari)
         {
-            // TODO: Hold?
-            /*if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonX, true))
-                wazaList->OnSubmitWazaDescription();*/
-
-            // TODO: Hold?
-            if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::R, true))
+            if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Plus | GameController::ButtonMask::Minus, true)) {
+                wazaList->OnSubmitWazaDescription();
+            }
+            else if (IsButtonHeldFor(GameController::ButtonMask::X, &battleHeldXTime, deltatime, 1.0f, GetBagSliderObject(__this))) {
+                Logger::log("[BUIActionList$$OnUpdate] Ball\n");
                 __this->OnSubmitPokeBall();
-
-            if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, true)) {
+            }
+            else if (IsButtonHeldFor(GameController::ButtonMask::B, &battleHeldBTime, deltatime, 0.5f, nullptr)) {
+                Logger::log("[BUIActionList$$OnUpdate] Run\n");
+                SubmitActionButton(__this, 3);
+            }
+            else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonB, true)) {
                 if (__this->fields._IsFocus_k__BackingField && !__this->fields.isButtonAction && __this->fields._IsReturnable_k__BackingField) {
                     __this->fields.isButtonAction = true;
                     __this->fields._IsValid_k__BackingField = true;
@@ -320,8 +366,7 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
                     battleViewCore->fields._UISystem_k__BackingField->PlaySe(AK_EVENTS_UI_COMMON_CANCEL);
                 }
             }
-
-            if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::L, true)) {
+            else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::L | GameController::ButtonMask::R, true)) {
                 Logger::log("[BUIActionList$$OnUpdate] Battle Situation\n");
                 if (__this->fields._IsFocus_k__BackingField && !__this->fields.isButtonAction) {
                     Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
@@ -350,16 +395,11 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
                 Logger::log("[BUIActionList$$OnUpdate] Pokémon\n");
                 SubmitActionButton(__this, 1);
             }
-            else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::X, true)) {
+            else if (Dpr::Battle::View::BtlvInput::GetRelease(GameController::ButtonMask::X)) {
                 Logger::log("[BUIActionList$$OnUpdate] Bag\n");
                 SubmitActionButton(__this, 2);
             }
-            else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Plus | GameController::ButtonMask::Minus, true)) {
-                Logger::log("[BUIActionList$$OnUpdate] Run\n");
-                SubmitActionButton(__this, 3);
-            }
-
-            if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::StickL | GameController::ButtonMask::StickR, true)) {
+            else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::StickL | GameController::ButtonMask::StickR, true)) {
                 Logger::log("[BUIActionList$$OnUpdate] Change gimmick\n");
                 for (int32_t i=0; i<GIMMICK_COUNT; i++)
                     SetGimmickIconBackgroundActive(wazaList, i, false);
@@ -374,8 +414,7 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
 
                 Logger::log("[BUIActionList$$OnUpdate] New gimmick is %s\n", GIMMICKS[selectedGimmick]);
             }
-
-            if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, true)) {
+            else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->ButtonA, true)) {
                 Logger::log("[BUIActionList$$OnUpdate] Submit waza\n");
                 if (wazaList->fields._CurrentIndex_k__BackingField >= 0 && wazaList->fields._CurrentIndex_k__BackingField < wazaList->fields._wazaCount)
                 {
@@ -391,8 +430,7 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
                     battleViewCore->fields._UISystem_k__BackingField->PlaySe(AK_EVENTS_UI_COMMON_BEEP);
                 }
             }
-
-            if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
+            else if (Dpr::Battle::View::BtlvInput::GetPush(Dpr::UI::UIManager::getClass()->static_fields->StickLUp, true)) {
                 if (wazaList->fields._wazaCount > 0)
                     SelectWazaButton(wazaList, 0, true);
             }
@@ -411,7 +449,11 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
         }
         else
         {
-            if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::A, true)) {
+            if (IsButtonHeldFor(GameController::ButtonMask::B, &battleHeldBTime, deltatime, 0.5f, nullptr)) {
+                Logger::log("[BUIActionList$$OnUpdate] Holding for Run... %f\n", battleHeldBTime);
+                SubmitActionButton(__this, 8);
+            }
+            else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::A, true)) {
                 Logger::log("[BUIActionList$$OnUpdate] Safari Ball\n");
                 SubmitActionButton(__this, 5);
             }
@@ -422,10 +464,6 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
             else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Y, true)) {
                 Logger::log("[BUIActionList$$OnUpdate] Mud\n");
                 SubmitActionButton(__this, 7);
-            }
-            else if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Plus | GameController::ButtonMask::Minus, true)) {
-                Logger::log("[BUIActionList$$OnUpdate] Run\n");
-                SubmitActionButton(__this, 8);
             }
         }
     }
@@ -456,6 +494,9 @@ HOOK_DEFINE_TRAMPOLINE(BUIActionList$$OnShow) {
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         auto battleViewCore = Dpr::Battle::View::BattleViewCore::get_Instance();
         battleViewCore->fields._UISystem_k__BackingField->fields._cursor->SetActive(false);
+
+        battleHeldXTime = 0.0f;
+        battleHeldBTime = 0.0f;
     }
 };
 
