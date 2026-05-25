@@ -11,6 +11,14 @@
 void Hooks_LoadUmaAnime();
 
 
+// Gets the x, y and z position of an entity.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work] x: The work in which to put the result x position.
+//   [Work] y: The work in which to put the result y position.
+//   [Work] z: The work in which to put the result z position.
+bool ObjPosGet(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Sets the weather.
 // Arguments:
 //   [Work, Number] weather: The ID of the weather to change to.
@@ -63,6 +71,17 @@ bool KasekiItemNo(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isForce: Unknown use.
 //   [Work, Number] fadeTime: The time in seconds it takes for the effect to fade.
 bool StopEffect(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Moves an entity to the specified coordinates (supports floats), adding the option to use the current values for each axis.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] xPos: The value to set the x coordinate to.
+//   [Work, Number] yPos: The value to set the y coordinate to.
+//   [Work, Number] zPos: The value to set the z coordinate to.
+//   [Work, Number] useCurrentX: (optional) If value is not 0, the xPos argument will be ignored and the player will not be moved on the x axis.
+//   [Work, Number] useCurrentY: (optional) If value is not 0, the yPos argument will be ignored and the player will not be moved on the y axis.
+//   [Work, Number] useCurrentZ: (optional) If value is not 0, the zPos argument will be ignored and the player will not be moved on the z axis.
+bool ObjPosChangeWorld(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Unloads an asset bundle holding animation data.
 // Arguments:
