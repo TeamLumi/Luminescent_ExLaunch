@@ -3,6 +3,7 @@
 #include "externals/BattleCharacterEntity.h"
 #include "externals/ColorVariation.h"
 #include "externals/Dpr/Battle/Logic/TRAINER_DATA.h"
+#include "externals/Dpr/Battle/Logic/MyStatus.h"
 #include "externals/Dpr/Battle/View/TrainerSimpleParam.h"
 #include "externals/FieldCharacterEntity.h"
 #include "externals/UnityEngine/Component.h"
@@ -18,10 +19,11 @@
 // Per-slot MyStatus pointers — stored during battle setup so the
 // MyStatusGetColorID hook can match __this to the correct slot and
 // return g_owmpBattleSlotColors[slot] without hijacking MyStatus bytes.
-static void* s_battleMyStatusPtrs[4] = {};
+static Dpr::Battle::Logic::MyStatus::Object* s_battleMyStatusPtrs[4] = {};
 
 void owmpSetBattleMyStatus(int32_t slot, void* myStatus) {
-    if (slot >= 0 && slot < 4) s_battleMyStatusPtrs[slot] = myStatus;
+    if (slot >= 0 && slot < 4)
+        s_battleMyStatusPtrs[slot] = (Dpr::Battle::Logic::MyStatus::Object*)myStatus;
 }
 
 void owmpClearBattleMyStatus() {
@@ -304,7 +306,7 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
 // to return the correct slot's colorID from g_owmpBattleSlotColors[].
 // Outside MP, return the local player's custom preset from save data.
 HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
-    static int32_t Callback(void* __this) {
+    static int32_t Callback(Dpr::Battle::Logic::MyStatus::Object* __this) {
         if (g_owmpBattleColorActive && __this != nullptr) {
             for (int i = 0; i < 4; i++) {
                 if (s_battleMyStatusPtrs[i] == __this) {

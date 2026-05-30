@@ -563,6 +563,31 @@ void overworldMPEnterSyncWait() {
                 tu.syncTrainerID, tu.syncTrainerID2, tu.syncZoneID, tu.syncRandomTeamMode);
 }
 
+// True if the local party has at least one battle-eligible (non-egg, HP>0) Pokemon
+// within the first TEAMUP_PARTY_LIMIT slots. The comm/PP_AA battle uses those slots
+// verbatim, so a player whose first slots are all eggs (e.g. daycare eggs in front)
+// or fainted has no usable lead and must not be forced into the link double battle.
+// Both players run this check, so a leadless player simply battles solo and never
+// pulls a partner in — no separate partner-side check is required.
+bool overworldMPLocalHasTeamUpLead() {
+    auto* party = PlayerWork::get_playerParty();
+    if (party == nullptr) return false;
+
+    int32_t count = party->fields.m_memberCount;
+    if (count > TEAMUP_PARTY_LIMIT) count = TEAMUP_PARTY_LIMIT;
+
+    for (int i = 0; i < count; i++) {
+        auto* member = party->GetMemberPointer(i);
+        if (member == nullptr) continue;
+        auto* core = member->cast<Pml::PokePara::CoreParam>();
+        if (core == nullptr) continue;
+        if (!core->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG) && !core->IsHpZero()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Cancel sync and proceed with solo battle (original BSP, no PP_AA)
 void overworldMPCancelSyncAndGoSolo() {
     auto& tu = s_teamUpState;
@@ -583,6 +608,9 @@ void overworldMPCancelSyncAndGoSolo() {
     tu.partnerZoneID = -1;
     tu.bypassTrainerFlag = false;
     tu.battlePending = false;
+    // A cancelled sync is never a team-up battle — make sure a stale "partner party
+    // received" flag from a previous battle doesn't promote this solo release.
+    tu.partnerPartyValid = false;
 
     // Hide MsgWindow — releaseDeferredEncount will also try, but safe to double-call
     hideMsgWindowCustomText();
@@ -2709,6 +2737,11 @@ void overworldMPTickDeferredEncount() {
         bool wasTeamUp = tu.partnerPartyValid && tu.isTeamedUp;
         Logger::log("[TeamUp] Tick: syncPhase=NONE — releasing (%s)\n",
                     wasTeamUp ? "team-up BSP" : "solo fallback");
+        // Consume the flag so it can't leak into the NEXT encounter. partnerPartyValid
+        // is only valid for the exchange that just produced a PP_AA BSP; if it survived,
+        // a later cancelled encounter (while still teamed up) would be mis-released as
+        // team-up against an unmodified solo BSP.
+        tu.partnerPartyValid = false;
         releaseDeferredEncount(wasTeamUp);
         return;
     }

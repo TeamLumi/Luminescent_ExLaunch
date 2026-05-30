@@ -9,6 +9,9 @@
 
 #include "features/team_up.h"
 #include "features/overworld_multiplayer.h"
+#include "features/activated_features.h"
+#include "data/features.h"
+#include "data/utils.h"
 
 using namespace Dpr::Battle::Logic;
 
@@ -33,7 +36,14 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
 
     int32_t total = party1->fields.m_memberCount;
 
-    if (total <= 1) {
+    if (total <= 0) {
+        // Empty party (e.g. a network-supplied trainer count of 0): nothing to
+        // split. Don't force a phantom member — a 0/0 PP_AA split crashes battle init.
+        Logger::log("[TeamUp] splitTrainerParty: empty party, nothing to split\n");
+        return;
+    }
+
+    if (total == 1) {
         // Only 1 Pokemon: keep it in slot 1, copy to slot 3 using PokemonParam copy ctor
         party1->fields.m_memberCount = 1;
         auto* src = party1->GetMemberPointer(0);
@@ -74,9 +84,15 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
             rule = (int32_t) BtlRule::BTL_RULE_DOUBLE;
         }
 
+        // SetupBattleTrainer is installed under the "Trainer Double Battle" feature,
+        // which can be enabled with overworld multiplayer OFF. The team-up state is
+        // only initialized by the MP feature, so gate all MP-dependent logic on the
+        // feature being active before touching it.
         bool doTeamUp = false;
-        if (overworldMPIsTeamedUp() && partnerID == 0 &&
-            !PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR)) {
+        if (IsActivatedFeature(array_index(FEATURES, "Overworld Multiplayer")) &&
+            overworldMPIsTeamedUp() && partnerID == 0 &&
+            !PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR) &&
+            overworldMPLocalHasTeamUpLead()) {
             auto& tu = overworldMPGetTeamUpState();
             doTeamUp = true;
 

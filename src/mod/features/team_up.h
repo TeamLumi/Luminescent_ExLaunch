@@ -189,5 +189,13 @@ inline void normalTrainer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp, i
 // Split a single trainer's party between two AI slots for PP_AA double battles
 void splitTrainerParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3);
 
+// True if the local party has a battle-eligible lead in the first TEAMUP_PARTY_LIMIT
+// slots (non-egg, HP>0). Used to skip team-up when the player has no usable lead.
+bool overworldMPLocalHasTeamUpLead();
+
 // Install team-up hooks
 void exl_team_up_main();
+
+// Install trainer-flag-bypass hooks (lets a teamed-up partner re-fight
+// already-defeated trainers during sync). Part of the overworld MP feature.
+void exl_trainer_flag_bypass_main();

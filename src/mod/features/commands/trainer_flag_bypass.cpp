@@ -6,8 +6,10 @@
 // branch, so Player B's script proceeds to the battle setup as if it's fresh.
 // The bypass is narrow: cleared when sync resolves, cancels, or partner disconnects.
 //
-// Uses proper Replace hooks on EvMacro_IF_TR_FLAGON_JUMP (0x2C61C30) and
+// Uses trampoline hooks on EvMacro_IF_TR_FLAGON_JUMP (0x2C61C30) and
 // EvMacro_IF_TR_FLAGON_CALL (0x2C61E50) instead of command-level intercepts.
+// Each hook short-circuits to "flag not set" only during team-up sync, otherwise
+// it calls Orig for vanilla behaviour.
 
 #include "exlaunch.hpp"
 

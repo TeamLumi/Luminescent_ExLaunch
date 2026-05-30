@@ -277,9 +277,9 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
 
-    // Team-up trainer flag bypass (vanilla commands intercepted for team-up sync)
-    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_JUMP);
-    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_IF_TR_FLAGON_CALL);
+    // Note: the team-up trainer-flag bypass for _IF_TR_FLAGON_JUMP/_CALL is handled
+    // by trampoline hooks in commands/trainer_flag_bypass.cpp, not custom command
+    // dispatch, so those commands are intentionally not registered here.
 
     exl_commands_hooks_main();
 }

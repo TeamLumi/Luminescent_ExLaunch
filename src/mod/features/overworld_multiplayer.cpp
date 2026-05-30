@@ -735,6 +735,18 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
         // ---- POKE: single Pokemon data (pokeIndex + 86 × int32) ----
         case BATTLE_PARTY_SUB_POKE: {
+            // Guard: only accept POKE chunks that belong to the in-progress
+            // accumulation. Without this, a POKE arriving before any HEADER, or
+            // a different station interleaving its own chunks, corrupts the
+            // shared buffer and can trigger a premature/mis-attributed completion.
+            // Mirrors the team-up POKE handler's guards below.
+            if (s_accumFromStation < 0 || s_accumFromStation != fromStation ||
+                s_accumMemberCount == 0) {
+                Logger::log("[OverworldMP] POKE without matching HEADER (from=%d accum=%d) — ignoring\n",
+                            fromStation, s_accumFromStation);
+                break;
+            }
+
             uint8_t pokeIndex = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
 
@@ -754,7 +766,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 }
             }
 
-            s_accumReceivedCount++;
+            // Count only in-range slots so out-of-range/duplicate indices can't
+            // inflate the received count past memberCount (matches team-up path).
+            if (pokeIndex < s_accumMemberCount)
+                s_accumReceivedCount++;
 
             // Log personalRnd for corruption detection
             {
@@ -4661,6 +4676,12 @@ void exl_overworld_multiplayer_main() {
 
     // Setting toggle detection: we poll the save data setting each frame in
     // FieldManager.Update. When the value changes, start/stop is triggered.
+
+    // Install the rest of the overworld-multiplayer feature. team-up battles and
+    // the trainer-flag bypass are entirely reliant on this system, so they share
+    // a single entry point rather than being toggled independently from main.cpp.
+    exl_team_up_main();
+    exl_trainer_flag_bypass_main();
 
     Logger::log("[OverworldMP] Feature hooks installed\n");
 }
