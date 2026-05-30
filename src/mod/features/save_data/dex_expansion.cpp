@@ -30,6 +30,7 @@ void exl_save_dex_expansion_main() {
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
+        { 0x017da928, Movz(W19, DexSize) },
         { 0x017dbd3c, CmpImmediate(W19, DexSize - 1) },
         { 0x017dc8b4, CmpImmediate(W20, DexSize - 1) },
         { 0x017dc9d0, CmpImmediate(W19, DexSize - 1) },
@@ -42,6 +43,7 @@ void exl_save_dex_expansion_main() {
         { 0x017dd4b4, CmpImmediate(W20, DexSize - 1) },
         { 0x017ddee0, Movz(W1, DexSize) },
         { 0x018d372c, CmpImmediate(W0, 0) },
+        { 0x018d3fd0, CmpImmediate(W8, DexSize - 1) },
         { 0x0199ca48, CmpImmediate(W9, DexSize + 1) },
         { 0x0199ca54, SubImmediate(W8, W8, DexSize - 1) },
         { 0x0199ca88, AddImmediate(W8, W8, DexSize - 1) },
@@ -73,7 +75,6 @@ void exl_save_dex_expansion_main() {
         { 0x024a3b48, Movz(W9, DexSize + 1) },
         { 0x024a6b38, Movz(W0, DexSize + 1) },
         { 0x017da928, Movz(W19, DexSize)}, // Dex Array Expansion
-
     };
     p.WriteInst(inst);
 

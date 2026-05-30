@@ -11,8 +11,6 @@
 
 void CallFeatureHooks()
 {
-    if (IsActivatedFeature(array_index(FEATURES, "Ability Changes")))
-        exl_ability_changes_main();
     if (IsActivatedFeature(array_index(FEATURES, "Alt Starters")))
         exl_alt_starters_main();
     if (IsActivatedFeature(array_index(FEATURES, "Area/Zone Codes")))
@@ -133,6 +131,12 @@ void CallFeatureHooks()
         extern void exl_trainer_flag_bypass_main();
         exl_trainer_flag_bypass_main();
     }
+    if (IsActivatedFeature(array_index(FEATURES, "Underground Statue Names")))
+        exl_ug_statue_names_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Underground Visible Shinies")))
+        exl_ug_shinies_main();
+    if (IsActivatedFeature(array_index(FEATURES, "More Time Flags")))
+        exl_time_flags_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

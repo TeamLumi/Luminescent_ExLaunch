@@ -12,6 +12,7 @@
 #include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
+#include "romdata/data/EncounterTableData.h"
 #include "romdata/data/UnbreakablePokeItem.h"
 #include "romdata/data/FossilData.h"
 #include "romdata/data/ZoneRates.h"
@@ -36,6 +37,12 @@ RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo);
 
 // Returns the honey tree Pokémon at the given zoneID and slot.
 RomData::HoneyTreeSlot GetHoneyTreeSlot(int32_t zoneID, int32_t slot);
+
+// Returns a random encounter slot from the given table ID.
+RomData::EncounterSlot GetEncounterTableSlot(int32_t tableID);
+
+// Returns the number of slots in the given encounter table.
+int32_t GetEncounterTableCount(int32_t tableID);
 
 // Returns a predefined color set for color variations.
 RomData::ColorSet GetColorSet(int32_t index);
@@ -69,6 +76,9 @@ RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId);
 
 // Returns the form rates of the given Pokémon at the given zoneID.
 nn::vector<uint32_t> GetFormRates(int32_t monsno, int32_t zoneID);
+
+// Returns if there are defined form rates for the given Pokémon at the given zoneID.
+bool ExistFormRates(int32_t monsno, int32_t zoneID);
 
 // Rolls for a form based on the form rates for the given Pokémon at the given zoneID.
 int32_t RollForForm(int32_t monsno, int32_t zoneID);
