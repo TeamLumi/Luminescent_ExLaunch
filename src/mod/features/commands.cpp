@@ -176,8 +176,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetIndividualValue(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
                     return HandleCmdStepper(CustomNumberInput(__this));
-            case Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA:
-                return HandleCmdStepper(AddTamagoExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA:
+                    return HandleCmdStepper(AddTamagoExtra(__this));
                 default:
                     break;
             }

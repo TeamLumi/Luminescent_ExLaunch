@@ -517,9 +517,9 @@ bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work, Number] monsno: ID of the species to give.
 //   [Work, Number] formno: ID of the form the species is in.
-//   [Work, Number] receivedFrom: (optional) Where the egg was recieved from. Will be current zone if no argument is given.
-//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have.
-//   [Work, Number] ball: (optional) ID of the ball the Pokémon will reside in. Regular Poke Ball if no argument is given.
+//   [Work, Number] receivedFrom: (optional) Where the egg was recieved from. Will be current zone if no argument is given. -1 = No Argument
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have. -1 = No Argument
+//   [Work, Number] ball: (optional) ID of the ball the Pokémon will reside in. 4 = Default Poke Ball
 //   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
 //   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be. -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
 //   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
