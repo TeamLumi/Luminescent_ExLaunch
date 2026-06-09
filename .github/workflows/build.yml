@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64:20260219
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # - name: Install Node.js
+      #   run: |
+      #     apt-get install -y ca-certificates curl
+      #     curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+      #     apt-get install -y nodejs
+
+      - name: Setup ccache
+        run: apt-get update -y && apt-get install -y ccache
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}
+
+      - name: Configure CMake
+        run: |
+          cmake -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake \
+            -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -Bbuild
+
+      - name: Build all targets
+        working-directory: build_release
+        run: make -j$(nproc) RomBase_release_all
+
+      - name: Upload Release exefs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exefs_release
+          path: build/RomBase_releases/atmosphere/
+
+      - name: Configure CMake
+        run: |
+          cmake -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake \
+            -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -Bbuild
+
+      - name: Build all targets
+        working-directory: build_debug
+        run: make -j$(nproc) RomBase_release_all
+
+      - name: Upload Debug exefs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exefs_debug
+          path: build/RomBase_releases/atmosphere/
