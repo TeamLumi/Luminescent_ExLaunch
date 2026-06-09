@@ -2,9 +2,6 @@ name: Build
 
 on:
   push:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -71,3 +68,33 @@ jobs:
         with:
           name: exefs_debug
           path: build_debug/RomBase_releases/atmosphere/
+
+      - name: Create release zip
+        run: |
+          cd build_release/RomBase_releases
+          zip -r ../../exefs_release.zip atmosphere
+
+      - name: Create debug zip
+        run: |
+          cd build_debug/RomBase_releases
+          zip -r ../../exefs_debug.zip atmosphere
+
+      - name: Generate nightly tag
+        id: nightly
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "tag=nightly-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Create prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.nightly.outputs.tag }}
+          name: ${{ steps.nightly.outputs.tag }}
+          prerelease: true
+          make_latest: false
+          generate_release_notes: true
+          files: |
+            exefs_release.zip
+            exefs_debug.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
