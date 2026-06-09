@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exefs_release
-          path: build/RomBase_releases/atmosphere/
+          path: build_release/RomBase_releases/atmosphere/
 
       - name: Configure CMake
         run: |
@@ -70,4 +70,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exefs_debug
-          path: build/RomBase_releases/atmosphere/
+          path: build_debug/RomBase_releases/atmosphere/
