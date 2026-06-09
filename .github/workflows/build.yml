@@ -2,7 +2,11 @@ name: Build
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -38,7 +42,7 @@ jobs:
             -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -Bbuild
+            -Bbuild_release
 
       - name: Build all targets
         working-directory: build_release
@@ -58,7 +62,7 @@ jobs:
             -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -Bbuild
+            -Bbuild_debug
 
       - name: Build all targets
         working-directory: build_debug
