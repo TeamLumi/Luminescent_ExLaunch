@@ -412,16 +412,8 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
 
                 auto parentTF = window->fields._scrollRect->fields.m_Content->cast<UnityEngine::Transform>();
 
-                // Clone the last child to create extra SettingMenuItem entries for custom settings
-                int existingCount = parentTF->get_childCount();
-                while (existingCount < SETTING_COUNT) {
-                    auto lastChild = parentTF->GetChild(existingCount - 1);
-                    auto lastGO = lastChild->cast<UnityEngine::Component>()->get_gameObject();
-                    auto clonedGO = UnityEngine::_Object::Instantiate(lastGO);
-                    clonedGO->get_transform()->SetParent(parentTF, false);
-                    existingCount++;
-                }
-
+                // All custom settings rows are baked into the UIs/ui/setting bundle, so
+                // there is no runtime cloning. The child count matches SETTING_COUNT.
                 for (int i = 0; i < parentTF->get_childCount(); i++) {
                     auto child = parentTF->GetChild(i);
                     auto settingItem = child->cast<UnityEngine::Component>()->GetComponent(
@@ -441,16 +433,6 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
                     auto mi = *Dpr::UI::SettingWindow::Method$$OnMenuItemValueChaged;
                     auto onValueChanged = UnityEngine::Events::UnityAction::getClass(UnityEngine::Events::UnityAction::SettingMenuItem_TypeInfo)->newInstance(window, mi);
                     settingItem->Setup(i, selectIndex, System::String::Create(SETTING_DESCRIPTION_LABELS[i]), onValueChanged);
-
-                    // Fix title text for dynamically cloned items (cloned from the previous item)
-                    if (i == array_index(SETTINGS, "Overworld Multiplayer")) {
-                        auto titleText = settingItem->cast<UnityEngine::Component>()->GetComponentInChildren<Dpr::UI::UIText>(
-                                true, UnityEngine::Component::Method$$UIText$$GetComponentInChildren);
-                        auto valueText = settingItem->instance()->fields._texts->fields._items->m_Items[0];
-                        if (titleText != nullptr && titleText != valueText) {
-                            titleText->SetupMessage(nullptr, System::String::Create("SS_option_OverworldMP"));
-                        }
-                    }
 
                     window->fields._activeItems->Add(settingItem);
                 }
