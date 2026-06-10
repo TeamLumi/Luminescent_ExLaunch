@@ -1302,6 +1302,8 @@ namespace Dpr::EvScript {
             _SET_EFFORT_VALUE = 1292,
             _SET_INDIVIDUAL_VALUE = 1293,
             _CUSTOM_NUMBER_INPUT = 1294,
+            // 1295-1298 reserved by the lookers-hat branch (PR #226)
+            _GET_GAME_MODE = 1299,
 
             CUSTOM_CMD_END = 1500,
         };

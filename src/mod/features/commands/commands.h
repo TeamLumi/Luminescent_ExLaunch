@@ -512,3 +512,8 @@ bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] maxValue: Maximum value that the player can input.
 //   [String] headerLabel: Message Label containing text to be displayed in the header.
 bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the current game mode from the extra settings save data.
+// Arguments:
+//   [Work] result: The work in which to put the result. 0 = 493 Mode, 1 = NatDex Mode, 2 = Challenge Mode.
+bool GetGameMode(Dpr::EvScript::EvDataManager::Object* manager);
