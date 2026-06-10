@@ -48,7 +48,7 @@ bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager)
             int32_t starterId = PlayerWork::get_defaultPokeType();
             RomData::Starter starter = GetStarter(starterId);
 
-            bool addSuccess = AddPokemonToParty(starter.monsNo, starter.formNo, starter.level, 0, starter.itemNo);
+            bool addSuccess = AddPokemonToParty(starter.monsNo, starter.formNo, starter.level, starter.maxIVs, starter.itemNo);
 
             if (args->max_length >= 2)
             {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Dpr/Field/Walking/FieldWalkingManager.h"
 #include "externals/il2cpp-api.h"
 
 #include "externals/Effect/EffectInstance.h"
@@ -72,7 +73,7 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     struct StaticFields {
         FieldManager::Object* _Instance_k__BackingField;
-        void* fwMng; // Dpr_Field_Walking_FieldWalkingManager_o*
+        Dpr::Field::Walking::FieldWalkingManager::Object* fwMng; // Dpr_Field_Walking_FieldWalkingManager_o*
         void* abUnloader; // Dpr_SubContents_Utils_AssetUnloader_o*
         bool _IsResume_k__BackingField;
         bool SealPrevFlag;

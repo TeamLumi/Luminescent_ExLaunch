@@ -17,11 +17,13 @@ HOOK_DEFINE_TRAMPOLINE(BagItemButton_UpdateStockCount) {
 
         if (__this->fields.item != nullptr && __this->fields.stockCountLabelText != nullptr && __this->fields.stockCountValueText != nullptr) {
             int32_t category = __this->fields.item->fields._categoryType;
-            // 5 = WazaMachine (TM pocket)
-            if (category == 5) {
-                __this->fields.stockCountLabelText->cast<UnityEngine::Component>()->get_gameObject()->SetActive(false);
-                __this->fields.stockCountValueText->cast<UnityEngine::Component>()->get_gameObject()->SetActive(false);
-            }
+
+            // 5 = TMs
+            // 8 = Key Items
+            bool shownQty = category != 5 && category != 8;
+
+            __this->fields.stockCountLabelText->cast<UnityEngine::Component>()->get_gameObject()->SetActive(shownQty);
+            __this->fields.stockCountValueText->cast<UnityEngine::Component>()->get_gameObject()->SetActive(shownQty);
         }
     }
 };
