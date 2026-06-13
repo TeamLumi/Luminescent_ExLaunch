@@ -1,6 +1,7 @@
 #include "exlaunch.hpp"
 #include "features/mp_log.h"
 #include "features/mp_poke_validate.h"
+#include "features/mp_net.h"
 
 #include "features/overworld_multiplayer.h"
 #include "features/team_up.h"
@@ -113,7 +114,6 @@ static InteractionType s_pendingRequestType = InteractionType::Trade;
 // Trade state
 static constexpr int32_t POKE_CORE_DATA_SIZE = 328;   // m_pCoreData byte array length
 static constexpr int32_t POKE_CALC_DATA_SIZE = 16;    // m_pCalcData byte array length
-static constexpr int32_t POKE_FULL_DATA_SIZE = POKE_CORE_DATA_SIZE + POKE_CALC_DATA_SIZE; // 344 bytes
 static int32_t s_tradePartnerStation = -1;
 static int32_t s_myTradePartySlot = -1;
 static uint8_t s_myTradePokeData[POKE_FULL_DATA_SIZE] = {};
@@ -1382,7 +1382,7 @@ static Pml::PokePara::PokemonParam::Object* deserializePartnerPokemon(Pml::PokeP
     if (accessor != nullptr) {
         // Use Deserialize_FullData (raw pointer version) @ 0x24A4550
         // Properly handles decode/re-encode cycle for PokePara data
-        _ILExternal::external<void>(0x24A4550, accessor, s_partnerTradePokeData);
+        mpDeserializePokeFullData(accessor, s_partnerTradePokeData);
         MP_LOG("[OverworldMP] Deserialized partner pokemon into new PokemonParam\n");
     } else {
         MP_LOG("[OverworldMP] WARNING: newPoke accessor is null\n");
@@ -1948,7 +1948,7 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
     if (accessor != nullptr) {
         memset(s_myTradePokeData, 0, sizeof(s_myTradePokeData));
         // Use Serialize_FullData (raw pointer version) @ 0x24A4470
-        _ILExternal::external<void>(0x24A4470, accessor, s_myTradePokeData);
+        mpSerializePokeFullData(accessor, s_myTradePokeData);
     }
 
     MP_LOG("[OverworldMP] Selected %s tray=%d slot=%d (monsNo=%d) for trade, sending 0xC4\n",
@@ -2420,7 +2420,7 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
         auto* accessor = slotPoke->fields.m_accessor;
         if (accessor != nullptr) {
             // Deserialize_FullData (raw pointer version) @ 0x24A4550
-            _ILExternal::external<void>(0x24A4550, accessor, &buf[offset]);
+            mpDeserializePokeFullData(accessor, &buf[offset]);
         }
 
         offset += POKE_FULL_DATA_SIZE;
@@ -2547,7 +2547,7 @@ void overworldMPSetupAndStartBattle() {
         memset(s_partySnapshot[i], 0, POKE_SNAPSHOT_SIZE);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             // Serialize_FullData (raw pointer) @ 0x24A4470
-            _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor, s_partySnapshot[i]);
+            mpSerializePokeFullData(poke->fields.m_accessor, s_partySnapshot[i]);
         }
     }
     s_partySnapshotValid = true;
@@ -2588,7 +2588,7 @@ void overworldMPSetupAndStartBattle() {
     int32_t commRule = (int32_t)s_battleSubtype;
 
     // Station indices — IlcaNetSession::ThisStationIndex() @ 0x23BC000
-    int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+    int32_t myStation = mpThisStationIndex();
     int32_t partnerStation = s_battlePartnerStation;
 
     MP_LOG("[OverworldMP] Battle setup: commPos=%d commRule=%d myStation=%d partnerStation=%d\n",
@@ -2814,7 +2814,7 @@ void overworldMPSetupAndStartBattle() {
     {
         int32_t sessState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
         bool isConnect = Dpr::NetworkUtils::NetworkManager::get_IsConnect();
-        int32_t myStationCheck = _ILExternal::external<int32_t>(0x23BC000); // ThisStationIndex
+        int32_t myStationCheck = mpThisStationIndex(); // ThisStationIndex
         MP_LOG("[OverworldMP] Session state=%d isConnect=%d thisStation=%d\n",
                     sessState, (int)isConnect, myStationCheck);
     }
@@ -3000,7 +3000,7 @@ void overworldMPRestorePartyAfterBattle() {
         auto* poke = party->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             // Deserialize_FullData (raw pointer) @ 0x24A4550
-            _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor, s_partySnapshot[i]);
+            mpDeserializePokeFullData(poke->fields.m_accessor, s_partySnapshot[i]);
         }
     }
 

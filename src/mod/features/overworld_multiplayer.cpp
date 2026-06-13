@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 #include "features/mp_log.h"
+#include "features/mp_net.h"
 
 #include <cmath>
 
@@ -49,54 +50,7 @@
 // 0x10 bytes: a function pointer at +0 and a MethodInfo*/RGCTX at +8.
 // Ghidra pattern: (**(code**)(*obj + offset))(obj, args, *(*obj + offset + 8))
 
-static inline void il2cpp_vcall_void(void* obj, uint32_t off) {
-    uintptr_t k = *(uintptr_t*)obj;
-    (*(void(**)(void*, void*))(k + off))(obj, *(void**)(k + off + 8));
-}
-
-static inline int32_t il2cpp_vcall_write_byte(void* obj, uint32_t off, uint8_t val) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, uint8_t, void*))(k + off))(obj, val, *(void**)(k + off + 8));
-}
-
-static inline int32_t il2cpp_vcall_write_s32(void* obj, uint32_t off, int32_t val) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, int32_t, void*))(k + off))(obj, val, *(void**)(k + off + 8));
-}
-
-static inline int32_t il2cpp_vcall_write_fp32(void* obj, uint32_t off, float val) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, float, void*))(k + off))(obj, val, *(void**)(k + off + 8));
-}
-
-static inline int32_t il2cpp_vcall_read_out(void* obj, uint32_t off, void* out) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, void*, void*))(k + off))(obj, out, *(void**)(k + off + 8));
-}
-
-static inline int32_t il2cpp_vcall_int(void* obj, uint32_t off) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, void*))(k + off))(obj, *(void**)(k + off + 8));
-}
-
-// ---------------------------------------------------------------------------
-// PacketWriter/PacketReader vtable offsets (verified against Ghidra output
-// of ANetData<PosZoneData> and NetDataParser.Parse)
-// ---------------------------------------------------------------------------
-// PacketWriter (IlcaNetPacket base + PacketWriter virtuals)
-static constexpr uint32_t PW_RESET      = 0x1b0;  // IlcaNetPacket.Reset()
-static constexpr uint32_t PW_WRITE_BYTE = 0x270;  // PacketWriter.WriteByte(byte)
-static constexpr uint32_t PW_WRITE_S32  = 0x2D0;  // PacketWriter.WriteS32(int)
-static constexpr uint32_t PW_WRITE_FP32 = 0x320;  // PacketWriter.WriteFP32(float)
-
-// PacketReader (IlcaNetPacket base + PacketReader virtuals)
-static constexpr uint32_t PR_FROM_STATION  = 0x260;  // PacketReader.FromStationIndex()
-static constexpr uint32_t PR_READ_BYTE_OUT = 0x2B0;  // PacketReader.ReadByteOut(out byte)
-static constexpr uint32_t PR_READ_S32_OUT  = 0x370;  // PacketReader.ReadS32Out(out int)
-static constexpr uint32_t PR_READ_FP32_OUT = 0x410;  // PacketReader.ReadFP32Out(out float)
-
-// PokePara full data size (core 328 + calc 16 = 344 bytes)
-static constexpr int32_t POKE_FULL_DATA_SIZE = 344;
+// IL2CPP vcall helpers, PW_/PR_ offsets, POKE_FULL_DATA_SIZE: see features/mp_net.h
 
 // Custom packet DataID for overworld multiplayer position (0xC0, avoids existing 2-67 range)
 // New DataIDs (0xC1-0xC3) are defined in the header alongside position (0xC0).
@@ -539,7 +493,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
         // Only process if we're the target and not already in an interaction
         {
-            int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+            int32_t myStation = mpThisStationIndex();
             if (targetStation != myStation) return; // not for us
         }
         if (s_interactionState == InteractionState::None) {
@@ -571,7 +525,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         MP_LOG("[OverworldMP] Received interaction response from station %d: target=%d accepted=%d\n",
                     fromStation, targetStation, (int)accepted);
 
-        { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+        { int32_t myStation = mpThisStationIndex();
           if (targetStation != myStation) return; }
 
         // Only process if we're waiting for a response from this station
@@ -608,7 +562,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t partySlot = 0;
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
 
-        { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+        { int32_t myStation = mpThisStationIndex();
           if (targetStation != myStation) return; }
 
         // Read partySlot as a single byte
@@ -618,7 +572,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
         // Read 344 bytes of pokemon data (86 x int32 = 344 bytes)
         uint8_t pokeData[344];
-        for (int i = 0; i < 86; i++) {
+        for (int i = 0; i < POKE_FULL_DATA_INTS; i++) {
             int32_t val = 0;
             il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &val);
             memcpy(&pokeData[i * 4], &val, 4);
@@ -643,7 +597,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &confirmed);
 
-        { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+        { int32_t myStation = mpThisStationIndex();
           if (targetStation != myStation) return; }
 
         MP_LOG("[OverworldMP] Received trade confirm from station %d: confirmed=%d\n",
@@ -667,7 +621,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t targetStation = 0;
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
 
-        { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+        { int32_t myStation = mpThisStationIndex();
           if (targetStation != myStation) return; }
 
         uint8_t subType = 0;
@@ -767,7 +721,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
             // Read 86 int32s into accumulation buffer at the correct offset
             int32_t bufOffset = 1 + pokeIndex * POKE_FULL_DATA_SIZE;
-            for (int j = 0; j < 86; j++) {
+            for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
                 int32_t val = 0;
                 il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &val);
                 if (bufOffset + 4 <= (int32_t)sizeof(s_accumBuf)) {
@@ -817,7 +771,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t targetStation = 0;
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
 
-        int32_t myStation = _ILExternal::external<int32_t>(0x23BC000); // ThisStationIndex
+        int32_t myStation = mpThisStationIndex(); // ThisStationIndex
         if (targetStation != myStation) return; // not for us
 
         MP_LOG("[OverworldMP] Received BATTLE_READY from station %d\n", fromStation);
@@ -835,7 +789,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t targetStation = 0;
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
 
-        { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+        { int32_t myStation = mpThisStationIndex();
           if (targetStation != myStation) return; }
 
         MP_LOG("[OverworldMP] Received TEAMUP_DISBAND from station %d\n", fromStation);
@@ -855,7 +809,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t targetStation = 0;
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
 
-        { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+        { int32_t myStation = mpThisStationIndex();
           if (targetStation != myStation) return; }
 
         uint8_t subType = 0;
@@ -999,7 +953,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             if (pokeIndex >= s_tuAccumMemberCount) break;
 
             int32_t bufOffset = pokeIndex * POKE_FULL_DATA_SIZE;
-            for (int j = 0; j < 86; j++) {
+            for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
                 int32_t val = 0;
                 il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &val);
                 if (bufOffset + 4 <= (int32_t)sizeof(tu.partnerPartyBuf)) {
@@ -1042,7 +996,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 ? (int32_t)sizeof(tu.partnerTrainerBuf)
                 : (int32_t)sizeof(tu.trainerPartyBuf);
 
-            for (int j = 0; j < 86; j++) {
+            for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
                 int32_t val = 0;
                 il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &val);
                 if (bufOffset + (int32_t)sizeof(int32_t) <= destBufSize) {
@@ -3102,7 +3056,7 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
 
             if (accessor != nullptr) {
                 // Serialize_FullData (raw pointer version) @ 0x24A4470
-                _ILExternal::external<void>(0x24A4470, accessor, pokeBuf);
+                mpSerializePokeFullData(accessor, pokeBuf);
 
                 uint32_t rnd = 0;
                 memcpy(&rnd, pokeBuf, 4);
@@ -3121,7 +3075,7 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
         il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)i);
 
         // Write 86 x int32 (344 bytes)
-        for (int j = 0; j < 86; j++) {
+        for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
             int32_t val = 0;
             memcpy(&val, &pokeBuf[j * 4], 4);
             il2cpp_vcall_write_s32(pw, PW_WRITE_S32, val);

@@ -1,5 +1,6 @@
 #include "exlaunch.hpp"
 #include "features/mp_log.h"
+#include "features/mp_net.h"
 #include "features/mp_poke_validate.h"
 
 #include "features/team_up.h"
@@ -111,29 +112,7 @@ static void showCustomAreaNameText(const char* text) {
     FieldCanvas::OpenAreaNameWindow(System::String::Create(dummyLabel));
 }
 
-// ---------------------------------------------------------------------------
-// IL2CPP vtable dispatch helpers (same as overworld_multiplayer.cpp)
-// ---------------------------------------------------------------------------
-static inline void il2cpp_vcall_void(void* obj, uint32_t off) {
-    uintptr_t k = *(uintptr_t*)obj;
-    (*(void(**)(void*, void*))(k + off))(obj, *(void**)(k + off + 8));
-}
-static inline int32_t il2cpp_vcall_write_byte(void* obj, uint32_t off, uint8_t val) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, uint8_t, void*))(k + off))(obj, val, *(void**)(k + off + 8));
-}
-static inline int32_t il2cpp_vcall_write_s32(void* obj, uint32_t off, int32_t val) {
-    uintptr_t k = *(uintptr_t*)obj;
-    return (*(int32_t(**)(void*, int32_t, void*))(k + off))(obj, val, *(void**)(k + off + 8));
-}
-
-// PacketWriter vtable offsets
-static constexpr uint32_t PW_RESET      = 0x1b0;
-static constexpr uint32_t PW_WRITE_BYTE = 0x270;
-static constexpr uint32_t PW_WRITE_S32  = 0x2D0;
-
-// PokePara sizes
-static constexpr int32_t POKE_FULL_DATA_SIZE = 344;
+// IL2CPP vcall helpers, PW_ offsets, POKE_FULL_DATA_SIZE: see features/mp_net.h
 
 // ---------------------------------------------------------------------------
 // Global state
@@ -295,7 +274,7 @@ void overworldMPSaveFullParty() {
             MP_LOG("[TeamUp] WARNING: truncated save at slot %d (null accessor)\n", i);
             break;
         }
-        _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor,
+        mpSerializePokeFullData(poke->fields.m_accessor,
             &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
     }
     MP_LOG("[TeamUp] Saved full party: %d members\n", s_savedFullPartyCount);
@@ -316,7 +295,7 @@ static void restoreNonParticipatingPokemon() {
     for (int i = TEAMUP_PARTY_LIMIT; i < s_savedFullPartyCount; i++) {
         auto* poke = party->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-            _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+            mpDeserializePokeFullData(poke->fields.m_accessor,
                 &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
             restored++;
         } else {
@@ -345,7 +324,7 @@ static void restoreFullParty() {
     for (int i = 0; i < s_savedFullPartyCount; i++) {
         auto* poke = party->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-            _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+            mpDeserializePokeFullData(poke->fields.m_accessor,
                 &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
             restored++;
         } else {
@@ -379,7 +358,7 @@ static void saveBattleModifiedParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Obje
     for (int i = 0; i < count; i++) {
         auto* poke = battleParty->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-            _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor,
+            mpSerializePokeFullData(poke->fields.m_accessor,
                 &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
             s_battleModPartyCount++;
         }
@@ -411,7 +390,7 @@ void applyDeferredPartyRestore() {
         for (int i = 0; i < s_battleModPartyCount; i++) {
             auto* poke = party->GetMemberPointer(i);
             if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-                _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+                mpDeserializePokeFullData(poke->fields.m_accessor,
                     &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
                 written++;
             }
@@ -853,11 +832,11 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
     // --- Per-Pokemon sub-packets ---
     for (int32_t i = 0; i < memberCount; i++) {
         auto* poke = party->GetMemberPointer(i);
-        uint8_t pokeBuf[344];
+        uint8_t pokeBuf[POKE_FULL_DATA_SIZE];
         memset(pokeBuf, 0, sizeof(pokeBuf));
 
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-            _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor, pokeBuf);
+            mpSerializePokeFullData(poke->fields.m_accessor, pokeBuf);
         }
 
         il2cpp_vcall_void(pw, PW_RESET);
@@ -866,7 +845,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
         il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, TEAMUP_SUB_POKE);
         il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)i);
 
-        for (int j = 0; j < 86; j++) {
+        for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
             int32_t val = 0;
             memcpy(&val, &pokeBuf[j * 4], 4);
             il2cpp_vcall_write_s32(pw, PW_WRITE_S32, val);
@@ -886,11 +865,11 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
 
         for (int32_t i = 0; i < trainerMemberCount; i++) {
             auto* poke = trainerParty->GetMemberPointer(i);
-            uint8_t pokeBuf[344];
+            uint8_t pokeBuf[POKE_FULL_DATA_SIZE];
             memset(pokeBuf, 0, sizeof(pokeBuf));
 
             if (poke != nullptr && poke->fields.m_accessor != nullptr) {
-                _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor, pokeBuf);
+                mpSerializePokeFullData(poke->fields.m_accessor, pokeBuf);
             }
 
             il2cpp_vcall_void(pw, PW_RESET);
@@ -899,7 +878,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
             il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, TEAMUP_SUB_TRAINER_POKE);
             il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)i);
 
-            for (int j = 0; j < 86; j++) {
+            for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
                 int32_t val = 0;
                 memcpy(&val, &pokeBuf[j * 4], 4);
                 il2cpp_vcall_write_s32(pw, PW_WRITE_S32, val);
@@ -950,7 +929,7 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
 
         auto* accessor = slotPoke->fields.m_accessor;
         if (accessor != nullptr) {
-            _ILExternal::external<void>(0x24A4550, accessor, &buf[offset]);
+            mpDeserializePokeFullData(accessor, &buf[offset]);
         }
 
         // Validate (shared range check — see mp_poke_validate.h). Stop at the first
@@ -992,7 +971,7 @@ static void overwriteTrainerPartyFromBuffer(Dpr::Battle::Logic::BATTLE_SETUP_PAR
         auto* poke = party->GetMemberPointer(i);
         if (poke == nullptr || poke->fields.m_accessor == nullptr) break;
 
-        _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+        mpDeserializePokeFullData(poke->fields.m_accessor,
                                      &tu.trainerPartyBuf[bufOffset]);
 
         // Validate the injected (peer-supplied) trainer Pokemon, just like the human
@@ -1045,7 +1024,7 @@ void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Objec
                                     TeamUpState& tu, bool isInitiator) {
     auto* fields = &bsp->instance()->fields;
 
-    int32_t myStation = _ILExternal::external<int32_t>(0x23BC000); // ThisStationIndex
+    int32_t myStation = mpThisStationIndex(); // ThisStationIndex
 
     // 1. Set comm battle mode
     fields->commMode = 1;    // BTL_COMM_WIRELESS
@@ -1092,9 +1071,9 @@ void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Objec
                 auto* dstPoke = destParty->GetMemberPointer(i);
                 if (srcPoke != nullptr && dstPoke != nullptr &&
                     srcPoke->fields.m_accessor != nullptr && dstPoke->fields.m_accessor != nullptr) {
-                    uint8_t tmpBuf[344];
-                    _ILExternal::external<void>(0x24A4470, srcPoke->fields.m_accessor, tmpBuf);
-                    _ILExternal::external<void>(0x24A4550, dstPoke->fields.m_accessor, tmpBuf);
+                    uint8_t tmpBuf[POKE_FULL_DATA_SIZE];
+                    mpSerializePokeFullData(srcPoke->fields.m_accessor, tmpBuf);
+                    mpDeserializePokeFullData(dstPoke->fields.m_accessor, tmpBuf);
                 }
             }
             destParty->fields.m_memberCount = count;
@@ -1196,7 +1175,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     // Partner party validated — now commit and tell Player A we're ready.
     overworldMPSendTeamUpBattleAck(fromStation);
 
-    int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+    int32_t myStation = mpThisStationIndex();
 
     // Get our party (first TEAMUP_PARTY_LIMIT members)
     auto* myParty = PlayerWork::get_playerParty();
@@ -1213,9 +1192,9 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         auto* src = myParty->GetMemberPointer(i);
         auto* dst = myTrimmedParty->GetMemberPointer(i);
         if (src && dst && src->fields.m_accessor && dst->fields.m_accessor) {
-            uint8_t tmp[344];
-            _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmp);
-            _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmp);
+            uint8_t tmp[POKE_FULL_DATA_SIZE];
+            mpSerializePokeFullData(src->fields.m_accessor, tmp);
+            mpDeserializePokeFullData(dst->fields.m_accessor, tmp);
         }
     }
     myTrimmedParty->fields.m_memberCount = myCount;
@@ -1253,7 +1232,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             for (int i = 0; i < s_myTrainerCount; i++) {
                 auto* poke = myTrainerParty->GetMemberPointer(i);
                 if (poke && poke->fields.m_accessor) {
-                    _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor,
+                    mpSerializePokeFullData(poke->fields.m_accessor,
                         &s_myTrainerBuf[i * TEAMUP_POKE_FULL_DATA_SIZE]);
                 }
             }
@@ -1341,7 +1320,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
                 for (int i = 0; i < s_myTrainerCount; i++) {
                     auto* poke = party3->GetMemberPointer(i);
                     if (poke && poke->fields.m_accessor) {
-                        _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+                        mpDeserializePokeFullData(poke->fields.m_accessor,
                             &s_myTrainerBuf[i * TEAMUP_POKE_FULL_DATA_SIZE]);
                     }
                 }
@@ -1573,9 +1552,9 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         auto* src = myParty->GetMemberPointer(i);
         auto* dst = myTrimmedParty->GetMemberPointer(i);
         if (src && dst && src->fields.m_accessor && dst->fields.m_accessor) {
-            uint8_t tmp[344];
-            _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmp);
-            _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmp);
+            uint8_t tmp[POKE_FULL_DATA_SIZE];
+            mpSerializePokeFullData(src->fields.m_accessor, tmp);
+            mpDeserializePokeFullData(dst->fields.m_accessor, tmp);
         }
     }
     myTrimmedParty->fields.m_memberCount = myCount;
@@ -1592,7 +1571,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     static uint8_t s_emptyCapsuleArray2[32] = {};
     void* emptyCapsule = (void*)s_emptyCapsuleArray2;
 
-    int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+    int32_t myStation = mpThisStationIndex();
 
     // Save local animation setting — SetupBattleComm (comm battle) will sync
     // from the server, overwriting the local player's preference
@@ -1689,7 +1668,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
                     if (bufOff + TEAMUP_POKE_FULL_DATA_SIZE > tu.partnerTrainerBufSize) break;
                     auto* poke = party3->GetMemberPointer(i);
                     if (poke && poke->fields.m_accessor) {
-                        _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
+                        mpDeserializePokeFullData(poke->fields.m_accessor,
                             &tu.partnerTrainerBuf[bufOff]);
                     }
                 }
@@ -1935,9 +1914,9 @@ static void copyBackBattleParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* 
         auto* src = battleParty->GetMemberPointer(i);
         auto* dst = origParty->GetMemberPointer(i);
         if (src && dst && src->fields.m_accessor && dst->fields.m_accessor) {
-            uint8_t tmp[344];
-            _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmp);
-            _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmp);
+            uint8_t tmp[POKE_FULL_DATA_SIZE];
+            mpSerializePokeFullData(src->fields.m_accessor, tmp);
+            mpDeserializePokeFullData(dst->fields.m_accessor, tmp);
         } else {
             MP_LOG("[TeamUp] copyBack: skip poke %d (src=%p dst=%p)\n", i, src, dst);
         }
@@ -2850,7 +2829,7 @@ void overworldMPTickDeferredEncount() {
             // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
 
             // Determine initiator: lower station ID
-            int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
+            int32_t myStation = mpThisStationIndex();
             tu.isInitiator = (myStation < tu.partnerStation);
 
             MP_LOG("[TeamUp] SYNC_MATCHED! initiator=%d (myStation=%d, partner=%d)\n",
