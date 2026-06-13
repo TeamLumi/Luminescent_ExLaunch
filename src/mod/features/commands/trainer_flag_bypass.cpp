@@ -12,6 +12,7 @@
 // it calls Orig for vanilla behaviour.
 
 #include "exlaunch.hpp"
+#include "features/mp_log.h"
 
 #include "externals/Dpr/EvScript/EvDataManager.h"
 #include "features/team_up.h"

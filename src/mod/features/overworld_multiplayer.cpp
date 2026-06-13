@@ -1,4 +1,5 @@
 #include "exlaunch.hpp"
+#include "features/mp_log.h"
 
 #include <cmath>
 
@@ -177,7 +178,7 @@ static void setNMGameObjectActive(bool active) {
     if (s_nmGameObject != nullptr) {
         bool wasPreviouslyActive = s_nmGameObject->get_activeSelf();
         s_nmGameObject->SetActive(active);
-        Logger::log("[OverworldMP] NM GameObject %s (was %s, ptr=%p)\n",
+        MP_LOG("[OverworldMP] NM GameObject %s (was %s, ptr=%p)\n",
                     active ? "ACTIVATED" : "DEACTIVATED",
                     wasPreviouslyActive ? "active" : "inactive",
                     s_nmGameObject);
@@ -190,12 +191,12 @@ static void setNMGameObjectActive(bool active) {
             if (go != nullptr) {
                 s_nmGameObject = go;
                 go->SetActive(active);
-                Logger::log("[OverworldMP] NM GameObject %s (resolved from NM instance, ptr=%p)\n",
+                MP_LOG("[OverworldMP] NM GameObject %s (resolved from NM instance, ptr=%p)\n",
                             active ? "ACTIVATED" : "DEACTIVATED", go);
                 return;
             }
         }
-        Logger::log("[OverworldMP] WARNING: setNMGameObjectActive(%d) but no GO found!\n",
+        MP_LOG("[OverworldMP] WARNING: setNMGameObjectActive(%d) but no GO found!\n",
                     (int)active);
     }
 }
@@ -269,7 +270,7 @@ static bool s_disconnectSignaled = false;  // one-shot: BSP/NetClient flags set
 void overworldMPSetActiveBattlePartner(int32_t stationIndex) {
     s_activeBattlePartner = stationIndex;
     s_battlePartnerDisconnected = false;
-    Logger::log("[OverworldMP] Active battle partner set: station %d\n", stationIndex);
+    MP_LOG("[OverworldMP] Active battle partner set: station %d\n", stationIndex);
 }
 
 int32_t overworldMPGetActiveBattlePartner() {
@@ -288,7 +289,7 @@ void overworldMPSetInBattleScene(bool inBattle) {
         s_battlePartnerDisconnected = false;
         s_disconnectSignaled = false;
     }
-    Logger::log("[OverworldMP] Battle scene flag: %d\n", (int)inBattle);
+    MP_LOG("[OverworldMP] Battle scene flag: %d\n", (int)inBattle);
 }
 
 bool overworldMPIsInBattleScene() {
@@ -360,7 +361,7 @@ static bool s_loggedFirstSend = false;
 static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
     s_recvCallbackCount++;
     if (s_recvCallbackCount <= 5) {
-        Logger::log("[OverworldMP] Recv callback #%d: pr=%p active=%d\n",
+        MP_LOG("[OverworldMP] Recv callback #%d: pr=%p active=%d\n",
                     s_recvCallbackCount, pr, (int)isOverworldMPActive());
     }
     if (!isOverworldMPActive() || pr == nullptr) return;
@@ -369,7 +370,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
     uint8_t dataId = 0;
     il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &dataId);
     if (s_recvCallbackCount <= 10) {
-        Logger::log("[OverworldMP] Recv callback #%d: dataId=0x%02X\n",
+        MP_LOG("[OverworldMP] Recv callback #%d: dataId=0x%02X\n",
                     s_recvCallbackCount, (int)dataId);
     }
 
@@ -464,7 +465,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 }
                 remote.playerNameBuf[asciiLen] = '\0';
                 remote.playerNameSet = true;
-                Logger::log("[OverworldMP] Remote %d name: '%s' (len=%d)\n",
+                MP_LOG("[OverworldMP] Remote %d name: '%s' (len=%d)\n",
                             fromStation, remote.playerNameBuf, (int)nameLen);
             }
         }
@@ -481,7 +482,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         // Detect avatar, bike, or color change — need to respawn with different model/color
         if (remote.isSpawned && areaID == s_mpContext.myAreaID &&
             (oldAvatar != avatarId || oldBike != remote.isBicycle || oldColorId != colorId)) {
-            Logger::log("[OverworldMP] Remote %d model change: avatar %d->%d bike %d->%d color %d->%d — respawning\n",
+            MP_LOG("[OverworldMP] Remote %d model change: avatar %d->%d bike %d->%d color %d->%d — respawning\n",
                         fromStation, oldAvatar, avatarId, (int)oldBike, (int)remote.isBicycle, oldColorId, colorId);
             overworldMPDespawnEntity(fromStation);
             overworldMPSpawnEntity(fromStation);
@@ -490,7 +491,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         // Handle area change: spawn/despawn based on whether remote is in our area.
         // Skip during zone change grace period — game systems are unstable.
         if (oldArea != areaID && s_zoneChangeGraceTime <= 0.0f) {
-            Logger::log("[OverworldMP] Remote %d area change: %d -> %d\n",
+            MP_LOG("[OverworldMP] Remote %d area change: %d -> %d\n",
                         fromStation, oldArea, areaID);
 
             if (remote.isSpawned && areaID != s_mpContext.myAreaID) {
@@ -512,7 +513,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         uint8_t emoteId = 0;
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &emoteId);
 
-        Logger::log("[OverworldMP] Received emote from station %d: emoteId=%d\n",
+        MP_LOG("[OverworldMP] Received emote from station %d: emoteId=%d\n",
                     fromStation, (int)emoteId);
 
         overworldMPShowRemoteEmote(fromStation, emoteId);
@@ -533,7 +534,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &interactType);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &subtype);
 
-        Logger::log("[OverworldMP] Received interaction request from station %d: target=%d type=%d subtype=%d\n",
+        MP_LOG("[OverworldMP] Received interaction request from station %d: target=%d type=%d subtype=%d\n",
                     fromStation, targetStation, (int)interactType, (int)subtype);
 
         // Only process if we're the target and not already in an interaction
@@ -545,11 +546,11 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             s_interactionState = InteractionState::ReceivedRequest;
             s_interactionTarget = fromStation;
             s_pendingInteractionType = (InteractionType)interactType;
-            Logger::log("[OverworldMP] Interaction request received — showing dialog (from station %d, type=%d, subtype=%d)\n",
+            MP_LOG("[OverworldMP] Interaction request received — showing dialog (from station %d, type=%d, subtype=%d)\n",
                         fromStation, (int)interactType, (int)subtype);
             overworldMPShowIncomingRequestDialog(fromStation, (InteractionType)interactType, (BattleSubtype)subtype);
         } else {
-            Logger::log("[OverworldMP] Ignoring interaction request — already in state %d\n",
+            MP_LOG("[OverworldMP] Ignoring interaction request — already in state %d\n",
                         (int)s_interactionState);
         }
         break;
@@ -567,7 +568,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &targetStation);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &accepted);
 
-        Logger::log("[OverworldMP] Received interaction response from station %d: target=%d accepted=%d\n",
+        MP_LOG("[OverworldMP] Received interaction response from station %d: target=%d accepted=%d\n",
                     fromStation, targetStation, (int)accepted);
 
         { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
@@ -583,14 +584,14 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             s_interactionTimeoutTime = 0.0f;
 
             if (accepted) {
-                Logger::log("[OverworldMP] Interaction ACCEPTED by station %d\n", fromStation);
+                MP_LOG("[OverworldMP] Interaction ACCEPTED by station %d\n", fromStation);
                 overworldMPOnRequestAccepted(fromStation);
             } else {
-                Logger::log("[OverworldMP] Interaction REJECTED by station %d\n", fromStation);
+                MP_LOG("[OverworldMP] Interaction REJECTED by station %d\n", fromStation);
                 overworldMPOnRequestDeclined(fromStation);
             }
         } else {
-            Logger::log("[OverworldMP] Ignoring interaction response — state=%d target=%d\n",
+            MP_LOG("[OverworldMP] Ignoring interaction response — state=%d target=%d\n",
                         (int)s_interactionState, s_interactionTarget);
         }
         break;
@@ -623,7 +624,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             memcpy(&pokeData[i * 4], &val, 4);
         }
 
-        Logger::log("[OverworldMP] Received trade pokemon from station %d: slot=%d\n",
+        MP_LOG("[OverworldMP] Received trade pokemon from station %d: slot=%d\n",
                     fromStation, partySlot);
 
         overworldMPOnTradePokeReceived(fromStation, partySlot, pokeData, 344);
@@ -645,7 +646,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
           if (targetStation != myStation) return; }
 
-        Logger::log("[OverworldMP] Received trade confirm from station %d: confirmed=%d\n",
+        MP_LOG("[OverworldMP] Received trade confirm from station %d: confirmed=%d\n",
                     fromStation, (int)confirmed);
 
         overworldMPOnTradeConfirmReceived(fromStation, confirmed != 0);
@@ -680,7 +681,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             uint8_t btlSubtype = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &btlSubtype);
 
-            Logger::log("[OverworldMP] Battle HEADER from station %d: members=%d subtype=%d\n",
+            MP_LOG("[OverworldMP] Battle HEADER from station %d: members=%d subtype=%d\n",
                         fromStation, (int)memberCount, (int)btlSubtype);
 
             // Initialize accumulation
@@ -702,9 +703,13 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 mystOffset += 4;
             }
 
-            // nameLen (1 byte)
+            // nameLen (1 byte). Clamp the untrusted length to the 12-char max so the
+            // stored length stays consistent with the bytes we store below (the sender
+            // never exceeds 12; a corrupt/oversized value would otherwise be recorded
+            // as a length that doesn't match the data).
             uint8_t nameLen = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &nameLen);
+            if (nameLen > 12) nameLen = 12;
             if (mystOffset < (int32_t)sizeof(s_accumBuf)) s_accumBuf[mystOffset++] = nameLen;
 
             // name chars (nameLen * 2 bytes)
@@ -723,7 +728,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
             s_accumBufSize = mystOffset;
 
-            Logger::log("[OverworldMP] Battle HEADER stored: %d bytes (MYSTATUS at offset %d)\n",
+            MP_LOG("[OverworldMP] Battle HEADER stored: %d bytes (MYSTATUS at offset %d)\n",
                         s_accumBufSize, 1 + s_accumMemberCount * POKE_FULL_DATA_SIZE);
 
             // If memberCount is 0, signal completion immediately
@@ -742,7 +747,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             // Mirrors the team-up POKE handler's guards below.
             if (s_accumFromStation < 0 || s_accumFromStation != fromStation ||
                 s_accumMemberCount == 0) {
-                Logger::log("[OverworldMP] POKE without matching HEADER (from=%d accum=%d) — ignoring\n",
+                MP_LOG("[OverworldMP] POKE without matching HEADER (from=%d accum=%d) — ignoring\n",
                             fromStation, s_accumFromStation);
                 break;
             }
@@ -750,8 +755,13 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             uint8_t pokeIndex = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
 
-            if (pokeIndex >= 6) {
-                Logger::log("[OverworldMP] Invalid poke index %d — ignoring\n", (int)pokeIndex);
+            // Reject pokeIndex >= memberCount (not just >= 6): the HEADER places the
+            // MYSTATUS block at offset 1 + memberCount*POKE_FULL_DATA_SIZE, so a POKE
+            // with index in [memberCount, 6) would write over those MYSTATUS bytes
+            // and feed corrupt data to the battle deserializer.
+            if (pokeIndex >= s_accumMemberCount) {
+                MP_LOG("[OverworldMP] Invalid poke index %d (memberCount=%d) — ignoring\n",
+                            (int)pokeIndex, (int)s_accumMemberCount);
                 break;
             }
 
@@ -776,14 +786,14 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 int32_t pokeStart = 1 + pokeIndex * POKE_FULL_DATA_SIZE;
                 uint32_t rnd = 0;
                 memcpy(&rnd, &s_accumBuf[pokeStart], 4);
-                Logger::log("[OverworldMP] Battle POKE[%d] received: personalRnd=0x%08x (%d/%d)\n",
+                MP_LOG("[OverworldMP] Battle POKE[%d] received: personalRnd=0x%08x (%d/%d)\n",
                             (int)pokeIndex, rnd,
                             (int)s_accumReceivedCount, (int)s_accumMemberCount);
             }
 
             // Check if all Pokemon have arrived
             if (s_accumReceivedCount >= s_accumMemberCount && s_accumMemberCount > 0) {
-                Logger::log("[OverworldMP] All %d battle Pokemon received — notifying state machine\n",
+                MP_LOG("[OverworldMP] All %d battle Pokemon received — notifying state machine\n",
                             (int)s_accumMemberCount);
                 overworldMPOnBattlePartyReceived(s_accumFromStation, s_accumBuf, s_accumBufSize);
             }
@@ -791,7 +801,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         }
 
         default:
-            Logger::log("[OverworldMP] Unknown 0xC6 sub-type: %d\n", (int)subType);
+            MP_LOG("[OverworldMP] Unknown 0xC6 sub-type: %d\n", (int)subType);
             break;
         }
         break;
@@ -810,7 +820,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t myStation = _ILExternal::external<int32_t>(0x23BC000); // ThisStationIndex
         if (targetStation != myStation) return; // not for us
 
-        Logger::log("[OverworldMP] Received BATTLE_READY from station %d\n", fromStation);
+        MP_LOG("[OverworldMP] Received BATTLE_READY from station %d\n", fromStation);
         overworldMPOnBattleReadyReceived(fromStation);
         break;
     }
@@ -828,7 +838,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         { int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
           if (targetStation != myStation) return; }
 
-        Logger::log("[OverworldMP] Received TEAMUP_DISBAND from station %d\n", fromStation);
+        MP_LOG("[OverworldMP] Received TEAMUP_DISBAND from station %d\n", fromStation);
         overworldMPOnTeamUpDisbandReceived(fromStation);
         break;
     }
@@ -853,6 +863,18 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
         bool isAck = (dataId == OWMP_DATA_ID_TEAMUP_BATTLE_ACK);
         auto& tu = overworldMPGetTeamUpState();
+
+        // SECURITY: only accept team-up exchange packets from our actual partner.
+        // The HEADER/POKE handlers below write into shared TeamUpState buffers
+        // (trainerPartyBuf, partnerMystatusBuf, battleType, …) and reset accumulation
+        // state immediately — before the downstream On*Received functions get to
+        // re-check the partner. Without this gate any other session peer could
+        // clobber an in-flight team-up exchange between two players.
+        if (!tu.isTeamedUp || tu.partnerStation != fromStation) {
+            MP_LOG("[OverworldMP] TeamUp packet from non-partner station %d (partner=%d) — ignoring\n",
+                        fromStation, tu.partnerStation);
+            return;
+        }
 
         // Use external accum state (defined in team_up.cpp)
         extern int32_t s_tuAccumFromStation;
@@ -884,7 +906,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             int32_t effectID = -1;
             il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &effectID);
 
-            Logger::log("[OverworldMP] TeamUp %s HEADER: type=%d members=%d trainerMembers=%d arena=%d effect=%d\n",
+            MP_LOG("[OverworldMP] TeamUp %s HEADER: type=%d members=%d trainerMembers=%d arena=%d effect=%d\n",
                         isAck ? "ACK" : "BATTLE",
                         (int)battleType, (int)memberCount, (int)trainerMemberCount, arenaID, effectID);
 
@@ -931,9 +953,11 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 memcpy(&tu.partnerMystatusBuf[mystOff], &statusId, 4);
                 mystOff += 4;
             }
-            // nameLen (1 byte)
+            // nameLen (1 byte). Clamp the untrusted length to 12 so the stored length
+            // stays consistent with the stored name bytes (see battle-party HEADER).
             uint8_t nameLen = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &nameLen);
+            if (nameLen > 12) nameLen = 12;
             if (mystOff < (int32_t)sizeof(tu.partnerMystatusBuf))
                 tu.partnerMystatusBuf[mystOff++] = nameLen;
             // name chars
@@ -966,10 +990,13 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         }
 
         case 1: { // POKE (partner's party Pokemon)
-            if (s_tuAccumFromStation < 0) break; // No HEADER received yet
+            // Ignore chunks with no HEADER yet, or from a station other than the
+            // one that started this accumulation (matches the battle-party guard),
+            // and reject indices past the declared member count.
+            if (s_tuAccumFromStation < 0 || s_tuAccumFromStation != fromStation) break;
             uint8_t pokeIndex = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
-            if (pokeIndex >= 6) break;
+            if (pokeIndex >= s_tuAccumMemberCount) break;
 
             int32_t bufOffset = pokeIndex * POKE_FULL_DATA_SIZE;
             for (int j = 0; j < 86; j++) {
@@ -985,7 +1012,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             tu.partnerPartyBufSize = s_tuAccumMemberCount * POKE_FULL_DATA_SIZE;
             tu.partnerPartyCount = s_tuAccumMemberCount;
 
-            Logger::log("[OverworldMP] TeamUp %s POKE[%d] (%d/%d)\n",
+            MP_LOG("[OverworldMP] TeamUp %s POKE[%d] (%d/%d)\n",
                         s_tuAccumIsAck ? "ACK" : "BATTLE",
                         (int)pokeIndex, (int)s_tuAccumReceivedCount, (int)s_tuAccumMemberCount);
 
@@ -1002,10 +1029,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         }
 
         case 2: { // TRAINER_POKE (trainer party Pokemon — from initiator or from ACK)
-            if (s_tuAccumFromStation < 0) break; // No HEADER received yet
+            if (s_tuAccumFromStation < 0 || s_tuAccumFromStation != fromStation) break;
             uint8_t pokeIndex = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
-            if (pokeIndex >= 6) break;
+            if (pokeIndex >= s_tuAccumTrainerCount) break;
 
             int32_t bufOffset = pokeIndex * POKE_FULL_DATA_SIZE;
 
@@ -1034,7 +1061,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 tu.trainerPartyCount = s_tuAccumTrainerCount;
             }
 
-            Logger::log("[OverworldMP] TeamUp TRAINER_POKE[%d] (%d/%d) %s\n",
+            MP_LOG("[OverworldMP] TeamUp TRAINER_POKE[%d] (%d/%d) %s\n",
                         (int)pokeIndex, (int)s_tuAccumTrainerReceived,
                         (int)s_tuAccumTrainerCount, s_tuAccumIsAck ? "ACK" : "BATTLE");
 
@@ -1056,7 +1083,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         }
 
         default:
-            Logger::log("[OverworldMP] Unknown TeamUp sub-type: %d\n", (int)subType);
+            MP_LOG("[OverworldMP] Unknown TeamUp sub-type: %d\n", (int)subType);
             break;
         }
         break;
@@ -1084,7 +1111,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         int32_t zoneID = -1;
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &zoneID);
 
-        Logger::log("[OverworldMP] Received SYNC_WAIT from station %d: trainer=%d/%d arena=%d weather=%d effect=%d randomMode=%d zone=%d\n",
+        MP_LOG("[OverworldMP] Received SYNC_WAIT from station %d: trainer=%d/%d arena=%d weather=%d effect=%d randomMode=%d zone=%d\n",
                     fromStation, trainerID, trainerID2, arenaID, weatherType, effectID, randomTeamMode, zoneID);
         overworldMPOnSyncWaitReceived(fromStation, trainerID, trainerID2, arenaID, weatherType, effectID, randomTeamMode, zoneID);
         break;
@@ -1100,7 +1127,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         uint8_t reason = 0;
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &reason);
 
-        Logger::log("[OverworldMP] Received SYNC_CANCEL from station %d: reason=%d\n",
+        MP_LOG("[OverworldMP] Received SYNC_CANCEL from station %d: reason=%d\n",
                     fromStation, (int)reason);
         overworldMPOnSyncCancelReceived(fromStation, reason);
         break;
@@ -1124,7 +1151,7 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             il2cpp_vcall_read_out(pr, PR_READ_FP32_OUT, &remote.customBattleColors[c]);
         remote.hasCustomColors = true;
 
-        Logger::log("[OverworldMP] Received custom colors from station %d: "
+        MP_LOG("[OverworldMP] Received custom colors from station %d: "
                     "fSkinFace=(%.2f,%.2f,%.2f) fHair=(%.2f,%.2f,%.2f)\n",
                     fromStation,
                     remote.customFieldColors[0], remote.customFieldColors[1], remote.customFieldColors[2],
@@ -1170,20 +1197,20 @@ static void registerReceiveCallback() {
     // null when registerReceiveCallback runs after DoStartSession).
     auto* nm = getNMInstance();
     if (nm == nullptr) {
-        Logger::log("[OverworldMP] ERROR: Cannot register callback — NM instance is null\n");
+        MP_LOG("[OverworldMP] ERROR: Cannot register callback — NM instance is null\n");
         return;
     }
 
     auto* klass = Dpr::NetworkUtils::NetworkManager::getClass();
     klass->static_fields->onReceivePacket = nm;
 
-    Logger::log("[OverworldMP] Receive callback registered (NM stub=%p)\n", nm);
+    MP_LOG("[OverworldMP] Receive callback registered (NM stub=%p)\n", nm);
 }
 
 static void unregisterReceiveCallback() {
     auto* klass = Dpr::NetworkUtils::NetworkManager::getClass();
     klass->static_fields->onReceivePacket = nullptr;  // static_fields[0]
-    Logger::log("[OverworldMP] Receive callback unregistered\n");
+    MP_LOG("[OverworldMP] Receive callback unregistered\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -1207,13 +1234,13 @@ static bool ensureNetworkManagerSingleton() {
     // Already exists — capture GO pointer and return
     auto* existing = getNMInstance();
     if (existing != nullptr) {
-        Logger::log("[OverworldMP] NetworkManager singleton already exists at %p\n", existing);
+        MP_LOG("[OverworldMP] NetworkManager singleton already exists at %p\n", existing);
 
         // Capture the GO pointer if we don't have it yet
         if (s_nmGameObject == nullptr) {
             auto* go = _ILExternal::external<UnityEngine::GameObject::Object*>(0x026a8170, existing);
             s_nmGameObject = go;
-            Logger::log("[OverworldMP] NM GameObject captured: %p\n", go);
+            MP_LOG("[OverworldMP] NM GameObject captured: %p\n", go);
         }
 
         // Diagnostic: check Common.s_updateAlive on the existing NM
@@ -1222,13 +1249,13 @@ static bool ensureNetworkManagerSingleton() {
             auto* staticFields = *(void**)((uintptr_t)commonKlass + 0xb8);
             if (staticFields != nullptr) {
                 bool alive = *(bool*)((uintptr_t)staticFields + 0xC0);
-                Logger::log("[OverworldMP] Common.s_updateAlive = %d\n", (int)alive);
+                MP_LOG("[OverworldMP] Common.s_updateAlive = %d\n", (int)alive);
             }
         }
         return true;
     }
 
-    Logger::log("[OverworldMP] Creating NetworkManager singleton...\n");
+    MP_LOG("[OverworldMP] Creating NetworkManager singleton...\n");
 
     // 1. Create a new GameObject
     auto* goKlass = UnityEngine::GameObject::getClass();
@@ -1236,7 +1263,7 @@ static bool ensureNetworkManagerSingleton() {
     auto* go = (UnityEngine::GameObject::Object*)il2cpp_object_new((Il2CppClass*)goKlass);
     go->ctor(System::String::Create("NetworkManager"));
     s_nmGameObject = go;  // Store for deactivation during zone transitions
-    Logger::log("[OverworldMP] GameObject created at %p (stored for zone change deactivation)\n", go);
+    MP_LOG("[OverworldMP] GameObject created at %p (stored for zone change deactivation)\n", go);
 
     // 2. Mark it as persistent across scene loads
     UnityEngine::_Object::DontDestroyOnLoad(go->cast<UnityEngine::_Object>());
@@ -1245,7 +1272,7 @@ static bool ensureNetworkManagerSingleton() {
     System::RuntimeTypeHandle::Object handle {};
     handle.fields.value = &((Il2CppClass*)nmKlass)->_1.byval_arg;
     auto* nmType = System::Type::GetTypeFromHandle(handle);
-    Logger::log("[OverworldMP] NM Type object: %p\n", nmType);
+    MP_LOG("[OverworldMP] NM Type object: %p\n", nmType);
 
     // 4. Call non-generic AddComponent(Type) — triggers .ctor.
     //    Unity will queue Start() to be called on the next frame.
@@ -1253,10 +1280,10 @@ static bool ensureNetworkManagerSingleton() {
     //    initializes everything (SC delegates, Sequencer registration, etc.).
     //    ShowMessageWindow.Setup is hooked to handle NM+0x98 being null.
     auto* component = go->AddComponentByType(nmType);
-    Logger::log("[OverworldMP] AddComponentByType returned: %p\n", component);
+    MP_LOG("[OverworldMP] AddComponentByType returned: %p\n", component);
 
     if (component == nullptr) {
-        Logger::log("[OverworldMP] ERROR: AddComponent returned null\n");
+        MP_LOG("[OverworldMP] ERROR: AddComponent returned null\n");
         return false;
     }
 
@@ -1269,14 +1296,14 @@ static bool ensureNetworkManagerSingleton() {
     auto* parentKlass = ((Il2CppClass*)nmKlass)->_1.parent;
     if (parentKlass != nullptr && parentKlass->static_fields != nullptr) {
         *(void**)parentKlass->static_fields = component;
-        Logger::log("[OverworldMP] Singleton set on parent SBMB<NM> (%p)\n",
+        MP_LOG("[OverworldMP] Singleton set on parent SBMB<NM> (%p)\n",
                     parentKlass->static_fields);
     } else {
-        Logger::log("[OverworldMP] WARNING: parent class static_fields is null\n");
+        MP_LOG("[OverworldMP] WARNING: parent class static_fields is null\n");
     }
 
     auto* nm = (Dpr::NetworkUtils::NetworkManager::Object*)component;
-    Logger::log("[OverworldMP] _sessionConnector: %p\n", nm->fields.sessionConnector);
+    MP_LOG("[OverworldMP] _sessionConnector: %p\n", nm->fields.sessionConnector);
 
     // 6. Manually call NM.Start() — Unity's non-generic AddComponent(Type)
     //    doesn't reliably trigger Start(). NM.Start creates the IE_Start
@@ -1291,9 +1318,9 @@ static bool ensureNetworkManagerSingleton() {
     //    Unity lifecycle call for the same instance.
     s_nmOnUpdateReady = false;
     s_nmStartedInstance = nullptr;
-    Logger::log("[OverworldMP] Manually calling NM.Start()...\n");
+    MP_LOG("[OverworldMP] Manually calling NM.Start()...\n");
     Dpr::NetworkUtils::NetworkManager::external<void>(0x1DE62F0, nm);
-    Logger::log("[OverworldMP] NM.Start() returned, IE_Start coroutine queued\n");
+    MP_LOG("[OverworldMP] NM.Start() returned, IE_Start coroutine queued\n");
 
     // -----------------------------------------------------------------
     // Phase 2: Ensure IlcaNetComponent is on the same GameObject
@@ -1306,7 +1333,7 @@ static bool ensureNetworkManagerSingleton() {
     // RequireComponent *should* auto-add IlcaNetComponent when we AddComponent(NM), but
     // verify and add manually if needed. Use the Il2CppType* from the _var metadata entry.
     auto* ilcaNetTypePtr = *(Il2CppType**)exl::util::modules::GetTargetOffset(ILCANETCOMP_TYPE_VAR);
-    Logger::log("[OverworldMP] IlcaNetComponent Il2CppType*: %p\n", ilcaNetTypePtr);
+    MP_LOG("[OverworldMP] IlcaNetComponent Il2CppType*: %p\n", ilcaNetTypePtr);
 
     if (ilcaNetTypePtr != nullptr) {
         System::RuntimeTypeHandle::Object ilcaHandle {};
@@ -1316,16 +1343,16 @@ static bool ensureNetworkManagerSingleton() {
         // GetComponent(Type) @ 0x026a8240 — check if already added by RequireComponent
         auto* existingComp = _ILExternal::external<void*>(0x026a8240, go, ilcaType);
         if (existingComp == nullptr) {
-            Logger::log("[OverworldMP] IlcaNetComponent not found on GO, adding manually...\n");
+            MP_LOG("[OverworldMP] IlcaNetComponent not found on GO, adding manually...\n");
             auto* ilcaComp = go->AddComponentByType(ilcaType);
             s_ilcaNetComponent = ilcaComp;
-            Logger::log("[OverworldMP] IlcaNetComponent added: %p (stored for disable/enable)\n", ilcaComp);
+            MP_LOG("[OverworldMP] IlcaNetComponent added: %p (stored for disable/enable)\n", ilcaComp);
         } else {
             s_ilcaNetComponent = existingComp;
-            Logger::log("[OverworldMP] IlcaNetComponent already exists on GO: %p (stored for disable/enable)\n", existingComp);
+            MP_LOG("[OverworldMP] IlcaNetComponent already exists on GO: %p (stored for disable/enable)\n", existingComp);
         }
     } else {
-        Logger::log("[OverworldMP] WARNING: IlcaNetComponent Il2CppType* is null (metadata not initialized)\n");
+        MP_LOG("[OverworldMP] WARNING: IlcaNetComponent Il2CppType* is null (metadata not initialized)\n");
     }
 
     // -----------------------------------------------------------------
@@ -1345,19 +1372,19 @@ static bool ensureNetworkManagerSingleton() {
         auto* staticFields = *(void**)((uintptr_t)commonKlass + 0xb8);
         if (staticFields != nullptr) {
             bool* updateAlive = (bool*)((uintptr_t)staticFields + 0xC0);
-            Logger::log("[OverworldMP] Common.s_updateAlive = %d (before)\n", (int)*updateAlive);
+            MP_LOG("[OverworldMP] Common.s_updateAlive = %d (before)\n", (int)*updateAlive);
             if (!*updateAlive) {
                 *updateAlive = true;
-                Logger::log("[OverworldMP] Set Common.s_updateAlive = true\n");
+                MP_LOG("[OverworldMP] Set Common.s_updateAlive = true\n");
             }
         } else {
-            Logger::log("[OverworldMP] WARNING: Common static_fields is null\n");
+            MP_LOG("[OverworldMP] WARNING: Common static_fields is null\n");
         }
     } else {
-        Logger::log("[OverworldMP] WARNING: NexAssets.Common Il2CppClass* is null\n");
+        MP_LOG("[OverworldMP] WARNING: NexAssets.Common Il2CppClass* is null\n");
     }
 
-    Logger::log("[OverworldMP] NetworkManager singleton created at %p, waiting for IE_Start...\n", component);
+    MP_LOG("[OverworldMP] NetworkManager singleton created at %p, waiting for IE_Start...\n", component);
     return true;
 }
 
@@ -1367,7 +1394,7 @@ static bool ensureNetworkManagerSingleton() {
 
 void overworldMPStart() {
     if (s_mpContext.state != OverworldMPState::Disabled) {
-        Logger::log("[OverworldMP] Already started, state=%d\n", (int)s_mpContext.state);
+        MP_LOG("[OverworldMP] Already started, state=%d\n", (int)s_mpContext.state);
         return;
     }
 
@@ -1382,7 +1409,7 @@ void overworldMPStart() {
         s_mpContext.myAreaID = fm->get_areaID();
     }
 
-    Logger::log("[OverworldMP] Starting session, area=%d\n", s_mpContext.myAreaID);
+    MP_LOG("[OverworldMP] Starting session, area=%d\n", s_mpContext.myAreaID);
 
     // Ensure NetworkManager singleton exists. If creating a new one, NM.Start()
     // will run on the next frame via Unity's deferred lifecycle, launching the
@@ -1390,7 +1417,7 @@ void overworldMPStart() {
     // registration, IlcaNet init, etc.). We wait for IE_Start to complete before
     // calling SC.StartSession.
     if (!ensureNetworkManagerSingleton()) {
-        Logger::log("[OverworldMP] Cannot create NetworkManager — aborting\n");
+        MP_LOG("[OverworldMP] Cannot create NetworkManager — aborting\n");
         s_mpContext.state = OverworldMPState::Disabled;
         return;
     }
@@ -1400,7 +1427,7 @@ void overworldMPStart() {
     s_initWaitTime = 0.0f;
     s_lastLoggedPiaState = 0xFFFFFFFF;  // Reset state change tracker
     s_mpContext.state = OverworldMPState::Initializing;
-    Logger::log("[OverworldMP] Waiting for IE_Start coroutine to complete...\n");
+    MP_LOG("[OverworldMP] Waiting for IE_Start coroutine to complete...\n");
 }
 
 void overworldMPStop() {
@@ -1408,13 +1435,13 @@ void overworldMPStop() {
         return;
     }
 
-    Logger::log("[OverworldMP] Stopping session\n");
+    MP_LOG("[OverworldMP] Stopping session\n");
 
     s_mpContext.state = OverworldMPState::Disconnecting;
 
     // Clear grace period if stopping during one
     if (s_zoneChangeGraceTime > 0.0f) {
-        Logger::log("[OverworldMP] Stop during grace period (%.2fs remaining)\n",
+        MP_LOG("[OverworldMP] Stop during grace period (%.2fs remaining)\n",
                     s_zoneChangeGraceTime);
         s_zoneChangeGraceTime = 0.0f;
     }
@@ -1443,7 +1470,7 @@ void overworldMPStop() {
     s_nmStartedInstance = nullptr;
 
     s_mpContext.state = OverworldMPState::Disabled;
-    Logger::log("[OverworldMP] Session stopped\n");
+    MP_LOG("[OverworldMP] Session stopped\n");
 }
 
 // Forward declarations for spawn queue (defined after entity spawn section)
@@ -1466,7 +1493,7 @@ void overworldMPUpdate(float deltaTime) {
 
         auto* nm = getNMInstance();
         if (nm == nullptr) {
-            Logger::log("[OverworldMP] NM singleton disappeared during init\n");
+            MP_LOG("[OverworldMP] NM singleton disappeared during init\n");
             s_mpContext.state = OverworldMPState::Disabled;
             return;
         }
@@ -1478,7 +1505,7 @@ void overworldMPUpdate(float deltaTime) {
         // callObjPtr is set during NM's .ctor, not by IE_Start.
         if (s_nmOnUpdateReady) {
             auto* sc = (Dpr::NetworkUtils::SessionConnector::Object*)nm->fields.sessionConnector;
-            Logger::log("[OverworldMP] IE_Start completed after %.2fs (NM.OnUpdate fired)\n",
+            MP_LOG("[OverworldMP] IE_Start completed after %.2fs (NM.OnUpdate fired)\n",
                         s_initWaitTime);
 
             // Use the same high-level API the underground uses: populate
@@ -1498,11 +1525,11 @@ void overworldMPUpdate(float deltaTime) {
             // PlatformInitialize) runs naturally via the Sequencer on subsequent
             // frames — no synchronous PIA hacks needed.
             _ILExternal::external<void>(0x1DE69B0, nm, (void*)nullptr);
-            Logger::log("[OverworldMP] DoStartSession returned, bRunningSession=%d\n",
+            MP_LOG("[OverworldMP] DoStartSession returned, bRunningSession=%d\n",
                         (int)sc->fields.bRunningSession);
 
             if (!sc->fields.bRunningSession) {
-                Logger::log("[OverworldMP] DoStartSession failed\n");
+                MP_LOG("[OverworldMP] DoStartSession failed\n");
                 s_mpContext.state = OverworldMPState::Error;
                 return;
             }
@@ -1519,7 +1546,7 @@ void overworldMPUpdate(float deltaTime) {
                 *(void**)((uintptr_t)sc + 0x20) = nullptr; // onSessionEvent
                 *(void**)((uintptr_t)sc + 0x28) = nullptr; // onSessionError
                 *(void**)((uintptr_t)sc + 0x30) = nullptr; // onFinishSession
-                Logger::log("[OverworldMP] Suppressed SC session event/error/finish delegates\n");
+                MP_LOG("[OverworldMP] Suppressed SC session event/error/finish delegates\n");
             }
 
             s_searchingFrameCount = 0;
@@ -1527,10 +1554,10 @@ void overworldMPUpdate(float deltaTime) {
 #if ENABLE_SESSION_UPDATE_HOOK
             s_loggedFirstPostSession = false;
 #endif
-            Logger::log("[OverworldMP] Session started (netType=0, matchType=12576, max %d players)\n",
+            MP_LOG("[OverworldMP] Session started (netType=0, matchType=12576, max %d players)\n",
                         OW_MP_MAX_PLAYERS);
         } else if (s_initWaitTime > 20.0f) {  // 20 second timeout
-            Logger::log("[OverworldMP] IE_Start timeout after %.1fs\n", s_initWaitTime);
+            MP_LOG("[OverworldMP] IE_Start timeout after %.1fs\n", s_initWaitTime);
             s_mpContext.state = OverworldMPState::Error;
         }
         return;
@@ -1551,27 +1578,27 @@ void overworldMPUpdate(float deltaTime) {
         // Log every ~0.25s during grace to track countdown + session health
         if ((int)(prevTime * 4) != (int)(s_zoneChangeGraceTime * 4) || s_zoneChangeGraceTime <= 0.0f) {
             int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-            Logger::log("[OverworldMP] Grace countdown: %.2fs left, sessionState=%d, area=%d\n",
+            MP_LOG("[OverworldMP] Grace countdown: %.2fs left, sessionState=%d, area=%d\n",
                         s_zoneChangeGraceTime > 0.0f ? s_zoneChangeGraceTime : 0.0f,
                         sessionState, s_mpContext.myAreaID);
         }
 
         if (s_zoneChangeGraceTime <= 0.0f) {
             s_zoneChangeGraceTime = 0.0f;
-            Logger::log("[OverworldMP] Grace period expired\n");
+            MP_LOG("[OverworldMP] Grace period expired\n");
 
             // Check session health immediately after reactivation
             int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-            Logger::log("[OverworldMP] Post-grace session state: %d (4/5=gaming OK, 7=error, 9=crash)\n",
+            MP_LOG("[OverworldMP] Post-grace session state: %d (4/5=gaming OK, 7=error, 9=crash)\n",
                         sessionState);
 
             if (sessionState == 7 || sessionState == 9) {
-                Logger::log("[OverworldMP] WARNING: Session in error state after grace period!\n");
+                MP_LOG("[OverworldMP] WARNING: Session in error state after grace period!\n");
                 // Don't stop immediately — let the health check in the main update handle it.
                 // This gives PIA one frame to recover if the state is transient.
             }
 
-            Logger::log("[OverworldMP] Resuming MP in area %d\n", s_mpContext.myAreaID);
+            MP_LOG("[OverworldMP] Resuming MP in area %d\n", s_mpContext.myAreaID);
 
             // No DDOL cleanup needed — entities were destroyed by Unity
             // during the scene transition. References already nulled.
@@ -1607,14 +1634,14 @@ void overworldMPUpdate(float deltaTime) {
         int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
         // Log first 5 frames, then every 60 frames (~2s), to track state progression
         if (s_searchingFrameCount <= 5 || s_searchingFrameCount % 60 == 0) {
-            Logger::log("[NetDiag] Searching frame %d — sessionState=%d, recvCallbacks=%d\n",
+            MP_LOG("[NetDiag] Searching frame %d — sessionState=%d, recvCallbacks=%d\n",
                         s_searchingFrameCount, sessionState, s_recvCallbackCount);
         }
         if (sessionState == 4 || sessionState == 5) { // SS_Gaming — session active
             s_mpContext.state = OverworldMPState::Connected;
-            Logger::log("[OverworldMP] Session connected (state=%d)\n", sessionState);
+            MP_LOG("[OverworldMP] Session connected (state=%d)\n", sessionState);
         } else if (sessionState == 7 || sessionState == 9) { // GamingError or Crash
-            Logger::log("[OverworldMP] Session error (state=%d)\n", sessionState);
+            MP_LOG("[OverworldMP] Session error (state=%d)\n", sessionState);
             s_mpContext.state = OverworldMPState::Error;
         }
     }
@@ -1634,11 +1661,11 @@ void overworldMPUpdate(float deltaTime) {
             float prevGrace = s_errorGraceTime;
             s_errorGraceTime += deltaTime;
             if (prevGrace == 0.0f) {
-                Logger::log("[OverworldMP] Session CRASH detected (state=9), will restart in 0.5s\n");
+                MP_LOG("[OverworldMP] Session CRASH detected (state=9), will restart in 0.5s\n");
             }
             // Small grace (0.5s) to let any final callbacks drain
             if (s_errorGraceTime >= 0.5f) {
-                Logger::log("[OverworldMP] Session crashed, clearing %d ghost peers and restarting...\n",
+                MP_LOG("[OverworldMP] Session crashed, clearing %d ghost peers and restarting...\n",
                             (int)[&]{ int n=0; for(int i=0;i<OW_MP_MAX_PLAYERS;i++) if(s_mpContext.remotePlayers[i].isActive) n++; return n; }());
                 s_errorGraceTime = 0.0f;
                 overworldMPStop();
@@ -1650,12 +1677,12 @@ void overworldMPUpdate(float deltaTime) {
             float prevGrace = s_errorGraceTime;
             s_errorGraceTime += deltaTime;
             if (prevGrace == 0.0f || (int)(prevGrace) != (int)(s_errorGraceTime)) {
-                Logger::log("[OverworldMP] Session error state=%d (grace %.2fs/%.1fs)\n",
+                MP_LOG("[OverworldMP] Session error state=%d (grace %.2fs/%.1fs)\n",
                             sessionState, s_errorGraceTime, OW_MP_ERROR_GRACE_SEC);
             }
             if (s_errorGraceTime >= OW_MP_ERROR_GRACE_SEC) {
                 // Waited long enough — session didn't recover. Restart.
-                Logger::log("[OverworldMP] Session error persisted for %.2fs, restarting...\n",
+                MP_LOG("[OverworldMP] Session error persisted for %.2fs, restarting...\n",
                             s_errorGraceTime);
                 s_errorGraceTime = 0.0f;
                 overworldMPStop();
@@ -1665,7 +1692,7 @@ void overworldMPUpdate(float deltaTime) {
         } else {
             // Session is healthy — reset grace counter
             if (s_errorGraceTime > 0.0f) {
-                Logger::log("[OverworldMP] Session recovered after %.2fs error (state=%d)\n",
+                MP_LOG("[OverworldMP] Session recovered after %.2fs error (state=%d)\n",
                             s_errorGraceTime, sessionState);
                 s_errorGraceTime = 0.0f;
             }
@@ -1680,7 +1707,7 @@ void overworldMPUpdate(float deltaTime) {
             int activeCount = 0;
             for (int i = 0; i < OW_MP_MAX_PLAYERS; i++)
                 if (s_mpContext.remotePlayers[i].isActive) activeCount++;
-            Logger::log("[OverworldMP] Connected: frame=%d recvCB=%d activePlayers=%d\n",
+            MP_LOG("[OverworldMP] Connected: frame=%d recvCB=%d activePlayers=%d\n",
                         s_mpContext.frameCounter, s_recvCallbackCount, activeCount);
         }
     }
@@ -1713,7 +1740,7 @@ void overworldMPUpdate(float deltaTime) {
         s_interactionTimeoutTime -= deltaTime;
         if (s_interactionTimeoutTime <= 0.0f) {
             int32_t target = s_interactionTarget;
-            Logger::log("[OverworldMP] Interaction request timed out (target station %d)\n", target);
+            MP_LOG("[OverworldMP] Interaction request timed out (target station %d)\n", target);
             // Reset network-level state BEFORE calling handler —
             // prevents this block from firing again on subsequent frames
             s_interactionState = InteractionState::None;
@@ -1792,10 +1819,10 @@ void overworldMPUpdate(float deltaTime) {
                         cvComp->fields.ColorIndex = (remote.colorId >= 0) ? remote.colorId : 0;
                         UpdateColorVariation(cvComp);
                     }
-                    Logger::log("[OverworldMP] Deferred color refresh applied for station %d (colorId=%d, custom=%d)\n",
+                    MP_LOG("[OverworldMP] Deferred color refresh applied for station %d (colorId=%d, custom=%d)\n",
                                 i, cvComp->fields.ColorIndex, (int)remote.hasCustomColors);
                 } else {
-                    Logger::log("[OverworldMP] Deferred refresh: no captured CV pointer for station %d\n", i);
+                    MP_LOG("[OverworldMP] Deferred refresh: no captured CV pointer for station %d\n", i);
                 }
             }
         }
@@ -1938,7 +1965,7 @@ void overworldMPOnAreaChange(int32_t newAreaID) {
     int32_t oldAreaID = s_mpContext.myAreaID;
     s_mpContext.myAreaID = newAreaID;
 
-    Logger::log("[OverworldMP] Area change: %d -> %d\n", oldAreaID, newAreaID);
+    MP_LOG("[OverworldMP] Area change: %d -> %d\n", oldAreaID, newAreaID);
 
     // Notify peers of our area change + custom colors
     overworldMPSendAreaChange(newAreaID);
@@ -1973,7 +2000,7 @@ void overworldMPOnPlayerJoin(int32_t stationIndex) {
         return;
     }
 
-    Logger::log("[OverworldMP] Player joined: station %d\n", stationIndex);
+    MP_LOG("[OverworldMP] Player joined: station %d\n", stationIndex);
 
     auto& remote = s_mpContext.remotePlayers[stationIndex];
 
@@ -2008,12 +2035,12 @@ void overworldMPOnPlayerLeave(int32_t stationIndex) {
         return;
     }
 
-    Logger::log("[OverworldMP] Player left: station %d\n", stationIndex);
+    MP_LOG("[OverworldMP] Player left: station %d\n", stationIndex);
 
     // Check if this is our active battle partner disconnecting mid-battle
     if (s_inBattleScene && s_activeBattlePartner == stationIndex && !s_battlePartnerDisconnected) {
         s_battlePartnerDisconnected = true;
-        Logger::log("[OverworldMP] BATTLE PARTNER DISCONNECTED (station %d) — flagging for battle termination\n",
+        MP_LOG("[OverworldMP] BATTLE PARTNER DISCONNECTED (station %d) — flagging for battle termination\n",
                     stationIndex);
     }
 
@@ -2072,7 +2099,7 @@ static bool spawnQueuePush(int32_t stationIndex) {
     int nextTail = (s_spawnQueueTail + 1) % OW_MP_MAX_PLAYERS;
     if (nextTail == s_spawnQueueHead) {
         // Queue is full (shouldn't happen with 8 slots and 8 max players)
-        Logger::log("[OverworldMP] Spawn queue full, dropping station %d\n", stationIndex);
+        MP_LOG("[OverworldMP] Spawn queue full, dropping station %d\n", stationIndex);
         return false;
     }
     s_spawnQueue[s_spawnQueueTail] = stationIndex;
@@ -2106,7 +2133,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     s_spawnInFlightStation = -1;
 
     if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) {
-        Logger::log("[OverworldMP] Asset loaded but no pending spawn\n");
+        MP_LOG("[OverworldMP] Asset loaded but no pending spawn\n");
         // Still process next in queue
         spawnQueueProcessNext();
         return;
@@ -2116,13 +2143,23 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     auto& remote = ctx.remotePlayers[stationIndex];
 
     if (!remote.isActive) {
-        Logger::log("[OverworldMP] Asset loaded but station %d no longer active\n", stationIndex);
+        MP_LOG("[OverworldMP] Asset loaded but station %d no longer active\n", stationIndex);
+        spawnQueueProcessNext();
+        return;
+    }
+
+    // The spawn marker (isSpawned) is set when the load is kicked off and is cleared
+    // by overworldMPDespawnEntity. If it's no longer set, this entity was explicitly
+    // despawned while the async load was in flight (e.g. a despawn that didn't clear
+    // isActive) — don't resurrect it as an untracked orphan.
+    if (!remote.isSpawned) {
+        MP_LOG("[OverworldMP] Asset loaded but station %d spawn was cancelled\n", stationIndex);
         spawnQueueProcessNext();
         return;
     }
 
     if (loadedAsset == nullptr) {
-        Logger::log("[OverworldMP] Asset load returned null for station %d\n", stationIndex);
+        MP_LOG("[OverworldMP] Asset load returned null for station %d\n", stationIndex);
         remote.isSpawned = false;
         spawnQueueProcessNext();
         return;
@@ -2130,7 +2167,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
 
     // Grace period guard — don't spawn during zone transitions
     if (s_zoneChangeGraceTime > 0.0f) {
-        Logger::log("[OverworldMP] Asset loaded during grace period, skipping spawn for station %d\n",
+        MP_LOG("[OverworldMP] Asset loaded during grace period, skipping spawn for station %d\n",
                     stationIndex);
         remote.isSpawned = false;
         spawnQueueProcessNext();
@@ -2142,14 +2179,14 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     auto* fmInst = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
     int32_t myArea = fmInst != nullptr ? fmInst->get_areaID() : -1;
     if (myArea != remote.areaID) {
-        Logger::log("[OverworldMP] Area mismatch after load (my=%d, remote=%d), skipping spawn\n",
+        MP_LOG("[OverworldMP] Area mismatch after load (my=%d, remote=%d), skipping spawn\n",
                     myArea, remote.areaID);
         remote.isSpawned = false;
         spawnQueueProcessNext();
         return;
     }
 
-    Logger::log("[OverworldMP] Asset loaded for station %d: obj=%p klass=%p\n",
+    MP_LOG("[OverworldMP] Asset loaded for station %d: obj=%p klass=%p\n",
                 stationIndex, loadedAsset,
                 loadedAsset ? *(void**)loadedAsset : nullptr);
 
@@ -2161,7 +2198,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     // Set remote color ID so the OnEnable hook applies it during Instantiate.
     // This is more reliable than post-spawn application because renderers
     // are initialized inside Orig() and colors apply immediately.
-    Logger::log("[OverworldMP] Step 1: Instantiate\n");
+    MP_LOG("[OverworldMP] Step 1: Instantiate\n");
     g_owmpSkipCustomColorOverride = true;
     g_owmpRemoteColorId = remote.colorId;
     extern void owmpSetCaptureStation(int32_t);
@@ -2169,14 +2206,14 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     auto* prefab = (UnityEngine::_Object::Object*)loadedAsset;
     auto* go = (UnityEngine::GameObject::Object*)UnityEngine::_Object::Instantiate(prefab);
     if (go == nullptr) {
-        Logger::log("[OverworldMP] Object.Instantiate returned null\n");
+        MP_LOG("[OverworldMP] Object.Instantiate returned null\n");
         g_owmpSkipCustomColorOverride = false;
         g_owmpRemoteColorId = -1;
         remote.isSpawned = false;
         spawnQueueProcessNext();
         return;
     }
-    Logger::log("[OverworldMP] Step 1 done: go=%p\n", go);
+    MP_LOG("[OverworldMP] Step 1 done: go=%p\n", go);
 
     // Entity is NOT marked DontDestroyOnLoad — Unity destroys it during
     // scene transitions. We just null out our references on zone change
@@ -2192,16 +2229,16 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     euler.fields.y = remote.rotationY;
     euler.fields.z = 0.0f;
     transform->set_eulerAngles(euler);
-    Logger::log("[OverworldMP] Step 3 done: pos/rot set\n");
+    MP_LOG("[OverworldMP] Step 3 done: pos/rot set\n");
 
     // 4. GetComponent<FieldObjectEntity> — the prefab already has this
     auto* entity = go->GetComponent<FieldObjectEntity>(
         UnityEngine::GameObject::Method$$FieldObjectEntity$$GetComponent);
-    Logger::log("[OverworldMP] Step 4: entity=%p\n", entity);
+    MP_LOG("[OverworldMP] Step 4: entity=%p\n", entity);
 
     if (entity != nullptr) {
         // Network characters should not block local player movement
-        Logger::log("[OverworldMP] Step 4a: setting collision ignore\n");
+        MP_LOG("[OverworldMP] Step 4a: setting collision ignore\n");
         entity->fields.IsIgnorePlayerCollision = true;
 
         // NOTE: Do NOT null out EventParams — UpdateSubductionDepth and
@@ -2214,7 +2251,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
         entity->cast<BaseEntity>()->SetPositionDirect(remote.position);
         entity->cast<BaseEntity>()->fields.worldPosition = remote.position;
         entity->cast<BaseEntity>()->SetYawAngleDirect(remote.rotationY);
-        Logger::log("[OverworldMP] Step 4a done: pos/rot/collision set\n");
+        MP_LOG("[OverworldMP] Step 4a done: pos/rot/collision set\n");
     }
 
     // 5. Color variation — use the pointer captured by ColorVariation_OnEnable
@@ -2234,15 +2271,15 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
                 UpdateColorVariation(cvComp);
                 extern void ApplyRemoteCustomFieldColors(ColorVariation::Object*, const float*);
                 ApplyRemoteCustomFieldColors(cvComp, remote.customFieldColors);
-                Logger::log("[OverworldMP] Custom colors applied at spawn for station %d\n", stationIndex);
+                MP_LOG("[OverworldMP] Custom colors applied at spawn for station %d\n", stationIndex);
             } else {
                 cvComp->fields.ColorIndex = (remote.colorId >= 0) ? remote.colorId : 0;
                 UpdateColorVariation(cvComp);
-                Logger::log("[OverworldMP] ColorVariation applied: colorId=%d propBlock=%p\n",
+                MP_LOG("[OverworldMP] ColorVariation applied: colorId=%d propBlock=%p\n",
                             cvComp->fields.ColorIndex, cvComp->fields.propertyBlock);
             }
         } else {
-            Logger::log("[OverworldMP] WARNING: OnEnable did not capture ColorVariation\n");
+            MP_LOG("[OverworldMP] WARNING: OnEnable did not capture ColorVariation\n");
         }
     }
     g_owmpSkipCustomColorOverride = false;
@@ -2258,7 +2295,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     auto* fce = (FieldCharacterEntity::Object*)entity;
     if (fce != nullptr && fce->fields._animationPlayer != nullptr) {
         fce->fields._animationPlayer->Play(0);  // 0 = Idle
-        Logger::log("[OverworldMP] Animation initialized: animPlayer=%p\n",
+        MP_LOG("[OverworldMP] Animation initialized: animPlayer=%p\n",
                     fce->fields._animationPlayer);
     }
 
@@ -2266,7 +2303,7 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     ctx.spawnedEntities[stationIndex] = entity;
     remote.isSpawned = true;
 
-    Logger::log("[OverworldMP] Entity spawned for station %d (avatar=%d color=%d bike=%d)\n",
+    MP_LOG("[OverworldMP] Entity spawned for station %d (avatar=%d color=%d bike=%d)\n",
                 stationIndex, remote.avatarId, remote.colorId, (int)remote.isBicycle);
 
     // Kick off next queued spawn, if any
@@ -2319,7 +2356,7 @@ void overworldMPSpawnEntity(int32_t stationIndex) {
         return; // Queue full — logged inside spawnQueuePush
     }
 
-    Logger::log("[OverworldMP] Queued spawn for station %d (queue depth: %d)\n",
+    MP_LOG("[OverworldMP] Queued spawn for station %d (queue depth: %d)\n",
                 stationIndex, spawnQueueCount());
 
     // If nothing is currently loading, start immediately
@@ -2333,7 +2370,7 @@ void overworldMPSpawnEntity(int32_t stationIndex) {
 static void spawnQueueStartLoad(int32_t stationIndex) {
     auto& remote = getOverworldMPContext().remotePlayers[stationIndex];
 
-    Logger::log("[OverworldMP] Starting asset load for station %d at (%.1f, %.1f, %.1f)\n",
+    MP_LOG("[OverworldMP] Starting asset load for station %d at (%.1f, %.1f, %.1f)\n",
                 stationIndex, remote.position.fields.x, remote.position.fields.y,
                 remote.position.fields.z);
 
@@ -2344,7 +2381,7 @@ static void spawnQueueStartLoad(int32_t stationIndex) {
     GameData::DataManager::getClass()->initIfNeeded();
     auto* dressData = GameData::DataManager::GetCharacterDressData(spawnAvatarId);
     if (dressData == nullptr) {
-        Logger::log("[OverworldMP] No dress data for avatarId %d (bike=%d)\n",
+        MP_LOG("[OverworldMP] No dress data for avatarId %d (bike=%d)\n",
                     spawnAvatarId, (int)remote.isBicycle);
         spawnQueueProcessNext();
         return;
@@ -2353,7 +2390,7 @@ static void spawnQueueStartLoad(int32_t stationIndex) {
     // FieldGraphic is the 3rd field (offset 0x18 in SheetData, which is 0x28 in IL2CPP with header)
     auto* assetName = (System::String::Object*)dressData->fields.FieldGraphic;
     if (assetName == nullptr) {
-        Logger::log("[OverworldMP] No FieldGraphic for avatarId %d\n", remote.avatarId);
+        MP_LOG("[OverworldMP] No FieldGraphic for avatarId %d\n", remote.avatarId);
         spawnQueueProcessNext();
         return;
     }
@@ -2415,7 +2452,7 @@ void overworldMPDespawnEntity(int32_t stationIndex) {
         return;
     }
 
-    Logger::log("[OverworldMP] Despawning entity for station %d\n", stationIndex);
+    MP_LOG("[OverworldMP] Despawning entity for station %d\n", stationIndex);
 
     auto* entity = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[stationIndex];
     if (entity != nullptr) {
@@ -2453,7 +2490,7 @@ static void overworldMPDespawnFollowPokemon(int32_t stationIndex) {
     auto& remote = s_mpContext.remotePlayers[stationIndex];
     if (!remote.followPokeSpawned) return;
 
-    Logger::log("[OverworldMP] Despawning follow pokemon for station %d\n", stationIndex);
+    MP_LOG("[OverworldMP] Despawning follow pokemon for station %d\n", stationIndex);
 
     auto* entity = (FieldObjectEntity::Object*)remote.followPokeEntity;
     if (entity != nullptr) {
@@ -2476,36 +2513,36 @@ static void onPokemonAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*method
     s_pokeSpawnInFlightStation = -1;
 
     if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) {
-        Logger::log("[OverworldMP] Pokemon asset loaded but no pending spawn\n");
+        MP_LOG("[OverworldMP] Pokemon asset loaded but no pending spawn\n");
         return;
     }
 
     auto& remote = s_mpContext.remotePlayers[stationIndex];
 
     if (!remote.isActive || !remote.followPokeActive) {
-        Logger::log("[OverworldMP] Pokemon asset loaded but station %d no longer active/follow\n", stationIndex);
+        MP_LOG("[OverworldMP] Pokemon asset loaded but station %d no longer active/follow\n", stationIndex);
         return;
     }
 
     if (loadedAsset == nullptr) {
-        Logger::log("[OverworldMP] Pokemon asset load returned null for station %d\n", stationIndex);
+        MP_LOG("[OverworldMP] Pokemon asset load returned null for station %d\n", stationIndex);
         return;
     }
 
     // Grace period guard
     if (s_zoneChangeGraceTime > 0.0f) {
-        Logger::log("[OverworldMP] Pokemon asset loaded during grace period, skipping for station %d\n", stationIndex);
+        MP_LOG("[OverworldMP] Pokemon asset loaded during grace period, skipping for station %d\n", stationIndex);
         return;
     }
 
-    Logger::log("[OverworldMP] Follow pokemon asset loaded for station %d: monsNo=%d\n",
+    MP_LOG("[OverworldMP] Follow pokemon asset loaded for station %d: monsNo=%d\n",
                 stationIndex, remote.followMonsNo);
 
     // 1. Instantiate the loaded prefab
     auto* prefab = (UnityEngine::_Object::Object*)loadedAsset;
     auto* go = (UnityEngine::GameObject::Object*)UnityEngine::_Object::Instantiate(prefab);
     if (go == nullptr) {
-        Logger::log("[OverworldMP] Pokemon Object.Instantiate returned null\n");
+        MP_LOG("[OverworldMP] Pokemon Object.Instantiate returned null\n");
         return;
     }
 
@@ -2566,7 +2603,7 @@ static void onPokemonAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*method
     remote.followPokeEntity = entity;
     remote.followPokeSpawned = true;
 
-    Logger::log("[OverworldMP] Follow pokemon spawned for station %d (monsNo=%d scale=%.2f)\n",
+    MP_LOG("[OverworldMP] Follow pokemon spawned for station %d (monsNo=%d scale=%.2f)\n",
                 stationIndex, remote.followMonsNo, remote.followPokeScale);
 }
 
@@ -2576,7 +2613,7 @@ static void overworldMPSpawnFollowPokemon(int32_t stationIndex) {
     auto& remote = s_mpContext.remotePlayers[stationIndex];
     if (remote.followMonsNo == 0) return;
 
-    Logger::log("[OverworldMP] Spawning follow pokemon for station %d: monsNo=%d formNo=%d\n",
+    MP_LOG("[OverworldMP] Spawning follow pokemon for station %d: monsNo=%d formNo=%d\n",
                 stationIndex, remote.followMonsNo, (int)remote.followFormNo);
 
     // Get pokemon catalog for asset name and scale
@@ -2586,7 +2623,7 @@ static void overworldMPSpawnFollowPokemon(int32_t stationIndex) {
         (Pml::Sex)remote.followSex, remote.followIsRare, false);
 
     if (catalog == nullptr) {
-        Logger::log("[OverworldMP] No pokemon catalog for monsNo=%d\n", remote.followMonsNo);
+        MP_LOG("[OverworldMP] No pokemon catalog for monsNo=%d\n", remote.followMonsNo);
         return;
     }
 
@@ -2594,7 +2631,7 @@ static void overworldMPSpawnFollowPokemon(int32_t stationIndex) {
     remote.followPokeScale = catalog->fields.FieldWalkingScale;
 
     if (assetBundleName == nullptr) {
-        Logger::log("[OverworldMP] No AssetBundleName for monsNo=%d\n", remote.followMonsNo);
+        MP_LOG("[OverworldMP] No AssetBundleName for monsNo=%d\n", remote.followMonsNo);
         return;
     }
 
@@ -2707,7 +2744,7 @@ void overworldMPSendPosition() {
 
     if (!s_loggedFirstSend) {
         s_loggedFirstSend = true;
-        Logger::log("[OverworldMP] First position sent: area=%d pos=(%.1f,%.1f,%.1f) followPoke=%d\n",
+        MP_LOG("[OverworldMP] First position sent: area=%d pos=(%.1f,%.1f,%.1f) followPoke=%d\n",
                     s_mpContext.myAreaID, pos.fields.x, pos.fields.y, pos.fields.z,
                     hasFollowPoke ? 1 : 0);
     }
@@ -2814,7 +2851,7 @@ void overworldMPSendCustomColors() {
     w(cv.bEyeRight); w(cv.bSkinBody); w(cv.bHair);
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[OverworldMP] Sent custom colors (reliable)\n");
+    MP_LOG("[OverworldMP] Sent custom colors (reliable)\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -2860,7 +2897,7 @@ void overworldMPResetInteractionState() {
 
 void overworldMPSendEmote(uint8_t emoteId) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send emote — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send emote — not connected\n");
         return;
     }
 
@@ -2874,12 +2911,12 @@ void overworldMPSendEmote(uint8_t emoteId) {
 
     // Send unreliable to all — emotes are fire-and-forget
     Dpr::NetworkUtils::NetworkManager::SendUnReliablePacketToAll(pw, 0);
-    Logger::log("[OverworldMP] Sent emote: id=%d\n", (int)emoteId);
+    MP_LOG("[OverworldMP] Sent emote: id=%d\n", (int)emoteId);
 }
 
 void overworldMPSendInteractionRequest(int32_t targetStation, InteractionType type, BattleSubtype subtype) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send interaction request — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send interaction request — not connected\n");
         return;
     }
 
@@ -2901,13 +2938,13 @@ void overworldMPSendInteractionRequest(int32_t targetStation, InteractionType ty
     s_interactionTimeoutTime = 10.0f; // 10 seconds
     s_pendingInteractionType = type;
 
-    Logger::log("[OverworldMP] Sent interaction request: target=%d type=%d subtype=%d\n",
+    MP_LOG("[OverworldMP] Sent interaction request: target=%d type=%d subtype=%d\n",
                 targetStation, (int)type, (int)subtype);
 }
 
 void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send interaction response — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send interaction response — not connected\n");
         return;
     }
 
@@ -2927,13 +2964,13 @@ void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted) {
         s_interactionTarget = -1;
     }
 
-    Logger::log("[OverworldMP] Sent interaction response: target=%d accepted=%d\n",
+    MP_LOG("[OverworldMP] Sent interaction response: target=%d accepted=%d\n",
                 targetStation, (int)accepted);
 }
 
 void overworldMPSendTradePoke(int32_t targetStation, int32_t partySlot, uint8_t* data, int32_t size) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send trade poke — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send trade poke — not connected\n");
         return;
     }
 
@@ -2955,13 +2992,13 @@ void overworldMPSendTradePoke(int32_t targetStation, int32_t partySlot, uint8_t*
     }
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[OverworldMP] Sent trade poke: target=%d slot=%d size=%d (%d ints)\n",
+    MP_LOG("[OverworldMP] Sent trade poke: target=%d slot=%d size=%d (%d ints)\n",
                 targetStation, partySlot, size, numInts);
 }
 
 void overworldMPSendTradeConfirm(int32_t targetStation, bool confirmed) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send trade confirm — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send trade confirm — not connected\n");
         return;
     }
 
@@ -2975,19 +3012,19 @@ void overworldMPSendTradeConfirm(int32_t targetStation, bool confirmed) {
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, confirmed ? 1 : 0);
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[OverworldMP] Sent trade confirm: target=%d confirmed=%d\n",
+    MP_LOG("[OverworldMP] Sent trade confirm: target=%d confirmed=%d\n",
                 targetStation, (int)confirmed);
 }
 
 void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send battle party — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send battle party — not connected\n");
         return;
     }
 
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) {
-        Logger::log("[OverworldMP] Cannot send battle party — party is null\n");
+        MP_LOG("[OverworldMP] Cannot send battle party — party is null\n");
         return;
     }
 
@@ -3041,7 +3078,7 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
     }
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[OverworldMP] Sent battle HEADER: target=%d members=%d subtype=%d\n",
+    MP_LOG("[OverworldMP] Sent battle HEADER: target=%d members=%d subtype=%d\n",
                 targetStation, (int)memberCount, (int)subtype);
 
     // -----------------------------------------------------------------------
@@ -3060,7 +3097,7 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
             int32_t monsNo = coreParam->GetMonsNo();
             int32_t seikaku = coreParam->GetSeikaku();
             uint32_t level = coreParam->GetLevel();
-            Logger::log("[OverworldMP] SendParty[%d]: monsNo=%d seikaku=%d level=%u\n",
+            MP_LOG("[OverworldMP] SendParty[%d]: monsNo=%d seikaku=%d level=%u\n",
                         i, monsNo, seikaku, level);
 
             if (accessor != nullptr) {
@@ -3069,12 +3106,12 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
 
                 uint32_t rnd = 0;
                 memcpy(&rnd, pokeBuf, 4);
-                Logger::log("[OverworldMP] SendParty[%d]: personalRnd=0x%08x\n", i, rnd);
+                MP_LOG("[OverworldMP] SendParty[%d]: personalRnd=0x%08x\n", i, rnd);
             } else {
-                Logger::log("[OverworldMP] SendParty[%d]: accessor NULL — sending zeros\n", i);
+                MP_LOG("[OverworldMP] SendParty[%d]: accessor NULL — sending zeros\n", i);
             }
         } else {
-            Logger::log("[OverworldMP] SendParty[%d]: poke NULL — sending zeros\n", i);
+            MP_LOG("[OverworldMP] SendParty[%d]: poke NULL — sending zeros\n", i);
         }
 
         il2cpp_vcall_void(pw, PW_RESET);
@@ -3091,16 +3128,16 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
         }
 
         Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-        Logger::log("[OverworldMP] Sent battle POKE[%d]\n", i);
+        MP_LOG("[OverworldMP] Sent battle POKE[%d]\n", i);
     }
 
-    Logger::log("[OverworldMP] Battle party send complete: %d packets (1 header + %d pokemon)\n",
+    MP_LOG("[OverworldMP] Battle party send complete: %d packets (1 header + %d pokemon)\n",
                 1 + (int)memberCount, (int)memberCount);
 }
 
 void overworldMPSendBattleReady(int32_t targetStation) {
     if (!isOverworldMPActive() || s_mpContext.state != OverworldMPState::Connected) {
-        Logger::log("[OverworldMP] Cannot send battle ready — not connected\n");
+        MP_LOG("[OverworldMP] Cannot send battle ready — not connected\n");
         return;
     }
 
@@ -3113,7 +3150,7 @@ void overworldMPSendBattleReady(int32_t targetStation) {
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[OverworldMP] Sent BATTLE_READY to station %d\n", targetStation);
+    MP_LOG("[OverworldMP] Sent BATTLE_READY to station %d\n", targetStation);
 }
 
 // overworldMPShowInteractionMenu is defined in commands/overworld_mp_interact.cpp
@@ -3133,7 +3170,7 @@ static bool s_prevSettingEnabled = false;
 HOOK_DEFINE_TRAMPOLINE(ShowMessageWindow$$Setup) {
     static void Callback(void* __this, void* msbtFile, int32_t msgSpeed, uint8_t param4) {
         if (__this == nullptr) {
-            Logger::log("[OverworldMP] ShowMessageWindow.Setup skipped (null instance)\n");
+            MP_LOG("[OverworldMP] ShowMessageWindow.Setup skipped (null instance)\n");
             return;
         }
         Orig(__this, msbtFile, msgSpeed, param4);
@@ -3152,7 +3189,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$CheckReceivePacketImpl) {
         if (transportType == 0 && isOverworldMPActive()) {
             s_crpiLogCount++;
             if (s_crpiLogCount <= 5 || s_crpiLogCount % 300 == 0) {
-                Logger::log("[NetDiag] CheckReceivePacketImpl: type=%d station=%d onRecv=%p onRecvEx=%p\n",
+                MP_LOG("[NetDiag] CheckReceivePacketImpl: type=%d station=%d onRecv=%p onRecvEx=%p\n",
                             transportType, stationIndex, onRecvCB, onRecvExCB);
             }
         }
@@ -3163,7 +3200,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$CheckReceivePacketImpl) {
             if (s_crpiType2LogCount <= 10 || s_crpiType2LogCount % 500 == 0) {
                 // Check if transport exists by reading SessionConnector
                 void* sc = *(void**)((uintptr_t)__this + 0x30);
-                Logger::log("[NetDiag] CRPI type=2 station=%d exCB=%p SC=%p (call #%d)\n",
+                MP_LOG("[NetDiag] CRPI type=2 station=%d exCB=%p SC=%p (call #%d)\n",
                             stationIndex, onRecvExCB, sc, s_crpiType2LogCount);
             }
         }
@@ -3210,7 +3247,7 @@ HOOK_DEFINE_TRAMPOLINE(ReceivePacketCallback$$Invoke) {
 HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnSessionError) {
     static void Callback(void* __this, int32_t errorType) {
         if (isOverworldMPActive()) {
-            Logger::log("[OverworldMP] NM.OnSessionError SUPPRESSED (errorType=%d)\n", errorType);
+            MP_LOG("[OverworldMP] NM.OnSessionError SUPPRESSED (errorType=%d)\n", errorType);
             return;  // Don't call Orig — prevents ErrorApplet
         }
         Orig(__this, errorType);
@@ -3238,11 +3275,11 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$IsShowApplicationErrorDialog) {
 HOOK_DEFINE_TRAMPOLINE(NetworkManager$$Start) {
     static void Callback(void* __this) {
         if (__this == s_nmStartedInstance) {
-            Logger::log("[OverworldMP] NM.Start() BLOCKED (duplicate for %p)\n", __this);
+            MP_LOG("[OverworldMP] NM.Start() BLOCKED (duplicate for %p)\n", __this);
             return;
         }
         s_nmStartedInstance = __this;
-        Logger::log("[OverworldMP] NM.Start() called, this=%p\n", __this);
+        MP_LOG("[OverworldMP] NM.Start() called, this=%p\n", __this);
         Orig(__this);
     }
 };
@@ -3263,7 +3300,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnUpdate) {
     static void Callback(void* __this) {
         if (!s_nmOnUpdateReady) {
             s_nmOnUpdateReady = true;
-            Logger::log("[OverworldMP] NM.OnUpdate first call — Sequencer subscription confirmed\n");
+            MP_LOG("[OverworldMP] NM.OnUpdate first call — Sequencer subscription confirmed\n");
         }
 
         // Block during grace period as safety measure — prevent PIA ticking
@@ -3280,10 +3317,10 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnUpdate) {
                 void* pr = *(void**)((uintptr_t)__this + 0x40);
                 auto* nmKlass = Dpr::NetworkUtils::NetworkManager::getClass();
                 void* delegate = nmKlass->static_fields->onReceivePacket;
-                Logger::log("[NetDiag] OnUpdate pre-Orig: bRunning=%d PR=%p delegate=%p NM=%p SC=%p\n",
+                MP_LOG("[NetDiag] OnUpdate pre-Orig: bRunning=%d PR=%p delegate=%p NM=%p SC=%p\n",
                             (int)bRunning, pr, delegate, __this, sc);
             } else {
-                Logger::log("[NetDiag] OnUpdate pre-Orig: SC=NULL!\n");
+                MP_LOG("[NetDiag] OnUpdate pre-Orig: SC=NULL!\n");
             }
         }
 
@@ -3331,13 +3368,13 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$Update) {
     static uint64_t Callback() {
         // Log ONCE before the first Orig() after session start to confirm crash is inside
         if (s_mpContext.state == OverworldMPState::Searching && !s_loggedFirstPostSession) {
-            Logger::log("[NetDiag] IlcaNetSession.Update: first post-session call, entering Orig()...\n");
+            MP_LOG("[NetDiag] IlcaNetSession.Update: first post-session call, entering Orig()...\n");
             s_loggedFirstPostSession = true;
         }
         uint64_t result = Orig();
         uint32_t state = (uint32_t)result;
         if (state != s_lastLoggedPiaState) {
-            Logger::log("[NetDiag] IlcaNetSession.Update state: %u -> %u\n",
+            MP_LOG("[NetDiag] IlcaNetSession.Update state: %u -> %u\n",
                         s_lastLoggedPiaState, state);
             s_lastLoggedPiaState = state;
         }
@@ -3353,19 +3390,19 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$Update) {
 #if ENABLE_PLATFORMINIT_HOOK
 HOOK_DEFINE_TRAMPOLINE(IlcaNetBase$$PlatformInitialize) {
     static void Callback(void* resultOut, void* methodInfo) {
-        Logger::log("[NetDiag] IlcaNetBase.PlatformInitialize: ENTERING\n");
+        MP_LOG("[NetDiag] IlcaNetBase.PlatformInitialize: ENTERING\n");
         auto* ilcaBaseKlass = *(Il2CppClass**)exl::util::modules::GetTargetOffset(0x04C604D8);
         if (ilcaBaseKlass != nullptr) {
             void* sf = ilcaBaseKlass->static_fields;
             if (sf != nullptr) {
                 void* settingPtr = *(void**)((uintptr_t)sf + 0x28);
                 uint32_t gameId = *(uint32_t*)((uintptr_t)sf + 0x58);
-                Logger::log("[NetDiag]   IlcaNetBase statics: setting=%p gameId=%u\n",
+                MP_LOG("[NetDiag]   IlcaNetBase statics: setting=%p gameId=%u\n",
                             settingPtr, gameId);
             }
         }
         Orig(resultOut, methodInfo);
-        Logger::log("[NetDiag] IlcaNetBase.PlatformInitialize: RETURNED\n");
+        MP_LOG("[NetDiag] IlcaNetBase.PlatformInitialize: RETURNED\n");
     }
 };
 #endif
@@ -3395,14 +3432,14 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$DoStartSession) {
             void* attrA = *(void**)((uintptr_t)np + 0x38);
             void* attrB = *(void**)((uintptr_t)np + 0x40);
             void* attrC = *(void**)((uintptr_t)np + 0x48);
-            Logger::log("[NetDiag] DoStartSession: NM=%p onComplete=%p\n", __this, onComplete);
-            Logger::log("[NetDiag]   NetworkParam=%p: networkType=%d detail=%d gamingStart=%d\n",
+            MP_LOG("[NetDiag] DoStartSession: NM=%p onComplete=%p\n", __this, onComplete);
+            MP_LOG("[NetDiag]   NetworkParam=%p: networkType=%d detail=%d gamingStart=%d\n",
                         np, networkType, netTypeDetail, gamingStartMode);
-            Logger::log("[NetDiag]   matchingType=%d maxPlayers=%d unknown1c=%d\n",
+            MP_LOG("[NetDiag]   matchingType=%d maxPlayers=%d unknown1c=%d\n",
                         (int)matchingType, (int)maxPlayers, unknown1c);
-            Logger::log("[NetDiag]   attrs: %p %p %p\n", attrA, attrB, attrC);
+            MP_LOG("[NetDiag]   attrs: %p %p %p\n", attrA, attrB, attrC);
         } else {
-            Logger::log("[NetDiag] DoStartSession: NM=%p NetworkParam=NULL\n", __this);
+            MP_LOG("[NetDiag] DoStartSession: NM=%p NetworkParam=NULL\n", __this);
         }
 
         // Read SessionConnector state
@@ -3411,7 +3448,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$DoStartSession) {
             bool bRunning = *(bool*)((uintptr_t)sc + 0x60);
             void* callObj = *(void**)((uintptr_t)sc + 0x58);
             int32_t sessionState = *(int32_t*)((uintptr_t)sc + 0x50);
-            Logger::log("[NetDiag]   SC=%p bRunning=%d callObjPtr=%p sessionState=%d\n",
+            MP_LOG("[NetDiag]   SC=%p bRunning=%d callObjPtr=%p sessionState=%d\n",
                         sc, (int)bRunning, callObj, sessionState);
         }
 
@@ -3420,7 +3457,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$DoStartSession) {
         // Log post-call state
         if (sc != nullptr) {
             bool bRunning = *(bool*)((uintptr_t)sc + 0x60);
-            Logger::log("[NetDiag]   DoStartSession returned, bRunning=%d\n", (int)bRunning);
+            MP_LOG("[NetDiag]   DoStartSession returned, bRunning=%d\n", (int)bRunning);
         }
     }
 };
@@ -3430,7 +3467,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$DoStartSession) {
 // Signature: void StartSession(SC* this, NetworkParam* param, Action<StartSessionResult> onComplete)
 HOOK_DEFINE_TRAMPOLINE(SessionConnector$$StartSession) {
     static void Callback(void* __this, void* networkParam, void* onComplete) {
-        Logger::log("[NetDiag] SC.StartSession: SC=%p NP=%p onComplete=%p\n",
+        MP_LOG("[NetDiag] SC.StartSession: SC=%p NP=%p onComplete=%p\n",
                     __this, networkParam, onComplete);
 
         // SC state before call
@@ -3440,7 +3477,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$StartSession) {
         bool bRunning = *(bool*)((uintptr_t)__this + 0x60);
         void* callObj = *(void**)((uintptr_t)__this + 0x58);
         void* sessionSetting = *(void**)((uintptr_t)__this + 0x48);
-        Logger::log("[NetDiag]   SC pre-state: nowSessionState=%d bRunning=%d callObjPtr=%p setting=%p\n",
+        MP_LOG("[NetDiag]   SC pre-state: nowSessionState=%d bRunning=%d callObjPtr=%p setting=%p\n",
                     scState, (int)bRunning, callObj, sessionSetting);
 
         // Log IlcaNetSession setting object fields (param_1[9] = SC+0x48 = sessionSetting)
@@ -3449,7 +3486,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$StartSession) {
             int32_t settingInitMode = *(int32_t*)((uintptr_t)sessionSetting + 0x48);
             int16_t settingMatchType = *(int16_t*)((uintptr_t)sessionSetting + 0x4c);
             int16_t settingMaxPlayers = *(int16_t*)((uintptr_t)sessionSetting + 0x7a);
-            Logger::log("[NetDiag]   Setting pre: netType=%d initMode=%d matchType=%d maxPlayers=%d\n",
+            MP_LOG("[NetDiag]   Setting pre: netType=%d initMode=%d matchType=%d maxPlayers=%d\n",
                         settingNetType, settingInitMode, (int)settingMatchType, (int)settingMaxPlayers);
         }
 
@@ -3458,7 +3495,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$StartSession) {
         // Post-call state
         int32_t scStateAfter = *(int32_t*)((uintptr_t)__this + 0x50);
         bool bRunningAfter = *(bool*)((uintptr_t)__this + 0x60);
-        Logger::log("[NetDiag]   SC post-state: nowSessionState=%d bRunning=%d\n",
+        MP_LOG("[NetDiag]   SC post-state: nowSessionState=%d bRunning=%d\n",
                     scStateAfter, (int)bRunningAfter);
 
         if (sessionSetting != nullptr) {
@@ -3466,7 +3503,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$StartSession) {
             int32_t settingInitMode = *(int32_t*)((uintptr_t)sessionSetting + 0x48);
             int16_t settingMaxPlayers = *(int16_t*)((uintptr_t)sessionSetting + 0x7a);
             int32_t settingGamingStart = *(int32_t*)((uintptr_t)sessionSetting + 0xa0);
-            Logger::log("[NetDiag]   Setting post: netType=%d initMode=%d maxPlayers=%d gamingStart=%d\n",
+            MP_LOG("[NetDiag]   Setting post: netType=%d initMode=%d maxPlayers=%d gamingStart=%d\n",
                         settingNetType, settingInitMode, (int)settingMaxPlayers, settingGamingStart);
         }
     }
@@ -3478,7 +3515,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$StartSession) {
 // Signature: bool NetworkInitAsync(IlcaNetSessionSetting* setting) — static
 HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$NetworkInitAsync) {
     static uint64_t Callback(void* setting) {
-        Logger::log("[NetDiag] IlcaNetSession.NetworkInitAsync: setting=%p\n", setting);
+        MP_LOG("[NetDiag] IlcaNetSession.NetworkInitAsync: setting=%p\n", setting);
 
         if (setting != nullptr) {
             // Key fields from Ghidra decompilation of NetworkInitAsync:
@@ -3498,19 +3535,19 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$NetworkInitAsync) {
             uint8_t flag2 = *(uint8_t*)((uintptr_t)setting + 0x7d);
             int32_t lastEvtLeave = *(int32_t*)((uintptr_t)setting + 0x80);
             int32_t gamingStart = *(int32_t*)((uintptr_t)setting + 0xa0);
-            Logger::log("[NetDiag]   netType=%d initMode=%d matchType=%d maxPlayers=%d\n",
+            MP_LOG("[NetDiag]   netType=%d initMode=%d matchType=%d maxPlayers=%d\n",
                         netType, initMode, (int)matchType, (int)maxPlayers);
-            Logger::log("[NetDiag]   flag1=%d flag2=%d lastEvtLeave=%d gamingStart=%d\n",
+            MP_LOG("[NetDiag]   flag1=%d flag2=%d lastEvtLeave=%d gamingStart=%d\n",
                         (int)flag1, (int)flag2, lastEvtLeave, gamingStart);
 
             // Log nn_account_Uid (setting+0x10, 16 bytes)
             uint64_t uid_lo = *(uint64_t*)((uintptr_t)setting + 0x10);
             uint64_t uid_hi = *(uint64_t*)((uintptr_t)setting + 0x18);
-            Logger::log("[NetDiag]   uid: %016llx %016llx\n", uid_lo, uid_hi);
+            MP_LOG("[NetDiag]   uid: %016llx %016llx\n", uid_lo, uid_hi);
 
             // Log session attributes (setting+0x50, 8 bytes — an object ref)
             void* attrStr = *(void**)((uintptr_t)setting + 0x50);
-            Logger::log("[NetDiag]   sessionAttrStr=%p\n", attrStr);
+            MP_LOG("[NetDiag]   sessionAttrStr=%p\n", attrStr);
         }
 
         // Check IlcaNetSession state statics (static_fields+0x08 = updateState, +0x0c = subState)
@@ -3521,13 +3558,13 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$NetworkInitAsync) {
             if (sf != nullptr) {
                 int32_t sessionUpdateState = *(int32_t*)((uintptr_t)sf + 0x08);
                 int32_t sessionSubState = *(int32_t*)((uintptr_t)sf + 0x0c);
-                Logger::log("[NetDiag]   IlcaNetSession statics: updateState=%d subState=%d\n",
+                MP_LOG("[NetDiag]   IlcaNetSession statics: updateState=%d subState=%d\n",
                             sessionUpdateState, sessionSubState);
             }
         }
 
         uint64_t result = Orig(setting);
-        Logger::log("[NetDiag]   NetworkInitAsync returned: %llu\n", result);
+        MP_LOG("[NetDiag]   NetworkInitAsync returned: %llu\n", result);
         return result;
     }
 };
@@ -3539,7 +3576,7 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$NetworkInitAsync) {
 // Signature: bool Init(void* callObj, void* finalCallback) — static
 HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$Init) {
     static uint64_t Callback(void* callObj, void* finalCallback) {
-        Logger::log("[NetDiag] IlcaNetSession.Init: callObj=%p callback=%p\n",
+        MP_LOG("[NetDiag] IlcaNetSession.Init: callObj=%p callback=%p\n",
                     callObj, finalCallback);
 
         // Check IlcaNetBase.isInit before call (static_fields+0x0A)
@@ -3548,12 +3585,12 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetSession$$Init) {
             auto* sf = *(void**)((uintptr_t)ilcaBaseKlass + 0xb8);
             if (sf != nullptr) {
                 bool isInit = *(bool*)((uintptr_t)sf + 0x0A);
-                Logger::log("[NetDiag]   IlcaNetBase.isInit=%d (before)\n", (int)isInit);
+                MP_LOG("[NetDiag]   IlcaNetBase.isInit=%d (before)\n", (int)isInit);
             }
         }
 
         uint64_t result = Orig(callObj, finalCallback);
-        Logger::log("[NetDiag]   Init returned: %llu\n", result);
+        MP_LOG("[NetDiag]   Init returned: %llu\n", result);
         return result;
     }
 };
@@ -3562,7 +3599,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
     static void Callback(FieldManager::Object* __this) {
         // Log at start of frame when in Searching state to track execution order vs crash
         if (s_mpContext.state == OverworldMPState::Searching && s_searchingFrameCount < 5) {
-            Logger::log("[NetDiag] FM.Update TOP — Searching frame %d (pre-Orig)\n",
+            MP_LOG("[NetDiag] FM.Update TOP — Searching frame %d (pre-Orig)\n",
                         s_searchingFrameCount + 1);
         }
 
@@ -3603,7 +3640,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
             s_selfHealAccumulator += UnityEngine::Time::get_deltaTime();
             if (s_selfHealAccumulator >= 10.0f) {
                 s_selfHealAccumulator = 0.0f;
-                Logger::log("[OverworldMP] Self-heal: setting ON but session Disabled, restarting...\n");
+                MP_LOG("[OverworldMP] Self-heal: setting ON but session Disabled, restarting...\n");
                 overworldMPStart();
             }
         }
@@ -3616,50 +3653,35 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
         if (isOverworldMPActive()) {
             int32_t currentArea = __this->get_areaID();
             if (currentArea != s_mpContext.myAreaID && s_mpContext.myAreaID != 0) {
-                Logger::log("[OverworldMP] === ZONE CHANGE DETECTED: %d -> %d ===\n",
+                MP_LOG("[OverworldMP] === ZONE CHANGE DETECTED: %d -> %d ===\n",
                             s_mpContext.myAreaID, currentArea);
 
                 // Log session state at the moment of zone change
                 int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-                Logger::log("[OverworldMP] Session state at zone change: %d\n", sessionState);
+                MP_LOG("[OverworldMP] Session state at zone change: %d\n", sessionState);
                 // NM singleton is no longer hidden — no GO deactivation needed.
                 // The crash was caused by hiding the NM singleton: game code
                 // checked other networking flags, found active, accessed singleton
                 // (which we nulled) → null deref at 0x260270.
 
-                spawnQueueClear();
-                // Explicitly destroy all remote player entities. Don't rely on
-                // Unity's scene transition to clean them up — some zone changes
-                // don't trigger a full scene unload, leaving orphan entities
-                // that become duplicates when we spawn fresh ones post-grace.
-                for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
-                    // Destroy follow pokemon entity
-                    auto& rp = s_mpContext.remotePlayers[i];
-                    if (rp.followPokeEntity != nullptr) {
-                        auto* pokeEnt = (FieldObjectEntity::Object*)rp.followPokeEntity;
-                        auto* pokeGo = pokeEnt->cast<UnityEngine::Component>()->get_gameObject();
-                        if (pokeGo != nullptr) {
-                            UnityEngine::_Object::Destroy(pokeGo->cast<UnityEngine::_Object>());
-                        }
-                    }
-                    rp.followPokeSpawned = false;
-                    rp.followPokeEntity = nullptr;
+                // Tear down all remote entities through the canonical despawn path.
+                // Don't rely on Unity's scene transition — some zone changes don't
+                // trigger a full scene unload, leaving orphans that duplicate when we
+                // respawn post-grace. Crucially this removes each entity from the
+                // EntityManager BEFORE destroying its GameObject: a raw Destroy without
+                // Remove leaves the EntityManager holding a freed pointer (use-after-free
+                // on its next iteration). Also cancels any in-flight/queued spawns and
+                // tears down follow-Pokémon entities.
+                overworldMPDespawnAllEntities();
 
-                    // Destroy player entity
-                    if (s_mpContext.spawnedEntities[i] != nullptr) {
-                        auto* entity = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[i];
-                        auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
-                        if (go != nullptr) {
-                            UnityEngine::_Object::Destroy(go->cast<UnityEngine::_Object>());
-                        }
-                    }
-                    rp.isSpawned = false;
-                    s_mpContext.spawnedEntities[i] = nullptr;
-                }
+                // Drop emote balloon tracking without touching the FieldCanvas — it
+                // (and its balloons) is destroyed by the scene transition, so calling
+                // DeleteBalloon here would operate on freed objects.
+                overworldMPClearAllBalloons(false);
 
                 // Reset interaction state on zone change
                 if (s_interactionState != InteractionState::None) {
-                    Logger::log("[OverworldMP] Cancelling interaction (state=%d) due to zone change\n",
+                    MP_LOG("[OverworldMP] Cancelling interaction (state=%d) due to zone change\n",
                                 (int)s_interactionState);
                     s_interactionState = InteractionState::None;
                     s_interactionTarget = -1;
@@ -3669,7 +3691,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
 
                 s_mpContext.myAreaID = currentArea;
                 s_zoneChangeGraceTime = OW_MP_ZONE_CHANGE_GRACE_SEC;
-                Logger::log("[OverworldMP] Grace period started: %.1fs\n",
+                MP_LOG("[OverworldMP] Grace period started: %.1fs\n",
                             OW_MP_ZONE_CHANGE_GRACE_SEC);
             }
         }
@@ -3715,7 +3737,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$OnZoneChange) {
 
         int32_t newAreaID = __this->get_areaID();
         if (newAreaID != s_mpContext.myAreaID) {
-            Logger::log("[OverworldMP] Local area change: %d -> %d\n",
+            MP_LOG("[OverworldMP] Local area change: %d -> %d\n",
                         s_mpContext.myAreaID, newAreaID);
             s_mpContext.myAreaID = newAreaID;
         }
@@ -3760,7 +3782,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$OnSessionEventCallback) {
             // Join event — safe to call Orig() (no error path)
             Orig(__this, rawEventType, stationIndex);
             int32_t eventType = *(int32_t*)((uintptr_t)__this + 0x44);
-            Logger::log("[OverworldMP] Session event: raw=%d station=%d type=%d\n",
+            MP_LOG("[OverworldMP] Session event: raw=%d station=%d type=%d\n",
                         rawEventType, stationIndex, eventType);
             if (eventType == 2) {
                 // Another player joined
@@ -3771,7 +3793,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$OnSessionEventCallback) {
             // Leave (1) or disconnect (2) — DO NOT call Orig() to prevent ErrorApplet.
             // Treat all leave/disconnect as "other player left". If it's actually us
             // disconnecting, the session health check will detect state=9 and restart.
-            Logger::log("[OverworldMP] Session event (no Orig): raw=%d station=%d\n",
+            MP_LOG("[OverworldMP] Session event (no Orig): raw=%d station=%d\n",
                         rawEventType, stationIndex);
             overworldMPOnPlayerLeave(stationIndex);
         }
@@ -3804,7 +3826,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$SendReliablePacketToAll) {
             s_sendLogCount++;
             if (s_sendLogCount <= 20 || s_sendLogCount % 200 == 0) {
                 int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-                Logger::log("[BtlNet] SendReliablePacketToAll: pw=%p sendType=%d result=%d sessState=%d (call #%d)\n",
+                MP_LOG("[BtlNet] SendReliablePacketToAll: pw=%p sendType=%d result=%d sessState=%d (call #%d)\n",
                             pw, sendType, result, sessionState, s_sendLogCount);
             }
         }
@@ -3835,7 +3857,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$SendReliablePacket) {
             static int32_t s_srpLogCount = 0;
             s_srpLogCount++;
             if (s_srpLogCount <= 30 || s_srpLogCount % 200 == 0) {
-                Logger::log("[BtlNet] NM.SendReliablePacket: data=%p station=%d type=%d result=%d (call #%d)\n",
+                MP_LOG("[BtlNet] NM.SendReliablePacket: data=%p station=%d type=%d result=%d (call #%d)\n",
                             data, stationIndex, transportType, result, s_srpLogCount);
             }
         }
@@ -3852,7 +3874,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$SendTo) {
             static int32_t s_stLogCount = 0;
             s_stLogCount++;
             if (s_stLogCount <= 30 || s_stLogCount % 200 == 0) {
-                Logger::log("[BtlNet] SC.SendTo: station=%d type=%d reliable=%d result=%d (call #%d)\n",
+                MP_LOG("[BtlNet] SC.SendTo: station=%d type=%d reliable=%d result=%d (call #%d)\n",
                             stationIndex, transportType, reliable, result, s_stLogCount);
             }
         }
@@ -3879,11 +3901,11 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$get_Instance) {
             if (result == nullptr && s_cachedBattleNetClient != nullptr) {
                 result = s_cachedBattleNetClient;
                 if (s_giLogCount <= 20 || s_giLogCount % 500 == 0) {
-                    Logger::log("[BtlNet] get_Instance: native=null, using cache=%p (call #%d)\n",
+                    MP_LOG("[BtlNet] get_Instance: native=null, using cache=%p (call #%d)\n",
                                 s_cachedBattleNetClient, s_giLogCount);
                 }
             } else if (s_giLogCount <= 5 || s_giLogCount % 1000 == 0) {
-                Logger::log("[BtlNet] Net.Client.get_Instance: result=%p (call #%d)\n",
+                MP_LOG("[BtlNet] Net.Client.get_Instance: result=%p (call #%d)\n",
                             result, s_giLogCount);
             }
         }
@@ -3900,7 +3922,7 @@ HOOK_DEFINE_TRAMPOLINE(SessionConnector$$SendAll) {
             static int32_t s_saLogCount = 0;
             s_saLogCount++;
             if (s_saLogCount <= 20 || s_saLogCount % 200 == 0) {
-                Logger::log("[BtlNet] SC.SendAll: type=%d reliable=%d result=%d (call #%d)\n",
+                MP_LOG("[BtlNet] SC.SendAll: type=%d reliable=%d result=%d (call #%d)\n",
                             transportType, reliable, result, s_saLogCount);
             }
         }
@@ -3925,7 +3947,7 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$Update) {
         static int32_t s_callCount = 0;
         s_callCount++;
         if (s_callCount == 1) {
-            Logger::log("[BtlNet] Net.Client.Update hook FIRST CALL\n");
+            MP_LOG("[BtlNet] Net.Client.Update hook FIRST CALL\n");
         }
 
         // Use simpler condition: overworldMPIsTeamedUp() alone.
@@ -3945,7 +3967,7 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$Update) {
                 static int32_t s_preClrCount = 0;
                 s_preClrCount++;
                 if (s_preClrCount <= 10 || s_preClrCount % 200 == 0) {
-                    Logger::log("[TeamUp] BtlNet.Update PRE: cleared 0x%x (remaining 0x%x, call #%d)\n",
+                    MP_LOG("[TeamUp] BtlNet.Update PRE: cleared 0x%x (remaining 0x%x, call #%d)\n",
                                 nonfatal, pre & ~BTLNET_NONFATAL_ERRORS, s_preClrCount);
                 }
             }
@@ -3963,7 +3985,7 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$Update) {
                 static int32_t s_postClrCount = 0;
                 s_postClrCount++;
                 if (s_postClrCount <= 10 || s_postClrCount % 200 == 0) {
-                    Logger::log("[TeamUp] BtlNet.Update POST: cleared 0x%x (remaining 0x%x, call #%d)\n",
+                    MP_LOG("[TeamUp] BtlNet.Update POST: cleared 0x%x (remaining 0x%x, call #%d)\n",
                                 nonfatal, (uint32_t)errorAfter & ~BTLNET_NONFATAL_ERRORS, s_postClrCount);
                 }
                 errorAfter = *(int32_t*)((uintptr_t)__this + 0x60);
@@ -3973,12 +3995,12 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$Update) {
         // Log error changes and periodic status (only need teamed-up check)
         if (isTeamUp) {
             if (errorAfter != errorBefore) {
-                Logger::log("[BtlNet] Net.Client.Update: errorBits changed 0x%x -> 0x%x\n",
+                MP_LOG("[BtlNet] Net.Client.Update: errorBits changed 0x%x -> 0x%x\n",
                             errorBefore, errorAfter);
             }
             if (s_callCount % 3000 == 0) {
                 uint8_t terminated = *(uint8_t*)((uintptr_t)__this + 0xa1);
-                Logger::log("[BtlNet] Net.Client.Update status: error=0x%x terminated=%d (frame #%d)\n",
+                MP_LOG("[BtlNet] Net.Client.Update status: error=0x%x terminated=%d (frame #%d)\n",
                             errorAfter, (int)terminated, s_callCount);
             }
         }
@@ -4001,7 +4023,7 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$sendToServerVersionCoreAll) {
                 static int32_t s_svClrCount = 0;
                 s_svClrCount++;
                 if (s_svClrCount <= 20 || s_svClrCount % 100 == 0) {
-                    Logger::log("[TeamUp] sendToSVCoreAll: cleared non-fatal 0x%x (remaining 0x%x, call #%d)\n",
+                    MP_LOG("[TeamUp] sendToSVCoreAll: cleared non-fatal 0x%x (remaining 0x%x, call #%d)\n",
                                 nonfatal, errors & ~BTLNET_NONFATAL_ERRORS, s_svClrCount);
                 }
             }
@@ -4015,7 +4037,7 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$sendToServerVersionCoreAll) {
                 uint8_t detResult = serverVersions ? *(uint8_t*)((uintptr_t)serverVersions + 0x19) : 0xFF;
                 uint8_t detFlag = *(uint8_t*)((uintptr_t)__this + 0x90);
                 int32_t errorBit = *(int32_t*)((uintptr_t)__this + 0x60);
-                Logger::log("[BtlNet] sendToSVCoreAll: detResult=%d detFlag=%d errorBit=%d (call #%d)\n",
+                MP_LOG("[BtlNet] sendToSVCoreAll: detResult=%d detFlag=%d errorBit=%d (call #%d)\n",
                             (int)detResult, (int)detFlag, errorBit, s_svLogCount);
             }
         }
@@ -4031,7 +4053,7 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$sendToServerVersionCoreAll) {
                 static int32_t s_svPostClrCount = 0;
                 s_svPostClrCount++;
                 if (s_svPostClrCount <= 20 || s_svPostClrCount % 100 == 0) {
-                    Logger::log("[TeamUp] sendToSVCoreAll POST: cleared non-fatal 0x%x (call #%d)\n",
+                    MP_LOG("[TeamUp] sendToSVCoreAll POST: cleared non-fatal 0x%x (call #%d)\n",
                                 nonfatal, s_svPostClrCount);
                 }
             }
@@ -4068,7 +4090,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                 // InitializeCoroutine creates it once commMode != 0.
                 if (netClient != nullptr && s_cachedBattleNetClient == nullptr) {
                     s_cachedBattleNetClient = netClient;
-                    Logger::log("[BtlNet] Cached Net::Client=%p from mainModule+0x118\n", netClient);
+                    MP_LOG("[BtlNet] Cached Net::Client=%p from mainModule+0x118\n", netClient);
                 }
             }
             // Log on: first 30 calls, every step/substep change, every 200th call
@@ -4086,7 +4108,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                     case 6: stepName = "DONE(>5)"; break;
                     default: stepName = "unknown"; break;
                 }
-                Logger::log("[BtlNet] UpdateInit: step=%d(%s) sub=%d initFlag=%d errFlag=%d nc=%p (call #%d)%s\n",
+                MP_LOG("[BtlNet] UpdateInit: step=%d(%s) sub=%d initFlag=%d errFlag=%d nc=%p (call #%d)%s\n",
                             mainStep, stepName, subStep, (int)initFlag, (int)errorFlag,
                             netClient, s_initLogCount, stepChanged ? " <<CHANGED>>" : "");
                 s_prevMainStep = mainStep;
@@ -4104,7 +4126,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                         uint8_t commMode = *(uint8_t*)((uintptr_t)setupParam + 0x38);
                         uint8_t commPos = *(uint8_t*)((uintptr_t)setupParam + 0x3a);
                         int32_t btlRule = *(int32_t*)((uintptr_t)mainModule + 0x70);
-                        Logger::log("[BtlNet]   sp=%p partyArr=%p[%d] statusArr=%p[%d] stationArr=%p[%d] commMode=%d commPos=%d btlRule=%d\n",
+                        MP_LOG("[BtlNet]   sp=%p partyArr=%p[%d] statusArr=%p[%d] stationArr=%p[%d] commMode=%d commPos=%d btlRule=%d\n",
                                     setupParam, partyArr, partyLen, statusArr, statusLen, stationArr, stationLen,
                                     (int)commMode, (int)commPos, btlRule);
                     }
@@ -4117,7 +4139,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                     uint8_t detResult = serverVersions ? *(uint8_t*)((uintptr_t)serverVersions + 0x19) : 0xFF;
                     uint8_t ncNotifyDone = *(uint8_t*)((uintptr_t)netClient + 0x3c);
                     int32_t ncNotifyCount = *(int32_t*)((uintptr_t)netClient + 0x40);
-                    Logger::log("[BtlNet]   nc: errBit=%d detFlag=%d detResult=%d notifyDone=%d notifyCount=%d\n",
+                    MP_LOG("[BtlNet]   nc: errBit=%d detFlag=%d detResult=%d notifyDone=%d notifyCount=%d\n",
                                 ncErrorBit, (int)ncDetFlag, (int)detResult, (int)ncNotifyDone, ncNotifyCount);
                 }
             }
@@ -4141,7 +4163,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                             void* statusObj = *(void**)((uintptr_t)statusArr + 0x20 + i * 8);
                             if (statusObj) {
                                 *(void**)((uintptr_t)td + 0x10) = statusObj;
-                                Logger::log("[BtlNet] FIX: trainerParam[%d].playerStatus = %p (from setupParam)\n",
+                                MP_LOG("[BtlNet] FIX: trainerParam[%d].playerStatus = %p (from setupParam)\n",
                                             i, statusObj);
                             }
                         }
@@ -4155,32 +4177,32 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
             static bool s_deepDiagDone = false;
             if (mainModule && mainStep == 2 && !s_deepDiagDone) {
                 s_deepDiagDone = true;
-                Logger::log("[BtlNet] === DEEP DIAG (step 2, pre-Orig) ===\n");
+                MP_LOG("[BtlNet] === DEEP DIAG (step 2, pre-Orig) ===\n");
 
                 void* setupParam = *(void**)((uintptr_t)mainModule + 0x10);
                 int32_t btlRule = *(int32_t*)((uintptr_t)mainModule + 0x70);
                 uint8_t multiMode = setupParam ? *(uint8_t*)((uintptr_t)setupParam + 0x39) : 0xFF;
-                Logger::log("[BtlNet] DD: btlRule=%d multiMode=%d\n", btlRule, (int)multiMode);
+                MP_LOG("[BtlNet] DD: btlRule=%d multiMode=%d\n", btlRule, (int)multiMode);
 
                 // Check PokeID static table (used by GetClientPokeId)
                 // PokeID TypeInfo at 0x04c5a678 (from ILClass<PokeID, 0x04c5a678>)
                 {
                     auto* pokeIdTI = *(void**)exl::util::modules::GetTargetOffset(0x04c5a678);
-                    Logger::log("[BtlNet] DD: PokeID_TypeInfo=%p\n", pokeIdTI);
+                    MP_LOG("[BtlNet] DD: PokeID_TypeInfo=%p\n", pokeIdTI);
                     if (pokeIdTI) {
                         void* sf = *(void**)((uintptr_t)pokeIdTI + 0xb8);
-                        Logger::log("[BtlNet] DD: PokeID statics=%p\n", sf);
+                        MP_LOG("[BtlNet] DD: PokeID statics=%p\n", sf);
                         if (sf) {
                             void* table = *(void**)((uintptr_t)sf);
-                            Logger::log("[BtlNet] DD: PokeID s_clientStartPokeIndex=%p\n", table);
+                            MP_LOG("[BtlNet] DD: PokeID s_clientStartPokeIndex=%p\n", table);
                             if (table) {
                                 int32_t tLen = *(int32_t*)((uintptr_t)table + 0x18);
-                                Logger::log("[BtlNet] DD: PokeID table len=%d vals:", tLen);
+                                MP_LOG("[BtlNet] DD: PokeID table len=%d vals:", tLen);
                                 for (int i = 0; i < tLen && i < 6; i++) {
                                     uint8_t v = *(uint8_t*)((uintptr_t)table + 0x20 + i);
-                                    Logger::log(" [%d]=%d", i, (int)v);
+                                    MP_LOG(" [%d]=%d", i, (int)v);
                                 }
-                                Logger::log("\n");
+                                MP_LOG("\n");
                             }
                         }
                     }
@@ -4191,10 +4213,10 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                 void* battleEnv2 = *(void**)((uintptr_t)mainModule + 0x110);
                 for (int envIdx = 0; envIdx < 2; envIdx++) {
                     void* env = (envIdx == 0) ? battleEnv1 : battleEnv2;
-                    Logger::log("[BtlNet] DD: battleEnv[%d]=%p\n", envIdx, env);
+                    MP_LOG("[BtlNet] DD: battleEnv[%d]=%p\n", envIdx, env);
                     if (!env) continue;
                     void* pokecon = *(void**)((uintptr_t)env + 0x10);
-                    Logger::log("[BtlNet] DD:   pokecon=%p\n", pokecon);
+                    MP_LOG("[BtlNet] DD:   pokecon=%p\n", pokecon);
                     if (!pokecon) continue;
                     void* partyArr = *(void**)((uintptr_t)pokecon + 0x18);
                     void* activeArr = *(void**)((uintptr_t)pokecon + 0x20);
@@ -4202,13 +4224,13 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                     int32_t partyLen = partyArr ? *(int32_t*)((uintptr_t)partyArr + 0x18) : -1;
                     int32_t activeLen = activeArr ? *(int32_t*)((uintptr_t)activeArr + 0x18) : -1;
                     int32_t storedLen = storedArr ? *(int32_t*)((uintptr_t)storedArr + 0x18) : -1;
-                    Logger::log("[BtlNet] DD:   m_party=%p[%d] active=%p[%d] stored=%p[%d]\n",
+                    MP_LOG("[BtlNet] DD:   m_party=%p[%d] active=%p[%d] stored=%p[%d]\n",
                                 partyArr, partyLen, activeArr, activeLen, storedArr, storedLen);
                     // Check first 12 stored pool elements (need to be non-null for activatePokeParam)
                     if (storedArr && storedLen >= 12) {
                         for (int i = 0; i < 12; i++) {
                             void* elem = *(void**)((uintptr_t)storedArr + 0x20 + i * 8);
-                            Logger::log("[BtlNet] DD:   stored[%d]=%p\n", i, elem);
+                            MP_LOG("[BtlNet] DD:   stored[%d]=%p\n", i, elem);
                         }
                     }
                 }
@@ -4216,7 +4238,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                 // Check m_srcParty and m_srcPartyForServer element validity
                 void* srcPartyArr = *(void**)((uintptr_t)mainModule + 0x48);
                 void* srcServerArr = *(void**)((uintptr_t)mainModule + 0x50);
-                Logger::log("[BtlNet] DD: m_srcParty=%p m_srcPartyForServer=%p\n", srcPartyArr, srcServerArr);
+                MP_LOG("[BtlNet] DD: m_srcParty=%p m_srcPartyForServer=%p\n", srcPartyArr, srcServerArr);
                 for (int arrIdx = 0; arrIdx < 2; arrIdx++) {
                     void* arr = (arrIdx == 0) ? srcPartyArr : srcServerArr;
                     const char* name = (arrIdx == 0) ? "srcParty" : "srcServer";
@@ -4224,7 +4246,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                     int32_t len = *(int32_t*)((uintptr_t)arr + 0x18);
                     for (int i = 0; i < len && i < 5; i++) {
                         void* elem = *(void**)((uintptr_t)arr + 0x20 + i * 8);
-                        Logger::log("[BtlNet] DD: %s[%d]=%p\n", name, i, elem);
+                        MP_LOG("[BtlNet] DD: %s[%d]=%p\n", name, i, elem);
                     }
                 }
 
@@ -4234,21 +4256,21 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                     if (pdArr) {
                         for (int ci = 0; ci < 2; ci++) {
                             void* pd = *(void**)((uintptr_t)pdArr + 0x20 + ci * 8);
-                            if (!pd) { Logger::log("[BtlNet] DD: partyDesc[%d]=null\n", ci); continue; }
+                            if (!pd) { MP_LOG("[BtlNet] DD: partyDesc[%d]=null\n", ci); continue; }
                             void* pokeDescArr = *(void**)((uintptr_t)pd + 0x10);
-                            if (!pokeDescArr) { Logger::log("[BtlNet] DD: partyDesc[%d].pokeDesc=null\n", ci); continue; }
+                            if (!pokeDescArr) { MP_LOG("[BtlNet] DD: partyDesc[%d].pokeDesc=null\n", ci); continue; }
                             int32_t pdLen = *(int32_t*)((uintptr_t)pokeDescArr + 0x18);
                             for (int j = 0; j < pdLen && j < 6; j++) {
                                 void* pokeDesc = *(void**)((uintptr_t)pokeDescArr + 0x20 + j * 8);
                                 void* dpuDesc = nullptr;
                                 if (pokeDesc) dpuDesc = *(void**)((uintptr_t)pokeDesc + 0x10);
-                                Logger::log("[BtlNet] DD: partyDesc[%d].pokeDesc[%d]=%p .dpuDesc=%p\n",
+                                MP_LOG("[BtlNet] DD: partyDesc[%d].pokeDesc[%d]=%p .dpuDesc=%p\n",
                                             ci, j, pokeDesc, dpuDesc);
                             }
                         }
                     }
                 }
-                Logger::log("[BtlNet] === END DEEP DIAG ===\n");
+                MP_LOG("[BtlNet] === END DEEP DIAG ===\n");
             }
         }
 
@@ -4258,7 +4280,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
         if (partnerGone && isBattle) {
             if (!s_disconnectSignaled) {
                 s_disconnectSignaled = true;
-                Logger::log("[OverworldMP] Signaling battle disconnect during INIT — setting BSP flags + Net.Client error\n");
+                MP_LOG("[OverworldMP] Signaling battle disconnect during INIT — setting BSP flags + Net.Client error\n");
 
                 auto* bspClass = Dpr::Battle::Logic::BattleProc::getClass();
                 if (bspClass != nullptr && bspClass->static_fields != nullptr) {
@@ -4293,7 +4315,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                 static int32_t s_initClrCount = 0;
                 s_initClrCount++;
                 if (s_initClrCount <= 30 || s_initClrCount % 200 == 0) {
-                    Logger::log("[TeamUp] UpdateInit PRE: cleared 0x%x from netClient (remaining 0x%x, #%d)\n",
+                    MP_LOG("[TeamUp] UpdateInit PRE: cleared 0x%x from netClient (remaining 0x%x, #%d)\n",
                                 nonfatal, errors & ~BTLNET_NONFATAL_ERRORS, s_initClrCount);
                 }
             }
@@ -4310,7 +4332,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                 static int32_t s_initPostClrCount = 0;
                 s_initPostClrCount++;
                 if (s_initPostClrCount <= 30 || s_initPostClrCount % 200 == 0) {
-                    Logger::log("[TeamUp] UpdateInit POST: cleared 0x%x from netClient (#%d)\n",
+                    MP_LOG("[TeamUp] UpdateInit POST: cleared 0x%x from netClient (#%d)\n",
                                 nonfatal, s_initPostClrCount);
                 }
             }
@@ -4328,7 +4350,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                 // Log if step changed, or initFlag set, or on first 5 calls
                 if (postStep != mainStep || postSub != subStep || postInitFlag != initFlag ||
                     postErrFlag != errorFlag || s_initLogCount <= 5) {
-                    Logger::log("[BtlNet] UpdateInit POST: step %d->%d sub %d->%d init %d->%d err %d->%d err2=%d (call #%d)\n",
+                    MP_LOG("[BtlNet] UpdateInit POST: step %d->%d sub %d->%d init %d->%d err %d->%d err2=%d (call #%d)\n",
                                 mainStep, postStep, subStep, postSub,
                                 (int)initFlag, (int)postInitFlag,
                                 (int)errorFlag, (int)postErrFlag, (int)postErrFlag2,
@@ -4347,7 +4369,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                     int32_t srcLen = srcPartyArr ? *(int32_t*)((uintptr_t)srcPartyArr + 0x18) : -1;
                     int32_t bkpLen = srcPartyBkp ? *(int32_t*)((uintptr_t)srcPartyBkp + 0x18) : -1;
                     int32_t trainerLen = trainerArr ? *(int32_t*)((uintptr_t)trainerArr + 0x18) : -1;
-                    Logger::log("[BtlNet] STUCK DIAG: srcParty=%p[%d] srcBkp=%p[%d] env1=%p env2=%p proc=%p\n",
+                    MP_LOG("[BtlNet] STUCK DIAG: srcParty=%p[%d] srcBkp=%p[%d] env1=%p env2=%p proc=%p\n",
                                 srcPartyArr, srcLen, srcPartyBkp, bkpLen,
                                 battleEnv1, battleEnv2, pSubProc);
                     // Check party[0-1], partyDesc, trainerParam in setupParam
@@ -4358,7 +4380,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                         uint8_t multiMode = *(uint8_t*)((uintptr_t)setupParam + 0x39);
                         int32_t btlRule = *(int32_t*)((uintptr_t)mmPost + 0x70);
                         int32_t pdLen = partyDescArr ? *(int32_t*)((uintptr_t)partyDescArr + 0x18) : -1;
-                        Logger::log("[BtlNet] STUCK DIAG: multiMode=%d btlRule=%d partyDesc=%p[%d] trainerParam=%p[%d]\n",
+                        MP_LOG("[BtlNet] STUCK DIAG: multiMode=%d btlRule=%d partyDesc=%p[%d] trainerParam=%p[%d]\n",
                                     (int)multiMode, btlRule, partyDescArr, pdLen, trainerArr, trainerLen);
                         // Dump party[] with CORRECT offset 0x18 for m_memberCount
                         if (partyArr) {
@@ -4371,7 +4393,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                                     memberArr = *(void**)((uintptr_t)p + 0x10); // m_member array
                                     memCount = *(int32_t*)((uintptr_t)p + 0x18); // m_memberCount (FIXED: was 0x20)
                                 }
-                                Logger::log("[BtlNet] STUCK DIAG: party[%d]=%p m_member=%p m_memberCount=%d\n",
+                                MP_LOG("[BtlNet] STUCK DIAG: party[%d]=%p m_member=%p m_memberCount=%d\n",
                                             i, p, memberArr, memCount);
                             }
                         }
@@ -4381,7 +4403,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                                 void* sp = *(void**)((uintptr_t)srcPartyArr + 0x20 + i * 8);
                                 int32_t memCount = -1;
                                 if (sp) memCount = *(int32_t*)((uintptr_t)sp + 0x18); // FIXED offset
-                                Logger::log("[BtlNet] STUCK DIAG: srcParty[%d]=%p members=%d\n", i, sp, memCount);
+                                MP_LOG("[BtlNet] STUCK DIAG: srcParty[%d]=%p members=%d\n", i, sp, memCount);
                             }
                         }
                         // Dump partyDesc elements + inner pokeDesc array
@@ -4394,7 +4416,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                                     pokeDescArr = *(void**)((uintptr_t)pd + 0x10); // PartyDesc.pokeDesc
                                     if (pokeDescArr) pokeDescLen = *(int32_t*)((uintptr_t)pokeDescArr + 0x18);
                                 }
-                                Logger::log("[BtlNet] STUCK DIAG: partyDesc[%d]=%p pokeDesc=%p[%d]\n",
+                                MP_LOG("[BtlNet] STUCK DIAG: partyDesc[%d]=%p pokeDesc=%p[%d]\n",
                                             i, pd, pokeDescArr, pokeDescLen);
                             }
                         }
@@ -4404,22 +4426,22 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateInitialze) {
                                 void* tp = *(void**)((uintptr_t)trainerArr + 0x20 + i * 8);
                                 void* tpField = nullptr;
                                 if (tp) tpField = *(void**)((uintptr_t)tp + 0x10);
-                                Logger::log("[BtlNet] STUCK DIAG: trainerParam[%d]=%p ->0x10=%p\n", i, tp, tpField);
+                                MP_LOG("[BtlNet] STUCK DIAG: trainerParam[%d]=%p ->0x10=%p\n", i, tp, tpField);
                             }
                         }
                         // Dump battleEnv pokecon (battleEnv+0x10)
                         if (battleEnv1) {
                             void* pokecon1 = *(void**)((uintptr_t)battleEnv1 + 0x10);
-                            Logger::log("[BtlNet] STUCK DIAG: battleEnv1->pokecon=%p\n", pokecon1);
+                            MP_LOG("[BtlNet] STUCK DIAG: battleEnv1->pokecon=%p\n", pokecon1);
                         }
                         if (battleEnv2) {
                             void* pokecon2 = *(void**)((uintptr_t)battleEnv2 + 0x10);
-                            Logger::log("[BtlNet] STUCK DIAG: battleEnv2->pokecon=%p\n", pokecon2);
+                            MP_LOG("[BtlNet] STUCK DIAG: battleEnv2->pokecon=%p\n", pokecon2);
                         }
                     }
                 }
             } else if (s_initLogCount <= 3) {
-                Logger::log("[BtlNet] UpdateInit POST: mm=null (call #%d)\n", s_initLogCount);
+                MP_LOG("[BtlNet] UpdateInit POST: mm=null (call #%d)\n", s_initLogCount);
             }
         }
     }
@@ -4444,7 +4466,7 @@ HOOK_DEFINE_TRAMPOLINE(CalcTool$$CalcCorrectedPowerBySeikaku) {
             static int32_t s_clampCount = 0;
             s_clampCount++;
             if (s_clampCount <= 20) {
-                Logger::log("[BtlNet] CLAMP: CalcCorrectedPowerBySeikaku seikaku=%d (>24!) power=%u stat=%d — returning power unchanged\n",
+                MP_LOG("[BtlNet] CLAMP: CalcCorrectedPowerBySeikaku seikaku=%d (>24!) power=%u stat=%d — returning power unchanged\n",
                             (int)seikaku, power, statType);
             }
             return power;  // No personality modifier for invalid seikaku
@@ -4465,7 +4487,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateMainRun) {
             static int32_t s_mainLogCount = 0;
             s_mainLogCount++;
             if (s_mainLogCount <= 5 || s_mainLogCount % 1000 == 0) {
-                Logger::log("[BtlNet] BattleProc.UpdateMainRun: this=%p (call #%d) partnerGone=%d — BATTLE LOOP ACTIVE\n",
+                MP_LOG("[BtlNet] BattleProc.UpdateMainRun: this=%p (call #%d) partnerGone=%d — BATTLE LOOP ACTIVE\n",
                             __this, s_mainLogCount, (int)partnerGone);
             }
         }
@@ -4477,7 +4499,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateMainRun) {
         if (partnerGone && isOverworldMPActive() && overworldMPIsInBattleScene()) {
             if (!s_disconnectSignaled) {
                 s_disconnectSignaled = true;
-                Logger::log("[OverworldMP] Signaling battle disconnect — setting BSP flags + Net.Client error\n");
+                MP_LOG("[OverworldMP] Signaling battle disconnect — setting BSP flags + Net.Client error\n");
 
                 // 1. Set BSP disconnect flags
                 auto* bspClass = Dpr::Battle::Logic::BattleProc::getClass();
@@ -4486,7 +4508,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateMainRun) {
                     if (bsp != nullptr) {
                         bsp->fields.isDisconnectOccur = true;
                         bsp->fields.commError = 1;
-                        Logger::log("[OverworldMP] BSP: isDisconnectOccur=true, commError=1\n");
+                        MP_LOG("[OverworldMP] BSP: isDisconnectOccur=true, commError=1\n");
                     }
                 }
 
@@ -4495,13 +4517,13 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateMainRun) {
                 if (s_cachedBattleNetClient != nullptr) {
                     uint32_t errors = *(uint32_t*)((uintptr_t)s_cachedBattleNetClient + 0x60);
                     *(uint32_t*)((uintptr_t)s_cachedBattleNetClient + 0x60) = errors | 0x01;
-                    Logger::log("[OverworldMP] Net.Client: set fatal error bit 0x01 (was 0x%x)\n", errors);
+                    MP_LOG("[OverworldMP] Net.Client: set fatal error bit 0x01 (was 0x%x)\n", errors);
                 }
 
                 // 3. Set terminated flag on Net.Client (+0xa1)
                 if (s_cachedBattleNetClient != nullptr) {
                     *(uint8_t*)((uintptr_t)s_cachedBattleNetClient + 0xa1) = 1;
-                    Logger::log("[OverworldMP] Net.Client: set terminated=1\n");
+                    MP_LOG("[OverworldMP] Net.Client: set terminated=1\n");
                 }
             }
 
@@ -4521,7 +4543,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateMainRun) {
                 static int32_t s_mainClrCount = 0;
                 s_mainClrCount++;
                 if (s_mainClrCount <= 30 || s_mainClrCount % 200 == 0) {
-                    Logger::log("[TeamUp] UpdateMainRun PRE: cleared 0x%x from netClient (#%d)\n",
+                    MP_LOG("[TeamUp] UpdateMainRun PRE: cleared 0x%x from netClient (#%d)\n",
                                 nonfatal, s_mainClrCount);
                 }
             }
@@ -4538,7 +4560,7 @@ HOOK_DEFINE_TRAMPOLINE(BattleProc$$UpdateMainRun) {
                 static int32_t s_mainPostClrCount = 0;
                 s_mainPostClrCount++;
                 if (s_mainPostClrCount <= 30 || s_mainPostClrCount % 200 == 0) {
-                    Logger::log("[TeamUp] UpdateMainRun POST: cleared 0x%x from netClient (#%d)\n",
+                    MP_LOG("[TeamUp] UpdateMainRun POST: cleared 0x%x from netClient (#%d)\n",
                                 nonfatal, s_mainPostClrCount);
                 }
             }
@@ -4560,7 +4582,7 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetComponent$$Update) {
 
         // Log first 3 ticks after grace period ends to confirm resume
         if (s_ilcaNetUpdateLogCount > 0 && s_ilcaNetUpdateLogCount <= 3) {
-            Logger::log("[OverworldMP] IlcaNetComponent.Update() resumed (tick #%d after grace)\n",
+            MP_LOG("[OverworldMP] IlcaNetComponent.Update() resumed (tick #%d after grace)\n",
                         s_ilcaNetUpdateLogCount);
             s_ilcaNetUpdateLogCount++;
         }
@@ -4613,9 +4635,9 @@ void exl_overworld_multiplayer_main() {
     // Logs ALL state changes (not just OverworldMP) to capture underground path too.
 #if ENABLE_SESSION_UPDATE_HOOK
     IlcaNetSession$$Update::InstallAtOffset(0x23BAA90);
-    Logger::log("[OverworldMP] IlcaNetSession.Update hook ENABLED\n");
+    MP_LOG("[OverworldMP] IlcaNetSession.Update hook ENABLED\n");
 #else
-    Logger::log("[OverworldMP] IlcaNetSession.Update hook DISABLED (testing trampoline theory)\n");
+    MP_LOG("[OverworldMP] IlcaNetSession.Update hook DISABLED (testing trampoline theory)\n");
 #endif
 
     // Diagnostic hooks — capture networking flow for both underground and overworld
@@ -4627,16 +4649,16 @@ void exl_overworld_multiplayer_main() {
     // PlatformInitialize hook — pinpoints whether crash is before, during, or after PIA init
 #if ENABLE_PLATFORMINIT_HOOK
     IlcaNetBase$$PlatformInitialize::InstallAtOffset(0x2CDA460);
-    Logger::log("[OverworldMP] IlcaNetBase.PlatformInitialize hook ENABLED\n");
+    MP_LOG("[OverworldMP] IlcaNetBase.PlatformInitialize hook ENABLED\n");
 #else
-    Logger::log("[OverworldMP] IlcaNetBase.PlatformInitialize hook DISABLED\n");
+    MP_LOG("[OverworldMP] IlcaNetBase.PlatformInitialize hook DISABLED\n");
 #endif
 
     // IlcaNetComponent.Update diagnostic hook — detects if PIA ticks during grace period.
     // If the disable via Behaviour.set_enabled(false) works, this hook should NOT fire
     // during grace frames. If it does, the log will flag it as a WARNING.
     IlcaNetComponent$$Update::InstallAtOffset(0x2CDC280);
-    Logger::log("[OverworldMP] IlcaNetComponent.Update hook installed (diagnostic)\n");
+    MP_LOG("[OverworldMP] IlcaNetComponent.Update hook installed (diagnostic)\n");
 
     // Battle networking — fully native pipeline with BATTLE_READY sync handshake.
     // No comm init step hooks (determine_server, store_party, etc.) — all run natively.
@@ -4657,9 +4679,9 @@ void exl_overworld_multiplayer_main() {
     // Safety: clamp seikaku in CalcCorrectedPowerBySeikaku to prevent
     // IndexOutOfRangeException during store_party_data → stat calculation
     CalcTool$$CalcCorrectedPowerBySeikaku::InstallAtOffset(0x24AD2C0);
-    Logger::log("[OverworldMP] Battle networking (diagnostic hooks, native pipeline, CalcTool safety) installed\n");
+    MP_LOG("[OverworldMP] Battle networking (diagnostic hooks, native pipeline, CalcTool safety) installed\n");
 
-    Logger::log("[OverworldMP] All hooks installed (NM.Start, ShowMessageWindow, state monitor, diagnostics)\n");
+    MP_LOG("[OverworldMP] All hooks installed (NM.Start, ShowMessageWindow, state monitor, diagnostics)\n");
 
     // Hook FieldManager.Update()
     FieldManager$$Update::InstallAtOffset(0x0179A080);
@@ -4683,5 +4705,5 @@ void exl_overworld_multiplayer_main() {
     exl_team_up_main();
     exl_trainer_flag_bypass_main();
 
-    Logger::log("[OverworldMP] Feature hooks installed\n");
+    MP_LOG("[OverworldMP] Feature hooks installed\n");
 }

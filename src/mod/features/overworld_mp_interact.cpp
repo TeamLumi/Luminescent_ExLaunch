@@ -1,4 +1,6 @@
 #include "exlaunch.hpp"
+#include "features/mp_log.h"
+#include "features/mp_poke_validate.h"
 
 #include "features/overworld_multiplayer.h"
 #include "features/team_up.h"
@@ -212,7 +214,7 @@ static void setInteractMsgWindowActive(bool active) {
 static void showInteractMsgWindow(const char* text) {
     void* tmp = getInteractMsgWindowTMP();
     if (tmp == nullptr) {
-        Logger::log("[OverworldMP] showInteractMsgWindow: TMP chain failed\n");
+        MP_LOG("[OverworldMP] showInteractMsgWindow: TMP chain failed\n");
         return;
     }
 
@@ -236,7 +238,7 @@ static void hideInteractMsgWindow() {
 HOOK_DEFINE_TRAMPOLINE(UIZukanRegister$$ShowRegisterNewMessage) {
     static void Callback(void* self) {
         if (s_suppressZukanRegistration) {
-            Logger::log("[OverworldMP] Suppressed Zukan registration message\n");
+            MP_LOG("[OverworldMP] Suppressed Zukan registration message\n");
             return;
         }
         Orig(self);
@@ -251,7 +253,7 @@ HOOK_DEFINE_TRAMPOLINE(UIZukanRegister$$ShowRegisterNewMessage) {
 HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$ShowDescription) {
     static void Callback(void* self, uint64_t param2, uint8_t param3, void* param4) {
         if (s_suppressZukanRegistration) {
-            Logger::log("[OverworldMP] Suppressed ShowDescription during trade preview\n");
+            MP_LOG("[OverworldMP] Suppressed ShowDescription during trade preview\n");
             return;
         }
         Orig(self, param2, param3, param4);
@@ -265,7 +267,7 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$ShowDescription) {
 HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$Dispose) {
     static void Callback(void* self) {
         if (s_suppressZukanRegistration) {
-            Logger::log("[OverworldMP] Suppressed ZukanDescriptionPanel Dispose during trade preview\n");
+            MP_LOG("[OverworldMP] Suppressed ZukanDescriptionPanel Dispose during trade preview\n");
             return;
         }
         Orig(self);
@@ -281,7 +283,7 @@ HOOK_DEFINE_TRAMPOLINE(UIZukanRegister$$Close) {
             // Block UIZukanRegister's own B-button close during trade preview.
             // The Yes/No handler clears s_suppressZukanRegistration before calling
             // Close explicitly, so that close will go through.
-            Logger::log("[OverworldMP] UIZukanRegister Close blocked — waiting for Yes/No\n");
+            MP_LOG("[OverworldMP] UIZukanRegister Close blocked — waiting for Yes/No\n");
             return;
         }
         Orig(self, onPreClose, prevWindowId);
@@ -378,6 +380,20 @@ void overworldMPTickBalloons(float deltaTime) {
         s_activeBalloons[i].timer -= deltaTime;
         if (s_activeBalloons[i].timer <= 0.0f) {
             FieldCanvas::DeleteBalloon(s_activeBalloons[i].balloon, false);
+            s_activeBalloons[i].balloon = nullptr;
+        }
+    }
+}
+
+void overworldMPClearAllBalloons(bool deleteFromCanvas) {
+    // deleteFromCanvas=true: field canvas is still alive (e.g. battle transition),
+    // so release the balloons through it. false: the canvas/balloons were already
+    // destroyed with the scene (zone change) — only drop our tracking pointers, or
+    // DeleteBalloon would touch freed objects and crash.
+    for (int i = 0; i < MAX_ACTIVE_BALLOONS; i++) {
+        if (s_activeBalloons[i].balloon != nullptr) {
+            if (deleteFromCanvas)
+                FieldCanvas::DeleteBalloon(s_activeBalloons[i].balloon, true);
             s_activeBalloons[i].balloon = nullptr;
         }
     }
@@ -574,6 +590,9 @@ static System::String::Object* getMPMessage(const char* label) {
 }
 
 // Load a string from the message file as a C string, with English fallback.
+// NOT reentrant: the result points into a single shared static buffer, so two
+// calls whose results are held at once will alias. Callers must copy the result
+// (e.g. into a local snprintf buffer) before calling this again.
 static const char* getMPMessageCStr(const char* label, const char* fallback) {
     auto* str = getMPMessage(label);
     if (str == nullptr || System::String::IsNullOrEmpty(str)) return fallback;
@@ -762,7 +781,7 @@ static bool onEmoteMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* i
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Emote selection: index=%d\n", index);
+    MP_LOG("[OverworldMP] Emote selection: index=%d\n", index);
 
     // Map index to emote ID
     uint8_t emoteId = 0;
@@ -773,13 +792,13 @@ static bool onEmoteMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* i
         case 3: emoteId = EMOTE_ID_TALK;         break; // Hello
         case 4: // Cancel
         default:
-            Logger::log("[OverworldMP] Emote cancelled\n");
+            MP_LOG("[OverworldMP] Emote cancelled\n");
             s_interact.Reset();
             closeInteractionMenu();
             return true;
     }
 
-    Logger::log("[OverworldMP] Sending emote: id=%d\n", (int)emoteId);
+    MP_LOG("[OverworldMP] Sending emote: id=%d\n", (int)emoteId);
     overworldMPSendEmote(emoteId);
     showLocalEmoteBalloon(emoteId);
 
@@ -799,14 +818,14 @@ static bool onBattleSubmenuClicked(void* __this, Dpr::UI::ContextMenuItem::Objec
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Battle submenu selection: index=%d\n", index);
+    MP_LOG("[OverworldMP] Battle submenu selection: index=%d\n", index);
 
     switch (index) {
         case 0: // Single Battle
             s_pendingBattleSubtype = BattleSubtype::Single;
             s_pendingRequestType = InteractionType::Battle;
             s_isRequester = true;
-            Logger::log("[OverworldMP] Requesting single battle with station %d\n", s_interact.targetStationIndex);
+            MP_LOG("[OverworldMP] Requesting single battle with station %d\n", s_interact.targetStationIndex);
             overworldMPSendInteractionRequest(s_interact.targetStationIndex,
                                               InteractionType::Battle, BattleSubtype::Single);
             s_interact.state = InteractState::WaitingResponse;
@@ -817,7 +836,7 @@ static bool onBattleSubmenuClicked(void* __this, Dpr::UI::ContextMenuItem::Objec
             s_pendingBattleSubtype = BattleSubtype::Double;
             s_pendingRequestType = InteractionType::Battle;
             s_isRequester = true;
-            Logger::log("[OverworldMP] Requesting double battle with station %d\n", s_interact.targetStationIndex);
+            MP_LOG("[OverworldMP] Requesting double battle with station %d\n", s_interact.targetStationIndex);
             overworldMPSendInteractionRequest(s_interact.targetStationIndex,
                                               InteractionType::Battle, BattleSubtype::Double);
             s_interact.state = InteractState::WaitingResponse;
@@ -826,7 +845,7 @@ static bool onBattleSubmenuClicked(void* __this, Dpr::UI::ContextMenuItem::Objec
 
         case 2: // Back
         default:
-            Logger::log("[OverworldMP] Battle submenu — back to main menu\n");
+            MP_LOG("[OverworldMP] Battle submenu — back to main menu\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
@@ -843,7 +862,7 @@ static void overworldMPShowBattleSubmenu() {
     s_interact.state = InteractState::BattleMenuOpen;
 
     if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 3, 2, &onBattleSubmenuClicked, &s_battleSubmenuMethodInfo)) {
-        Logger::log("[OverworldMP] ERROR: Failed to open battle submenu\n");
+        MP_LOG("[OverworldMP] ERROR: Failed to open battle submenu\n");
         s_interact.Reset();
         closeInteractionMenu();
     }
@@ -855,7 +874,7 @@ static void overworldMPShowBattleSubmenu() {
 static bool checkTradeBlocked() {
     auto* party = PlayerWork::get_playerParty();
     if (party != nullptr && party->fields.m_memberCount <= 1) {
-        Logger::log("[OverworldMP] Trade blocked — only %d pokemon in party\n",
+        MP_LOG("[OverworldMP] Trade blocked — only %d pokemon in party\n",
                     (int)party->fields.m_memberCount);
         const char* msg = getMPMessageCStr("SS_mp_TradeLastPokemon",
                                            "You need at least 2 Pok\xc3\xa9mon to trade!");
@@ -879,11 +898,11 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Menu selection: index=%d\n", index);
+    MP_LOG("[OverworldMP] Menu selection: index=%d\n", index);
 
     switch (index) {
         case 0: // Battle → open submenu to pick Single/Double
-            Logger::log("[OverworldMP] Battle selected — opening submenu\n");
+            MP_LOG("[OverworldMP] Battle selected — opening submenu\n");
             s_interact.state = InteractState::BattleMenuOpen;
             s_interact.emoteMenuDelay = 0.3f;
             break;
@@ -892,12 +911,12 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             if (checkTradeBlocked()) break;
             auto& tuTrade = overworldMPGetTeamUpState();
             if (tuTrade.battlePending) {
-                Logger::log("[OverworldMP] Trade blocked: team-up battle pending\n");
+                MP_LOG("[OverworldMP] Trade blocked: team-up battle pending\n");
                 s_interact.Reset();
                 closeInteractionMenu();
                 break;
             }
-            Logger::log("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
+            MP_LOG("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
             s_pendingRequestType = InteractionType::Trade;
             s_isRequester = true;
             overworldMPSendInteractionRequest(s_interact.targetStationIndex,
@@ -908,7 +927,7 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
         }
 
         case 2: // Team Up
-            Logger::log("[OverworldMP] Requesting team-up with station %d\n", s_interact.targetStationIndex);
+            MP_LOG("[OverworldMP] Requesting team-up with station %d\n", s_interact.targetStationIndex);
             s_pendingRequestType = InteractionType::TeamUp;
             s_isRequester = true;
             overworldMPSendInteractionRequest(s_interact.targetStationIndex,
@@ -918,14 +937,14 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             break;
 
         case 3: // Emote → open sub-menu after main menu closes
-            Logger::log("[OverworldMP] Emote selected — opening sub-menu\n");
+            MP_LOG("[OverworldMP] Emote selected — opening sub-menu\n");
             s_interact.state = InteractState::EmoteMenuPending;
             s_interact.emoteMenuDelay = 0.3f;
             break;
 
         case 4: // Cancel
         default:
-            Logger::log("[OverworldMP] Interaction cancelled\n");
+            MP_LOG("[OverworldMP] Interaction cancelled\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
@@ -947,11 +966,11 @@ static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Team menu selection: index=%d\n", index);
+    MP_LOG("[OverworldMP] Team menu selection: index=%d\n", index);
 
     switch (index) {
         case 0: // Disband
-            Logger::log("[OverworldMP] Disbanding team-up\n");
+            MP_LOG("[OverworldMP] Disbanding team-up\n");
             overworldMPTeamUpDisband();
             s_interact.Reset();
             closeInteractionMenu();
@@ -961,12 +980,12 @@ static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             if (checkTradeBlocked()) break;
             auto& tuTrade = overworldMPGetTeamUpState();
             if (tuTrade.battlePending) {
-                Logger::log("[OverworldMP] Trade blocked (team menu): team-up battle pending\n");
+                MP_LOG("[OverworldMP] Trade blocked (team menu): team-up battle pending\n");
                 s_interact.Reset();
                 closeInteractionMenu();
                 break;
             }
-            Logger::log("[OverworldMP] Requesting trade with partner station %d\n", s_interact.targetStationIndex);
+            MP_LOG("[OverworldMP] Requesting trade with partner station %d\n", s_interact.targetStationIndex);
             s_pendingRequestType = InteractionType::Trade;
             s_isRequester = true;
             overworldMPSendInteractionRequest(s_interact.targetStationIndex,
@@ -977,14 +996,14 @@ static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
         }
 
         case 2: // Emote
-            Logger::log("[OverworldMP] Emote selected — opening sub-menu\n");
+            MP_LOG("[OverworldMP] Emote selected — opening sub-menu\n");
             s_interact.state = InteractState::EmoteMenuPending;
             s_interact.emoteMenuDelay = 0.3f;
             break;
 
         case 3: // Cancel
         default:
-            Logger::log("[OverworldMP] Team menu cancelled\n");
+            MP_LOG("[OverworldMP] Team menu cancelled\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
@@ -1006,18 +1025,18 @@ static bool onTeamBattleMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Obje
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Team battle menu selection: index=%d\n", index);
+    MP_LOG("[OverworldMP] Team battle menu selection: index=%d\n", index);
 
     switch (index) {
         case 0: // Team Battle (PvP — future)
-            Logger::log("[OverworldMP] Team Battle not yet implemented\n");
+            MP_LOG("[OverworldMP] Team Battle not yet implemented\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
 
         case 1: // Trade
             if (checkTradeBlocked()) break;
-            Logger::log("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
+            MP_LOG("[OverworldMP] Requesting trade with station %d\n", s_interact.targetStationIndex);
             s_pendingRequestType = InteractionType::Trade;
             s_isRequester = true;
             overworldMPSendInteractionRequest(s_interact.targetStationIndex,
@@ -1027,14 +1046,14 @@ static bool onTeamBattleMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Obje
             break;
 
         case 2: // Emote
-            Logger::log("[OverworldMP] Emote selected — opening sub-menu\n");
+            MP_LOG("[OverworldMP] Emote selected — opening sub-menu\n");
             s_interact.state = InteractState::EmoteMenuPending;
             s_interact.emoteMenuDelay = 0.3f;
             break;
 
         case 3: // Cancel
         default:
-            Logger::log("[OverworldMP] Team battle menu cancelled\n");
+            MP_LOG("[OverworldMP] Team battle menu cancelled\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
@@ -1051,7 +1070,7 @@ static void overworldMPShowEmoteMenu() {
     s_interact.state = InteractState::EmoteMenuOpen;
 
     if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 5, 4, &onEmoteMenuClicked, &s_emoteMenuMethodInfo)) {
-        Logger::log("[OverworldMP] ERROR: Failed to open emote menu\n");
+        MP_LOG("[OverworldMP] ERROR: Failed to open emote menu\n");
         s_interact.Reset();
         closeInteractionMenu();
     }
@@ -1079,12 +1098,12 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
     if (remote.onlineState == OpcState::OnlineState::NOW_BATTLE ||
         remote.onlineState == OpcState::OnlineState::NOW_TRADE ||
         remote.onlineState == OpcState::OnlineState::NOW_MENU) {
-        Logger::log("[OverworldMP] Target station %d is busy (state=%d)\n",
+        MP_LOG("[OverworldMP] Target station %d is busy (state=%d)\n",
                     targetStationIndex, (int)remote.onlineState);
         return;
     }
 
-    Logger::log("[OverworldMP] Opening interaction menu for station %d\n", targetStationIndex);
+    MP_LOG("[OverworldMP] Opening interaction menu for station %d\n", targetStationIndex);
 
     s_interact.targetStationIndex = targetStationIndex;
     s_interact.state = InteractState::MenuOpen;
@@ -1103,7 +1122,7 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         // Teamed up, targeting partner: Disband, Trade, Emote, Cancel
         const char* labels[] = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote", "SS_mp_Cancel" };
         if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 4, 3, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
-            Logger::log("[OverworldMP] ERROR: Failed to open team menu\n");
+            MP_LOG("[OverworldMP] ERROR: Failed to open team menu\n");
             s_interact.Reset();
             closeInteractionMenu();
         }
@@ -1111,7 +1130,7 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         // Teamed up, targeting non-partner: Team Battle, Trade, Emote, Cancel
         const char* labels[] = { "SS_mp_TeamBattle", "SS_mp_Trade", "SS_mp_Emote", "SS_mp_Cancel" };
         if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 4, 3, &onTeamBattleMenuClicked, &s_teamBattleMenuMethodInfo)) {
-            Logger::log("[OverworldMP] ERROR: Failed to open team battle menu\n");
+            MP_LOG("[OverworldMP] ERROR: Failed to open team battle menu\n");
             s_interact.Reset();
             closeInteractionMenu();
         }
@@ -1119,7 +1138,7 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         // Not teamed up: Battle, Trade, Team Up, Emote, Cancel
         const char* labels[] = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote", "SS_mp_Cancel" };
         if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 5, 4, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
-            Logger::log("[OverworldMP] ERROR: Failed to open interaction menu\n");
+            MP_LOG("[OverworldMP] ERROR: Failed to open interaction menu\n");
             s_interact.Reset();
             closeInteractionMenu();
         }
@@ -1137,7 +1156,7 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
 
     if (item == nullptr) {
         // Dialog dismissed (e.g. B-button cancel) — treat as decline
-        Logger::log("[OverworldMP] Incoming request dialog dismissed — declining\n");
+        MP_LOG("[OverworldMP] Incoming request dialog dismissed — declining\n");
         overworldMPSendInteractionResponse(s_pendingFromStation, false);
         s_pendingFromStation = -1;
         s_interact.Reset();
@@ -1146,7 +1165,7 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Incoming request response: index=%d\n", index);
+    MP_LOG("[OverworldMP] Incoming request response: index=%d\n", index);
 
     if (index == 0) {
         // Accept — defer trade/battle start to avoid opening UI inside callback
@@ -1155,7 +1174,7 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
         if (s_pendingRequestType == InteractionType::Trade) {
             auto* party = PlayerWork::get_playerParty();
             if (party != nullptr && party->fields.m_memberCount <= 1) {
-                Logger::log("[OverworldMP] Trade blocked on receiver — only %d pokemon, declining\n",
+                MP_LOG("[OverworldMP] Trade blocked on receiver — only %d pokemon, declining\n",
                             (int)party->fields.m_memberCount);
                 overworldMPSendInteractionResponse(s_pendingFromStation, false);
                 s_pendingFromStation = -1;
@@ -1170,7 +1189,7 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
             }
         }
 
-        Logger::log("[OverworldMP] Accepting request from station %d (type=%d)\n",
+        MP_LOG("[OverworldMP] Accepting request from station %d (type=%d)\n",
                     s_pendingFromStation, (int)s_pendingRequestType);
         overworldMPSendInteractionResponse(s_pendingFromStation, true);
         overworldMPShowRemoteEmote(s_pendingFromStation, EMOTE_ID_LIKES);
@@ -1189,7 +1208,7 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
         }
     } else {
         // Decline (index 1 or B-button)
-        Logger::log("[OverworldMP] Declining request from station %d\n", s_pendingFromStation);
+        MP_LOG("[OverworldMP] Declining request from station %d\n", s_pendingFromStation);
         overworldMPSendInteractionResponse(s_pendingFromStation, false);
         s_pendingFromStation = -1;
         s_interact.Reset();
@@ -1211,7 +1230,7 @@ void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType t
 
     // If the local player is already in a menu/interaction, ignore the request
     if (s_interact.state != InteractState::Idle) {
-        Logger::log("[OverworldMP] Ignoring incoming request — local interact state=%d\n",
+        MP_LOG("[OverworldMP] Ignoring incoming request — local interact state=%d\n",
                     (int)s_interact.state);
         return;
     }
@@ -1219,7 +1238,7 @@ void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType t
     // If in any battle (wild, trainer, etc.), decline — can't show UI during battle
     auto* fmReq = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
     if (fmReq != nullptr && fmReq->fields._updateType != 0) {
-        Logger::log("[OverworldMP] Declining incoming request — in battle (updateType=%d)\n",
+        MP_LOG("[OverworldMP] Declining incoming request — in battle (updateType=%d)\n",
                     fmReq->fields._updateType);
         overworldMPSendInteractionResponse(fromStation, false);
         return;
@@ -1228,7 +1247,7 @@ void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType t
     // If a team-up battle is pending, decline incoming requests
     auto& tuIncoming = overworldMPGetTeamUpState();
     if (tuIncoming.battlePending) {
-        Logger::log("[OverworldMP] Declining incoming request — team-up battle pending\n");
+        MP_LOG("[OverworldMP] Declining incoming request — team-up battle pending\n");
         overworldMPSendInteractionResponse(fromStation, false);
         return;
     }
@@ -1247,7 +1266,7 @@ void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType t
     // has time to finish any pending layout/animation from the field UI.
     s_interact.state = InteractState::IncomingRequestPending;
     s_interact.incomingRequestDelay = 0.15f;  // ~4-5 frames at 30fps
-    Logger::log("[OverworldMP] Incoming request deferred (0.15s delay)\n");
+    MP_LOG("[OverworldMP] Incoming request deferred (0.15s delay)\n");
 }
 
 // Actually show the incoming request dialog (called from tick after delay)
@@ -1298,7 +1317,7 @@ static void showIncomingRequestDialog() {
     static char promptBuf[128];
     const char* vals[] = { actionTextBuf, nameBuf };
     formatMPTemplate(promptBuf, sizeof(promptBuf), promptFmt, vals, 2);
-    Logger::log("[OverworldMP] Showing incoming request dialog: %s\n", promptBuf);
+    MP_LOG("[OverworldMP] Showing incoming request dialog: %s\n", promptBuf);
 
     // Show the prompt in the MsgWindow dialogue box
     showInteractMsgWindow(promptBuf);
@@ -1307,7 +1326,7 @@ static void showIncomingRequestDialog() {
     // Show Accept/Decline ContextMenuWindow for the decision
     const char* labels[] = { "SS_mp_Yes", "SS_mp_Decline" };
     if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 2, 1, &onIncomingRequestClicked, &s_incomingRequestMethodInfo)) {
-        Logger::log("[OverworldMP] ERROR: Failed to open incoming request dialog\n");
+        MP_LOG("[OverworldMP] ERROR: Failed to open incoming request dialog\n");
         hideInteractMsgWindow();
         overworldMPSendInteractionResponse(s_pendingFromStation, false);
         s_pendingFromStation = -1;
@@ -1351,7 +1370,7 @@ static void showTradePreview();
 static Pml::PokePara::PokemonParam::Object* deserializePartnerPokemon(Pml::PokeParty::Object* party) {
     auto* existingPoke = party->GetMemberPointer(0);
     if (existingPoke == nullptr) {
-        Logger::log("[OverworldMP] ERROR: no party member to use as template\n");
+        MP_LOG("[OverworldMP] ERROR: no party member to use as template\n");
         return nullptr;
     }
 
@@ -1364,9 +1383,20 @@ static Pml::PokePara::PokemonParam::Object* deserializePartnerPokemon(Pml::PokeP
         // Use Deserialize_FullData (raw pointer version) @ 0x24A4550
         // Properly handles decode/re-encode cycle for PokePara data
         _ILExternal::external<void>(0x24A4550, accessor, s_partnerTradePokeData);
-        Logger::log("[OverworldMP] Deserialized partner pokemon into new PokemonParam\n");
+        MP_LOG("[OverworldMP] Deserialized partner pokemon into new PokemonParam\n");
     } else {
-        Logger::log("[OverworldMP] WARNING: newPoke accessor is null\n");
+        MP_LOG("[OverworldMP] WARNING: newPoke accessor is null\n");
+        return nullptr;
+    }
+
+    // SECURITY: the trade bytes came from a peer (untrusted). Reject a corrupt or
+    // malicious Pokémon BEFORE it can be committed to the local party/box — unlike a
+    // battle, a trade persists to the save, so a bad species/nature/level here would
+    // be permanent and can crash later CalcTool/Setup pipelines. Mirrors the
+    // validation the battle-party path already performs.
+    if (!mpValidatePokemonParam((Pml::PokePara::CoreParam*)newPoke)) {
+        MP_LOG("[OverworldMP] REJECT trade: partner Pokemon failed validation — aborting swap\n");
+        return nullptr;
     }
     return newPoke;
 }
@@ -1376,7 +1406,7 @@ static Pml::PokePara::PokemonParam::Object* deserializePartnerPokemon(Pml::PokeP
 // Signature: void(MethodInfo*) — static, no target
 // ---------------------------------------------------------------------------
 static void onDemoEnd(MethodInfo* mi) {
-    Logger::log("[OverworldMP] Demo_Trade animation ended — executing swap\n");
+    MP_LOG("[OverworldMP] Demo_Trade animation ended — executing swap\n");
 
     // Set FieldCanvas flags (matches NPC trade pattern)
     FieldCanvas::getClass()->initIfNeeded();
@@ -1389,20 +1419,20 @@ static void onDemoEnd(MethodInfo* mi) {
             // Box trade: replace the box slot with partner's pokemon
             Dpr::Box::BoxPokemonWork::UpdatePokemon(s_partnerTradePokeParam,
                                                      s_myTradeTrayIndex, s_myTradePartySlot);
-            Logger::log("[OverworldMP] Trade complete — replaced box tray %d pos %d\n",
+            MP_LOG("[OverworldMP] Trade complete — replaced box tray %d pos %d\n",
                         s_myTradeTrayIndex, s_myTradePartySlot);
         } else {
             // Party trade: replace party slot
             auto* party = PlayerWork::get_playerParty();
             if (party != nullptr) {
                 party->ReplaceMember(s_myTradePartySlot, s_partnerTradePokeParam);
-                Logger::log("[OverworldMP] Trade complete — replaced party slot %d\n", s_myTradePartySlot);
+                MP_LOG("[OverworldMP] Trade complete — replaced party slot %d\n", s_myTradePartySlot);
             } else {
-                Logger::log("[OverworldMP] ERROR: party is null in onDemoEnd\n");
+                MP_LOG("[OverworldMP] ERROR: party is null in onDemoEnd\n");
             }
         }
     } else {
-        Logger::log("[OverworldMP] ERROR: cannot swap — partnerPoke=%p, slot=%d\n",
+        MP_LOG("[OverworldMP] ERROR: cannot swap — partnerPoke=%p, slot=%d\n",
                     s_partnerTradePokeParam, s_myTradePartySlot);
     }
 
@@ -1440,13 +1470,13 @@ static bool tryStartDemoTrade(Pml::PokePara::PokemonParam::Object* myPoke,
     // Create Demo_Trade instance
     auto* demoClass = Dpr::Demo::Demo_Trade::getClass();
     if (demoClass == nullptr) {
-        Logger::log("[OverworldMP] Demo_Trade class not available\n");
+        MP_LOG("[OverworldMP] Demo_Trade class not available\n");
         return false;
     }
     demoClass->initIfNeeded();
     auto* demo = (Dpr::Demo::Demo_Trade::Object*)il2cpp_object_new((Il2CppClass*)demoClass);
     if (demo == nullptr) {
-        Logger::log("[OverworldMP] Failed to create Demo_Trade instance\n");
+        MP_LOG("[OverworldMP] Failed to create Demo_Trade instance\n");
         return false;
     }
     demo->ctor();
@@ -1491,7 +1521,7 @@ static bool tryStartDemoTrade(Pml::PokePara::PokemonParam::Object* myPoke,
 
     auto* actionClass = System::Action::getClass(System::Action::void_TypeInfo);
     if (actionClass == nullptr) {
-        Logger::log("[OverworldMP] Failed to get Action class for OnEndDemo\n");
+        MP_LOG("[OverworldMP] Failed to get Action class for OnEndDemo\n");
         Dpr::UI::BoxWindow::LimitBox(false);
         return false;
     }
@@ -1510,7 +1540,7 @@ static bool tryStartDemoTrade(Pml::PokePara::PokemonParam::Object* myPoke,
     FieldCanvas::getClass()->static_fields->isNPCTrading = true;
 
     // Play the trade cutscene
-    Logger::log("[OverworldMP] Starting Demo_Trade animation\n");
+    MP_LOG("[OverworldMP] Starting Demo_Trade animation\n");
     FieldCanvas::PlayDemo((Dpr::Demo::DemoBase::Object*)demo, true);
 
     return true;
@@ -1520,12 +1550,12 @@ static bool tryStartDemoTrade(Pml::PokePara::PokemonParam::Object* myPoke,
 // Trade: execute the swap (with Demo_Trade animation, or immediate fallback)
 // ---------------------------------------------------------------------------
 static void overworldMPExecuteSwap() {
-    Logger::log("[OverworldMP] Executing trade swap: isBox=%d, tray=%d, slot=%d, partner station=%d\n",
+    MP_LOG("[OverworldMP] Executing trade swap: isBox=%d, tray=%d, slot=%d, partner station=%d\n",
                 (int)s_myTradeIsBox, s_myTradeTrayIndex, s_myTradePartySlot, s_tradePartnerStation);
 
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) {
-        Logger::log("[OverworldMP] ERROR: playerParty is null, cannot execute swap\n");
+        MP_LOG("[OverworldMP] ERROR: playerParty is null, cannot execute swap\n");
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1540,7 +1570,7 @@ static void overworldMPExecuteSwap() {
         myPoke = party->GetMemberPointer(s_myTradePartySlot);
     }
     if (myPoke == nullptr) {
-        Logger::log("[OverworldMP] ERROR: our trade pokemon is null\n");
+        MP_LOG("[OverworldMP] ERROR: our trade pokemon is null\n");
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1550,7 +1580,7 @@ static void overworldMPExecuteSwap() {
     // Deserialize partner's pokemon from received byte data
     auto* partnerPoke = deserializePartnerPokemon(party);
     if (partnerPoke == nullptr) {
-        Logger::log("[OverworldMP] ERROR: failed to deserialize partner pokemon\n");
+        MP_LOG("[OverworldMP] ERROR: failed to deserialize partner pokemon\n");
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1568,19 +1598,19 @@ static void overworldMPExecuteSwap() {
     // Try to start the trade cutscene animation
     if (tryStartDemoTrade(myPoke, partnerPoke)) {
         s_interact.state = InteractState::TradeAnimating;
-        Logger::log("[OverworldMP] Demo_Trade started — swap will happen when animation ends\n");
+        MP_LOG("[OverworldMP] Demo_Trade started — swap will happen when animation ends\n");
         return;
     }
 
     // Fallback: no animation available — swap immediately
-    Logger::log("[OverworldMP] Demo_Trade unavailable — doing immediate swap\n");
+    MP_LOG("[OverworldMP] Demo_Trade unavailable — doing immediate swap\n");
     if (s_myTradeIsBox) {
         Dpr::Box::BoxPokemonWork::UpdatePokemon(partnerPoke, s_myTradeTrayIndex, s_myTradePartySlot);
-        Logger::log("[OverworldMP] Trade complete — replaced box tray %d pos %d\n",
+        MP_LOG("[OverworldMP] Trade complete — replaced box tray %d pos %d\n",
                     s_myTradeTrayIndex, s_myTradePartySlot);
     } else {
         party->ReplaceMember(s_myTradePartySlot, partnerPoke);
-        Logger::log("[OverworldMP] Trade complete — replaced party slot %d\n", s_myTradePartySlot);
+        MP_LOG("[OverworldMP] Trade complete — replaced party slot %d\n", s_myTradePartySlot);
     }
 
     overworldMPShowRemoteEmote(s_tradePartnerStation, EMOTE_ID_LIKES);
@@ -1610,7 +1640,7 @@ static bool onTradeConfirmClicked(void* __this, Dpr::UI::ContextMenuItem::Object
 
     if (item == nullptr) {
         // B-button cancel on confirm dialog — abort trade
-        Logger::log("[OverworldMP] Trade confirm cancelled via B-button — aborting trade\n");
+        MP_LOG("[OverworldMP] Trade confirm cancelled via B-button — aborting trade\n");
         s_activeContextMenu = nullptr;  // menu auto-closes on return true
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         // Don't call SetTradeInfo/ToNextPhase — BoxWindow in selection mode, trade panel uninit
@@ -1622,11 +1652,11 @@ static bool onTradeConfirmClicked(void* __this, Dpr::UI::ContextMenuItem::Object
     }
 
     int32_t index = (int32_t)item->fields._param->fields.menuId;
-    Logger::log("[OverworldMP] Trade confirm selection: index=%d\n", index);
+    MP_LOG("[OverworldMP] Trade confirm selection: index=%d\n", index);
 
     if (index == 0) {
         // Yes — confirm trade
-        Logger::log("[OverworldMP] Confirming trade with station %d\n", s_tradePartnerStation);
+        MP_LOG("[OverworldMP] Confirming trade with station %d\n", s_tradePartnerStation);
         s_activeContextMenu = nullptr;  // menu auto-closes on return true
         overworldMPSendTradeConfirm(s_tradePartnerStation, true);
 
@@ -1637,17 +1667,17 @@ static bool onTradeConfirmClicked(void* __this, Dpr::UI::ContextMenuItem::Object
 
         // Check if partner already confirmed
         if (s_partnerConfirmReceived && s_partnerConfirmValue) {
-            Logger::log("[OverworldMP] Partner already confirmed — executing swap\n");
+            MP_LOG("[OverworldMP] Partner already confirmed — executing swap\n");
             overworldMPExecuteSwap();
         } else {
             // Wait for partner's confirmation
             s_interact.state = InteractState::TradeWaitFinal;
             s_tradeWaitTimeout = TRADE_WAIT_TIMEOUT;
-            Logger::log("[OverworldMP] Waiting for partner's trade confirmation\n");
+            MP_LOG("[OverworldMP] Waiting for partner's trade confirmation\n");
         }
     } else {
         // No — abort trade (re-selection requires bidirectional protocol; abort is safe)
-        Logger::log("[OverworldMP] Declined partner offer — aborting trade\n");
+        MP_LOG("[OverworldMP] Declined partner offer — aborting trade\n");
         s_activeContextMenu = nullptr;  // menu auto-closes on return true
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         // Don't call SetTradeInfo/ToNextPhase — BoxWindow was opened in selection mode
@@ -1665,7 +1695,7 @@ static bool onTradeConfirmClicked(void* __this, Dpr::UI::ContextMenuItem::Object
 // Trade: UIZukanRegister OnComplete callback (fires when user presses A path)
 // ---------------------------------------------------------------------------
 static void onZukanComplete(int32_t addMemberResult, MethodInfo* mi) {
-    Logger::log("[OverworldMP] UIZukanRegister OnComplete: result=%d\n", addMemberResult);
+    MP_LOG("[OverworldMP] UIZukanRegister OnComplete: result=%d\n", addMemberResult);
     s_zukanDismissed = true;
 }
 
@@ -1679,14 +1709,14 @@ static void showTradePreview() {
 
     auto* party = PlayerWork::get_playerParty();
     if (!s_partnerPokeReceived || party == nullptr) {
-        Logger::log("[OverworldMP] No partner pokemon to preview, going to confirm only\n");
+        MP_LOG("[OverworldMP] No partner pokemon to preview, going to confirm only\n");
         showTradeConfirmDialog();
         return;
     }
 
     auto* partnerPoke = deserializePartnerPokemon(party);
     if (partnerPoke == nullptr) {
-        Logger::log("[OverworldMP] Failed to deserialize partner pokemon, going to confirm only\n");
+        MP_LOG("[OverworldMP] Failed to deserialize partner pokemon, going to confirm only\n");
         showTradeConfirmDialog();
         return;
     }
@@ -1697,7 +1727,7 @@ static void showTradePreview() {
     uint32_t level = core->GetLevel();
     auto sex = core->GetSex();
     bool isRare = core->IsRare();
-    Logger::log("[OverworldMP] Partner pokemon: monsNo=%d lv=%d sex=%d rare=%d\n",
+    MP_LOG("[OverworldMP] Partner pokemon: monsNo=%d lv=%d sex=%d rare=%d\n",
                 partnerMonsNo, level, (int)sex, isRare);
 
     // --- Open UIZukanRegister for 3D model display ---
@@ -1705,14 +1735,14 @@ static void showTradePreview() {
     SmartPoint::AssetAssistant::SingletonMonoBehaviour::getClass()->initIfNeeded();
     auto* uiManager = Dpr::UI::UIManager::get_Instance();
     if (uiManager == nullptr) {
-        Logger::log("[OverworldMP] UIManager null, going to confirm only\n");
+        MP_LOG("[OverworldMP] UIManager null, going to confirm only\n");
         showTradeConfirmDialog();
         return;
     }
 
     auto* uiZukanReg = uiManager->CreateUIWindow<Dpr::UI::UIZukanRegister>(UIWindowID::ZUKAN_REGISTER);
     if (uiZukanReg == nullptr) {
-        Logger::log("[OverworldMP] Failed to create UIZukanRegister, going to confirm only\n");
+        MP_LOG("[OverworldMP] Failed to create UIZukanRegister, going to confirm only\n");
         showTradeConfirmDialog();
         return;
     }
@@ -1750,7 +1780,7 @@ static void showTradePreview() {
     // Result: A → ShowDescription → A/B → Close, B → Close directly. No registration text, no nickname.
     *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(uiZukanReg) + 0x98) = 1;
 
-    Logger::log("[OverworldMP] UIZukanRegister opened for partner pokemon preview\n");
+    MP_LOG("[OverworldMP] UIZukanRegister opened for partner pokemon preview\n");
 
     // --- Build the prompt text now, but defer showing it until after UIZukanRegister
     //     finishes its opening animation. The MsgWindow must be activated AFTER the
@@ -1781,7 +1811,7 @@ static void showTradePreview() {
                          "Trade for {0}'s pokemon?", vals, 1);
     }
 
-    Logger::log("[OverworldMP] Trade confirm text prepared: %s\n", s_tradeConfirmMsgBuf);
+    MP_LOG("[OverworldMP] Trade confirm text prepared: %s\n", s_tradeConfirmMsgBuf);
 
     // Transition to TradePreview — tick handler will show MsgWindow + Yes/No
     // after a short delay, ensuring the UIZukanRegister Canvas is fully set up.
@@ -1839,12 +1869,12 @@ static void showTradeConfirmDialog() {
     // Show the question in the MsgWindow dialogue box
     showInteractMsgWindow(promptText);
     s_interactMsgShown = true;
-    Logger::log("[OverworldMP] Showing trade confirm MsgWindow: %s\n", promptText);
+    MP_LOG("[OverworldMP] Showing trade confirm MsgWindow: %s\n", promptText);
 
     // Show Yes/No ContextMenuWindow for the decision
     const char* labels[] = { "SS_mp_Yes", "SS_mp_No" };
     if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 2, 1, &onTradeConfirmClicked, &s_tradeConfirmMethodInfo)) {
-        Logger::log("[OverworldMP] ERROR: Failed to open trade confirm Yes/No menu\n");
+        MP_LOG("[OverworldMP] ERROR: Failed to open trade confirm Yes/No menu\n");
         hideInteractMsgWindow();
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         if (s_boxWindow != nullptr) {
@@ -1864,11 +1894,11 @@ static void showTradeConfirmDialog() {
 static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
                           Dpr::UI::BoxWindow::SelectedPokemon::Array* selected,
                           MethodInfo* mi) {
-    Logger::log("[OverworldMP] BoxWindow selection callback fired\n");
+    MP_LOG("[OverworldMP] BoxWindow selection callback fired\n");
     // Do NOT clear s_boxWindow — BoxWindow stays open in trade mode
 
     if (selected == nullptr || selected->max_length < 1 || selected->m_Items[0] == nullptr) {
-        Logger::log("[OverworldMP] BoxWindow selection was empty — cancelling trade\n");
+        MP_LOG("[OverworldMP] BoxWindow selection was empty — cancelling trade\n");
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         s_boxWindow = nullptr;
         resetTradeState();
@@ -1882,11 +1912,11 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
     int32_t trayIndex = sel->fields.TrayIndex;
     int32_t indexInTray = sel->fields.IndexInTray;
 
-    Logger::log("[OverworldMP] BoxWindow selected: trayIndex=%d, indexInTray=%d\n",
+    MP_LOG("[OverworldMP] BoxWindow selected: trayIndex=%d, indexInTray=%d\n",
                 trayIndex, indexInTray);
 
     if (poke == nullptr) {
-        Logger::log("[OverworldMP] ERROR: selected pokemon Param is null\n");
+        MP_LOG("[OverworldMP] ERROR: selected pokemon Param is null\n");
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         s_boxWindow = nullptr;
         resetTradeState();
@@ -1899,7 +1929,7 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
         // Party trade — don't allow trading the last party member
         auto* party = PlayerWork::get_playerParty();
         if (party != nullptr && party->fields.m_memberCount <= 1) {
-            Logger::log("[OverworldMP] Cannot trade — only 1 pokemon in party\n");
+            MP_LOG("[OverworldMP] Cannot trade — only 1 pokemon in party\n");
             // Don't close BoxWindow — let the player pick again
             return;
         }
@@ -1921,7 +1951,7 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
         _ILExternal::external<void>(0x24A4470, accessor, s_myTradePokeData);
     }
 
-    Logger::log("[OverworldMP] Selected %s tray=%d slot=%d (monsNo=%d) for trade, sending 0xC4\n",
+    MP_LOG("[OverworldMP] Selected %s tray=%d slot=%d (monsNo=%d) for trade, sending 0xC4\n",
                 s_myTradeIsBox ? "box" : "party", trayIndex, indexInTray, corePoke->GetMonsNo());
 
     // Send our pokemon data to the partner
@@ -1936,9 +1966,9 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
     s_interact.state = InteractState::TradeWaitPartner;
     s_tradeWaitTimeout = TRADE_WAIT_TIMEOUT;
     if (s_partnerPokeReceived) {
-        Logger::log("[OverworldMP] Partner already sent pokemon — will show preview next tick\n");
+        MP_LOG("[OverworldMP] Partner already sent pokemon — will show preview next tick\n");
     } else {
-        Logger::log("[OverworldMP] Waiting for partner's pokemon selection\n");
+        MP_LOG("[OverworldMP] Waiting for partner's pokemon selection\n");
     }
 }
 
@@ -1948,7 +1978,7 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
 //   method_ptr(MethodInfo*)
 // ---------------------------------------------------------------------------
 static void onBoxCancelled(MethodInfo* mi) {
-    Logger::log("[OverworldMP] BoxWindow trade selection cancelled\n");
+    MP_LOG("[OverworldMP] BoxWindow trade selection cancelled\n");
     // Don't call SetTradeInfo — BoxWindow was opened in selection mode, trade panel uninit
     s_boxWindow = nullptr;
     overworldMPSendTradeConfirm(s_tradePartnerStation, false);
@@ -2015,7 +2045,7 @@ static void preloadBoxWindow() {
     Il2CppClass* listClass = *reinterpret_cast<Il2CppClass**>(
         exl::util::modules::GetTargetOffset(0x04C5E5C8));
     if (listClass == nullptr) {
-        Logger::log("[OverworldMP] List<UIWindowID> TypeInfo not resolved\n");
+        MP_LOG("[OverworldMP] List<UIWindowID> TypeInfo not resolved\n");
         return;
     }
     auto* list = il2cpp_object_new(listClass);
@@ -2029,7 +2059,7 @@ static void preloadBoxWindow() {
     // UIManager::OpLoadWindows(list, isVariant=false) @ 0x17B0380
     auto* coroutine = _ILExternal::external<Il2CppObject*>(0x17B0380, uiMgr, list, false, (void*)0);
     if (coroutine == nullptr) {
-        Logger::log("[OverworldMP] OpLoadWindows returned null\n");
+        MP_LOG("[OverworldMP] OpLoadWindows returned null\n");
         return;
     }
 
@@ -2037,7 +2067,7 @@ static void preloadBoxWindow() {
     SmartPoint::AssetAssistant::Sequencer::Start((System::Collections::IEnumerator::Object*)coroutine);
 
     s_boxWindowPreloading = true;
-    Logger::log("[OverworldMP] BoxWindow preload coroutine started\n");
+    MP_LOG("[OverworldMP] BoxWindow preload coroutine started\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -2049,14 +2079,14 @@ static void openTradeBoxWindow(int32_t partnerStation);
 // Trade: start trade (called after handshake accept)
 // ---------------------------------------------------------------------------
 void overworldMPStartTrade(int32_t partnerStation) {
-    Logger::log("[OverworldMP] Starting trade with station %d\n", partnerStation);
+    MP_LOG("[OverworldMP] Starting trade with station %d\n", partnerStation);
 
     resetTradeState();
     s_tradePartnerStation = partnerStation;
 
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) {
-        Logger::log("[OverworldMP] ERROR: playerParty is null, cannot start trade\n");
+        MP_LOG("[OverworldMP] ERROR: playerParty is null, cannot start trade\n");
         s_interact.Reset();
         closeInteractionMenu();
         return;
@@ -2064,7 +2094,7 @@ void overworldMPStartTrade(int32_t partnerStation) {
 
     int32_t memberCount = party->fields.m_memberCount;
     if (memberCount <= 0) {
-        Logger::log("[OverworldMP] ERROR: party is empty\n");
+        MP_LOG("[OverworldMP] ERROR: party is empty\n");
         s_interact.Reset();
         closeInteractionMenu();
         return;
@@ -2077,10 +2107,10 @@ void overworldMPStartTrade(int32_t partnerStation) {
 // Trade: open BoxWindow for pokemon selection (trade mode with TradeParam)
 // ---------------------------------------------------------------------------
 static void openTradeBoxWindow(int32_t partnerStation) {
-    Logger::log("[OverworldMP] openTradeBoxWindow: enter\n");
+    MP_LOG("[OverworldMP] openTradeBoxWindow: enter\n");
     auto* uiMgr = Dpr::UI::UIManager::get_Instance();
     if (uiMgr == nullptr) {
-        Logger::log("[OverworldMP] UIManager is null, cannot open BoxWindow\n");
+        MP_LOG("[OverworldMP] UIManager is null, cannot open BoxWindow\n");
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2091,13 +2121,13 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     // preloadBoxWindow() was already called when the interaction menu opened;
     // this handles the case where loading is still in progress.
     bool inPool = isBoxWindowInObjectPool();
-    Logger::log("[OverworldMP] openTradeBoxWindow: inPool=%d\n", (int)inPool);
+    MP_LOG("[OverworldMP] openTradeBoxWindow: inPool=%d\n", (int)inPool);
     if (!inPool) {
         // Ensure preload is started (in case it wasn't triggered earlier)
         preloadBoxWindow();
         s_interact.state = InteractState::TradeLoadingBox;
         s_interact.timeoutTimer = 10.0f;  // 10s timeout for asset loading
-        Logger::log("[OverworldMP] BoxWindow not yet loaded — waiting for preload\n");
+        MP_LOG("[OverworldMP] BoxWindow not yet loaded — waiting for preload\n");
         return;
     }
 
@@ -2112,7 +2142,7 @@ static void openTradeBoxWindow(int32_t partnerStation) {
 
     auto* boxWindow = uiMgr->CreateUIWindow<Dpr::UI::BoxWindow>(UIWindowID::BOX);
     if (boxWindow == nullptr) {
-        Logger::log("[OverworldMP] Failed to create BoxWindow\n");
+        MP_LOG("[OverworldMP] Failed to create BoxWindow\n");
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2142,7 +2172,7 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     // Create Action<BoxWindow, SelectedPokemon[]> delegate
     auto* selectActionClass = System::Action::getClass(System::Action::BoxWindow_SelectedPokemon_TypeInfo);
     if (selectActionClass == nullptr) {
-        Logger::log("[OverworldMP] Failed to get Action<BoxWindow,SelectedPokemon[]> class\n");
+        MP_LOG("[OverworldMP] Failed to get Action<BoxWindow,SelectedPokemon[]> class\n");
         s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
@@ -2168,7 +2198,7 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     // Create Action (non-generic) delegate for cancel callback
     auto* cancelActionClass = System::Action::getClass(System::Action::void_TypeInfo);
     if (cancelActionClass == nullptr) {
-        Logger::log("[OverworldMP] Failed to get Action class for cancel\n");
+        MP_LOG("[OverworldMP] Failed to get Action class for cancel\n");
         s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
@@ -2196,18 +2226,18 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     boxWindow->fields._tradeParam = (void*)s_fakeTradeParam;
 
     s_interact.state = InteractState::TradeSelectPoke;
-    Logger::log("[OverworldMP] BoxWindow opened for trade (selection mode + fake TradeParam)\n");
+    MP_LOG("[OverworldMP] BoxWindow opened for trade (selection mode + fake TradeParam)\n");
 }
 
 // ---------------------------------------------------------------------------
 // Trade: receive notifications (called from overworld_multiplayer.cpp handlers)
 // ---------------------------------------------------------------------------
 void overworldMPOnTradePokeReceived(int32_t fromStation, int32_t partySlot, uint8_t* data, int32_t size) {
-    Logger::log("[OverworldMP] Trade pokemon received from station %d, slot=%d, size=%d\n",
+    MP_LOG("[OverworldMP] Trade pokemon received from station %d, slot=%d, size=%d\n",
                 fromStation, partySlot, size);
 
     if (s_tradePartnerStation != fromStation && s_tradePartnerStation != -1) {
-        Logger::log("[OverworldMP] Ignoring trade poke from unexpected station %d (expected %d)\n",
+        MP_LOG("[OverworldMP] Ignoring trade poke from unexpected station %d (expected %d)\n",
                     fromStation, s_tradePartnerStation);
         return;
     }
@@ -2219,17 +2249,17 @@ void overworldMPOnTradePokeReceived(int32_t fromStation, int32_t partySlot, uint
 
     // If we're waiting for this, transition to confirm
     if (s_interact.state == InteractState::TradeWaitPartner) {
-        Logger::log("[OverworldMP] Partner pokemon received while waiting — showing preview\n");
+        MP_LOG("[OverworldMP] Partner pokemon received while waiting — showing preview\n");
         showTradePreview();
     }
 }
 
 void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed) {
-    Logger::log("[OverworldMP] Trade confirm received from station %d: confirmed=%d\n",
+    MP_LOG("[OverworldMP] Trade confirm received from station %d: confirmed=%d\n",
                 fromStation, (int)confirmed);
 
     if (s_tradePartnerStation != fromStation && s_tradePartnerStation != -1) {
-        Logger::log("[OverworldMP] Ignoring trade confirm from unexpected station %d\n", fromStation);
+        MP_LOG("[OverworldMP] Ignoring trade confirm from unexpected station %d\n", fromStation);
         return;
     }
 
@@ -2238,7 +2268,7 @@ void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed) {
 
     if (!confirmed) {
         // Partner cancelled — abort trade
-        Logger::log("[OverworldMP] Partner cancelled trade\n");
+        MP_LOG("[OverworldMP] Partner cancelled trade\n");
         overworldMPShowRemoteEmote(fromStation, EMOTE_ID_CROSS);
         // Close UIZukanRegister if showing partner pokemon preview
         if (s_zukanRegister != nullptr) {
@@ -2260,7 +2290,7 @@ void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed) {
 
     // If we're waiting for their confirmation, execute the swap
     if (s_interact.state == InteractState::TradeWaitFinal) {
-        Logger::log("[OverworldMP] Partner confirmed — executing swap\n");
+        MP_LOG("[OverworldMP] Partner confirmed — executing swap\n");
         overworldMPExecuteSwap();
     }
 }
@@ -2269,7 +2299,7 @@ void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed) {
 // Battle: start battle flow (called after handshake accept on both sides)
 // ---------------------------------------------------------------------------
 void overworldMPStartBattle(int32_t partnerStation, BattleSubtype subtype) {
-    Logger::log("[OverworldMP] Starting battle with station %d, subtype=%d, isRequester=%d\n",
+    MP_LOG("[OverworldMP] Starting battle with station %d, subtype=%d, isRequester=%d\n",
                 partnerStation, (int)subtype, (int)s_isRequester);
 
     // Don't call resetBattleState() — the partner's party (0xC6) may have
@@ -2283,7 +2313,7 @@ void overworldMPStartBattle(int32_t partnerStation, BattleSubtype subtype) {
     s_myBattlePartySent = true;
 
     s_interact.state = InteractState::BattleExchangeParty;
-    Logger::log("[OverworldMP] Battle party sent, waiting for partner's party (partnerReceived=%d)\n",
+    MP_LOG("[OverworldMP] Battle party sent, waiting for partner's party (partnerReceived=%d)\n",
                 (int)s_partnerBattlePartyReceived);
 }
 
@@ -2291,19 +2321,19 @@ void overworldMPStartBattle(int32_t partnerStation, BattleSubtype subtype) {
 // Battle: partner party data received (called from 0xC6 handler)
 // ---------------------------------------------------------------------------
 void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_t size) {
-    Logger::log("[OverworldMP] Battle party received from station %d, size=%d\n",
+    MP_LOG("[OverworldMP] Battle party received from station %d, size=%d\n",
                 fromStation, size);
 
     // Reject if not in a battle exchange state (e.g., after timeout reset)
     if (s_interact.state != InteractState::BattleExchangeParty &&
         s_interact.state != InteractState::BattleSyncWait) {
-        Logger::log("[OverworldMP] Ignoring battle party: not in exchange state (%d)\n",
+        MP_LOG("[OverworldMP] Ignoring battle party: not in exchange state (%d)\n",
                     (int)s_interact.state);
         return;
     }
 
     if (s_battlePartnerStation != fromStation && s_battlePartnerStation != -1) {
-        Logger::log("[OverworldMP] Ignoring battle party from unexpected station %d (expected %d)\n",
+        MP_LOG("[OverworldMP] Ignoring battle party from unexpected station %d (expected %d)\n",
                     fromStation, s_battlePartnerStation);
         return;
     }
@@ -2319,10 +2349,14 @@ void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_
     s_partnerBattlePartyBufSize = copySize;
     s_partnerBattlePartyReceived = true;
 
-    // Parse member count from first byte
+    // Parse member count from first byte. Clamp to [0,6]: this byte is untrusted
+    // peer data and is later used to compute the MYSTATUS offset (statusOffset =
+    // 1 + count*POKE_FULL_DATA_SIZE); an unclamped value would point the status
+    // read past the valid party data into stale/garbage buffer contents.
     if (size >= 1) {
         s_partnerBattleMemberCount = data[0];
-        Logger::log("[OverworldMP] Partner battle party: %d members\n", (int)s_partnerBattleMemberCount);
+        if (s_partnerBattleMemberCount > 6) s_partnerBattleMemberCount = 6;
+        MP_LOG("[OverworldMP] Partner battle party: %d members\n", (int)s_partnerBattleMemberCount);
     }
 
     // If we're already in the exchange state and have sent ours, the tick handler
@@ -2334,16 +2368,16 @@ void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_
 void overworldMPOnBattleReadyReceived(int32_t fromStation) {
     // Reject if not in a battle sync state
     if (s_interact.state != InteractState::BattleSyncWait) {
-        Logger::log("[OverworldMP] Ignoring BATTLE_READY: not in sync state (%d)\n",
+        MP_LOG("[OverworldMP] Ignoring BATTLE_READY: not in sync state (%d)\n",
                     (int)s_interact.state);
         return;
     }
     if (s_battlePartnerStation != fromStation && s_battlePartnerStation != -1) {
-        Logger::log("[OverworldMP] Ignoring BATTLE_READY from unexpected station %d (expected %d)\n",
+        MP_LOG("[OverworldMP] Ignoring BATTLE_READY from unexpected station %d (expected %d)\n",
                     fromStation, s_battlePartnerStation);
         return;
     }
-    Logger::log("[OverworldMP] Partner BATTLE_READY received (station %d)\n", fromStation);
+    MP_LOG("[OverworldMP] Partner BATTLE_READY received (station %d)\n", fromStation);
     s_partnerBattleReady = true;
 }
 
@@ -2361,7 +2395,7 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
     // Get local party to get the PokeParty class
     auto* localParty = PlayerWork::get_playerParty();
     if (localParty == nullptr) {
-        Logger::log("[OverworldMP] ERROR: no local party available\n");
+        MP_LOG("[OverworldMP] ERROR: no local party available\n");
         return nullptr;
     }
 
@@ -2372,13 +2406,13 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
     // the base game's CopyFrom works (slot-to-slot, no AddMember/GetMonsNo check).
     for (int i = 0; i < memberCount; i++) {
         if (offset + POKE_FULL_DATA_SIZE > size) {
-            Logger::log("[OverworldMP] ERROR: battle party data truncated at member %d\n", i);
+            MP_LOG("[OverworldMP] ERROR: battle party data truncated at member %d\n", i);
             break;
         }
 
         auto* slotPoke = party->GetMemberPointer(i);
         if (slotPoke == nullptr) {
-            Logger::log("[OverworldMP] ERROR: party slot %d is null\n", i);
+            MP_LOG("[OverworldMP] ERROR: party slot %d is null\n", i);
             offset += POKE_FULL_DATA_SIZE;
             continue;
         }
@@ -2399,45 +2433,32 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
     for (int i = 0; i < memberCount; i++) {
         auto* valPoke = party->GetMemberPointer(i);
         if (valPoke == nullptr) {
-            Logger::log("[OverworldMP] Validate[%d]: null pointer — stopping\n", i);
+            MP_LOG("[OverworldMP] Validate[%d]: null pointer — stopping\n", i);
             break;
         }
-        auto* coreParam = (Pml::PokePara::CoreParam*)valPoke;
-        int32_t monsNo = coreParam->GetMonsNo();
-        int32_t seikaku = coreParam->GetSeikaku();
-        uint32_t level = coreParam->GetLevel();
-        Logger::log("[OverworldMP] Validate[%d]: monsNo=%d seikaku=%d level=%u\n",
-                    i, monsNo, seikaku, level);
-
-        if (monsNo <= 0 || monsNo > 905) {
-            Logger::log("[OverworldMP] REJECT[%d]: invalid monsNo=%d — excluded from party\n", i, monsNo);
-            break;  // Stop at first invalid member (party must be contiguous)
-        }
-        if (seikaku < 0 || seikaku >= 25) {
-            Logger::log("[OverworldMP] REJECT[%d]: invalid seikaku=%d — excluded from party\n", i, seikaku);
-            break;
-        }
-        if (level == 0 || level > 100) {
-            Logger::log("[OverworldMP] REJECT[%d]: invalid level=%u — excluded from party\n", i, level);
+        // Shared validation (monsNo/seikaku/level range) — see mp_poke_validate.h.
+        // Stop at the first invalid member; the party must be contiguous.
+        if (!mpValidatePokemonParam((Pml::PokePara::CoreParam*)valPoke)) {
+            MP_LOG("[OverworldMP] REJECT[%d]: failed validation — excluded from party\n", i);
             break;
         }
         validCount++;
     }
 
     if (validCount == 0) {
-        Logger::log("[OverworldMP] ERROR: no valid Pokemon in deserialized party!\n");
+        MP_LOG("[OverworldMP] ERROR: no valid Pokemon in deserialized party!\n");
         return nullptr;
     }
 
     if (validCount < memberCount) {
-        Logger::log("[OverworldMP] WARNING: reduced party from %d to %d valid members\n",
+        MP_LOG("[OverworldMP] WARNING: reduced party from %d to %d valid members\n",
                     (int)memberCount, validCount);
     }
 
     // Set memberCount to only include validated members
     party->fields.m_memberCount = validCount;
 
-    Logger::log("[OverworldMP] Deserialized battle party: %d valid members (of %d received)\n",
+    MP_LOG("[OverworldMP] Deserialized battle party: %d valid members (of %d received)\n",
                 validCount, (int)memberCount);
     return party;
 }
@@ -2455,11 +2476,17 @@ static MYSTATUS_COMM::Object deserializeBattleStatus(uint8_t* buf, int32_t size,
     // Name: [nameLen:1][chars:nameLen*2]
     if (offset + 1 > size) return status;
     uint8_t nameLen = buf[offset++];
-    if (nameLen > 0 && nameLen <= 12 && offset + nameLen * 2 <= size) {
-        status.fields.name = System::String::fromUnicodeBytes(&buf[offset], nameLen * 2);
+    if (nameLen <= 12 && offset + nameLen * 2 <= size) {
+        status.fields.name = (nameLen > 0)
+            ? System::String::fromUnicodeBytes(&buf[offset], nameLen * 2)
+            : System::String::Create("Trainer");
         offset += nameLen * 2;
     } else {
+        // Corrupt nameLen (out of range / would overrun): the buffer layout past
+        // this point is unknown, so we can't locate the cosmetic fields. Return
+        // defaults instead of reinterpreting the name bytes as cosmetics.
         status.fields.name = System::String::Create("Trainer");
+        return status;
     }
 
     // Remaining fields
@@ -2478,12 +2505,12 @@ static MYSTATUS_COMM::Object deserializeBattleStatus(uint8_t* buf, int32_t size,
 // Battle: setup and start the battle scene
 // ---------------------------------------------------------------------------
 void overworldMPSetupAndStartBattle() {
-    Logger::log("[OverworldMP] Setting up battle scene...\n");
+    MP_LOG("[OverworldMP] Setting up battle scene...\n");
 
     // Deserialize partner party
     auto* partnerParty = deserializeBattleParty(s_partnerBattlePartyBuf, s_partnerBattlePartyBufSize);
     if (partnerParty == nullptr) {
-        Logger::log("[OverworldMP] ERROR: failed to deserialize partner battle party\n");
+        MP_LOG("[OverworldMP] ERROR: failed to deserialize partner battle party\n");
         resetBattleState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2498,13 +2525,13 @@ void overworldMPSetupAndStartBattle() {
             ((Pml::PokePara::CoreParam*)poke)->RecoverAll();
         }
     }
-    Logger::log("[OverworldMP] Partner party healed (%d members)\n",
+    MP_LOG("[OverworldMP] Partner party healed (%d members)\n",
                 (int)partnerParty->fields.m_memberCount);
 
     // Get local party
     auto* myParty = PlayerWork::get_playerParty();
     if (myParty == nullptr) {
-        Logger::log("[OverworldMP] ERROR: local party is null\n");
+        MP_LOG("[OverworldMP] ERROR: local party is null\n");
         resetBattleState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2524,7 +2551,7 @@ void overworldMPSetupAndStartBattle() {
         }
     }
     s_partySnapshotValid = true;
-    Logger::log("[OverworldMP] Saved party snapshot (%d members)\n", s_partySnapshotCount);
+    MP_LOG("[OverworldMP] Saved party snapshot (%d members)\n", s_partySnapshotCount);
 
     // Heal all local Pokemon for a fair PvP fight
     for (int i = 0; i < s_partySnapshotCount; i++) {
@@ -2533,7 +2560,7 @@ void overworldMPSetupAndStartBattle() {
             ((Pml::PokePara::CoreParam*)poke)->RecoverAll();
         }
     }
-    Logger::log("[OverworldMP] Local party healed for battle\n");
+    MP_LOG("[OverworldMP] Local party healed for battle\n");
 
     // Setup MYSTATUS_COMM for local player
     MYSTATUS_COMM::Object myStatus = {};
@@ -2547,7 +2574,7 @@ void overworldMPSetupAndStartBattle() {
     // Get battle setup param
     auto* bsp = PlayerWork::get_battleSetupParam();
     if (bsp == nullptr) {
-        Logger::log("[OverworldMP] ERROR: battleSetupParam is null\n");
+        MP_LOG("[OverworldMP] ERROR: battleSetupParam is null\n");
         resetBattleState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2564,9 +2591,9 @@ void overworldMPSetupAndStartBattle() {
     int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
     int32_t partnerStation = s_battlePartnerStation;
 
-    Logger::log("[OverworldMP] Battle setup: commPos=%d commRule=%d myStation=%d partnerStation=%d\n",
+    MP_LOG("[OverworldMP] Battle setup: commPos=%d commRule=%d myStation=%d partnerStation=%d\n",
                 (int)commPos, commRule, myStation, partnerStation);
-    Logger::log("[OverworldMP] My party: %d members, Partner party: %d members\n",
+    MP_LOG("[OverworldMP] My party: %d members, Partner party: %d members\n",
                 (int)myParty->fields.m_memberCount, (int)partnerParty->fields.m_memberCount);
 
     // Create a Regulation.Data on the stack for no-restriction casual battle
@@ -2585,7 +2612,7 @@ void overworldMPSetupAndStartBattle() {
     auto* myConfig = PlayerWork::get_config();
     if (myConfig != nullptr) {
         s_pvpSavedWazaeffMode = myConfig->fields.wazaeff_mode;
-        Logger::log("[OverworldMP] Saved wazaeff_mode=%d before PvP\n", s_pvpSavedWazaeffMode);
+        MP_LOG("[OverworldMP] Saved wazaeff_mode=%d before PvP\n", s_pvpSavedWazaeffMode);
     }
 
     // Enable MP battle color flag BEFORE SetupBattleComm so that
@@ -2594,7 +2621,7 @@ void overworldMPSetupAndStartBattle() {
     {
         extern bool g_owmpBattleColorActive;
         g_owmpBattleColorActive = true;
-        Logger::log("[OverworldMP] g_owmpBattleColorActive = true (pre-setup)\n");
+        MP_LOG("[OverworldMP] g_owmpBattleColorActive = true (pre-setup)\n");
     }
 
     // Call SetupBattleComm — player at commPos 0 goes first in arg list
@@ -2617,7 +2644,7 @@ void overworldMPSetupAndStartBattle() {
             nullptr, nullptr, 0, 0);
     }
 
-    Logger::log("[OverworldMP] SetupBattleComm called — starting battle scene\n");
+    MP_LOG("[OverworldMP] SetupBattleComm called — starting battle scene\n");
 
     // --- Override per-slot trainer colors for MP ---
     // Three data stores must be patched so that every code path in the
@@ -2718,7 +2745,7 @@ void overworldMPSetupAndStartBattle() {
             }
         }
 
-        Logger::log("[OverworldMP] Set trainer colors — local slot%d=%d, opponent slot%d=%d (custom=%d)\n",
+        MP_LOG("[OverworldMP] Set trainer colors — local slot%d=%d, opponent slot%d=%d (custom=%d)\n",
                     localSlot, localColor, opponentSlot, remoteColor, (int)remote.hasCustomColors);
     }
 
@@ -2741,7 +2768,7 @@ void overworldMPSetupAndStartBattle() {
                     if (bgComp != nullptr) {
                         // BgComponentData::SetUpBgComponentData @ 0x188A6C0
                         _ILExternal::external<void>(0x188A6C0, bgComp, arenaID);
-                        Logger::log("[OverworldMP] Arena override: zone %d -> arenaID %d\n",
+                        MP_LOG("[OverworldMP] Arena override: zone %d -> arenaID %d\n",
                                     zoneID, arenaID);
                     }
                 }
@@ -2776,11 +2803,11 @@ void overworldMPSetupAndStartBattle() {
         if (btlEff != nullptr) {
             // SetUpBattleEffectComponentData @ 0x0187B7E0
             _ILExternal::external<void>(0x0187B7E0, btlEff, effectPool[pick], -1, 0, 0);
-            Logger::log("[OverworldMP] Battle effect override: effectIdx=%d (pick %d/%d)\n",
+            MP_LOG("[OverworldMP] Battle effect override: effectIdx=%d (pick %d/%d)\n",
                         effectPool[pick], pick, POOL_SIZE);
         }
     } else {
-        Logger::log("[OverworldMP] Double battle — keeping COMM_DOUBLE effect\n");
+        MP_LOG("[OverworldMP] Double battle — keeping COMM_DOUBLE effect\n");
     }
 
     // Log PIA session state — type-2 transports need Gaming state (4 or 5)
@@ -2788,7 +2815,7 @@ void overworldMPSetupAndStartBattle() {
         int32_t sessState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
         bool isConnect = Dpr::NetworkUtils::NetworkManager::get_IsConnect();
         int32_t myStationCheck = _ILExternal::external<int32_t>(0x23BC000); // ThisStationIndex
-        Logger::log("[OverworldMP] Session state=%d isConnect=%d thisStation=%d\n",
+        MP_LOG("[OverworldMP] Session state=%d isConnect=%d thisStation=%d\n",
                     sessState, (int)isConnect, myStationCheck);
     }
 
@@ -2805,16 +2832,16 @@ void overworldMPSetupAndStartBattle() {
                 void* t0 = *(void**)((uintptr_t)sf + 0x28);
                 void* t1arr = *(void**)((uintptr_t)sf + 0x30);
                 void* t2arr = *(void**)((uintptr_t)sf + 0x38);
-                Logger::log("[OverworldMP] Transport check: t0=%p t1arr=%p t2arr=%p\n", t0, t1arr, t2arr);
+                MP_LOG("[OverworldMP] Transport check: t0=%p t1arr=%p t2arr=%p\n", t0, t1arr, t2arr);
                 if (t2arr != nullptr) {
                     uint32_t t2len = *(uint32_t*)((uintptr_t)t2arr + 0x18);
-                    Logger::log("[OverworldMP] Type-2 array len=%d\n", (int)t2len);
+                    MP_LOG("[OverworldMP] Type-2 array len=%d\n", (int)t2len);
                     for (int i = 0; i < 4 && i < (int)t2len; i++) {
                         void* entry = *(void**)((uintptr_t)t2arr + 0x20 + i * 8);
-                        Logger::log("[OverworldMP] Type-2 transport[%d]=%p\n", i, entry);
+                        MP_LOG("[OverworldMP] Type-2 transport[%d]=%p\n", i, entry);
                     }
                 } else {
-                    Logger::log("[OverworldMP] WARNING: type-2 transport array is NULL!\n");
+                    MP_LOG("[OverworldMP] WARNING: type-2 transport array is NULL!\n");
                 }
             }
         }
@@ -2832,12 +2859,7 @@ void overworldMPSetupAndStartBattle() {
 
     // Clear emote balloons before the battle transition starts — prevents
     // the accept emote (heart) from rendering on top of the transition.
-    for (int i = 0; i < MAX_ACTIVE_BALLOONS; i++) {
-        if (s_activeBalloons[i].balloon != nullptr) {
-            FieldCanvas::DeleteBalloon(s_activeBalloons[i].balloon, true);
-            s_activeBalloons[i].balloon = nullptr;
-        }
-    }
+    overworldMPClearAllBalloons(true);
 
     // g_owmpBattleColorActive was already set before SetupBattleComm above
 
@@ -2871,7 +2893,7 @@ void overworldMPSetupAndStartBattle() {
                 // AudioManager::PostEvent(this, eventId, callbackFlags, isThroughSameEvent) @ 0x021EB100
                 _ILExternal::external<uint32_t>(0x021EB100, amInstance,
                     (uint32_t)0x35f93cfe, (uint32_t)0x100009, (bool)false);
-                Logger::log("[OverworldMP] Stopped field BGM\n");
+                MP_LOG("[OverworldMP] Stopped field BGM\n");
 
                 // Get battle BGM event name from BattleEffectComponentData
                 void* btlEff = bsp->instance()->fields.btlEffComponent;
@@ -2885,9 +2907,9 @@ void overworldMPSetupAndStartBattle() {
                         // Play battle BGM
                         _ILExternal::external<uint32_t>(0x021EB100, amInstance,
                             bgmId, (uint32_t)0x100009, (bool)false);
-                        Logger::log("[OverworldMP] Started battle BGM (id=0x%08x)\n", bgmId);
+                        MP_LOG("[OverworldMP] Started battle BGM (id=0x%08x)\n", bgmId);
                     } else {
-                        Logger::log("[OverworldMP] No battleBgm string in effect data\n");
+                        MP_LOG("[OverworldMP] No battleBgm string in effect data\n");
                     }
                 }
             }
@@ -2903,9 +2925,9 @@ void overworldMPSetupAndStartBattle() {
         //    PlayerWork::set_isEncount(true) @ 0x2CEF7C0
         _ILExternal::external<void>(0x2CEF7C0, true);
 
-        Logger::log("[OverworldMP] Battle transition: fade-to-black (bypassed encounter effect)\n");
+        MP_LOG("[OverworldMP] Battle transition: fade-to-black (bypassed encounter effect)\n");
     } else {
-        Logger::log("[OverworldMP] ERROR: FieldManager instance is null\n");
+        MP_LOG("[OverworldMP] ERROR: FieldManager instance is null\n");
     }
 
     // Record which station is our battle partner BEFORE resetBattleState
@@ -2924,7 +2946,7 @@ void overworldMPSetupAndStartBattle() {
 // ---------------------------------------------------------------------------
 
 void overworldMPOnRequestAccepted(int32_t partnerStation) {
-    Logger::log("[OverworldMP] Request accepted with station %d (type=%d)\n",
+    MP_LOG("[OverworldMP] Request accepted with station %d (type=%d)\n",
                 partnerStation, (int)s_pendingRequestType);
 
     // Show accept emote balloon above the partner's entity
@@ -2946,7 +2968,7 @@ void overworldMPOnRequestAccepted(int32_t partnerStation) {
 }
 
 void overworldMPOnRequestDeclined(int32_t partnerStation) {
-    Logger::log("[OverworldMP] Request declined/timed out (partner station %d)\n", partnerStation);
+    MP_LOG("[OverworldMP] Request declined/timed out (partner station %d)\n", partnerStation);
 
     // Show decline emote balloon above the partner's entity
     overworldMPShowRemoteEmote(partnerStation, EMOTE_ID_CROSS);
@@ -2966,7 +2988,7 @@ void overworldMPRestorePartyAfterBattle() {
 
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) {
-        Logger::log("[OverworldMP] WARNING: cannot restore party — playerParty is null\n");
+        MP_LOG("[OverworldMP] WARNING: cannot restore party — playerParty is null\n");
         s_partySnapshotValid = false;
         return;
     }
@@ -2982,7 +3004,7 @@ void overworldMPRestorePartyAfterBattle() {
         }
     }
 
-    Logger::log("[OverworldMP] Restored party to pre-battle state (%d members)\n", s_partySnapshotCount);
+    MP_LOG("[OverworldMP] Restored party to pre-battle state (%d members)\n", s_partySnapshotCount);
     s_partySnapshotValid = false;
     s_partySnapshotCount = 0;
 }
@@ -3034,7 +3056,7 @@ void overworldMPCheckInteraction() {
                 _ILExternal::external<void>(0x021EB840, amInstance,
                     (uint32_t)0x642ccdc3, (uint32_t)0, (uint32_t)0);
             }
-            Logger::log("[OverworldMP] Battle ended — stopped battle BGM, restored field BGM\n");
+            MP_LOG("[OverworldMP] Battle ended — stopped battle BGM, restored field BGM\n");
 
             // Clear team-up battle state (CreateLocalClient hook flag, etc.)
             overworldMPClearTeamUpBattleState();
@@ -3063,7 +3085,7 @@ void overworldMPCheckInteraction() {
             if (s_pvpSavedWazaeffMode >= 0) {
                 auto* localConfig = PlayerWork::get_config();
                 if (localConfig != nullptr) {
-                    Logger::log("[OverworldMP] Restoring wazaeff_mode: %d -> %d\n",
+                    MP_LOG("[OverworldMP] Restoring wazaeff_mode: %d -> %d\n",
                                 localConfig->fields.wazaeff_mode, s_pvpSavedWazaeffMode);
                     localConfig->fields.wazaeff_mode = s_pvpSavedWazaeffMode;
                 }
@@ -3084,7 +3106,7 @@ void overworldMPCheckInteraction() {
                 s_postBattleRestoreTimer = 0.0f;
                 extern void applyDeferredPartyRestore();
                 applyDeferredPartyRestore();
-                Logger::log("[TeamUp] Second-pass party restore applied\n");
+                MP_LOG("[TeamUp] Second-pass party restore applied\n");
             }
         }
     }
@@ -3105,7 +3127,7 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::IncomingRequestPending) {
         s_interact.incomingRequestDelay -= dt;
         if (s_interact.incomingRequestDelay <= 0.0f) {
-            Logger::log("[OverworldMP] Incoming request delay elapsed — showing dialog\n");
+            MP_LOG("[OverworldMP] Incoming request delay elapsed — showing dialog\n");
             showIncomingRequestDialog();
         }
         return;
@@ -3116,14 +3138,14 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::TradePreview) {
         s_interact.incomingRequestDelay -= dt;
         if (s_interact.incomingRequestDelay <= 0.0f) {
-            Logger::log("[OverworldMP] UIZukanRegister open delay elapsed — showing MsgWindow + Yes/No\n");
+            MP_LOG("[OverworldMP] UIZukanRegister open delay elapsed — showing MsgWindow + Yes/No\n");
             showInteractMsgWindow(s_tradeConfirmMsgBuf);
             s_interactMsgShown = true;
-            Logger::log("[OverworldMP] Trade confirm MsgWindow: %s\n", s_tradeConfirmMsgBuf);
+            MP_LOG("[OverworldMP] Trade confirm MsgWindow: %s\n", s_tradeConfirmMsgBuf);
 
             const char* labels[] = { "SS_mp_Yes", "SS_mp_No" };
             if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 2, 1, &onTradeConfirmClicked, &s_tradeConfirmMethodInfo)) {
-                Logger::log("[OverworldMP] ERROR: Failed to open trade confirm Yes/No menu\n");
+                MP_LOG("[OverworldMP] ERROR: Failed to open trade confirm Yes/No menu\n");
                 hideInteractMsgWindow();
                 overworldMPSendTradeConfirm(s_tradePartnerStation, false);
                 resetTradeState();
@@ -3165,7 +3187,7 @@ void overworldMPCheckInteraction() {
         s_warningPrevAB = abHeld;
         if (abPressed) {
             s_warningPrevAB = false;
-            Logger::log("[OverworldMP] Trade warning dismissed\n");
+            MP_LOG("[OverworldMP] Trade warning dismissed\n");
             hideInteractMsgWindow();
             s_interact.Reset();
             closeInteractionMenu();
@@ -3179,16 +3201,16 @@ void overworldMPCheckInteraction() {
             s_interact.tradeStartDelay -= dt;
             if (s_interact.tradeStartDelay <= 0.0f) {
                 if (s_pendingRequestType == InteractionType::TeamUp) {
-                    Logger::log("[OverworldMP] Accept delay elapsed — completing team-up handshake\n");
+                    MP_LOG("[OverworldMP] Accept delay elapsed — completing team-up handshake\n");
                     overworldMPTeamUp(s_interact.targetStationIndex);
                     s_interact.Reset();
                     closeInteractionMenu();
                 } else if (s_pendingRequestType == InteractionType::Battle) {
-                    Logger::log("[OverworldMP] Accept delay elapsed — launching battle (subtype=%d)\n",
+                    MP_LOG("[OverworldMP] Accept delay elapsed — launching battle (subtype=%d)\n",
                                 (int)s_pendingBattleSubtype);
                     overworldMPStartBattle(s_interact.targetStationIndex, s_pendingBattleSubtype);
                 } else {
-                    Logger::log("[OverworldMP] Accept delay elapsed — launching trade\n");
+                    MP_LOG("[OverworldMP] Accept delay elapsed — launching trade\n");
                     overworldMPStartTrade(s_interact.targetStationIndex);
                 }
             }
@@ -3200,10 +3222,10 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::TradeLoadingBox) {
         s_interact.timeoutTimer -= dt;
         if (isBoxWindowInObjectPool()) {
-            Logger::log("[OverworldMP] BoxWindow preload complete — opening\n");
+            MP_LOG("[OverworldMP] BoxWindow preload complete — opening\n");
             openTradeBoxWindow(s_tradePartnerStation);
         } else if (s_interact.timeoutTimer <= 0.0f) {
-            Logger::log("[OverworldMP] BoxWindow preload timed out\n");
+            MP_LOG("[OverworldMP] BoxWindow preload timed out\n");
             s_boxWindowPreloading = false;
             resetTradeState();
             s_interact.Reset();
@@ -3216,10 +3238,10 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::TradeWaitPartner) {
         s_tradeWaitTimeout -= dt;
         if (s_partnerPokeReceived) {
-            Logger::log("[OverworldMP] Partner pokemon received — showing preview\n");
+            MP_LOG("[OverworldMP] Partner pokemon received — showing preview\n");
             showTradePreview();
         } else if (s_tradeWaitTimeout <= 0.0f) {
-            Logger::log("[OverworldMP] Trade wait timed out — partner never sent pokemon\n");
+            MP_LOG("[OverworldMP] Trade wait timed out — partner never sent pokemon\n");
             overworldMPSendTradeConfirm(s_tradePartnerStation, false);
             resetTradeState();
             s_interact.Reset();
@@ -3233,17 +3255,17 @@ void overworldMPCheckInteraction() {
         s_tradeWaitTimeout -= dt;
         if (s_partnerConfirmReceived) {
             if (s_partnerConfirmValue) {
-                Logger::log("[OverworldMP] Partner confirmed trade — executing swap\n");
+                MP_LOG("[OverworldMP] Partner confirmed trade — executing swap\n");
                 overworldMPExecuteSwap();
             } else {
-                Logger::log("[OverworldMP] Partner declined trade\n");
+                MP_LOG("[OverworldMP] Partner declined trade\n");
                 overworldMPShowRemoteEmote(s_tradePartnerStation, EMOTE_ID_CROSS);
                 resetTradeState();
                 s_interact.Reset();
                 closeInteractionMenu();
             }
         } else if (s_tradeWaitTimeout <= 0.0f) {
-            Logger::log("[OverworldMP] Trade confirm timed out — partner never confirmed\n");
+            MP_LOG("[OverworldMP] Trade confirm timed out — partner never confirmed\n");
             resetTradeState();
             s_interact.Reset();
             closeInteractionMenu();
@@ -3277,7 +3299,7 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::BattleExchangeParty) {
         s_battleExchangeTimeout -= dt;
         if (s_battleExchangeTimeout <= 0.0f) {
-            Logger::log("[OverworldMP] Battle party exchange timed out\n");
+            MP_LOG("[OverworldMP] Battle party exchange timed out\n");
             resetBattleState();
             s_interact.Reset();
             closeInteractionMenu();
@@ -3285,7 +3307,7 @@ void overworldMPCheckInteraction() {
         }
         // Both sides sent and received → send BATTLE_READY and wait for partner
         if (s_myBattlePartySent && s_partnerBattlePartyReceived) {
-            Logger::log("[OverworldMP] Both battle parties exchanged — sending BATTLE_READY\n");
+            MP_LOG("[OverworldMP] Both battle parties exchanged — sending BATTLE_READY\n");
             // Send BATTLE_READY packet to partner
             overworldMPSendBattleReady(s_battlePartnerStation);
             s_myBattleReadySent = true;
@@ -3299,7 +3321,7 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::BattleSyncWait) {
         s_battleSyncTimeout -= dt;
         if (s_battleSyncTimeout <= 0.0f) {
-            Logger::log("[OverworldMP] Battle sync timed out — partner never sent READY\n");
+            MP_LOG("[OverworldMP] Battle sync timed out — partner never sent READY\n");
             resetBattleState();
             s_interact.Reset();
             closeInteractionMenu();
@@ -3307,7 +3329,7 @@ void overworldMPCheckInteraction() {
         }
         // If partner already sent BATTLE_READY (maybe received during party exchange)
         if (s_partnerBattleReady) {
-            Logger::log("[OverworldMP] Both sides READY — entering battle scene\n");
+            MP_LOG("[OverworldMP] Both sides READY — entering battle scene\n");
             s_interact.state = InteractState::BattleStarting;
             // Falls through to BattleStarting on next tick
         }
@@ -3327,7 +3349,7 @@ void overworldMPCheckInteraction() {
     if (s_interact.state == InteractState::WaitingResponse) {
         s_interact.timeoutTimer -= dt;
         if (s_interact.timeoutTimer <= 0.0f) {
-            Logger::log("[OverworldMP] Interaction timed out\n");
+            MP_LOG("[OverworldMP] Interaction timed out\n");
             s_interact.Reset();
             closeInteractionMenu();
         }
@@ -3403,7 +3425,7 @@ void overworldMPOnInteractionPartnerLeft(int32_t stationIndex) {
 
     if (!isPartner || s_interact.state == InteractState::Idle) return;
 
-    Logger::log("[OverworldMP] Interaction partner station %d disconnected (state=%d) — aborting\n",
+    MP_LOG("[OverworldMP] Interaction partner station %d disconnected (state=%d) — aborting\n",
                 stationIndex, (int)s_interact.state);
 
     // Don't call SetTradeInfo/ToNextPhase — BoxWindow in selection mode, trade panel uninit

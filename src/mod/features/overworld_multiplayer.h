@@ -263,6 +263,11 @@ void overworldMPCheckInteraction();
 // Tick emote balloon timers and delete expired balloons (called from overworldMPUpdate)
 void overworldMPTickBalloons(float deltaTime);
 
+// Clear all tracked emote balloons. deleteFromCanvas=true releases them through the
+// FieldCanvas (use while it's alive, e.g. battle transition); false only drops the
+// tracking pointers (use on zone change, when the canvas/balloons are already gone).
+void overworldMPClearAllBalloons(bool deleteFromCanvas);
+
 // Start trade flow after handshake accept (called from overworldMPOnRequestAccepted)
 void overworldMPStartTrade(int32_t partnerStation);
 

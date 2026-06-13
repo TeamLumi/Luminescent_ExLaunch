@@ -1,4 +1,5 @@
 #include "exlaunch.hpp"
+#include "features/mp_log.h"
 #include "logger/logger.h"
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
@@ -21,7 +22,9 @@ using namespace Dpr::Battle::Logic;
 // Declaration in team_up.h — called from team_up.cpp as well
 void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     auto* fields = &bsp->instance()->fields;
-    if (fields->party == nullptr || (uint32_t)slot3 >= fields->party->max_length) return;
+    if (fields->party == nullptr ||
+        (uint32_t)slot1 >= fields->party->max_length ||
+        (uint32_t)slot3 >= fields->party->max_length) return;
 
     auto* party1 = fields->party->m_Items[slot1];
     if (party1 == nullptr) return;
@@ -31,7 +34,7 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
         // Create a new PokeParty for slot 3 (no normalTrainer was called for this slot)
         party3 = Pml::PokeParty::newInstance();
         fields->party->m_Items[slot3] = party3;
-        Logger::log("[TeamUp] Created new party for slot %d\n", slot3);
+        MP_LOG("[TeamUp] Created new party for slot %d\n", slot3);
     }
 
     int32_t total = party1->fields.m_memberCount;
@@ -39,7 +42,7 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     if (total <= 0) {
         // Empty party (e.g. a network-supplied trainer count of 0): nothing to
         // split. Don't force a phantom member — a 0/0 PP_AA split crashes battle init.
-        Logger::log("[TeamUp] splitTrainerParty: empty party, nothing to split\n");
+        MP_LOG("[TeamUp] splitTrainerParty: empty party, nothing to split\n");
         return;
     }
 
@@ -52,7 +55,7 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
             dst->ctor(src);
         }
         party3->fields.m_memberCount = 1;
-        Logger::log("[TeamUp] Trainer has 1 Pokemon — duplicated to both AI slots\n");
+        MP_LOG("[TeamUp] Trainer has 1 Pokemon — duplicated to both AI slots\n");
         return;
     }
 
@@ -70,7 +73,7 @@ void splitTrainerParty(BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3) {
     party1->fields.m_memberCount = half;
     party3->fields.m_memberCount = total - half;
 
-    Logger::log("[TeamUp] Split trainer party: slot %d=%d, slot %d=%d (total %d)\n",
+    MP_LOG("[TeamUp] Split trainer party: slot %d=%d, slot %d=%d (total %d)\n",
                 slot1, half, slot3, total - half, total);
 }
 
@@ -99,7 +102,7 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
             // Guard: if a team-up sync/battle is already in flight, don't double-trigger.
             if (tu.battlePending || tu.syncPhase != SyncPhase::SYNC_NONE) {
                 doTeamUp = false;
-                Logger::log("[TeamUp] Skipping: sync/battle already in flight (phase=%d, pending=%d)\n",
+                MP_LOG("[TeamUp] Skipping: sync/battle already in flight (phase=%d, pending=%d)\n",
                             (int)tu.syncPhase, (int)tu.battlePending);
             }
         }
@@ -110,7 +113,7 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
         if (doTeamUp) {
             // Do NOT force DOUBLE yet — keep original rule so solo fallback works.
             // DOUBLE + PP_AA modifications happen in SYNC_MATCHED phase.
-            Logger::log("[TeamUp] SetupBattleTrainer: team-up sync-wait (enemy=%d, rule=%d)\n",
+            MP_LOG("[TeamUp] SetupBattleTrainer: team-up sync-wait (enemy=%d, rule=%d)\n",
                         enemyID0, rule);
 
             // Save full party BEFORE Orig — non-participating Pokemon (slots 3+) will
@@ -148,19 +151,19 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
         if (fields->tr_data != nullptr) {
             uint8_t* trArr = (uint8_t*)fields->tr_data;
             uint32_t trLen = *(uint32_t*)(trArr + 0x18);
-            Logger::log("[TeamUp] tr_data len=%d\n", trLen);
+            MP_LOG("[TeamUp] tr_data len=%d\n", trLen);
             for (uint32_t i = 0; i < trLen; i++) {
                 void* td = *(void**)(trArr + 0x20 + i * 8);
                 if (td != nullptr) {
                     int32_t eff = _ILExternal::external<int32_t>(0x1AC45B0, td);
-                    Logger::log("[TeamUp] tr_data[%d] effect=%d\n", i, eff);
+                    MP_LOG("[TeamUp] tr_data[%d] effect=%d\n", i, eff);
                     if (tu.battleEffectID < 0) {
                         tu.battleEffectID = eff;
                     }
                 }
             }
             if (tu.battleEffectID >= 0) {
-                Logger::log("[TeamUp] Captured BattleEffectID=%d from trainer %d\n",
+                MP_LOG("[TeamUp] Captured BattleEffectID=%d from trainer %d\n",
                             tu.battleEffectID, enemyID0);
             }
         }
@@ -169,7 +172,7 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
         // DeferEncountStart will pause the event script until sync resolves.
         overworldMPEnterSyncWait();
 
-        Logger::log("[TeamUp] SetupBattleTrainer: enemy0=%d enemy1=%d effectID=%d, entering sync-wait\n",
+        MP_LOG("[TeamUp] SetupBattleTrainer: enemy0=%d enemy1=%d effectID=%d, entering sync-wait\n",
                     enemyID0, enemyID1, tu.battleEffectID);
     }
 };

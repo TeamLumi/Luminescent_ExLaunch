@@ -1,4 +1,6 @@
 #include "exlaunch.hpp"
+#include "features/mp_log.h"
+#include "features/mp_poke_validate.h"
 
 #include "features/team_up.h"
 #include "features/overworld_multiplayer.h"
@@ -77,7 +79,7 @@ HOOK_DEFINE_TRAMPOLINE(AreaNameWindowSetNameText) {
                 if (customStr != nullptr) {
                     // TMP_Text::set_text @ 0x01e94520
                     _ILExternal::external<void>(0x01e94520, nameText, customStr);
-                    Logger::log("[TeamUp] SetNameText hook: set custom text '%s'\n",
+                    MP_LOG("[TeamUp] SetNameText hook: set custom text '%s'\n",
                                 s_customAreaTextBuf);
                 }
             }
@@ -91,7 +93,7 @@ HOOK_DEFINE_TRAMPOLINE(AreaNameWindowSetNameText) {
 // Show custom text in the area name window (safe: bypasses label lookup)
 static void showCustomAreaNameText(const char* text) {
     if (!isFieldCanvasReady()) {
-        Logger::log("[TeamUp] showCustomAreaNameText: FieldCanvas not ready\n");
+        MP_LOG("[TeamUp] showCustomAreaNameText: FieldCanvas not ready\n");
         return;
     }
 
@@ -198,13 +200,13 @@ static void setupTeamUpBattleEffect(void* btlEffComponent, int32_t trainerEffect
         _ILExternal::external<void>(0x0187B560, btlEffComponent, savedBgm);
         _ILExternal::external<void>(0x0187B5C0, btlEffComponent, savedWinBgm);
 
-        Logger::log("[TeamUp] Battle effect: TR_MULTI animation + trainer effect %d BGM\n",
+        MP_LOG("[TeamUp] Battle effect: TR_MULTI animation + trainer effect %d BGM\n",
                     trainerEffectID);
     } else {
         // No trainer effect available or already TR_MULTI — just use TR_MULTI
         _ILExternal::external<void>(0x0187B7E0, btlEffComponent,
             TR_MULTI, (int32_t)-1, (int32_t)0, (uint64_t)0);
-        Logger::log("[TeamUp] Battle effect: TR_MULTI (default BGM)\n");
+        MP_LOG("[TeamUp] Battle effect: TR_MULTI (default BGM)\n");
     }
 }
 
@@ -290,13 +292,13 @@ void overworldMPSaveFullParty() {
         if (poke == nullptr || poke->fields.m_accessor == nullptr) {
             // Truncate — never record more slots than successfully serialized
             s_savedFullPartyCount = i;
-            Logger::log("[TeamUp] WARNING: truncated save at slot %d (null accessor)\n", i);
+            MP_LOG("[TeamUp] WARNING: truncated save at slot %d (null accessor)\n", i);
             break;
         }
         _ILExternal::external<void>(0x24A4470, poke->fields.m_accessor,
             &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
     }
-    Logger::log("[TeamUp] Saved full party: %d members\n", s_savedFullPartyCount);
+    MP_LOG("[TeamUp] Saved full party: %d members\n", s_savedFullPartyCount);
 }
 
 static void restoreNonParticipatingPokemon() {
@@ -318,13 +320,13 @@ static void restoreNonParticipatingPokemon() {
                 &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
             restored++;
         } else {
-            Logger::log("[TeamUp] WARNING: slot %d poke=%p accessor=%p — cannot restore!\n",
+            MP_LOG("[TeamUp] WARNING: slot %d poke=%p accessor=%p — cannot restore!\n",
                         i, poke, poke ? poke->fields.m_accessor : nullptr);
         }
     }
     // Set final count = participating slots + successfully restored slots
     party->fields.m_memberCount = TEAMUP_PARTY_LIMIT + restored;
-    Logger::log("[TeamUp] Restored %d/%d non-participating Pokemon (slots %d-%d, prevCount=%d)\n",
+    MP_LOG("[TeamUp] Restored %d/%d non-participating Pokemon (slots %d-%d, prevCount=%d)\n",
                 restored, s_savedFullPartyCount - TEAMUP_PARTY_LIMIT,
                 TEAMUP_PARTY_LIMIT, s_savedFullPartyCount - 1, prevCount);
 }
@@ -347,11 +349,11 @@ static void restoreFullParty() {
                 &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
             restored++;
         } else {
-            Logger::log("[TeamUp] WARNING: full restore slot %d poke=%p accessor=%p\n",
+            MP_LOG("[TeamUp] WARNING: full restore slot %d poke=%p accessor=%p\n",
                         i, poke, poke ? poke->fields.m_accessor : nullptr);
         }
     }
-    Logger::log("[TeamUp] Full party restore: %d/%d Pokemon rolled back to pre-battle state\n",
+    MP_LOG("[TeamUp] Full party restore: %d/%d Pokemon rolled back to pre-battle state\n",
                 restored, s_savedFullPartyCount);
 }
 
@@ -382,7 +384,7 @@ static void saveBattleModifiedParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Obje
             s_battleModPartyCount++;
         }
     }
-    Logger::log("[TeamUp] Saved %d battle-modified Pokemon from BSP slot 0\n",
+    MP_LOG("[TeamUp] Saved %d battle-modified Pokemon from BSP slot 0\n",
                 s_battleModPartyCount);
 }
 
@@ -414,7 +416,7 @@ void applyDeferredPartyRestore() {
                 written++;
             }
         }
-        Logger::log("[TeamUp] Applied %d battle-modified Pokemon to PlayerWork\n", written);
+        MP_LOG("[TeamUp] Applied %d battle-modified Pokemon to PlayerWork\n", written);
     }
     restoreNonParticipatingPokemon();
 }
@@ -426,7 +428,7 @@ void overworldMPTeamUp(int32_t partnerStation) {
     s_teamUpState.Clear();
     s_teamUpState.isTeamedUp = true;
     s_teamUpState.partnerStation = partnerStation;
-    Logger::log("[TeamUp] Teamed up with station %d\n", partnerStation);
+    MP_LOG("[TeamUp] Teamed up with station %d\n", partnerStation);
 }
 
 // ---------------------------------------------------------------------------
@@ -443,7 +445,7 @@ static void sendTeamUpDisband(int32_t targetStation) {
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[TeamUp] Sent DISBAND to station %d\n", targetStation);
+    MP_LOG("[TeamUp] Sent DISBAND to station %d\n", targetStation);
 }
 
 void overworldMPTeamUpDisband() {
@@ -453,7 +455,7 @@ void overworldMPTeamUpDisband() {
     sendTeamUpDisband(partner);
     s_teamUpState.Clear();
     // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
-    Logger::log("[TeamUp] Disbanded (was teamed with station %d)\n", partner);
+    MP_LOG("[TeamUp] Disbanded (was teamed with station %d)\n", partner);
 }
 
 void overworldMPOnTeamUpDisbandReceived(int32_t fromStation) {
@@ -462,7 +464,7 @@ void overworldMPOnTeamUpDisbandReceived(int32_t fromStation) {
 
     s_teamUpState.Clear();
     // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
-    Logger::log("[TeamUp] Partner station %d disbanded\n", fromStation);
+    MP_LOG("[TeamUp] Partner station %d disbanded\n", fromStation);
 }
 
 // ---------------------------------------------------------------------------
@@ -490,7 +492,7 @@ static void sendSyncWait(int32_t targetStation) {
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, tu.syncZoneID);  // zoneID
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[TeamUp] Sent SYNC_WAIT: trainer=%d/%d arena=%d zone=%d randomMode=%d\n",
+    MP_LOG("[TeamUp] Sent SYNC_WAIT: trainer=%d/%d arena=%d zone=%d randomMode=%d\n",
                 tu.syncTrainerID, tu.syncTrainerID2, tu.syncArenaID,
                 tu.syncZoneID, tu.syncRandomTeamMode);
 }
@@ -508,7 +510,7 @@ static void sendSyncCancel(int32_t targetStation, uint8_t reason) {
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, reason);
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[TeamUp] Sent SYNC_CANCEL: reason=%d\n", (int)reason);
+    MP_LOG("[TeamUp] Sent SYNC_CANCEL: reason=%d\n", (int)reason);
 }
 
 static void showSyncWaitMessage(); // forward decl (called from tick, defined below DeferEncountStart)
@@ -545,7 +547,7 @@ void overworldMPEnterSyncWait() {
     tu.partnerSyncReceived = idsMatch;
 
     if (idsMatch) {
-        Logger::log("[TeamUp] Partner already waiting — instant match (exact ID)\n");
+        MP_LOG("[TeamUp] Partner already waiting — instant match (exact ID)\n");
     }
 
     // Send SYNC_WAIT to partner
@@ -559,7 +561,7 @@ void overworldMPEnterSyncWait() {
         s_syncMessageShown = false;
     }
 
-    Logger::log("[TeamUp] Entering SYNC_WAITING: trainer=%d/%d zone=%d randomMode=%d\n",
+    MP_LOG("[TeamUp] Entering SYNC_WAITING: trainer=%d/%d zone=%d randomMode=%d\n",
                 tu.syncTrainerID, tu.syncTrainerID2, tu.syncZoneID, tu.syncRandomTeamMode);
 }
 
@@ -592,7 +594,7 @@ bool overworldMPLocalHasTeamUpLead() {
 void overworldMPCancelSyncAndGoSolo() {
     auto& tu = s_teamUpState;
 
-    Logger::log("[TeamUp] Cancelling sync — proceeding solo (was phase %d)\n",
+    MP_LOG("[TeamUp] Cancelling sync — proceeding solo (was phase %d)\n",
                 (int)tu.syncPhase);
 
     // Notify partner
@@ -623,17 +625,17 @@ void overworldMPOnSyncWaitReceived(int32_t fromStation, int32_t trainerID,
                                     int32_t randomTeamMode, int32_t zoneID) {
     auto& tu = s_teamUpState;
     if (!tu.isTeamedUp || tu.partnerStation != fromStation) {
-        Logger::log("[TeamUp] Ignoring SYNC_WAIT from non-partner station %d\n", fromStation);
+        MP_LOG("[TeamUp] Ignoring SYNC_WAIT from non-partner station %d\n", fromStation);
         return;
     }
 
     // If we're already in battle, ignore
     if (overworldMPIsInBattleScene()) {
-        Logger::log("[TeamUp] Ignoring SYNC_WAIT: already in battle\n");
+        MP_LOG("[TeamUp] Ignoring SYNC_WAIT: already in battle\n");
         return;
     }
 
-    Logger::log("[TeamUp] Received SYNC_WAIT: trainer=%d/%d zone=%d randomMode=%d from station %d (our phase=%d)\n",
+    MP_LOG("[TeamUp] Received SYNC_WAIT: trainer=%d/%d zone=%d randomMode=%d from station %d (our phase=%d)\n",
                 trainerID, trainerID2, zoneID, randomTeamMode, fromStation, (int)tu.syncPhase);
 
     if (tu.syncPhase == SyncPhase::SYNC_WAITING) {
@@ -642,11 +644,11 @@ void overworldMPOnSyncWaitReceived(int32_t fromStation, int32_t trainerID,
         bool idsMatch = (tu.syncTrainerID == trainerID);
 
         if (idsMatch) {
-            Logger::log("[TeamUp] SYNC MATCH! (exact trainer ID %d)\n", trainerID);
+            MP_LOG("[TeamUp] SYNC MATCH! (exact trainer ID %d)\n", trainerID);
             tu.partnerSyncReceived = true;
             // The tick function will detect this and transition to SYNC_MATCHED
         } else {
-            Logger::log("[TeamUp] Mismatch: us=%d partner=%d — awaiting Y-to-sync\n",
+            MP_LOG("[TeamUp] Mismatch: us=%d partner=%d — awaiting Y-to-sync\n",
                         tu.syncTrainerID, trainerID);
             tu.partnerSyncMismatch = true;
             tu.partnerRandomTeamMode = randomTeamMode;
@@ -667,7 +669,7 @@ void overworldMPOnSyncWaitReceived(int32_t fromStation, int32_t trainerID,
         tu.partnerZoneID = zoneID;
         tu.bypassTrainerFlag = true;
 
-        Logger::log("[TeamUp] Partner waiting at trainer %d zone=%d — bypass enabled\n",
+        MP_LOG("[TeamUp] Partner waiting at trainer %d zone=%d — bypass enabled\n",
                     trainerID, zoneID);
     }
     // If SYNC_MATCHED, ignore (already matched or in exchange)
@@ -678,7 +680,7 @@ void overworldMPOnSyncCancelReceived(int32_t fromStation, uint8_t reason) {
     auto& tu = s_teamUpState;
     if (!tu.isTeamedUp || tu.partnerStation != fromStation) return;
 
-    Logger::log("[TeamUp] Received SYNC_CANCEL: reason=%d from station %d (our phase=%d)\n",
+    MP_LOG("[TeamUp] Received SYNC_CANCEL: reason=%d from station %d (our phase=%d)\n",
                 (int)reason, fromStation, (int)tu.syncPhase);
 
     if (tu.syncPhase == SyncPhase::SYNC_WAITING) {
@@ -688,7 +690,7 @@ void overworldMPOnSyncCancelReceived(int32_t fromStation, uint8_t reason) {
         tu.partnerSyncReceived = false;
         tu.bypassTrainerFlag = false;
         // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
-        Logger::log("[TeamUp] Partner cancelled sync — going solo\n");
+        MP_LOG("[TeamUp] Partner cancelled sync — going solo\n");
     } else if (tu.syncPhase == SyncPhase::SYNC_NONE) {
         // We weren't syncing — clear any stored partner sync info
         tu.partnerSyncReceived = false;
@@ -710,7 +712,7 @@ void overworldMPTeamUpAutoDisband() {
 
     // NPC companion active (Riley, Cheryl, etc.) → disband
     if (PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR)) {
-        Logger::log("[TeamUp] Auto-disband: SYS_FLAG_PAIR is set\n");
+        MP_LOG("[TeamUp] Auto-disband: SYS_FLAG_PAIR is set\n");
         overworldMPTeamUpDisband();
         return;
     }
@@ -719,7 +721,7 @@ void overworldMPTeamUpAutoDisband() {
     auto& ctx = getOverworldMPContext();
     int32_t ps = s_teamUpState.partnerStation;
     if (ps < 0 || ps >= OW_MP_MAX_PLAYERS || !ctx.remotePlayers[ps].isActive) {
-        Logger::log("[TeamUp] Auto-disband: partner station %d disconnected\n", ps);
+        MP_LOG("[TeamUp] Auto-disband: partner station %d disconnected\n", ps);
 
         // Clean up sync/battle state on disconnect
         if (s_teamUpState.syncPhase != SyncPhase::SYNC_NONE || s_teamUpState.battlePending) {
@@ -732,7 +734,7 @@ void overworldMPTeamUpAutoDisband() {
             if (s_encountDeferred) {
                 // Cancel deferral — tick will detect syncPhase=SYNC_NONE and release
                 // EncountStart with original trainer BSP as fallback.
-                Logger::log("[TeamUp] Partner disconnected during sync/deferred EncountStart — "
+                MP_LOG("[TeamUp] Partner disconnected during sync/deferred EncountStart — "
                             "tick will release\n");
             }
         }
@@ -752,7 +754,7 @@ void overworldMPTeamUpAutoDisband() {
         }
         s_battlePendingTimer -= UnityEngine::Time::get_deltaTime();
         if (s_battlePendingTimer <= 0.0f) {
-            Logger::log("[TeamUp] battlePending timeout (non-deferred) — clearing\n");
+            MP_LOG("[TeamUp] battlePending timeout (non-deferred) — clearing\n");
             s_teamUpState.battlePending = false;
             s_teamUpBSP = nullptr;
             s_battlePendingTimer = -1.0f;
@@ -844,7 +846,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
     }
 
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-    Logger::log("[TeamUp] Sent %s HEADER: target=%d members=%d trainerMembers=%d battle=%d\n",
+    MP_LOG("[TeamUp] Sent %s HEADER: target=%d members=%d trainerMembers=%d battle=%d\n",
                 dataId == OWMP_DATA_ID_TEAMUP_BATTLE ? "BATTLE" : "ACK",
                 targetStation, memberCount, (int)trainerMemberCount, (int)battleType);
 
@@ -871,7 +873,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
         }
 
         Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-        Logger::log("[TeamUp] Sent %s POKE[%d]\n",
+        MP_LOG("[TeamUp] Sent %s POKE[%d]\n",
                     dataId == OWMP_DATA_ID_TEAMUP_BATTLE ? "BATTLE" : "ACK", i);
     }
 
@@ -904,7 +906,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
             }
 
             Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
-            Logger::log("[TeamUp] Sent BATTLE TRAINER_POKE[%d]\n", i);
+            MP_LOG("[TeamUp] Sent BATTLE TRAINER_POKE[%d]\n", i);
         }
     }
 }
@@ -951,15 +953,10 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
             _ILExternal::external<void>(0x24A4550, accessor, &buf[offset]);
         }
 
-        // Validate
-        auto* coreParam = (Pml::PokePara::CoreParam*)slotPoke;
-        int32_t monsNo = coreParam->GetMonsNo();
-        int32_t seikaku = coreParam->GetSeikaku();
-        uint32_t level = coreParam->GetLevel();
-
-        if (monsNo <= 0 || monsNo > 905 || seikaku < 0 || seikaku >= 25 || level == 0 || level > 100) {
-            Logger::log("[TeamUp] REJECT partner poke[%d]: mons=%d seikaku=%d lv=%u\n",
-                        i, monsNo, seikaku, level);
+        // Validate (shared range check — see mp_poke_validate.h). Stop at the first
+        // invalid member so the party stays a contiguous run of valid Pokemon.
+        if (!mpValidatePokemonParam((Pml::PokePara::CoreParam*)slotPoke)) {
+            MP_LOG("[TeamUp] REJECT partner poke[%d] — failed validation\n", i);
             break;
         }
         validCount++;
@@ -967,7 +964,7 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
 
     if (validCount == 0) return nullptr;
     party->fields.m_memberCount = validCount;
-    Logger::log("[TeamUp] Deserialized partner party: %d members\n", validCount);
+    MP_LOG("[TeamUp] Deserialized partner party: %d members\n", validCount);
     return party;
 }
 
@@ -987,19 +984,30 @@ static void overwriteTrainerPartyFromBuffer(Dpr::Battle::Logic::BATTLE_SETUP_PAR
     int32_t count = tu.trainerPartyCount;
     if (count <= 0 || count > 6) return;
 
+    int32_t validCount = 0;
     for (int i = 0; i < count; i++) {
         int32_t bufOffset = i * POKE_FULL_DATA_SIZE;
         if (bufOffset + POKE_FULL_DATA_SIZE > tu.trainerPartyBufSize) break;
 
         auto* poke = party->GetMemberPointer(i);
-        if (poke == nullptr || poke->fields.m_accessor == nullptr) continue;
+        if (poke == nullptr || poke->fields.m_accessor == nullptr) break;
 
         _ILExternal::external<void>(0x24A4550, poke->fields.m_accessor,
                                      &tu.trainerPartyBuf[bufOffset]);
-    }
-    party->fields.m_memberCount = count;
 
-    Logger::log("[TeamUp] Overwrote party[%d] with %d received trainer Pokemon\n", slot, count);
+        // Validate the injected (peer-supplied) trainer Pokemon, just like the human
+        // party path. Without this, a malicious peer could write arbitrary serialized
+        // PokemonParam bytes into the enemy AI slots. Truncate at the first invalid
+        // member so the AI party stays a contiguous run of well-formed Pokemon.
+        if (!mpValidatePokemonParam((Pml::PokePara::CoreParam*)poke)) {
+            MP_LOG("[TeamUp] REJECT trainer poke[%d] — truncating trainer party\n", i);
+            break;
+        }
+        validCount++;
+    }
+    party->fields.m_memberCount = validCount;
+
+    MP_LOG("[TeamUp] Overwrote party[%d] with %d/%d valid trainer Pokemon\n", slot, validCount, count);
 }
 
 // Deserialize MYSTATUS_COMM from buffer at given offset
@@ -1064,7 +1072,7 @@ void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Objec
             fields->stations->m_Items[3] = -1;  // AI
         }
     } else {
-        Logger::log("[TeamUp] WARNING: stations array too small or null (max_length=%d)\n",
+        MP_LOG("[TeamUp] WARNING: stations array too small or null (max_length=%d)\n",
                     fields->stations ? (int)fields->stations->max_length : -1);
     }
 
@@ -1090,7 +1098,7 @@ void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Objec
                 }
             }
             destParty->fields.m_memberCount = count;
-            Logger::log("[TeamUp] Injected partner party into slot %d (%d members)\n",
+            MP_LOG("[TeamUp] Injected partner party into slot %d (%d members)\n",
                         partnerSlot, count);
         }
     }
@@ -1112,11 +1120,11 @@ void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Objec
             statusSlot->fields.body_type = partnerCommStatus.fields.body_type;
             statusSlot->fields.hat = partnerCommStatus.fields.hat;
             statusSlot->fields.shoes = partnerCommStatus.fields.shoes;
-            Logger::log("[TeamUp] Injected partner MYSTATUS into slot %d\n", partnerSlot);
+            MP_LOG("[TeamUp] Injected partner MYSTATUS into slot %d\n", partnerSlot);
         }
     }
 
-    Logger::log("[TeamUp] BSP modified: commMode=%d multiMode=%d commPos=%d stations=[%d,%d,%d,%d]\n",
+    MP_LOG("[TeamUp] BSP modified: commMode=%d multiMode=%d commPos=%d stations=[%d,%d,%d,%d]\n",
                 (int)fields->commMode, (int)fields->multiMode, (int)fields->commPos,
                 fields->stations ? fields->stations->m_Items[0] : -99,
                 fields->stations ? fields->stations->m_Items[1] : -99,
@@ -1134,7 +1142,7 @@ void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Objec
 void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32_t size) {
     auto& tu = s_teamUpState;
     if (!tu.isTeamedUp || tu.partnerStation != fromStation) {
-        Logger::log("[TeamUp] Ignoring TEAMUP_BATTLE from non-partner station %d\n", fromStation);
+        MP_LOG("[TeamUp] Ignoring TEAMUP_BATTLE from non-partner station %d\n", fromStation);
         return;
     }
 
@@ -1145,14 +1153,14 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         // processed first (same sender stream), so promote to SYNC_MATCHED.
         tu.syncPhase = SyncPhase::SYNC_MATCHED;
         tu.isInitiator = false;
-        Logger::log("[TeamUp] Promoted from SYNC_WAITING to SYNC_MATCHED on 0xC9\n");
+        MP_LOG("[TeamUp] Promoted from SYNC_WAITING to SYNC_MATCHED on 0xC9\n");
     } else if (tu.syncPhase != SyncPhase::SYNC_MATCHED) {
-        Logger::log("[TeamUp] Ignoring TEAMUP_BATTLE: not in sync (phase=%d)\n",
+        MP_LOG("[TeamUp] Ignoring TEAMUP_BATTLE: not in sync (phase=%d)\n",
                     (int)tu.syncPhase);
         return;
     }
 
-    Logger::log("[TeamUp] Received TEAMUP_BATTLE: type=%d trainer=%d — setting up Player B BSP\n",
+    MP_LOG("[TeamUp] Received TEAMUP_BATTLE: type=%d trainer=%d — setting up Player B BSP\n",
                 (int)tu.battleType, tu.battleTrainerID);
 
     // Validate BSP BEFORE sending ACK — if BSP is null, we can't set up
@@ -1162,32 +1170,38 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         bsp = PlayerWork::get_battleSetupParam();
     }
     if (bsp == nullptr) {
-        Logger::log("[TeamUp] ERROR: Player B BSP is null — cannot ACK\n");
+        MP_LOG("[TeamUp] ERROR: Player B BSP is null — cannot ACK\n");
         tu.syncPhase = SyncPhase::SYNC_NONE;
         return;
     }
 
     tu.isInitiator = false;
+
+    // Deserialize + validate the partner's party BEFORE sending the ACK. The ACK
+    // commits Player A to the PP_AA battle; if we sent it and THEN failed to produce
+    // a valid partner party, Player A would enter a 4-slot comm battle waiting on a
+    // peer that never joins (soft-lock). Validate first; on failure send SYNC_CANCEL
+    // so Player A cleanly falls back to a solo battle.
+    auto* partnerParty = deserializeTeamUpParty(
+        tu.partnerPartyBuf, tu.partnerPartyBufSize, tu.partnerPartyCount);
+    if (partnerParty == nullptr) {
+        MP_LOG("[TeamUp] ERROR: failed to deserialize partner party — cancelling sync\n");
+        sendSyncCancel(fromStation, 1); // reason=1: partner data invalid
+        tu.syncPhase = SyncPhase::SYNC_NONE;
+        tu.partnerPartyValid = false;
+        return;
+    }
     tu.partnerPartyValid = true;
 
-    // Send ACK with our own party (BSP validated above)
+    // Partner party validated — now commit and tell Player A we're ready.
     overworldMPSendTeamUpBattleAck(fromStation);
 
     int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
 
-    // Deserialize partner's party (the initiator's)
-    auto* partnerParty = deserializeTeamUpParty(
-        tu.partnerPartyBuf, tu.partnerPartyBufSize, tu.partnerPartyCount);
-    if (partnerParty == nullptr) {
-        Logger::log("[TeamUp] ERROR: failed to deserialize partner party\n");
-        tu.syncPhase = SyncPhase::SYNC_NONE;
-        return;
-    }
-
     // Get our party (first TEAMUP_PARTY_LIMIT members)
     auto* myParty = PlayerWork::get_playerParty();
     if (myParty == nullptr) {
-        Logger::log("[TeamUp] ERROR: local party is null\n");
+        MP_LOG("[TeamUp] ERROR: local party is null\n");
         tu.syncPhase = SyncPhase::SYNC_NONE;
         return;
     }
@@ -1221,7 +1235,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     auto* myConfig = PlayerWork::get_config();
     if (myConfig != nullptr) {
         s_savedWazaeffMode = myConfig->fields.wazaeff_mode;
-        Logger::log("[TeamUp] Player B: saved wazaeff_mode=%d\n", s_savedWazaeffMode);
+        MP_LOG("[TeamUp] Player B: saved wazaeff_mode=%d\n", s_savedWazaeffMode);
     }
 
     // Capture Player B's own trainer party before SetupBattleComm destroys it.
@@ -1243,7 +1257,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
                         &s_myTrainerBuf[i * TEAMUP_POKE_FULL_DATA_SIZE]);
                 }
             }
-            Logger::log("[TeamUp] Player B: captured own trainer party (%d members)\n", s_myTrainerCount);
+            MP_LOG("[TeamUp] Player B: captured own trainer party (%d members)\n", s_myTrainerCount);
         }
     }
 
@@ -1260,7 +1274,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         -1, nullptr, nullptr, nullptr,
         nullptr, nullptr, 0, 0);
 
-    Logger::log("[TeamUp] Player B: SetupBattleComm complete, setting up PP_AA...\n");
+    MP_LOG("[TeamUp] Player B: SetupBattleComm complete, setting up PP_AA...\n");
 
     // PP_AA layout: [partner(0), enemy1(1), us(2), enemy2(3)]
     // Rearrange: swap slot 1 ↔ slot 2 (us goes to slot 2)
@@ -1308,7 +1322,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             overwriteTrainerPartyFromBuffer(bsp, 1, tu);
         }
         normalTrainer(bsp, 3, tu.battleTrainerID2);
-        Logger::log("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
+        MP_LOG("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
                     tu.battleTrainerID, tu.trainerPartyCount, tu.battleTrainerID2);
     } else {
         bool dualTrainer = tu.trainerPartyCount < 3 &&
@@ -1333,7 +1347,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
                 }
                 party3->fields.m_memberCount = s_myTrainerCount;
             }
-            Logger::log("[TeamUp] Player B: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
+            MP_LOG("[TeamUp] Player B: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
                         tu.battleTrainerID, tu.trainerPartyCount, tu.syncTrainerID, s_myTrainerCount);
         } else {
             // Case 3: Single trainer split across both slots
@@ -1346,7 +1360,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             }
             splitTrainerParty(bsp, 1, 3);
             if (slot3ID != tu.battleTrainerID) {
-                Logger::log("[TeamUp] Player B: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
+                MP_LOG("[TeamUp] Player B: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
                             tu.battleTrainerID, slot3ID);
             }
         }
@@ -1370,19 +1384,23 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             void* bgComp = *(void**)((uintptr_t)fieldSit + 0x10);
             if (bgComp != nullptr) {
                 _ILExternal::external<void>(0x188A6C0, bgComp, tu.battleArenaID, 0);
-                Logger::log("[TeamUp] Player B: arena override %d applied\n", tu.battleArenaID);
+                MP_LOG("[TeamUp] Player B: arena override %d applied\n", tu.battleArenaID);
             } else {
-                Logger::log("[TeamUp] Player B: bgComp null, arena override skipped\n");
+                MP_LOG("[TeamUp] Player B: bgComp null, arena override skipped\n");
             }
         } else {
-            Logger::log("[TeamUp] Player B: fieldSituation null, arena override skipped\n");
+            MP_LOG("[TeamUp] Player B: fieldSituation null, arena override skipped\n");
         }
     } else {
-        Logger::log("[TeamUp] Player B: battleArenaID=%d, arena override skipped\n", tu.battleArenaID);
+        MP_LOG("[TeamUp] Player B: battleArenaID=%d, arena override skipped\n", tu.battleArenaID);
     }
 
     // Override human trainer colorIDs for MP — three data stores.
     // PP_AA layout for Player B: [partner(0), enemy1(1), us(2), enemy2(3)]
+    // Guard partnerStation: -1 after Clear(), and a disconnect racing the exchange
+    // could leave it out of range — skip the (cosmetic) color override rather than
+    // indexing remotePlayers[] out of bounds.
+    if (tu.partnerStation >= 0 && tu.partnerStation < OW_MP_MAX_PLAYERS)
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[tu.partnerStation];
@@ -1435,7 +1453,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
         memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
 
-        Logger::log("[TeamUp] Player B: color setup start (local=%d, partner=%d, hasCustom=%d)\n",
+        MP_LOG("[TeamUp] Player B: color setup start (local=%d, partner=%d, hasCustom=%d)\n",
                     localColor, partnerColor, (int)remote.hasCustomColors);
 
         // Local player (slot 2) — build from save data directly
@@ -1482,7 +1500,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             }
         }
 
-        Logger::log("[TeamUp] Player B: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
+        MP_LOG("[TeamUp] Player B: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
                     partnerColor, localColor, (int)remote.hasCustomColors);
     }
     {
@@ -1494,7 +1512,7 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     s_teamUpCreateLocalClientActive = true;
     s_teamUpBSP = nullptr;
 
-    Logger::log("[TeamUp] Player B: PP_AA BSP complete (trainer=%d, effectID=%d, trainerPartyFromNet=%d)\n",
+    MP_LOG("[TeamUp] Player B: PP_AA BSP complete (trainer=%d, effectID=%d, trainerPartyFromNet=%d)\n",
                 tu.battleTrainerID, tu.battleEffectID, (int)tu.trainerPartyValid);
 
     // Signal DeferEncountStart to release on next tick
@@ -1508,24 +1526,24 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
 void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, int32_t size) {
     auto& tu = s_teamUpState;
     if (!tu.isTeamedUp || tu.partnerStation != fromStation) {
-        Logger::log("[TeamUp] Ignoring TEAMUP_BATTLE_ACK from non-partner station %d\n", fromStation);
+        MP_LOG("[TeamUp] Ignoring TEAMUP_BATTLE_ACK from non-partner station %d\n", fromStation);
         return;
     }
 
     // If we were demoted to joiner by the dual-trigger tie-breaker, ignore
     // the stale ACK — we're already entering battle as Player B
     if (!tu.isInitiator) {
-        Logger::log("[TeamUp] Ignoring TEAMUP_BATTLE_ACK: we are joiner, not initiator\n");
+        MP_LOG("[TeamUp] Ignoring TEAMUP_BATTLE_ACK: we are joiner, not initiator\n");
         return;
     }
 
     tu.partnerPartyValid = true;
-    Logger::log("[TeamUp] Received TEAMUP_BATTLE_ACK: partner party valid, %d members\n",
+    MP_LOG("[TeamUp] Received TEAMUP_BATTLE_ACK: partner party valid, %d members\n",
                 tu.partnerPartyCount);
 
     auto* bsp = s_teamUpBSP;
     if (bsp == nullptr) {
-        Logger::log("[TeamUp] WARNING: s_teamUpBSP is null, cannot modify BSP\n");
+        MP_LOG("[TeamUp] WARNING: s_teamUpBSP is null, cannot modify BSP\n");
         return;
     }
 
@@ -1533,7 +1551,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     auto* partnerParty = deserializeTeamUpParty(
         tu.partnerPartyBuf, tu.partnerPartyBufSize, tu.partnerPartyCount);
     if (partnerParty == nullptr) {
-        Logger::log("[TeamUp] ERROR: failed to deserialize partner party for BSP\n");
+        MP_LOG("[TeamUp] ERROR: failed to deserialize partner party for BSP\n");
         s_teamUpBSP = nullptr;
         tu.battlePending = false;
         return;
@@ -1542,7 +1560,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     // Get our own party (trimmed to TEAMUP_PARTY_LIMIT)
     auto* myParty = PlayerWork::get_playerParty();
     if (myParty == nullptr) {
-        Logger::log("[TeamUp] ERROR: local party is null\n");
+        MP_LOG("[TeamUp] ERROR: local party is null\n");
         s_teamUpBSP = nullptr;
         tu.battlePending = false;
         return;
@@ -1581,7 +1599,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     auto* myConfig = PlayerWork::get_config();
     if (myConfig != nullptr) {
         s_savedWazaeffMode = myConfig->fields.wazaeff_mode;
-        Logger::log("[TeamUp] Player A: saved wazaeff_mode=%d\n", s_savedWazaeffMode);
+        MP_LOG("[TeamUp] Player A: saved wazaeff_mode=%d\n", s_savedWazaeffMode);
     }
 
     // Save tr_data pointer — SetupBattleComm calls Clear() which nulls entries
@@ -1599,7 +1617,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         -1, nullptr, nullptr, nullptr,                                   // slot 3: empty
         nullptr, nullptr, 0, 0);
 
-    Logger::log("[TeamUp] Player A: SetupBattleComm complete, setting up PP_AA...\n");
+    MP_LOG("[TeamUp] Player A: SetupBattleComm complete, setting up PP_AA...\n");
 
     // PP_AA layout: [us(0), enemy1(1), partner(2), enemy2(3)]
     // SetupBattleComm put us=slot0, partner=slot1. Rearrange: move partner 1→2.
@@ -1652,7 +1670,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     if (tu.battleTrainerID2 != 0) {
         // Case 1: Original double battle — two NPC trainers (enemyID0 + enemyID1)
         normalTrainer(bsp, 3, tu.battleTrainerID2);
-        Logger::log("[TeamUp] Player A: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
+        MP_LOG("[TeamUp] Player A: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
                     tu.battleTrainerID, myTrainerCount, tu.battleTrainerID2);
     } else {
         bool dualTrainer = myTrainerCount < 3 &&
@@ -1677,7 +1695,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
                 }
                 party3->fields.m_memberCount = ptCount;
             }
-            Logger::log("[TeamUp] Player A: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
+            MP_LOG("[TeamUp] Player A: DUAL TRAINER mode — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
                         tu.battleTrainerID, myTrainerCount, tu.partnerTrainerID, tu.partnerTrainerCount);
         } else {
             // Case 3: Single trainer split across both slots
@@ -1686,7 +1704,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
             normalTrainer(bsp, 3, slot3ID);
             splitTrainerParty(bsp, 1, 3);
             if (slot3ID != tu.battleTrainerID) {
-                Logger::log("[TeamUp] Player A: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
+                MP_LOG("[TeamUp] Player A: DUAL TRAINER SPLIT — slot1=%d, slot3=%d\n",
                             tu.battleTrainerID, slot3ID);
             }
         }
@@ -1696,12 +1714,12 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     // Force stations[1] and [3] back to -1 so CheckReturnFromClient and
     // sendServerVersion correctly skip AI clients.
     if (fields->stations != nullptr && fields->stations->max_length > 3) {
-        Logger::log("[TeamUp] Player A: stations BEFORE fix: [%d, %d, %d, %d]\n",
+        MP_LOG("[TeamUp] Player A: stations BEFORE fix: [%d, %d, %d, %d]\n",
                     fields->stations->m_Items[0], fields->stations->m_Items[1],
                     fields->stations->m_Items[2], fields->stations->m_Items[3]);
         fields->stations->m_Items[1] = -1;
         fields->stations->m_Items[3] = -1;
-        Logger::log("[TeamUp] Player A: stations AFTER fix: [%d, %d, %d, %d]\n",
+        MP_LOG("[TeamUp] Player A: stations AFTER fix: [%d, %d, %d, %d]\n",
                     fields->stations->m_Items[0], fields->stations->m_Items[1],
                     fields->stations->m_Items[2], fields->stations->m_Items[3]);
     }
@@ -1710,7 +1728,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     // the trainer's original BGM so gym leaders etc. keep their unique music.
     if (fields->btlEffComponent != nullptr)
         setupTeamUpBattleEffect(fields->btlEffComponent, tu.battleEffectID);
-    Logger::log("[TeamUp] Player A: PP_AA setup (trainer=%d/%d, effectID=%d)\n",
+    MP_LOG("[TeamUp] Player A: PP_AA setup (trainer=%d/%d, effectID=%d)\n",
                 tu.battleTrainerID, tu.battleTrainerID2, tu.battleEffectID);
 
     // Override arena — SetupBattleComm hardcodes Union Room arena 0x2b.
@@ -1721,19 +1739,23 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
             void* bgComp = *(void**)((uintptr_t)fieldSit + 0x10);
             if (bgComp != nullptr) {
                 _ILExternal::external<void>(0x188A6C0, bgComp, tu.battleArenaID, 0);
-                Logger::log("[TeamUp] Player A: arena override %d applied\n", tu.battleArenaID);
+                MP_LOG("[TeamUp] Player A: arena override %d applied\n", tu.battleArenaID);
             } else {
-                Logger::log("[TeamUp] Player A: bgComp null, arena override skipped\n");
+                MP_LOG("[TeamUp] Player A: bgComp null, arena override skipped\n");
             }
         } else {
-            Logger::log("[TeamUp] Player A: fieldSituation null, arena override skipped\n");
+            MP_LOG("[TeamUp] Player A: fieldSituation null, arena override skipped\n");
         }
     } else {
-        Logger::log("[TeamUp] Player A: battleArenaID=%d, arena override skipped\n", tu.battleArenaID);
+        MP_LOG("[TeamUp] Player A: battleArenaID=%d, arena override skipped\n", tu.battleArenaID);
     }
 
     // Override human trainer colorIDs for MP — three data stores.
     // PP_AA layout for Player A: [us(0), enemy1(1), partner(2), enemy2(3)]
+    // Guard partnerStation: -1 after Clear(), and a disconnect racing the exchange
+    // could leave it out of range — skip the (cosmetic) color override rather than
+    // indexing remotePlayers[] out of bounds.
+    if (tu.partnerStation >= 0 && tu.partnerStation < OW_MP_MAX_PLAYERS)
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[tu.partnerStation];
@@ -1826,7 +1848,7 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
             }
         }
 
-        Logger::log("[TeamUp] Player A: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
+        MP_LOG("[TeamUp] Player A: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
                     localColor, partnerColor, (int)remote.hasCustomColors);
     }
     {
@@ -1852,11 +1874,11 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         // Normal case (local/low-latency): EncountStart already called before ACK arrived.
         // Set in-battle scene flag now.
         overworldMPSetInBattleScene(true);
-        Logger::log("[TeamUp] Player A: PP_AA BSP complete (non-deferred)\n");
+        MP_LOG("[TeamUp] Player A: PP_AA BSP complete (non-deferred)\n");
     } else {
         // Deferred case (internet): EncountStart was deferred, waiting for us to finish.
         // The tick function will detect syncPhase=SYNC_NONE and call EncountStart.
-        Logger::log("[TeamUp] Player A: PP_AA BSP complete (deferred — tick will release)\n");
+        MP_LOG("[TeamUp] Player A: PP_AA BSP complete (deferred — tick will release)\n");
     }
 }
 
@@ -1871,42 +1893,42 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
 // ---------------------------------------------------------------------------
 static void copyBackBattleParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp) {
     if (bsp == nullptr) {
-        Logger::log("[TeamUp] copyBack: BSP is null!\n");
+        MP_LOG("[TeamUp] copyBack: BSP is null!\n");
         return;
     }
     auto* fields = &bsp->instance()->fields;
     if (fields->party == nullptr) {
-        Logger::log("[TeamUp] copyBack: BSP party array is null!\n");
+        MP_LOG("[TeamUp] copyBack: BSP party array is null!\n");
         return;
     }
 
     auto& tu = overworldMPGetTeamUpState();
     int32_t mySlot = tu.isInitiator ? 0 : 2;  // commPos (PP_AA: slot 0=Player A, 2=Player B)
 
-    Logger::log("[TeamUp] copyBack: isInitiator=%d mySlot=%d partyLen=%d\n",
+    MP_LOG("[TeamUp] copyBack: isInitiator=%d mySlot=%d partyLen=%d\n",
                 (int)tu.isInitiator, mySlot, fields->party->max_length);
 
     if ((uint64_t)mySlot >= fields->party->max_length) {
-        Logger::log("[TeamUp] copyBack: mySlot %d >= party max_length %d!\n",
+        MP_LOG("[TeamUp] copyBack: mySlot %d >= party max_length %d!\n",
                     mySlot, fields->party->max_length);
         return;
     }
     auto* battleParty = fields->party->m_Items[mySlot];
     if (battleParty == nullptr) {
-        Logger::log("[TeamUp] copyBack: battleParty at slot %d is null!\n", mySlot);
+        MP_LOG("[TeamUp] copyBack: battleParty at slot %d is null!\n", mySlot);
         return;
     }
 
     auto* origParty = PlayerWork::get_playerParty();
     if (origParty == nullptr) {
-        Logger::log("[TeamUp] copyBack: origParty is null!\n");
+        MP_LOG("[TeamUp] copyBack: origParty is null!\n");
         return;
     }
 
     int32_t count = battleParty->fields.m_memberCount;
     if (count > TEAMUP_PARTY_LIMIT) count = TEAMUP_PARTY_LIMIT;
 
-    Logger::log("[TeamUp] copyBack: battleParty members=%d, origParty members=%d, copying %d\n",
+    MP_LOG("[TeamUp] copyBack: battleParty members=%d, origParty members=%d, copying %d\n",
                 battleParty->fields.m_memberCount, origParty->fields.m_memberCount, count);
 
     for (int i = 0; i < count && i < origParty->fields.m_memberCount; i++) {
@@ -1917,10 +1939,10 @@ static void copyBackBattleParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* 
             _ILExternal::external<void>(0x24A4470, src->fields.m_accessor, tmp);
             _ILExternal::external<void>(0x24A4550, dst->fields.m_accessor, tmp);
         } else {
-            Logger::log("[TeamUp] copyBack: skip poke %d (src=%p dst=%p)\n", i, src, dst);
+            MP_LOG("[TeamUp] copyBack: skip poke %d (src=%p dst=%p)\n", i, src, dst);
         }
     }
-    Logger::log("[TeamUp] Copied %d battle-modified Pokemon back to player party\n", count);
+    MP_LOG("[TeamUp] Copied %d battle-modified Pokemon back to player party\n", count);
 }
 
 // ---------------------------------------------------------------------------
@@ -1938,7 +1960,7 @@ void overworldMPHandleTeamUpPostBattle() {
     // completes, so our data won't be overwritten by the BSP→PlayerWork copy.
     applyDeferredPartyRestore();
 
-    Logger::log("[TeamUp] Post-battle: party restore complete (isInitiator=%d, result=%d)\n",
+    MP_LOG("[TeamUp] Post-battle: party restore complete (isInitiator=%d, result=%d)\n",
                 (int)tu.isInitiator, tu.battleResult);
 
     // On a team WIN, one player's Pokemon may all be fainted (the partner
@@ -1966,7 +1988,7 @@ void overworldMPHandleTeamUpPostBattle() {
                     if (poke == nullptr) continue;
                     if (poke->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG)) continue;
                     poke->SetHp(1);
-                    Logger::log("[TeamUp] Revived party slot %u to 1 HP (all-fainted on team WIN)\n", i);
+                    MP_LOG("[TeamUp] Revived party slot %u to 1 HP (all-fainted on team WIN)\n", i);
                     break;
                 }
             }
@@ -1996,7 +2018,14 @@ void overworldMPClearTeamUpBattleState() {
     s_postBattleRestoreTimer = 0.0f; // Cancel second-pass restore — ClearState runs on
                                      // the same frame as the first restore, so the timer
                                      // would find s_battleModPartyCount stale if we zeroed it.
-    Logger::log("[TeamUp] Battle state cleared\n");
+    // Defensive hygiene: if no encount is actively deferred, drop the cached
+    // FieldManager pointer so it can't dangle into a later zone change. If one IS
+    // deferred, leave it — the tick must still release it; clearing here would
+    // strand the paused event script.
+    if (!s_encountDeferred) {
+        s_deferredFM = nullptr;
+    }
+    MP_LOG("[TeamUp] Battle state cleared\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -2063,7 +2092,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             ((uintptr_t)mainModule + 0x10);
         if (preBsp != nullptr) {
             auto* pf = &preBsp->instance()->fields;
-            Logger::log("[TeamUp] PRE-storeBattleResult: judgeResult(+0x8c)=%u myClientId(+0x94)=%u "
+            MP_LOG("[TeamUp] PRE-storeBattleResult: judgeResult(+0x8c)=%u myClientId(+0x94)=%u "
                         "BSP.commMode=%u BSP.commPos=%u BSP.result=%d BSP.getMoney=%d\n",
                         preJudgeResult, (unsigned)myClientId,
                         (unsigned)pf->commMode, (unsigned)pf->commPos,
@@ -2072,7 +2101,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
 
         Orig(mainModule, mi);
 
-        Logger::log("[TeamUp] storeBattleResult hook: teamed=%d battleType=%d isInitiator=%d\n",
+        MP_LOG("[TeamUp] storeBattleResult hook: teamed=%d battleType=%d isInitiator=%d\n",
                     (int)true, (int)tu.battleType, (int)tu.isInitiator);
 
         // Get BSP from MainModule+0x10
@@ -2084,7 +2113,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
 
         // --- Post-Orig diagnostics ---
         uint32_t postJudgeResult = *(uint32_t*)((uintptr_t)mainModule + 0x8c);
-        Logger::log("[TeamUp] POST-storeBattleResult: judgeResult(+0x8c)=%u BSP.result=%d BSP.getMoney=%d\n",
+        MP_LOG("[TeamUp] POST-storeBattleResult: judgeResult(+0x8c)=%u BSP.result=%d BSP.getMoney=%d\n",
                     postJudgeResult, fields->result, fields->getMoney);
 
         // Check escape count via EscapeInfo (MainModule+0x110 → +0x98)
@@ -2097,7 +2126,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             }
         }
 
-        Logger::log("[TeamUp] storeBattleResult: result=%d disconnect=%d commError=%d escapes=%d\n",
+        MP_LOG("[TeamUp] storeBattleResult: result=%d disconnect=%d commError=%d escapes=%d\n",
                     fields->result, (int)fields->isDisconnectOccur, fields->commError, escapeCount);
 
         // Override result to LOSS if battle ended abnormally
@@ -2105,10 +2134,10 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         if (abnormal && fields->result != 0) {
             fields->result = 0;     // LOSS — trainer not defeated
             fields->getMoney = 0;   // no money gain from invalid battle
-            Logger::log("[TeamUp] Overrode trainer result to LOSS (abnormal ending)\n");
+            MP_LOG("[TeamUp] Overrode trainer result to LOSS (abnormal ending)\n");
         }
 
-        Logger::log("[TeamUp] Final result: %d, getMoney: %d (isInitiator=%d)\n",
+        MP_LOG("[TeamUp] Final result: %d, getMoney: %d (isInitiator=%d)\n",
                     fields->result, fields->getMoney, (int)tu.isInitiator);
 
         // Cache final result for post-battle handler (Player B rewards/whiteout)
@@ -2121,7 +2150,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         // On WIN, keep COMM(3) so the comm sync works properly.
         if (fields->result == 0) {
             fields->competitor = (Dpr::Battle::Logic::BtlCompetitor)1; // BTL_COMPETITOR_TRAINER
-            Logger::log("[TeamUp] LOSS: switched competitor to TRAINER for proper exit sequence\n");
+            MP_LOG("[TeamUp] LOSS: switched competitor to TRAINER for proper exit sequence\n");
         }
 
         // On loss, skip the deferred restore — vanilla TRAINER exit handles whiteout.
@@ -2142,7 +2171,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             // (Player B's party[0] has Player A's data, deferred restore fixes it).
             saveBattleModifiedParty(bsp);
         }
-        Logger::log("[TeamUp] storeBattleResult: deferred restore (abnormal=%d, battleMod=%d)\n",
+        MP_LOG("[TeamUp] storeBattleResult: deferred restore (abnormal=%d, battleMod=%d)\n",
                     (int)abnormal, s_battleModPartyCount);
 
         // Restore local animation setting — comm battles sync from the server,
@@ -2150,7 +2179,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         if (s_savedWazaeffMode >= 0) {
             auto* localConfig = PlayerWork::get_config();
             if (localConfig != nullptr) {
-                Logger::log("[TeamUp] Restoring wazaeff_mode: %d -> %d\n",
+                MP_LOG("[TeamUp] Restoring wazaeff_mode: %d -> %d\n",
                             localConfig->fields.wazaeff_mode, s_savedWazaeffMode);
                 localConfig->fields.wazaeff_mode = s_savedWazaeffMode;
             }
@@ -2178,7 +2207,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
 HOOK_DEFINE_TRAMPOLINE(TeamUpNotifyNetworkError) {
     static void Callback(void* netClient, uint32_t errorCode) {
         if (overworldMPIsTeamedUp()) {
-            Logger::log("[TeamUp] BtlNet NotifyNetworkError(%d) [bit 0x%x] — suppressed\n",
+            MP_LOG("[TeamUp] BtlNet NotifyNetworkError(%d) [bit 0x%x] — suppressed\n",
                         errorCode, 1u << (errorCode & 0x1f));
             return;  // suppress — non-fatal in team-up PvE
         }
@@ -2221,7 +2250,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpHasErrorOccured) {
                     static int32_t s_suppressCount = 0;
                     s_suppressCount++;
                     if (s_suppressCount <= 10 || s_suppressCount % 200 == 0) {
-                        Logger::log("[TeamUp] BtlNet HasErrorOccured: cleared non-fatal 0x%x, remaining 0x%x (call #%d)\n",
+                        MP_LOG("[TeamUp] BtlNet HasErrorOccured: cleared non-fatal 0x%x, remaining 0x%x (call #%d)\n",
                                     errors & TEAMUP_NONFATAL_ERRORS, fatal, s_suppressCount);
                     }
                 }
@@ -2258,7 +2287,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpGetErrorKindBits) {
             static int32_t s_errBitsLogCount = 0;
             s_errBitsLogCount++;
             if (s_errBitsLogCount <= 10 || s_errBitsLogCount % 500 == 0) {
-                Logger::log("[TeamUp] get_ErrorKindBits: masked 0x%x, returning 0x%x (call #%d)\n",
+                MP_LOG("[TeamUp] get_ErrorKindBits: masked 0x%x, returning 0x%x (call #%d)\n",
                             suppressed, bits, s_errBitsLogCount);
             }
         }
@@ -2296,7 +2325,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpSendToClientCore) {
                 static int32_t s_skipCount = 0;
                 s_skipCount++;
                 if (s_skipCount <= 10 || s_skipCount % 1000 == 0) {
-                    Logger::log("[TeamUp] sendToClientCore: skip AI client %d (#%d)\n",
+                    MP_LOG("[TeamUp] sendToClientCore: skip AI client %d (#%d)\n",
                                 idx, s_skipCount);
                 }
                 return 0;  // success — pretend send completed
@@ -2331,7 +2360,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCommStartServer) {
                 if (battleEnv != nullptr) {
                     uint8_t commMode = *(uint8_t*)((uintptr_t)battleEnv + 0x38);
                     if (commMode == 1) {
-                        Logger::log("[TeamUp] Bypassing step 3 PP_AA+wireless check\n");
+                        MP_LOG("[TeamUp] Bypassing step 3 PP_AA+wireless check\n");
                         *stepPtr = 4;
                         return 0;
                     }
@@ -2398,7 +2427,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCreateLocalClient) {
         long aiClient = _ILExternal::external<long>(0x1F1D010,
             inputHolder, (void*)nullptr, (uint32_t)(slot & 0xFFFFFFFF), (int8_t)1);
 
-        Logger::log("[TeamUp] Force-created local AI client for slot %d (PP_AA + wireless)\n",
+        MP_LOG("[TeamUp] Force-created local AI client for slot %d (PP_AA + wireless)\n",
                     (int)(slot & 0xFF));
         return aiClient;
     }
@@ -2433,7 +2462,7 @@ HOOK_DEFINE_TRAMPOLINE(DeferEncountStart) {
         if (shouldDefer) {
             // If already deferred (second EncountStart call), just update args
             if (s_encountDeferred) {
-                Logger::log("[TeamUp] EncountStart called again while already deferred — updating args\n");
+                MP_LOG("[TeamUp] EncountStart called again while already deferred — updating args\n");
                 s_deferredFM = fm;
                 s_deferredType = type;
                 s_deferredTrainer1 = trainerid1;
@@ -2458,12 +2487,12 @@ HOOK_DEFINE_TRAMPOLINE(DeferEncountStart) {
             // releaseDeferredEncount will reset to 0 before calling the real EncountStart.
             fm->fields._updateType = 99;
 
-            Logger::log("[TeamUp] Deferring EncountStart (syncPhase=%d, pending=%d, timeout=%.1fs, _updateType=99)\n",
+            MP_LOG("[TeamUp] Deferring EncountStart (syncPhase=%d, pending=%d, timeout=%.1fs, _updateType=99)\n",
                         (int)tu.syncPhase, (int)s_teamUpEncountPending, DEFERRED_ENCOUNT_TIMEOUT);
             return;
         }
 
-        Logger::log("[TeamUp] EncountStart NOT deferred (teamed=%d, phase=%d, pending=%d)\n",
+        MP_LOG("[TeamUp] EncountStart NOT deferred (teamed=%d, phase=%d, pending=%d)\n",
                     (int)tu.isTeamedUp, (int)tu.syncPhase, (int)s_teamUpEncountPending);
         Orig(fm, type, trainerid1, trainerid2, mi);
     }
@@ -2503,7 +2532,7 @@ static void releaseDeferredEncount(bool isTeamUp) {
         overworldMPSetInBattleScene(true);
     }
 
-    Logger::log("[TeamUp] Deferred EncountStart released (teamUp=%d)\n", (int)isTeamUp);
+    MP_LOG("[TeamUp] Deferred EncountStart released (teamUp=%d)\n", (int)isTeamUp);
 }
 
 // ---------------------------------------------------------------------------
@@ -2524,60 +2553,60 @@ static void* getMsgWindowTMP() {
 
     auto* mgr = Dpr::MsgWindow::MsgWindowManager::get_Instance();
     if (mgr == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: MsgWindowManager instance is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: MsgWindowManager instance is null\n");
         return nullptr;
     }
 
     void* msgWindow = mgr->get_MsgWindow();
     if (msgWindow == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: MsgWindow is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: MsgWindow is null\n");
         return nullptr;
     }
 
     // WindowMessage at MsgWindow+0x28
     void* windowMessage = *(void**)((uintptr_t)msgWindow + 0x28);
     if (windowMessage == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: WindowMessage is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: WindowMessage is null\n");
         return nullptr;
     }
 
     // MsgTextContainer at WindowMessage+0x18
     void* msgTextContainer = *(void**)((uintptr_t)windowMessage + 0x18);
     if (msgTextContainer == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: MsgTextContainer is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: MsgTextContainer is null\n");
         return nullptr;
     }
 
     // WindowMsgText[] (Il2CppArray) at MsgTextContainer+0x20
     void* textArray = *(void**)((uintptr_t)msgTextContainer + 0x20);
     if (textArray == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: WindowMsgText array is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: WindowMsgText array is null\n");
         return nullptr;
     }
 
     // Check array bounds: max_length at array+0x18
     uint64_t maxLength = *(uint64_t*)((uintptr_t)textArray + 0x18);
     if (maxLength == 0) {
-        Logger::log("[TeamUp] getMsgWindowTMP: WindowMsgText array is empty\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: WindowMsgText array is empty\n");
         return nullptr;
     }
 
     // WindowMsgText[0] at array+0x20 (m_Items start)
     void* windowMsgText = *(void**)((uintptr_t)textArray + 0x20);
     if (windowMsgText == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: WindowMsgText[0] is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: WindowMsgText[0] is null\n");
         return nullptr;
     }
 
     // TextMeshProUGUI at WindowMsgText+0x18
     void* tmp = *(void**)((uintptr_t)windowMsgText + 0x18);
     if (tmp == nullptr) {
-        Logger::log("[TeamUp] getMsgWindowTMP: TextMeshProUGUI is null\n");
+        MP_LOG("[TeamUp] getMsgWindowTMP: TextMeshProUGUI is null\n");
         return nullptr;
     }
 
     s_cachedMsgWindowTMP = tmp;
-    Logger::log("[TeamUp] getMsgWindowTMP: cached TMP at %p\n", tmp);
+    MP_LOG("[TeamUp] getMsgWindowTMP: cached TMP at %p\n", tmp);
     return tmp;
 }
 
@@ -2602,14 +2631,14 @@ static void setMsgWindowActive(bool active) {
 
     // DoPlayImmediateAnimation: sets alpha, scale, and state instantly
     _ILExternal::external<void>(0x1DDC840, windowAnimator, active);
-    Logger::log("[TeamUp] setMsgWindowActive(%d)\n", (int)active);
+    MP_LOG("[TeamUp] setMsgWindowActive(%d)\n", (int)active);
 }
 
 static void showMsgWindowCustomText(const char* text) {
     void* tmp = getMsgWindowTMP();
     if (tmp == nullptr) {
         // Fallback: use old DisplayMessage approach if MsgWindow chain unavailable
-        Logger::log("[TeamUp] showMsgWindowCustomText: MsgWindow chain failed, using DisplayMessage fallback\n");
+        MP_LOG("[TeamUp] showMsgWindowCustomText: MsgWindow chain failed, using DisplayMessage fallback\n");
         if (isFieldCanvasReady()) {
             auto* msgStr = System::String::Create(text);
             if (msgStr != nullptr) {
@@ -2691,37 +2720,44 @@ static void showSyncWaitMessage() {
     auto& ctx = getOverworldMPContext();
     int32_t ps = tu.partnerStation;
 
-    // Load translatable default name
+    // Resolve the partner name into a LOCAL buffer. getTUMPMessageCStr returns a
+    // shared static buffer, so the message-template loads below would otherwise
+    // overwrite the name if it came from getTUMPMessageCStr (the default-name case).
     const char* defaultName = getTUMPMessageCStr("SS_mp_DefaultName", "Player");
-    const char* partnerName = defaultName;
+    char partnerName[52];
     if (ps >= 0 && ps < OW_MP_MAX_PLAYERS && ctx.remotePlayers[ps].playerNameSet) {
-        partnerName = ctx.remotePlayers[ps].playerNameBuf;
+        strncpy(partnerName, ctx.remotePlayers[ps].playerNameBuf, sizeof(partnerName) - 1);
+    } else {
+        strncpy(partnerName, defaultName, sizeof(partnerName) - 1);
     }
+    partnerName[sizeof(partnerName) - 1] = '\0';
 
-    // Load translatable message templates
-    // TMP tags: <size=80%> shrinks text to fit the window's text area,
-    // <line-height=70%> tightens the gap between lines (default is very generous).
+    // Load translatable message templates from the ss_multiplayer bundle, falling
+    // back to English if the label isn't present. TMP tags: <size=80%> shrinks text
+    // to fit the window; <line-height=70%> tightens the (generous) default gap.
     char msgBuf[256];
     // MSBT has proper Name tags (ev-as). Tags: {0}=partner name
     if (tu.partnerSyncMismatch) {
         char tmpBuf[200];
         const char* vals[] = { partnerName };
         formatMPTemplate(tmpBuf, sizeof(tmpBuf),
-            "{0} is ready!\nY: Synchronize  B: Battle solo", vals, 1);
+            getTUMPMessageCStr("SS_mp_SyncReady", "{0} is ready!\nY: Synchronize  B: Battle solo"),
+            vals, 1);
         snprintf(msgBuf, sizeof(msgBuf),
             "<size=80%%><line-height=70%%>%s", tmpBuf);
     } else {
         char tmpBuf[200];
         const char* vals[] = { partnerName };
         formatMPTemplate(tmpBuf, sizeof(tmpBuf),
-            "Waiting on {0}...\nPress B to battle solo", vals, 1);
+            getTUMPMessageCStr("SS_mp_SyncWaiting", "Waiting on {0}...\nPress B to battle solo"),
+            vals, 1);
         snprintf(msgBuf, sizeof(msgBuf),
             "<size=80%%><line-height=70%%>%s", tmpBuf);
     }
 
     showMsgWindowCustomText(msgBuf);
     s_syncMessageShown = true;
-    Logger::log("[TeamUp] Showing sync message for partner '%s'\n", partnerName);
+    MP_LOG("[TeamUp] Showing sync message for partner '%s'\n", partnerName);
 }
 
 // Called each frame from the main MP tick
@@ -2735,7 +2771,7 @@ void overworldMPTickDeferredEncount() {
     // -----------------------------------------------------------------------
     if (tu.syncPhase == SyncPhase::SYNC_NONE) {
         bool wasTeamUp = tu.partnerPartyValid && tu.isTeamedUp;
-        Logger::log("[TeamUp] Tick: syncPhase=NONE — releasing (%s)\n",
+        MP_LOG("[TeamUp] Tick: syncPhase=NONE — releasing (%s)\n",
                     wasTeamUp ? "team-up BSP" : "solo fallback");
         // Consume the flag so it can't leak into the NEXT encounter. partnerPartyValid
         // is only valid for the exchange that just produced a PP_AA BSP; if it survived,
@@ -2779,13 +2815,13 @@ void overworldMPTickDeferredEncount() {
             // Cast NpadBaseState to get raw button bits for logging
             uint64_t rawButtons = 0;
             memcpy(&rawButtons, &padState.mButtons, sizeof(rawButtons));
-            Logger::log("[TeamUp] SYNC_WAITING tick: buttons=0x%llx cancel=%d\n",
+            MP_LOG("[TeamUp] SYNC_WAITING tick: buttons=0x%llx cancel=%d\n",
                         (unsigned long long)rawButtons, (int)cancelPressed);
         }
 
         if (cancelPressed) {
             s_syncWaitLogTimer = 0.0f;
-            Logger::log("[TeamUp] Tick: cancel button pressed — going solo\n");
+            MP_LOG("[TeamUp] Tick: cancel button pressed — going solo\n");
             overworldMPCancelSyncAndGoSolo();
             // syncPhase is now SYNC_NONE, next tick will release
             return;
@@ -2793,7 +2829,7 @@ void overworldMPTickDeferredEncount() {
 
         // Y-to-synchronize: partner sent SYNC_WAIT with different trainer ID
         if (tu.partnerSyncMismatch && syncPressed) {
-            Logger::log("[TeamUp] Y pressed — force-synchronizing with mismatched trainer\n");
+            MP_LOG("[TeamUp] Y pressed — force-synchronizing with mismatched trainer\n");
             tu.partnerSyncReceived = true;
             tu.partnerSyncMismatch = false;
             s_syncMessageShown = false; // refresh message on next tick
@@ -2817,14 +2853,14 @@ void overworldMPTickDeferredEncount() {
             int32_t myStation = _ILExternal::external<int32_t>(0x23BC000);
             tu.isInitiator = (myStation < tu.partnerStation);
 
-            Logger::log("[TeamUp] SYNC_MATCHED! initiator=%d (myStation=%d, partner=%d)\n",
+            MP_LOG("[TeamUp] SYNC_MATCHED! initiator=%d (myStation=%d, partner=%d)\n",
                         (int)tu.isInitiator, myStation, tu.partnerStation);
 
             // Force BSP to DOUBLE now that both players are confirmed
             auto* bsp = s_teamUpBSP;
             if (bsp != nullptr) {
                 bsp->instance()->fields.rule = Dpr::Battle::Logic::BtlRule::BTL_RULE_DOUBLE;
-                Logger::log("[TeamUp] Forced BSP to DOUBLE\n");
+                MP_LOG("[TeamUp] Forced BSP to DOUBLE\n");
             }
 
             if (tu.isInitiator) {
@@ -2848,7 +2884,7 @@ void overworldMPTickDeferredEncount() {
     // syncPhase=SYNC_NONE when BSP modification is complete.
     s_deferredTimer -= 0.01666667f; // ~1 frame at 60fps
     if (s_deferredTimer <= 0.0f) {
-        Logger::log("[TeamUp] SYNC_MATCHED exchange TIMED OUT (%.1fs) — going solo\n",
+        MP_LOG("[TeamUp] SYNC_MATCHED exchange TIMED OUT (%.1fs) — going solo\n",
                     DEFERRED_ENCOUNT_TIMEOUT);
 
         tu.syncPhase = SyncPhase::SYNC_NONE;
@@ -2928,7 +2964,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCheckExpGetExecute) {
         // Partner is at the other ally slot in PP_AA: 0↔2
         uint8_t partnerClientId = (myClientId == 0) ? 2 : 0;
 
-        Logger::log("[TeamUp] EXP fix: running second pass for partner client %d (my=%d)\n",
+        MP_LOG("[TeamUp] EXP fix: running second pass for partner client %d (my=%d)\n",
                     (int)partnerClientId, (int)myClientId);
 
         // Temporarily switch to partner's client ID
@@ -2945,7 +2981,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCheckExpGetExecute) {
         // Combine results (either pass produced EXP → flag set)
         *(uint8_t*)(param_2 + 0x10) = firstResult | *(uint8_t*)(param_2 + 0x10);
 
-        Logger::log("[TeamUp] EXP fix: second pass complete (result=%d|%d)\n",
+        MP_LOG("[TeamUp] EXP fix: second pass complete (result=%d|%d)\n",
                     (int)firstResult, (int)*(uint8_t*)(param_2 + 0x10));
     }
 };
@@ -2990,5 +3026,5 @@ void exl_team_up_main() {
     TeamUpGetExpCheckedFlag::InstallAtOffset(0x1D10CB0);
     TeamUpSetExpCheckedFlag::InstallAtOffset(0x1D10B60);
 
-    Logger::log("[TeamUp] Hooks installed\n");
+    MP_LOG("[TeamUp] Hooks installed\n");
 }
