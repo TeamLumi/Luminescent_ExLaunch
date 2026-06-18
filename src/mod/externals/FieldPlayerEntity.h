@@ -118,8 +118,20 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         external<void>(0x02cef870, value);
     }
 
+    inline void CalcSwimTargetPosition() {
+        external<void>(0x01db29c0, this);
+    }
+
+    inline void ChangeSwim(bool swim) {
+        external<void>(0x01db2640, this, swim);
+    }
+
     inline void GetInputVector(UnityEngine::Vector2::Object* stickL, float* stickPowerSq, float deltatime, bool* analogstick) {
         external<void>(0x01dabb10, this, stickL, stickPowerSq, deltatime, analogstick);
+    }
+
+    inline void PlayIdle() {
+        external<void>(0x01daf050, this);
     }
 
     inline void PlayJumpStart() {
@@ -134,12 +146,24 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         external<void>(0x01da9fc0, this);
     }
 
+    inline void PlayNaminoriStart() {
+        external<void>(0x01dafe20, this);
+    }
+
+    inline void PlaySwimEffect() {
+        external<void>(0x01db46d0, this);
+    }
+
     inline bool IsRideBicycle() {
         return external<bool>(0x01da7c70, this);
     }
 
     inline void StopCrossInputAndBicycle() {
         external<void>(0x01da4ed0, this);
+    }
+
+    inline void StopSwimEffect() {
+        external<void>(0x01db4a40, this);
     }
 
     static_assert(offsetof(Fields, _hatRenderers) == 0x198);

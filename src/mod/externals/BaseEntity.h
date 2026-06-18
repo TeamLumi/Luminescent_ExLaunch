@@ -29,6 +29,12 @@ struct BaseEntity : ILClass<BaseEntity> {
         Il2CppMethodPointer methodPtr;
         const MethodInfo* method;
     };
+    
+    struct VirtualInvokeData_GetAnimationPlayer {
+        typedef AnimationPlayer::Object*(*Il2CppMethodPointer)(BaseEntity::Object*, const MethodInfo*);
+        Il2CppMethodPointer methodPtr;
+        const MethodInfo* method;
+};
 
     struct VTable {
         VirtualInvokeData _0_Equals;
@@ -36,7 +42,7 @@ struct BaseEntity : ILClass<BaseEntity> {
         VirtualInvokeData _2_GetHashCode;
         VirtualInvokeData _3_ToString;
         VirtualInvokeData_get_entityType _4_get_entityType;
-        VirtualInvokeData _5_GetAnimationPlayer;
+        VirtualInvokeData_GetAnimationPlayer _5_GetAnimationPlayer;
         VirtualInvokeData _6_Awake;
         VirtualInvokeData _7_OnEnable;
         VirtualInvokeData _8_OnDisable;
@@ -58,6 +64,11 @@ struct BaseEntity : ILClass<BaseEntity> {
 
     inline void SetYawAngleDirect(float angle) {
         external<void>(0x01d67790, this, angle);
+    }
+
+    inline AnimationPlayer::Object* GetAnimationPlayer() {
+        return (*(this->instance()->klass->vtable)._5_GetAnimationPlayer.methodPtr)
+               (this->instance(), this->instance()->klass->vtable._5_GetAnimationPlayer.method);
     }
 
     static_assert(sizeof(VTable) == 0xe0);

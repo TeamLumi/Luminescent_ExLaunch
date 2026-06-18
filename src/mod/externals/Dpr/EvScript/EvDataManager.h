@@ -1,5 +1,7 @@
 #pragma once
 
+#include <externals/Dpr/Field/FieldObject/FieldObjectMove.h>
+
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/EvScript/EvScriptData.h"
@@ -293,7 +295,7 @@ namespace Dpr::EvScript {
             int32_t _heroReqBit;
             int32_t _heroMoveGridCenterFrontDir;
             bool _heroMoveGridCenterFrontStat;
-            void * _fieldObjectMove;
+            Field::FieldObjectMove::Object* _fieldObjectMove;
             void * _fieldObjectRotateYaw;
             void * _fieldFloatMove;
             int32_t _hidenSequence;
