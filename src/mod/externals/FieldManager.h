@@ -81,8 +81,9 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     static_assert(offsetof(Fields, _akLisnerTransform) == 0x158);
 
-    inline void CallEffect(int32_t index, UnityEngine::Transform::Object* parent, UnityEngine::Vector3::Object ofs, void* loadcallback, void* eff_onFinished) {
-        external<void>(0x017a0450, this, index, parent, ofs, loadcallback, eff_onFinished);
+    inline void CallEffect(int32_t index, UnityEngine::Transform::Object* parent, UnityEngine::Vector3::Object ofs, void* loadcallback, void* eff_onFinished) { // System_Action_EffectInstance__o *loadcallback, UnityEngine_Events_UnityAction_EffectInstance__o *eff_onFinished
+        UnityEngine::Vector3::Fields ofsProxy = { .x = ofs.fields.x, .y = ofs.fields.y, .z = ofs.fields.z };
+        external<void>(0x017a0450, this, index, parent, ofsProxy, loadcallback, eff_onFinished);
     }
 
     inline uint16_t GetFormNo(int32_t mons, int32_t karana, int32_t anno) {

@@ -92,9 +92,9 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
         auto parent = playerEntity->fields._BiidaruTransform_k__BackingField;
 
         UnityEngine::Vector3::Object ofs;
-        ofs.ctor(worldPos.fields.x, worldPos.fields.y, worldPos.fields.z);
+        ofs.ctor(0.0f, 0.5f, 0.0f); // Offset for the splash effect from the parent's position
 
-        //fieldManager->CallEffect(249, parent, ofs, nullptr, nullptr);
+        fieldManager->CallEffect(249, parent, ofs, nullptr, nullptr);
         fieldManager->SetBgmEvent(SURF_BGM_ID); // Need to check settings and a work for this later
 
         surfState = surfState + 1;
