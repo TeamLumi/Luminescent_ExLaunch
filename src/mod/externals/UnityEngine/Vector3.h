@@ -26,10 +26,22 @@ namespace UnityEngine {
             return external<bool>(0x029a3dd0, lhsProxy, rhsProxy);
         }
 
+        static inline Vector3::Object op_Subtraction(Vector3::Object a, Vector3::Object b) {
+            UnityEngine::Vector3::Fields aProxy = { .x = a.fields.x, .y = a.fields.y, .z = a.fields.z };
+            UnityEngine::Vector3::Fields bProxy = { .x = b.fields.x, .y = b.fields.y, .z = b.fields.z };
+            return {
+                .fields = external<Vector3::Fields>(0x0299ee40, aProxy, bProxy)
+            };
+        }
+
         static inline Vector3::Object get_zero() {
             return {
                 .fields = external<Vector3::Fields>(0x029a3170)
             };
+        }
+
+        inline float get_magnitude() {
+            return external<float>(0x029a3940, this);
         }
     };
 }

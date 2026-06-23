@@ -118,8 +118,14 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         external<void>(0x02cef870, value);
     }
 
-    inline void CalcSwimTargetPosition() {
-        external<void>(0x01db29c0, this);
+    inline void AppearSwimBiidaru(float ofs, float time) {
+        external<void>(0x01db4000, this, ofs, time);
+    }
+
+    inline UnityEngine::Vector3::Object CalcSwimTargetPosition() {
+        return {
+            .fields = external<UnityEngine::Vector3::Fields>(0x01db29c0, this)
+        };
     }
 
     inline void ChangeSwim(bool swim) {

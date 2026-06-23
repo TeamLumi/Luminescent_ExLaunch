@@ -29,6 +29,11 @@ bool SetWeather(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] result: The work in which to put the result of attempting to add the starter to the party.
 bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Starts surfing.
+// Arguments:
+//   [Work, Number] disableBgm: Determines if the surfing music plays. 0 = Use user settings, 1 = Always disabled.
+bool Naminori(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Returns the player's starter selection. Possible values are 0, 1, and 2.
 // Arguments:
 //   [Work] result: The work in which to put the result in.
