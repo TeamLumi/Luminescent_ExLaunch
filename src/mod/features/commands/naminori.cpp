@@ -14,12 +14,19 @@ const uint32_t NAMINORI_SOUND_ID = 0xcbcd6687;
 const uint32_t SURF_BGM_ID = 0x1f4473ac;
 
 bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
-    Logger::log("_NAMINORI\n");
+
+    //Logger::log("_NAMINORI\n");
     system_load_typeinfo(0x446c);
     system_load_typeinfo(0x3f7f);
     system_load_typeinfo(0x497c);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
+
+    int32_t disableBgm = 0; // Defaults to not disabling via script argument, if no arg is given. May still be disabled by player settings.
+
+    if (args->max_length >= 2) {
+        disableBgm = GetWorkOrIntValue(args->m_Items[1]);
+    }
 
     EntityManager::getClass()->initIfNeeded();
     float deltaTime = manager->fields._deltatime;
@@ -29,9 +36,8 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
     move->Update(deltaTime);
 
     int32_t surfState = manager->fields._hidenSequence;
-    Logger::log("surfState = %d\n", surfState);
 
-    if (surfState == 2) {
+    if (surfState == 2) { // Ending command sequence. Waits for animations to finish and properly changes player state to swimming.
 
         AnimationPlayer::Object* anim = reinterpret_cast<BaseEntity::Object*>(playerEntity)->virtual_GetAnimationPlayer();
         bool ended = anim->get_IsPlayingEnd();
@@ -46,7 +52,7 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
         surfState = -1;
     }
-    else if (surfState == 1) {
+    else if (surfState == 1) { // During command sequence. Waits for the movement to finish and starts swim effect.
 
         if (move->get_IsBusy()) {
             return false;
@@ -57,7 +63,7 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
         surfState = surfState + 1;
     }
-    else {
+    else { // Beginning command sequence. Begins the movement and starts effects and music.
 
         if (manager->fields._hidenSequence != 0) {
             return false;
@@ -71,13 +77,11 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
         move->SetObjectEntity(playerEntity);
         auto swimTarget = playerEntity->CalcSwimTargetPosition();
-        Logger::log("swimTarget = %f, %f, %f\n", swimTarget.fields.x, swimTarget.fields.y, swimTarget.fields.z);
 
         AnimationPlayer::Object* anim = playerEntity->cast<BaseEntity::Object>()->virtual_GetAnimationPlayer();
         float remainingTime = anim->get_currentRemaingTime() + -0.5666667;
 
         auto worldPos = playerEntity->fields.worldPosition;
-        Logger::log("worldPos = %f, %f, %f\n", worldPos.fields.x, worldPos.fields.y, worldPos.fields.z);
 
         move->MoveTime(swimTarget, remainingTime);
 
@@ -95,7 +99,12 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
         ofs.ctor(0.0f, 0.5f, 0.0f); // Offset for the splash effect from the parent's position
 
         fieldManager->CallEffect(249, parent, ofs, nullptr, nullptr);
-        fieldManager->SetBgmEvent(SURF_BGM_ID); // Need to check settings and a work for this later
+
+        bool surfingMusicEnabled = getCustomSaveData()->settings.surfingMusicEnabled;
+
+        if (surfingMusicEnabled == true && disableBgm == 0) {
+            fieldManager->SetBgmEvent(SURF_BGM_ID);
+        }
 
         surfState = surfState + 1;
     }

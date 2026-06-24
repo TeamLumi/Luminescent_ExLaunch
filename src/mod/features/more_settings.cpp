@@ -50,6 +50,9 @@ void SetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraSett
         case array_index(SETTINGS, "Team Randomization"):
             extraSettings->randomTeamMode = (ExtraSettingsSaveData::RandomTeamMode)value;
             break;
+        case array_index(SETTINGS, "Surfing Music"):
+            extraSettings->surfingMusicEnabled = value == 0; // Index 0 is "On" and index 1 is "Off"
+            break;
         default:
             config->SetValue(configId, value);
             break;
@@ -70,6 +73,8 @@ int32_t GetSetting(DPData::CONFIG::Object* config, ExtraSettingsSaveData* extraS
             return (int32_t)extraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return (int32_t)extraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Surfing Music"):
+            return extraSettings->surfingMusicEnabled ? 0 : 1; // Index 0 is "On" and index 1 is "Off"
         default:
             return config->GetValue(configId);
     }
@@ -89,6 +94,8 @@ bool IsEqualValue(DPData::CONFIG::Object* config, DPData::CONFIG::Object* otherC
             return extraSettings->gameMode == otherExtraSettings->gameMode;
         case array_index(SETTINGS, "Team Randomization"):
             return extraSettings->randomTeamMode == otherExtraSettings->randomTeamMode;
+        case array_index(SETTINGS, "Surfing Music"):
+            return extraSettings->surfingMusicEnabled == otherExtraSettings->surfingMusicEnabled;
         default:
             return config->IsEqualValue(configId, otherConfig);
     }
