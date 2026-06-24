@@ -35,7 +35,7 @@ struct BaseEntity : ILClass<BaseEntity> {
         typedef AnimationPlayer::Object*(*Il2CppMethodPointer)(BaseEntity::Object*, const MethodInfo*);
         Il2CppMethodPointer methodPtr;
         const MethodInfo* method;
-};
+    };
 
     struct VTable {
         VirtualInvokeData _0_Equals;

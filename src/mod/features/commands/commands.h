@@ -31,7 +31,7 @@ bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Starts surfing.
 // Arguments:
-//   [Work, Number] disableBgm: Determines if the surfing music plays. 0 = Use user settings, 1 = Always disabled.
+//   [Work, Number] disableBgm: (optional) Determines if the surfing music plays. 0 = Use user settings, 1 = Always disabled.
 bool Naminori(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Returns the player's starter selection. Possible values are 0, 1, and 2.
