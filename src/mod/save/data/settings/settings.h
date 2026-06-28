@@ -25,6 +25,7 @@ struct ExtraSettingsSaveData {
     GameMode gameMode;
     RandomTeamMode randomTeamMode;
     bool surfingMusicEnabled;
+    bool bikingMusicEnabled;
 
     void Initialize() {
         expShareEnabled = false;
@@ -34,6 +35,7 @@ struct ExtraSettingsSaveData {
         gameMode = GameMode::_493;
         randomTeamMode = RandomTeamMode::RANDOM_ALWAYS;
         surfingMusicEnabled = true;
+        bikingMusicEnabled = true;
     }
 
     [[nodiscard]] nn::json ToJson() const {
@@ -46,6 +48,7 @@ struct ExtraSettingsSaveData {
                     {"gameMode", gameMode},
                     {"randomTeamMode", randomTeamMode},
                     {"surfingMusicEnabled", surfingMusicEnabled},
+                    {"bikingMusicEnabled", bikingMusicEnabled},
             }}
         };
     }
@@ -59,6 +62,7 @@ struct ExtraSettingsSaveData {
         gameMode = settings["gameMode"].get<GameMode>();
         randomTeamMode = settings["randomTeamMode"].get<RandomTeamMode>();
         surfingMusicEnabled = settings["surfingMusicEnabled"].get<bool>();
+        bikingMusicEnabled = settings["bikingMusicEnabled"].get<bool>();
     }
 };
 

@@ -126,8 +126,8 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         external<void>(0x017a0130, this, entity, attri);
     }
 
-    inline bool SetBgmEvent(uint32_t eventid) {
-        return external<bool>(0x0179ca70, this, eventid);
+    inline void SetBgmEvent(uint32_t eventid) {
+        external<void>(0x0179ca70, this, eventid);
     }
 
     inline bool StopSwayGrass_NextArea() {

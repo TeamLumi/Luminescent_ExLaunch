@@ -22,6 +22,7 @@ static constexpr const char *SETTINGS[] = {
     "Trainer Sets",
     "Team Randomization",
     "Surfing Music",
+    "Biking Music",
 };
 
 static constexpr const char *SETTING_DESCRIPTION_LABELS[] = {
@@ -46,6 +47,7 @@ static constexpr const char *SETTING_DESCRIPTION_LABELS[] = {
     "SS_option_GameMode_Desc",
     "SS_option_TeamRandom_Desc",
     "SS_option_SurfingMusic_Desc",
+    "SS_option_BikingMusic_Desc",
 };
 
 const int SETTING_COUNT = sizeof(SETTINGS) / sizeof(SETTINGS[0]);
