@@ -476,77 +476,25 @@ void overworldMPShowRemoteEmote(int32_t stationIndex, uint8_t emoteId) {
 }
 
 // ---------------------------------------------------------------------------
-// Shared: open a ContextMenuWindow with given items
+// Shared: open a ContextMenuWindow. openContextMenuMixed is the single core
+// implementation; openContextMenu (raw text) and openContextMenuFromLabels
+// (message-file labels) are thin wrappers over it.
 // ---------------------------------------------------------------------------
-// items: array of {text} pairs. menuId is always XMENU_YES (vanilla safe).
-// callback: the C++ function to invoke when an item is selected.
-// methodInfoCache: pointer to a static MethodInfo* for caching the copyWith result.
+static bool openContextMenuMixed(
+    const char* messageFile,
+    const char* labels[], const char* textItems[], int32_t itemCount, int32_t cancelIndex,
+    bool (*callback)(void*, Dpr::UI::ContextMenuItem::Object*, MethodInfo*),
+    MethodInfo** methodInfoCache);
+
+// items: array of raw display strings. menuIds are sequential (0,1,2,...);
+// identify selections by reading menuId back in the callback.
 static bool openContextMenu(
     const char* items[], int32_t itemCount, int32_t cancelIndex,
     bool (*callback)(void*, Dpr::UI::ContextMenuItem::Object*, MethodInfo*),
     MethodInfo** methodInfoCache)
 {
-    system_load_typeinfo(0x9f8f);
-    system_load_typeinfo(0x9cb4);
-
-    auto* paramClass = Dpr::UI::ContextMenuWindow::Param::getClass();
-    if (paramClass == nullptr) return false;
-    paramClass->initIfNeeded();
-    auto* param = paramClass->newInstance();
-
-    auto* itemParamArrayClass = Dpr::UI::ContextMenuItem::Param::getArrayClass();
-    if (itemParamArrayClass == nullptr) return false;
-    itemParamArrayClass->initIfNeeded();
-    param->fields.itemParams = itemParamArrayClass->newArray(itemCount);
-
-    auto* itemParamClass = Dpr::UI::ContextMenuItem::Param::getClass();
-    if (itemParamClass == nullptr) return false;
-    itemParamClass->initIfNeeded();
-
-    // Use sequential vanilla menuIds (0,1,2,...) so GetContextMenuData doesn't throw.
-    // Identify selections by reading menuId back from item->_param->menuId in the callback.
-    for (int32_t i = 0; i < itemCount; i++) {
-        param->fields.itemParams->m_Items[i] = itemParamClass->newInstance();
-        param->fields.itemParams->m_Items[i]->fields.menuId = (ContextMenuID)i;
-        param->fields.itemParams->m_Items[i]->fields.text = System::String::Create(items[i]);
-    }
-
-    param->fields.pivot = { .fields = { .x = 0.5f, .y = 0.5f } };
-    param->fields.position = { .fields = { .x = 800.0f, .y = 300.0f, .z = 0.0f } };
-    param->fields.minItemWidth = 122.0f;
-    param->fields.cancelIndex = cancelIndex;
-    param->fields.useCancel = true;
-    param->fields.useLoopAndRepeat = false;
-    param->fields.isInputEnable = true;
-
-    auto* uiMgr = Dpr::UI::UIManager::get_Instance();
-    if (uiMgr == nullptr) return false;
-
-    auto* createMethod = *Dpr::UI::ContextMenuWindow::Method$$CreateUIWindow;
-    if (createMethod == nullptr) return false;
-
-    auto* window = uiMgr->CreateUIWindow<Dpr::UI::ContextMenuWindow>(UIWindowID::CONTEXTMENU);
-    if (window == nullptr) return false;
-
-    // Create Func<ContextMenuItem, bool> delegate
-    if (*methodInfoCache == nullptr) {
-        auto* srcMethod = *Dpr::UI::UIPofinCase::DisplayClass35_0::Method$$ShowItemContextMenu_b__1;
-        if (srcMethod == nullptr) return false;
-        *methodInfoCache = srcMethod->copyWith((Il2CppMethodPointer)callback);
-    }
-
-    auto* dispClass = Dpr::UI::UIPofinCase::DisplayClass35_0::getClass();
-    dispClass->initIfNeeded();
-    auto* disp = dispClass->newInstance();
-
-    auto* funcClass = System::Func::getClass(System::Func::ContextMenuItem_bool__TypeInfo);
-    if (funcClass == nullptr) return false;
-    funcClass->initIfNeeded();
-    window->fields.onClicked = funcClass->newInstance(disp, *methodInfoCache);
-
-    s_activeContextMenu = window;
-    window->Open(param);
-    return true;
+    return openContextMenuMixed(nullptr, nullptr, items, itemCount, cancelIndex,
+                                callback, methodInfoCache);
 }
 
 // ---------------------------------------------------------------------------
@@ -612,6 +560,49 @@ static const char* getMPMessageCStr(const char* label, const char* fallback) {
 }
 
 // ---------------------------------------------------------------------------
+// Build the trade-confirm prompt ("Trade for {name}'s Lv.{lv}{♂/♀} {species}{★}?")
+// into outBuf. Shared by showTradePreview and showTradeConfirmDialog. A null
+// core (no partner data / deserialize failed) or an unresolvable species name
+// yields the generic "Trade for {name}'s pokemon?" prompt.
+// ---------------------------------------------------------------------------
+static void buildTradeConfirmText(char* outBuf, size_t outSize, Pml::PokePara::CoreParam* core) {
+    // Copy the partner name into a local buffer — getMPMessageCStr returns a shared
+    // static buffer, so holding its result across further message loads would alias.
+    auto& ctx = getOverworldMPContext();
+    char partnerName[52];
+    const char* defaultName = getMPMessageCStr("SS_mp_DefaultName", "Player");
+    if (s_tradePartnerStation >= 0 && s_tradePartnerStation < OW_MP_MAX_PLAYERS &&
+        ctx.remotePlayers[s_tradePartnerStation].playerNameSet) {
+        strncpy(partnerName, ctx.remotePlayers[s_tradePartnerStation].playerNameBuf,
+                sizeof(partnerName) - 1);
+    } else {
+        strncpy(partnerName, defaultName, sizeof(partnerName) - 1);
+    }
+    partnerName[sizeof(partnerName) - 1] = '\0';
+
+    if (core != nullptr) {
+        auto* nameStr = Pml::Personal::PersonalSystem::GetMonsName(
+            core->GetMonsNo(), (int32_t)PlayerWork::get_msgLangID());
+        if (nameStr != nullptr && !System::String::IsNullOrEmpty(nameStr)) {
+            auto cname = nameStr->asCString();
+            auto sex = core->GetSex();
+            const char* genderStr = "";
+            if (sex == Pml::Sex::MALE) genderStr = " \xe2\x99\x82";
+            else if (sex == Pml::Sex::FEMALE) genderStr = " \xe2\x99\x80";
+            char lvBuf[8];
+            snprintf(lvBuf, sizeof(lvBuf), "%u", core->GetLevel());
+            // Tags: {0}=name, {1}=level, {2}=gender, {3}=species, {4}=shiny
+            const char* vals[] = { partnerName, lvBuf, genderStr, cname.c_str(),
+                                   core->IsRare() ? " \xe2\x98\x85" : "" };
+            formatMPTemplate(outBuf, outSize, "Trade for {0}'s Lv.{1}{2} {3}{4}?", vals, 5);
+            return;
+        }
+    }
+    const char* vals[] = { partnerName };
+    formatMPTemplate(outBuf, outSize, "Trade for {0}'s pokemon?", vals, 1);
+}
+
+// ---------------------------------------------------------------------------
 // Open a ContextMenuWindow using message file labels instead of raw text.
 // Each item resolves its text from messageFile+messageLabel via the vanilla
 // ContextMenuItem::Setup path (Param.text left null).
@@ -622,75 +613,15 @@ static bool openContextMenuFromLabels(
     bool (*callback)(void*, Dpr::UI::ContextMenuItem::Object*, MethodInfo*),
     MethodInfo** methodInfoCache)
 {
-    system_load_typeinfo(0x9f8f);
-    system_load_typeinfo(0x9cb4);
-
-    auto* paramClass = Dpr::UI::ContextMenuWindow::Param::getClass();
-    if (paramClass == nullptr) return false;
-    paramClass->initIfNeeded();
-    auto* param = paramClass->newInstance();
-
-    auto* itemParamArrayClass = Dpr::UI::ContextMenuItem::Param::getArrayClass();
-    if (itemParamArrayClass == nullptr) return false;
-    itemParamArrayClass->initIfNeeded();
-    param->fields.itemParams = itemParamArrayClass->newArray(itemCount);
-
-    auto* itemParamClass = Dpr::UI::ContextMenuItem::Param::getClass();
-    if (itemParamClass == nullptr) return false;
-    itemParamClass->initIfNeeded();
-
-    auto* msgFileStr = System::String::Create(messageFile);
-
-    for (int32_t i = 0; i < itemCount; i++) {
-        param->fields.itemParams->m_Items[i] = itemParamClass->newInstance();
-        auto& fields = param->fields.itemParams->m_Items[i]->fields;
-        fields.menuId = (ContextMenuID)i;
-        fields.messageFile = msgFileStr;
-        fields.messageLabel = System::String::Create(labels[i]);
-        fields.messageIndex = -1;  // use label, not index
-        fields.text = nullptr;     // null triggers messageFile/label resolution
-    }
-
-    param->fields.pivot = { .fields = { .x = 0.5f, .y = 0.5f } };
-    param->fields.position = { .fields = { .x = 800.0f, .y = 300.0f, .z = 0.0f } };
-    param->fields.minItemWidth = 122.0f;
-    param->fields.cancelIndex = cancelIndex;
-    param->fields.useCancel = true;
-    param->fields.useLoopAndRepeat = false;
-    param->fields.isInputEnable = true;
-
-    auto* uiMgr = Dpr::UI::UIManager::get_Instance();
-    if (uiMgr == nullptr) return false;
-
-    auto* createMethod = *Dpr::UI::ContextMenuWindow::Method$$CreateUIWindow;
-    if (createMethod == nullptr) return false;
-
-    auto* window = uiMgr->CreateUIWindow<Dpr::UI::ContextMenuWindow>(UIWindowID::CONTEXTMENU);
-    if (window == nullptr) return false;
-
-    if (*methodInfoCache == nullptr) {
-        auto* srcMethod = *Dpr::UI::UIPofinCase::DisplayClass35_0::Method$$ShowItemContextMenu_b__1;
-        if (srcMethod == nullptr) return false;
-        *methodInfoCache = srcMethod->copyWith((Il2CppMethodPointer)callback);
-    }
-
-    auto* dispClass = Dpr::UI::UIPofinCase::DisplayClass35_0::getClass();
-    dispClass->initIfNeeded();
-    auto* disp = dispClass->newInstance();
-
-    auto* funcClass = System::Func::getClass(System::Func::ContextMenuItem_bool__TypeInfo);
-    if (funcClass == nullptr) return false;
-    funcClass->initIfNeeded();
-    window->fields.onClicked = funcClass->newInstance(disp, *methodInfoCache);
-
-    s_activeContextMenu = window;
-    window->Open(param);
-    return true;
+    return openContextMenuMixed(messageFile, labels, nullptr, itemCount, cancelIndex,
+                                callback, methodInfoCache);
 }
 
 // ---------------------------------------------------------------------------
-// Open a ContextMenuWindow with a mix: some items use labels, some use raw text.
-// textItems[i] != nullptr → use text directly; textItems[i] == nullptr → use labels[i].
+// Core implementation: open a ContextMenuWindow with a mix of label-based and
+// raw-text items. Per item: textItems[i] != nullptr → use that text directly;
+// otherwise resolve labels[i] from messageFile. Either array may be null as a
+// whole (all-label / all-text menus via the wrappers above).
 // ---------------------------------------------------------------------------
 static bool openContextMenuMixed(
     const char* messageFile,
@@ -715,13 +646,15 @@ static bool openContextMenuMixed(
     if (itemParamClass == nullptr) return false;
     itemParamClass->initIfNeeded();
 
-    auto* msgFileStr = System::String::Create(messageFile);
+    auto* msgFileStr = (messageFile != nullptr) ? System::String::Create(messageFile) : nullptr;
 
+    // Use sequential vanilla menuIds (0,1,2,...) so GetContextMenuData doesn't throw.
+    // Identify selections by reading menuId back from item->_param->menuId in the callback.
     for (int32_t i = 0; i < itemCount; i++) {
         param->fields.itemParams->m_Items[i] = itemParamClass->newInstance();
         auto& fields = param->fields.itemParams->m_Items[i]->fields;
         fields.menuId = (ContextMenuID)i;
-        if (textItems[i] != nullptr) {
+        if (textItems != nullptr && textItems[i] != nullptr) {
             // Dynamic text — use text field directly
             fields.text = System::String::Create(textItems[i]);
         } else {
@@ -1722,13 +1655,8 @@ static void showTradePreview() {
     }
 
     auto* core = (Pml::PokePara::CoreParam*)partnerPoke;
-    int32_t partnerMonsNo = core->GetMonsNo();
-    int32_t langId = (int32_t)PlayerWork::get_msgLangID();
-    uint32_t level = core->GetLevel();
-    auto sex = core->GetSex();
-    bool isRare = core->IsRare();
     MP_LOG("[OverworldMP] Partner pokemon: monsNo=%d lv=%d sex=%d rare=%d\n",
-                partnerMonsNo, level, (int)sex, isRare);
+                core->GetMonsNo(), core->GetLevel(), (int)core->GetSex(), core->IsRare());
 
     // --- Open UIZukanRegister for 3D model display ---
     system_load_typeinfo(0x43bd);
@@ -1785,31 +1713,7 @@ static void showTradePreview() {
     // --- Build the prompt text now, but defer showing it until after UIZukanRegister
     //     finishes its opening animation. The MsgWindow must be activated AFTER the
     //     UIZukanRegister's Canvas is set up, so it renders on top. ---
-    auto& ctx = getOverworldMPContext();
-    const char* partnerName = getMPMessageCStr("SS_mp_DefaultName", "Player");
-    if (s_tradePartnerStation >= 0 && s_tradePartnerStation < OW_MP_MAX_PLAYERS &&
-        ctx.remotePlayers[s_tradePartnerStation].playerNameSet) {
-        partnerName = ctx.remotePlayers[s_tradePartnerStation].playerNameBuf;
-    }
-
-    auto* nameStr = Pml::Personal::PersonalSystem::GetMonsName(partnerMonsNo, langId);
-    if (nameStr != nullptr && !System::String::IsNullOrEmpty(nameStr)) {
-        auto cname = nameStr->asCString();
-        const char* genderStr = "";
-        if (sex == Pml::Sex::MALE) genderStr = " \xe2\x99\x82";
-        else if (sex == Pml::Sex::FEMALE) genderStr = " \xe2\x99\x80";
-        // MSBT has proper Name tags (ev-as). Tags: {0}=name, {1}=level, {2}=gender, {3}=species, {4}=shiny
-        const char* promptFmt = "Trade for {0}'s Lv.{1}{2} {3}{4}?";
-        char lvBuf[8];
-        snprintf(lvBuf, sizeof(lvBuf), "%u", level);
-        const char* vals[] = { partnerName, lvBuf, genderStr, cname.c_str(),
-                               isRare ? " \xe2\x98\x85" : "" };
-        formatMPTemplate(s_tradeConfirmMsgBuf, sizeof(s_tradeConfirmMsgBuf), promptFmt, vals, 5);
-    } else {
-        const char* vals[] = { partnerName };
-        formatMPTemplate(s_tradeConfirmMsgBuf, sizeof(s_tradeConfirmMsgBuf),
-                         "Trade for {0}'s pokemon?", vals, 1);
-    }
+    buildTradeConfirmText(s_tradeConfirmMsgBuf, sizeof(s_tradeConfirmMsgBuf), core);
 
     MP_LOG("[OverworldMP] Trade confirm text prepared: %s\n", s_tradeConfirmMsgBuf);
 
@@ -1825,46 +1729,19 @@ static void showTradePreview() {
 static void showTradeConfirmDialog() {
     s_interact.state = InteractState::TradeConfirm;
 
-    // Build the MsgWindow prompt text with partner name + pokemon details
-    auto& ctx = getOverworldMPContext();
-    const char* partnerName = getMPMessageCStr("SS_mp_DefaultName", "Player");
-    if (s_tradePartnerStation >= 0 && s_tradePartnerStation < OW_MP_MAX_PLAYERS &&
-        ctx.remotePlayers[s_tradePartnerStation].playerNameSet) {
-        partnerName = ctx.remotePlayers[s_tradePartnerStation].playerNameBuf;
+    // Build the MsgWindow prompt text with partner name + pokemon details.
+    // A null core (no data received / deserialize failed) yields the generic prompt.
+    Pml::PokePara::CoreParam* core = nullptr;
+    if (s_partnerPokeReceived) {
+        auto* party = PlayerWork::get_playerParty();
+        if (party != nullptr) {
+            core = (Pml::PokePara::CoreParam*)deserializePartnerPokemon(party);
+        }
     }
 
     static char msgBuf[256] = {};
     const char* promptText = msgBuf;
-    snprintf(msgBuf, sizeof(msgBuf), "Trade for %s's pokemon?", partnerName);
-
-    if (s_partnerPokeReceived) {
-        auto* party = PlayerWork::get_playerParty();
-        if (party != nullptr) {
-            auto* partnerPoke = deserializePartnerPokemon(party);
-            if (partnerPoke != nullptr) {
-                auto* core = (Pml::PokePara::CoreParam*)partnerPoke;
-                int32_t partnerMonsNo = core->GetMonsNo();
-                int32_t langId = (int32_t)PlayerWork::get_msgLangID();
-                uint32_t level = core->GetLevel();
-                auto sex = core->GetSex();
-                bool isRare = core->IsRare();
-
-                auto* nameStr = Pml::Personal::PersonalSystem::GetMonsName(partnerMonsNo, langId);
-                if (nameStr != nullptr && !System::String::IsNullOrEmpty(nameStr)) {
-                    auto cname = nameStr->asCString();
-                    const char* genderStr = "";
-                    if (sex == Pml::Sex::MALE) genderStr = " \xe2\x99\x82";
-                    else if (sex == Pml::Sex::FEMALE) genderStr = " \xe2\x99\x80";
-                    const char* promptFmt = "Trade for {0}'s Lv.{1}{2} {3}{4}?";
-                    char lvBuf[8];
-                    snprintf(lvBuf, sizeof(lvBuf), "%u", level);
-                    const char* vals[] = { partnerName, lvBuf, genderStr, cname.c_str(),
-                                           isRare ? " \xe2\x98\x85" : "" };
-                    formatMPTemplate(msgBuf, sizeof(msgBuf), promptFmt, vals, 5);
-                }
-            }
-        }
-    }
+    buildTradeConfirmText(msgBuf, sizeof(msgBuf), core);
 
     // Show the question in the MsgWindow dialogue box
     showInteractMsgWindow(promptText);
@@ -3168,19 +3045,7 @@ void overworldMPCheckInteraction() {
             s_warningPrevAB = false; // Reset during grace period
             return;
         }
-        nn::hid::NpadBaseState padState = {};
-        nn::hid::NpadStyleSet styleSet = nn::hid::GetNpadStyleSet(0);
-        if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleFullKey)) {
-            nn::hid::GetNpadState((nn::hid::NpadFullKeyState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyDual)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyDualState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyLeft)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyLeftState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyRight)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyRightState*)&padState, 0);
-        } else {
-            nn::hid::GetNpadState((nn::hid::NpadHandheldState*)&padState, 0x20);
-        }
+        nn::hid::NpadBaseState padState = InputHelper::readNpadStateDirect();
         bool abHeld = padState.mButtons.isBitSet(nn::hid::NpadButton::A) ||
                       padState.mButtons.isBitSet(nn::hid::NpadButton::B);
         bool abPressed = abHeld && !s_warningPrevAB;
@@ -3371,19 +3236,7 @@ void overworldMPCheckInteraction() {
     // Use edge detection: only trigger on the frame Y transitions from released to pressed.
     {
         static bool s_prevYHeld = false;
-        nn::hid::NpadBaseState padState = {};
-        nn::hid::NpadStyleSet styleSet = nn::hid::GetNpadStyleSet(0);
-        if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleFullKey)) {
-            nn::hid::GetNpadState((nn::hid::NpadFullKeyState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyDual)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyDualState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyLeft)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyLeftState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyRight)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyRightState*)&padState, 0);
-        } else {
-            nn::hid::GetNpadState((nn::hid::NpadHandheldState*)&padState, 0x20);
-        }
+        nn::hid::NpadBaseState padState = InputHelper::readNpadStateDirect();
         bool yHeld = padState.mButtons.isBitSet(nn::hid::NpadButton::Y);
         bool yPressed = yHeld && !s_prevYHeld;
         s_prevYHeld = yHeld;

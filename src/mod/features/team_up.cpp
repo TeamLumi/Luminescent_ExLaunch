@@ -1018,6 +1018,109 @@ static MYSTATUS_COMM::Object deserializeTeamUpStatus(uint8_t* buf, int32_t size,
 }
 
 // ---------------------------------------------------------------------------
+// Apply the human-trainer color overrides for a PP_AA team-up battle. Shared by
+// the Player A and Player B BSP setup paths, which are identical apart from the
+// slot layout (localSlot/partnerSlot) and the source of the trainer-data /
+// player-status pointers. The two AI slots (1,3) keep colorID 0.
+//   trData     — bsp fields' tr_data array (caller supplies its own fields->tr_data)
+//   statusArr  — the playerStatus array (Player B re-fetches via PlayerWork)
+//   remote     — partner's net data (custom colors / colorId)
+//   localColor — our save-data colorID (-1 = custom)
+//   localSlot / partnerSlot — PP_AA slots (Player A: 0/2, Player B: 2/0)
+// ---------------------------------------------------------------------------
+static void applyTeamUpBattleColors(void* trData,
+                                    Dpr::Battle::Logic::MyStatus::Array* statusArr,
+                                    FieldPlayerNetData& remote, int32_t localColor,
+                                    int32_t localSlot, int32_t partnerSlot) {
+    int32_t partnerColor = remote.colorId; // -1 passes through for custom colors
+
+    // (1) TRAINER_DATA.colorID — human slots take our/partner color, AI slots unchanged.
+    if (trData != nullptr) {
+        uint32_t arrLen = *(uint32_t*)((uintptr_t)trData + 0x18);
+        auto setTd = [&](int32_t slot, int32_t color) {
+            if (arrLen > (uint32_t)slot) {
+                auto* td = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
+                    ((uintptr_t)trData + 0x20 + slot * 8);
+                if (td != nullptr) td->fields.colorID = color;
+            }
+        };
+        setTd(localSlot, localColor);
+        setTd(partnerSlot, partnerColor);
+    }
+
+    // (2) Store MyStatus pointers for the MyStatusGetColorID hook
+    extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
+    extern void owmpClearBattleMyStatus();
+    owmpClearBattleMyStatus();
+    if (statusArr != nullptr) {
+        if (statusArr->max_length > (uint32_t)localSlot && statusArr->m_Items[localSlot] != nullptr)
+            owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
+        if (statusArr->max_length > (uint32_t)partnerSlot && statusArr->m_Items[partnerSlot] != nullptr)
+            owmpSetBattleMyStatus(partnerSlot, statusArr->m_Items[partnerSlot]);
+    }
+
+    // (3) Slot color array + cursor for CardModelViewController
+    extern int32_t g_owmpBattleSlotColors[];
+    extern int32_t g_owmpBattleSlotCursor;
+    g_owmpBattleSlotColors[localSlot]   = localColor;
+    g_owmpBattleSlotColors[partnerSlot] = partnerColor;
+    g_owmpBattleSlotColors[1] = 0;  // enemy NPC
+    g_owmpBattleSlotColors[3] = 0;  // enemy NPC
+    g_owmpBattleSlotCursor = 0;
+    extern int32_t g_owmpSetSkinColorCursor;
+    g_owmpSetSkinColorCursor = 0;
+
+    // (4) Custom battle colors for slots with colorId == -1
+    extern bool g_owmpBattleSlotHasCustomColors[];
+    extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+    memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
+
+    // Local player — build from save data directly (don't call GetCustomColorSet
+    // here, it can crash during BSP setup).
+    if (localColor == -1) {
+        g_owmpBattleSlotHasCustomColors[localSlot] = true;
+        auto& lcs = g_owmpBattleSlotCustomColorSets[localSlot];
+        auto& cv = getCustomSaveData()->playerColorVariation;
+        lcs.fieldSkinFace  = { cv.fSkinFace.fields.r,  cv.fSkinFace.fields.g,  cv.fSkinFace.fields.b,  cv.fSkinFace.fields.a };
+        lcs.fieldSkinMouth = { cv.fSkinMouth.fields.r, cv.fSkinMouth.fields.g, cv.fSkinMouth.fields.b, cv.fSkinMouth.fields.a };
+        lcs.fieldEyes      = { cv.fEyes.fields.r,      cv.fEyes.fields.g,      cv.fEyes.fields.b,      cv.fEyes.fields.a };
+        lcs.fieldEyebrows  = { cv.fEyebrows.fields.r,  cv.fEyebrows.fields.g,  cv.fEyebrows.fields.b,  cv.fEyebrows.fields.a };
+        lcs.fieldSkinBody  = { cv.fSkinBody.fields.r,  cv.fSkinBody.fields.g,  cv.fSkinBody.fields.b,  cv.fSkinBody.fields.a };
+        lcs.fieldHair      = { cv.fHair.fields.r,      cv.fHair.fields.g,      cv.fHair.fields.b,      cv.fHair.fields.a };
+        lcs.battleSkinFace = { cv.bSkinFace.fields.r,  cv.bSkinFace.fields.g,  cv.bSkinFace.fields.b,  cv.bSkinFace.fields.a };
+        lcs.battleHairExtra= { cv.bHairExtra.fields.r, cv.bHairExtra.fields.g, cv.bHairExtra.fields.b, cv.bHairExtra.fields.a };
+        lcs.battleEyeLeft  = { cv.bEyeLeft.fields.r,   cv.bEyeLeft.fields.g,   cv.bEyeLeft.fields.b,   cv.bEyeLeft.fields.a };
+        lcs.battleEyeRight = { cv.bEyeRight.fields.r,  cv.bEyeRight.fields.g,  cv.bEyeRight.fields.b,  cv.bEyeRight.fields.a };
+        lcs.battleSkinBody = { cv.bSkinBody.fields.r,  cv.bSkinBody.fields.g,  cv.bSkinBody.fields.b,  cv.bSkinBody.fields.a };
+        lcs.battleHair     = { cv.bHair.fields.r,      cv.bHair.fields.g,      cv.bHair.fields.b,      cv.bHair.fields.a };
+    }
+
+    // Partner — from received 0xCD packet data
+    if (partnerColor == -1 && remote.hasCustomColors) {
+        g_owmpBattleSlotHasCustomColors[partnerSlot] = true;
+        auto& cs = g_owmpBattleSlotCustomColorSets[partnerSlot];
+        for (int c = 0; c < 6; c++) {
+            float* dst = (c == 0) ? &cs.fieldSkinFace.r :
+                         (c == 1) ? &cs.fieldSkinMouth.r :
+                         (c == 2) ? &cs.fieldEyes.r :
+                         (c == 3) ? &cs.fieldEyebrows.r :
+                         (c == 4) ? &cs.fieldSkinBody.r : &cs.fieldHair.r;
+            dst[0] = remote.customFieldColors[c * 3];
+            dst[1] = remote.customFieldColors[c * 3 + 1];
+            dst[2] = remote.customFieldColors[c * 3 + 2];
+            dst[3] = 1.0f;
+        }
+        float* battleBase = &cs.battleSkinFace.r;
+        for (int c = 0; c < 6; c++) {
+            battleBase[c * 4 + 0] = remote.customBattleColors[c * 3];
+            battleBase[c * 4 + 1] = remote.customBattleColors[c * 3 + 1];
+            battleBase[c * 4 + 2] = remote.customBattleColors[c * 3 + 2];
+            battleBase[c * 4 + 3] = 1.0f;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Modify BSP for PP_AA team-up battle
 // ---------------------------------------------------------------------------
 void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
@@ -1383,104 +1486,14 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[tu.partnerStation];
-        int32_t partnerColor = remote.colorId; // Pass -1 through for custom colors
-
-        // (1) TRAINER_DATA.colorID
-        void* trData = bspFields->tr_data;
-        if (trData != nullptr) {
-            uint32_t arrLen = *(uint32_t*)((uintptr_t)trData + 0x18);
-            if (arrLen > 0) {
-                auto* td0 = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
-                    ((uintptr_t)trData + 0x20 + 0 * 8);
-                if (td0 != nullptr) td0->fields.colorID = partnerColor;
-            }
-            if (arrLen > 2) {
-                auto* td2 = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
-                    ((uintptr_t)trData + 0x20 + 2 * 8);
-                if (td2 != nullptr) td2->fields.colorID = localColor;
-            }
-        }
-
-        // (2) Store MyStatus pointers for the MyStatusGetColorID hook
-        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
-        extern void owmpClearBattleMyStatus();
-        owmpClearBattleMyStatus();
-        auto* bspInst = PlayerWork::get_battleSetupParam();
-        if (bspInst != nullptr) {
-            auto* statusArr = bspInst->instance()->fields.playerStatus;
-            if (statusArr != nullptr) {
-                if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                    owmpSetBattleMyStatus(0, statusArr->m_Items[0]);
-                if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                    owmpSetBattleMyStatus(2, statusArr->m_Items[2]);
-            }
-        }
-
-        // (3) Slot color array + cursor for CardModelViewController
-        extern int32_t g_owmpBattleSlotColors[];
-        extern int32_t g_owmpBattleSlotCursor;
-        g_owmpBattleSlotColors[0] = partnerColor;
-        g_owmpBattleSlotColors[1] = 0;  // enemy NPC
-        g_owmpBattleSlotColors[2] = localColor;
-        g_owmpBattleSlotColors[3] = 0;  // enemy NPC
-        g_owmpBattleSlotCursor = 0;
-        extern int32_t g_owmpSetSkinColorCursor;
-        g_owmpSetSkinColorCursor = 0;
-
-        // (4) Custom battle colors for ALL slots with colorId == -1
-        extern bool g_owmpBattleSlotHasCustomColors[];
-        extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
-        memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
-
         MP_LOG("[TeamUp] Player B: color setup start (local=%d, partner=%d, hasCustom=%d)\n",
-                    localColor, partnerColor, (int)remote.hasCustomColors);
-
-        // Local player (slot 2) — build from save data directly
-        // (Don't call GetCustomColorSet here — it can crash during BSP setup)
-        if (localColor == -1) {
-            g_owmpBattleSlotHasCustomColors[2] = true;
-            auto& lcs = g_owmpBattleSlotCustomColorSets[2];
-            auto& cv = getCustomSaveData()->playerColorVariation;
-            lcs.fieldSkinFace  = { cv.fSkinFace.fields.r,  cv.fSkinFace.fields.g,  cv.fSkinFace.fields.b,  cv.fSkinFace.fields.a };
-            lcs.fieldSkinMouth = { cv.fSkinMouth.fields.r, cv.fSkinMouth.fields.g, cv.fSkinMouth.fields.b, cv.fSkinMouth.fields.a };
-            lcs.fieldEyes      = { cv.fEyes.fields.r,      cv.fEyes.fields.g,      cv.fEyes.fields.b,      cv.fEyes.fields.a };
-            lcs.fieldEyebrows  = { cv.fEyebrows.fields.r,  cv.fEyebrows.fields.g,  cv.fEyebrows.fields.b,  cv.fEyebrows.fields.a };
-            lcs.fieldSkinBody  = { cv.fSkinBody.fields.r,  cv.fSkinBody.fields.g,  cv.fSkinBody.fields.b,  cv.fSkinBody.fields.a };
-            lcs.fieldHair      = { cv.fHair.fields.r,      cv.fHair.fields.g,      cv.fHair.fields.b,      cv.fHair.fields.a };
-            lcs.battleSkinFace = { cv.bSkinFace.fields.r,  cv.bSkinFace.fields.g,  cv.bSkinFace.fields.b,  cv.bSkinFace.fields.a };
-            lcs.battleHairExtra= { cv.bHairExtra.fields.r, cv.bHairExtra.fields.g, cv.bHairExtra.fields.b, cv.bHairExtra.fields.a };
-            lcs.battleEyeLeft  = { cv.bEyeLeft.fields.r,   cv.bEyeLeft.fields.g,   cv.bEyeLeft.fields.b,   cv.bEyeLeft.fields.a };
-            lcs.battleEyeRight = { cv.bEyeRight.fields.r,  cv.bEyeRight.fields.g,  cv.bEyeRight.fields.b,  cv.bEyeRight.fields.a };
-            lcs.battleSkinBody = { cv.bSkinBody.fields.r,  cv.bSkinBody.fields.g,  cv.bSkinBody.fields.b,  cv.bSkinBody.fields.a };
-            lcs.battleHair     = { cv.bHair.fields.r,      cv.bHair.fields.g,      cv.bHair.fields.b,      cv.bHair.fields.a };
-        }
-
-        // Partner (slot 0) — from received 0xCD packet data
-        if (partnerColor == -1 && remote.hasCustomColors) {
-            g_owmpBattleSlotHasCustomColors[0] = true;
-            auto& cs = g_owmpBattleSlotCustomColorSets[0];
-            for (int c = 0; c < 6; c++) {
-                float* dst = (c == 0) ? &cs.fieldSkinFace.r :
-                             (c == 1) ? &cs.fieldSkinMouth.r :
-                             (c == 2) ? &cs.fieldEyes.r :
-                             (c == 3) ? &cs.fieldEyebrows.r :
-                             (c == 4) ? &cs.fieldSkinBody.r : &cs.fieldHair.r;
-                dst[0] = remote.customFieldColors[c * 3];
-                dst[1] = remote.customFieldColors[c * 3 + 1];
-                dst[2] = remote.customFieldColors[c * 3 + 2];
-                dst[3] = 1.0f;
-            }
-            float* battleBase = &cs.battleSkinFace.r;
-            for (int c = 0; c < 6; c++) {
-                battleBase[c * 4 + 0] = remote.customBattleColors[c * 3];
-                battleBase[c * 4 + 1] = remote.customBattleColors[c * 3 + 1];
-                battleBase[c * 4 + 2] = remote.customBattleColors[c * 3 + 2];
-                battleBase[c * 4 + 3] = 1.0f;
-            }
-        }
-
-        MP_LOG("[TeamUp] Player B: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
-                    partnerColor, localColor, (int)remote.hasCustomColors);
+                    localColor, remote.colorId, (int)remote.hasCustomColors);
+        // Player B PP_AA layout: local=slot2, partner=slot0. Status is re-fetched
+        // from PlayerWork (the comm BSP), not this call's bsp param.
+        auto* bspInst = PlayerWork::get_battleSetupParam();
+        auto* statusArr = (bspInst != nullptr) ? bspInst->instance()->fields.playerStatus : nullptr;
+        applyTeamUpBattleColors(bspFields->tr_data, statusArr, remote, localColor,
+                                /*localSlot=*/2, /*partnerSlot=*/0);
     }
     {
         extern bool g_owmpBattleColorActive;
@@ -1738,97 +1751,12 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     {
         int32_t localColor = getCustomSaveData()->playerColorVariation.playerColorID;
         auto& remote = getOverworldMPContext().remotePlayers[tu.partnerStation];
-        int32_t partnerColor = remote.colorId; // Pass -1 through for custom colors
-
-        // (1) TRAINER_DATA.colorID
-        void* trData = fields->tr_data;
-        if (trData != nullptr) {
-            uint32_t arrLen = *(uint32_t*)((uintptr_t)trData + 0x18);
-            if (arrLen > 0) {
-                auto* td0 = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
-                    ((uintptr_t)trData + 0x20 + 0 * 8);
-                if (td0 != nullptr) td0->fields.colorID = localColor;
-            }
-            if (arrLen > 2) {
-                auto* td2 = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
-                    ((uintptr_t)trData + 0x20 + 2 * 8);
-                if (td2 != nullptr) td2->fields.colorID = partnerColor;
-            }
-        }
-
-        // (2) Store MyStatus pointers for the MyStatusGetColorID hook
-        extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
-        extern void owmpClearBattleMyStatus();
-        owmpClearBattleMyStatus();
-        auto* statusArr = fields->playerStatus;
-        if (statusArr != nullptr) {
-            if (statusArr->max_length > 0 && statusArr->m_Items[0] != nullptr)
-                owmpSetBattleMyStatus(0, statusArr->m_Items[0]);
-            if (statusArr->max_length > 2 && statusArr->m_Items[2] != nullptr)
-                owmpSetBattleMyStatus(2, statusArr->m_Items[2]);
-        }
-
-        // (3) Slot color array + cursor for CardModelViewController
-        extern int32_t g_owmpBattleSlotColors[];
-        extern int32_t g_owmpBattleSlotCursor;
-        g_owmpBattleSlotColors[0] = localColor;
-        g_owmpBattleSlotColors[1] = 0;  // enemy NPC
-        g_owmpBattleSlotColors[2] = partnerColor;
-        g_owmpBattleSlotColors[3] = 0;  // enemy NPC
-        g_owmpBattleSlotCursor = 0;
-        extern int32_t g_owmpSetSkinColorCursor;
-        g_owmpSetSkinColorCursor = 0;
-
-        // (4) Custom battle colors for ALL slots with colorId == -1
-        extern bool g_owmpBattleSlotHasCustomColors[];
-        extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
-        memset(g_owmpBattleSlotHasCustomColors, 0, sizeof(bool) * 4);
-
-        // Local player (slot 0) — build from save data directly
-        if (localColor == -1) {
-            g_owmpBattleSlotHasCustomColors[0] = true;
-            auto& lcs = g_owmpBattleSlotCustomColorSets[0];
-            auto& cv = getCustomSaveData()->playerColorVariation;
-            lcs.fieldSkinFace  = { cv.fSkinFace.fields.r,  cv.fSkinFace.fields.g,  cv.fSkinFace.fields.b,  cv.fSkinFace.fields.a };
-            lcs.fieldSkinMouth = { cv.fSkinMouth.fields.r, cv.fSkinMouth.fields.g, cv.fSkinMouth.fields.b, cv.fSkinMouth.fields.a };
-            lcs.fieldEyes      = { cv.fEyes.fields.r,      cv.fEyes.fields.g,      cv.fEyes.fields.b,      cv.fEyes.fields.a };
-            lcs.fieldEyebrows  = { cv.fEyebrows.fields.r,  cv.fEyebrows.fields.g,  cv.fEyebrows.fields.b,  cv.fEyebrows.fields.a };
-            lcs.fieldSkinBody  = { cv.fSkinBody.fields.r,  cv.fSkinBody.fields.g,  cv.fSkinBody.fields.b,  cv.fSkinBody.fields.a };
-            lcs.fieldHair      = { cv.fHair.fields.r,      cv.fHair.fields.g,      cv.fHair.fields.b,      cv.fHair.fields.a };
-            lcs.battleSkinFace = { cv.bSkinFace.fields.r,  cv.bSkinFace.fields.g,  cv.bSkinFace.fields.b,  cv.bSkinFace.fields.a };
-            lcs.battleHairExtra= { cv.bHairExtra.fields.r, cv.bHairExtra.fields.g, cv.bHairExtra.fields.b, cv.bHairExtra.fields.a };
-            lcs.battleEyeLeft  = { cv.bEyeLeft.fields.r,   cv.bEyeLeft.fields.g,   cv.bEyeLeft.fields.b,   cv.bEyeLeft.fields.a };
-            lcs.battleEyeRight = { cv.bEyeRight.fields.r,  cv.bEyeRight.fields.g,  cv.bEyeRight.fields.b,  cv.bEyeRight.fields.a };
-            lcs.battleSkinBody = { cv.bSkinBody.fields.r,  cv.bSkinBody.fields.g,  cv.bSkinBody.fields.b,  cv.bSkinBody.fields.a };
-            lcs.battleHair     = { cv.bHair.fields.r,      cv.bHair.fields.g,      cv.bHair.fields.b,      cv.bHair.fields.a };
-        }
-
-        // Partner (slot 2) — from received 0xCD packet data
-        if (partnerColor == -1 && remote.hasCustomColors) {
-            g_owmpBattleSlotHasCustomColors[2] = true;
-            auto& cs = g_owmpBattleSlotCustomColorSets[2];
-            for (int c = 0; c < 6; c++) {
-                float* dst = (c == 0) ? &cs.fieldSkinFace.r :
-                             (c == 1) ? &cs.fieldSkinMouth.r :
-                             (c == 2) ? &cs.fieldEyes.r :
-                             (c == 3) ? &cs.fieldEyebrows.r :
-                             (c == 4) ? &cs.fieldSkinBody.r : &cs.fieldHair.r;
-                dst[0] = remote.customFieldColors[c * 3];
-                dst[1] = remote.customFieldColors[c * 3 + 1];
-                dst[2] = remote.customFieldColors[c * 3 + 2];
-                dst[3] = 1.0f;
-            }
-            float* battleBase = &cs.battleSkinFace.r;
-            for (int c = 0; c < 6; c++) {
-                battleBase[c * 4 + 0] = remote.customBattleColors[c * 3];
-                battleBase[c * 4 + 1] = remote.customBattleColors[c * 3 + 1];
-                battleBase[c * 4 + 2] = remote.customBattleColors[c * 3 + 2];
-                battleBase[c * 4 + 3] = 1.0f;
-            }
-        }
-
-        MP_LOG("[TeamUp] Player A: set colors — slot0=%d slot2=%d (partner custom=%d)\n",
-                    localColor, partnerColor, (int)remote.hasCustomColors);
+        MP_LOG("[TeamUp] Player A: color setup start (local=%d, partner=%d, hasCustom=%d)\n",
+                    localColor, remote.colorId, (int)remote.hasCustomColors);
+        // Player A PP_AA layout: local=slot0, partner=slot2. Status comes from this
+        // BSP's own fields (already the comm BSP built by SetupBattleComm).
+        applyTeamUpBattleColors(fields->tr_data, fields->playerStatus, remote, localColor,
+                                /*localSlot=*/0, /*partnerSlot=*/2);
     }
     {
         extern bool g_owmpBattleColorActive;
@@ -2766,23 +2694,10 @@ void overworldMPTickDeferredEncount() {
     // No timeout — player presses A to cancel and go solo whenever they want.
     // -----------------------------------------------------------------------
     if (tu.syncPhase == SyncPhase::SYNC_WAITING) {
-        // Cancel sync: read controller state directly with port 0.
-        // InputHelper's static isHoldA()/isPressA() use selectedPort which defaults
-        // to -1 and depends on updatePadState() from the ImGui loop. Reading port 0
-        // directly bypasses both issues.
-        nn::hid::NpadBaseState padState = {};
-        nn::hid::NpadStyleSet styleSet = nn::hid::GetNpadStyleSet(0);
-        if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleFullKey)) {
-            nn::hid::GetNpadState((nn::hid::NpadFullKeyState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyDual)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyDualState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyLeft)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyLeftState*)&padState, 0);
-        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyRight)) {
-            nn::hid::GetNpadState((nn::hid::NpadJoyRightState*)&padState, 0);
-        } else {
-            nn::hid::GetNpadState((nn::hid::NpadHandheldState*)&padState, 0x20);
-        }
+        // Cancel sync: read controller state directly (InputHelper's stateful
+        // isHold*/isPress* API depends on the debug ImGui loop — see
+        // readNpadStateDirect's doc comment).
+        nn::hid::NpadBaseState padState = InputHelper::readNpadStateDirect();
         bool cancelPressed = padState.mButtons.isBitSet(nn::hid::NpadButton::B);
         bool syncPressed   = padState.mButtons.isBitSet(nn::hid::NpadButton::Y);
 
