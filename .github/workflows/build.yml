@@ -2,6 +2,9 @@ name: Build
 
 on:
   push:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,12 +20,6 @@ jobs:
 
       - name: Mark workspace as a safe Git directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-  
-      # - name: Install Node.js
-      #   run: |
-      #     apt-get install -y ca-certificates curl
-      #     curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-      #     apt-get install -y nodejs
 
       - name: Setup ccache
         run: apt-get update -y && apt-get install -y ccache
@@ -32,7 +29,11 @@ jobs:
         with:
           key: ${{ github.job }}
 
-      - name: Configure CMake
+      # -------------------------
+      # Release build
+      # -------------------------
+
+      - name: Configure Release
         run: |
           cmake -G "Unix Makefiles" \
             -DCMAKE_BUILD_TYPE=Release \
@@ -42,17 +43,21 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -Bbuild_release
 
-      - name: Build all targets
+      - name: Build Release
         working-directory: build_release
         run: make -j$(nproc) RomBase_release_all
 
-      - name: Upload Release exefs artifact
+      - name: Upload Release artifact
         uses: actions/upload-artifact@v4
         with:
           name: exefs_release
           path: build_release/RomBase_releases/atmosphere/
 
-      - name: Configure CMake
+      # -------------------------
+      # Debug build
+      # -------------------------
+
+      - name: Configure Debug
         run: |
           cmake -G "Unix Makefiles" \
             -DCMAKE_BUILD_TYPE=Debug \
@@ -62,25 +67,47 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -Bbuild_debug
 
-      - name: Build all targets
+      - name: Build Debug
         working-directory: build_debug
         run: make -j$(nproc) RomBase_release_all
 
-      - name: Upload Debug exefs artifact
+      - name: Upload Debug artifact
         uses: actions/upload-artifact@v4
         with:
           name: exefs_debug
           path: build_debug/RomBase_releases/atmosphere/
 
-      - name: Create release zip
-        run: |
-          cd build_release/RomBase_releases
-          zip -r ../../exefs_release.zip atmosphere
+  release:
+    name: Create Nightly Release
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
 
-      - name: Create debug zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: exefs_release
+          path: release/atmosphere
+
+      - name: Download Debug artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: exefs_debug
+          path: debug/atmosphere
+
+      - name: Create Release ZIP
         run: |
-          cd build_debug/RomBase_releases
-          zip -r ../../exefs_debug.zip atmosphere
+          cd release
+          zip -r ../exefs_release.zip atmosphere
+
+      - name: Create Debug ZIP
+        run: |
+          cd debug
+          zip -r ../exefs_debug.zip atmosphere
 
       - name: Generate nightly tag
         id: nightly
