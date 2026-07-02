@@ -15,6 +15,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Mark workspace as a safe Git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+  
       # - name: Install Node.js
       #   run: |
       #     apt-get install -y ca-certificates curl
