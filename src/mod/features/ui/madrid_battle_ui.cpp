@@ -210,6 +210,34 @@ UnityEngine::Sprite::Object* GetDamageSpriteFromType(Dpr::Battle::View::UI::BUIW
     }
 }
 
+Dpr::UI::UIText::Object* GetWazaDescriptionWazaNameText(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    auto wazaNameTF = ((UnityEngine::Component::Object*)wazaDesc)->get_transform()
+            ->Find(System::String::Create("WazaNameText"));
+    auto wazaNameGO = ((UnityEngine::Component::Object*)wazaNameTF)->get_gameObject();
+    auto wazaNameCmpList = (UnityEngine::Component::Array*)wazaNameGO->GetAllComponents();
+    return (Dpr::UI::UIText::Object*)wazaNameCmpList->m_Items[2];
+}
+
+Dpr::UI::UIText::Object* GetWazaDescriptionEffectiveText(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    auto wazaNameTF = ((UnityEngine::Component::Object*)wazaDesc)->get_transform()
+            ->Find(System::String::Create("TypeInteraction"))
+            ->Find(System::String::Create("Effective"))
+            ->Find(System::String::Create("EffectiveText"));
+    auto wazaNameGO = ((UnityEngine::Component::Object*)wazaNameTF)->get_gameObject();
+    auto wazaNameCmpList = (UnityEngine::Component::Array*)wazaNameGO->GetAllComponents();
+    return (Dpr::UI::UIText::Object*)wazaNameCmpList->m_Items[2];
+}
+
+UnityEngine::UI::Image::Object* GetWazaDescriptionEffectiveImage(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc) {
+    auto wazaNameTF = ((UnityEngine::Component::Object*)wazaDesc)->get_transform()
+            ->Find(System::String::Create("TypeInteraction"))
+            ->Find(System::String::Create("Effective"))
+            ->Find(System::String::Create("EffectiveImage"));
+    auto wazaNameGO = ((UnityEngine::Component::Object*)wazaNameTF)->get_gameObject();
+    auto wazaNameCmpList = (UnityEngine::Component::Array*)wazaNameGO->GetAllComponents();
+    return (UnityEngine::UI::Image::Object*)wazaNameCmpList->m_Items[2];
+}
+
 Dpr::Battle::View::UI::BUISituation::Object* GetSituationObject(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
     auto situationTF = ((UnityEngine::Component::Object*)__this)->get_transform()->Find(System::String::Create("BUISituation"));
     auto situationGO = ((UnityEngine::Component::Object*)situationTF)->get_gameObject();
@@ -659,7 +687,59 @@ HOOK_DEFINE_TRAMPOLINE(BUIWazaDescription$$Initialize) {
         Orig(__this, info, posY);
 
         Logger::log("[BUIWazaDescription$$Initialize] custom stuff\n");
+
+        Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
+        Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
+        Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
+        Dpr::Battle::View::UI::BattleAffinityInfo::getClass()->initIfNeeded();
+
         SetMoveDescDamageType(__this, info->fields.WazaNo);
+
+        auto uiSystem = Dpr::Battle::View::BattleViewCore::get_Instance()->fields._UISystem_k__BackingField;
+        auto bpp = uiSystem->fields._wazaList->fields._btlPokeParam;
+        int32_t wazano = info->fields.WazaNo;
+        auto targets = Dpr::Battle::View::UI::BattleAffinityInfo::GetBattleTargets();
+
+        auto wazaNameText = GetWazaDescriptionWazaNameText(__this);
+        wazaNameText->virtual_set_text(info->fields.WazaName);
+
+        auto effectiveText = GetWazaDescriptionEffectiveText(__this);
+        auto effetciveTextObj = effectiveText->cast<UnityEngine::Component>()->get_gameObject();
+        auto effectiveImg = GetWazaDescriptionEffectiveImage(__this);
+        auto effectiveImgObj = effectiveImg->cast<UnityEngine::Component>()->get_gameObject();
+
+        effetciveTextObj->SetActive(false);
+        effectiveImgObj->SetActive(false);
+
+        Pml::Battle::TypeAffinity::AboutAffinityID affinity;
+        bool canHit = Dpr::Battle::View::UI::BattleAffinityInfo::CheckWazaAffinity(bpp, wazano, targets, &affinity);
+        if (!canHit) {
+            effetciveTextObj->SetActive(false);
+            effectiveImgObj->SetActive(false);
+        }
+        else {
+            effetciveTextObj->SetActive(true);
+            effectiveImgObj->SetActive(true);
+            switch (affinity)
+            {
+                case Pml::Battle::TypeAffinity::AboutAffinityID::NONE:
+                    effectiveImg->set_sprite(GetImmuneAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+
+                case Pml::Battle::TypeAffinity::AboutAffinityID::NORMAL:
+                    effectiveImg->set_sprite(GetRegularAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+
+                case Pml::Battle::TypeAffinity::AboutAffinityID::ADVANTAGE:
+                    effectiveImg->set_sprite(GetSuperAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+
+                case Pml::Battle::TypeAffinity::AboutAffinityID::DISADVANTAGE:
+                    effectiveImg->set_sprite(GetNotVeryAffinitySprite(uiSystem->fields._wazaList));
+                    break;
+            }
+            effectiveText->virtual_set_text(uiSystem->GetAffinityText(bpp, wazano, targets));
+        }
     }
 };
 
