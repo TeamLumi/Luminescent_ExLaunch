@@ -123,6 +123,16 @@ namespace Pml::PokePara {
             external<void>(0x024a3ee0, this, coreData, calcData);
         }
 
+        // Serialize the full PokePara data (core 328 + calc 16 = 344 bytes) into outBuf.
+        inline void Serialize_FullData(uint8_t* outBuf) {
+            external<void>(0x24a4470, this, outBuf);
+        }
+
+        // Deserialize a 344-byte full-data blob into this accessor.
+        inline void Deserialize_FullData(const uint8_t* buf) {
+            external<void>(0x24a4550, this, buf);
+        }
+
         inline void SetPersonalRnd(uint32_t rnd) {
             external<void>(0x024a85a0, this, rnd);
         }

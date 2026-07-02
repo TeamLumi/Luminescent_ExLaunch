@@ -66,19 +66,12 @@ static constexpr int32_t POKE_FULL_DATA_INTS = POKE_FULL_DATA_SIZE / 4; // 86
 
 // --- Reused IL2CPP externals (typed wrappers) -----------------------------
 // IlcaNetSession.ThisStationIndex() — our station's mesh index. Reused 10+ times
-// across the MP files; wrap so the raw address lives in one place.
+// across the MP files; wrap so the raw address lives in one place. (A no-`this`
+// static game call; the true owner is IlcaNetSession, which has no header yet.)
 inline int32_t mpThisStationIndex() {
     return _ILExternal::external<int32_t>(0x23BC000);
 }
 
-// PokemonParam accessor Serialize_FullData(out byte* buf) — writes a
-// POKE_FULL_DATA_SIZE-byte blob from `accessor`.
-inline void mpSerializePokeFullData(void* accessor, uint8_t* outBuf /*[POKE_FULL_DATA_SIZE]*/) {
-    _ILExternal::external<void>(0x24A4470, accessor, outBuf);
-}
-
-// PokemonParam accessor Deserialize_FullData(byte* buf) — loads a
-// POKE_FULL_DATA_SIZE-byte blob into `accessor`.
-inline void mpDeserializePokeFullData(void* accessor, const uint8_t* buf /*[POKE_FULL_DATA_SIZE]*/) {
-    _ILExternal::external<void>(0x24A4550, accessor, buf);
-}
+// The 344-byte PokePara (de)serialize externals are declared as proper methods on
+// Pml::PokePara::Accessor — call accessor->Serialize_FullData(buf) /
+// accessor->Deserialize_FullData(buf). See externals/Pml/PokePara/Accessor.h.

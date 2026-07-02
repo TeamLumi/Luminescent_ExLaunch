@@ -3056,7 +3056,7 @@ void overworldMPSendBattleParty(int32_t targetStation, BattleSubtype subtype) {
 
             if (accessor != nullptr) {
                 // Serialize_FullData (raw pointer version) @ 0x24A4470
-                mpSerializePokeFullData(accessor, pokeBuf);
+                accessor->Serialize_FullData( pokeBuf);
 
                 uint32_t rnd = 0;
                 memcpy(&rnd, pokeBuf, 4);

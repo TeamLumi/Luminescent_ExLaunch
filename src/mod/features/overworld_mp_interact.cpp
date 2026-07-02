@@ -1382,7 +1382,7 @@ static Pml::PokePara::PokemonParam::Object* deserializePartnerPokemon(Pml::PokeP
     if (accessor != nullptr) {
         // Use Deserialize_FullData (raw pointer version) @ 0x24A4550
         // Properly handles decode/re-encode cycle for PokePara data
-        mpDeserializePokeFullData(accessor, s_partnerTradePokeData);
+        accessor->Deserialize_FullData( s_partnerTradePokeData);
         MP_LOG("[OverworldMP] Deserialized partner pokemon into new PokemonParam\n");
     } else {
         MP_LOG("[OverworldMP] WARNING: newPoke accessor is null\n");
@@ -1948,7 +1948,7 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
     if (accessor != nullptr) {
         memset(s_myTradePokeData, 0, sizeof(s_myTradePokeData));
         // Use Serialize_FullData (raw pointer version) @ 0x24A4470
-        mpSerializePokeFullData(accessor, s_myTradePokeData);
+        accessor->Serialize_FullData( s_myTradePokeData);
     }
 
     MP_LOG("[OverworldMP] Selected %s tray=%d slot=%d (monsNo=%d) for trade, sending 0xC4\n",
@@ -2420,7 +2420,7 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
         auto* accessor = slotPoke->fields.m_accessor;
         if (accessor != nullptr) {
             // Deserialize_FullData (raw pointer version) @ 0x24A4550
-            mpDeserializePokeFullData(accessor, &buf[offset]);
+            accessor->Deserialize_FullData( &buf[offset]);
         }
 
         offset += POKE_FULL_DATA_SIZE;
@@ -2547,7 +2547,7 @@ void overworldMPSetupAndStartBattle() {
         memset(s_partySnapshot[i], 0, POKE_SNAPSHOT_SIZE);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             // Serialize_FullData (raw pointer) @ 0x24A4470
-            mpSerializePokeFullData(poke->fields.m_accessor, s_partySnapshot[i]);
+            poke->fields.m_accessor->Serialize_FullData( s_partySnapshot[i]);
         }
     }
     s_partySnapshotValid = true;
@@ -3000,7 +3000,7 @@ void overworldMPRestorePartyAfterBattle() {
         auto* poke = party->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             // Deserialize_FullData (raw pointer) @ 0x24A4550
-            mpDeserializePokeFullData(poke->fields.m_accessor, s_partySnapshot[i]);
+            poke->fields.m_accessor->Deserialize_FullData( s_partySnapshot[i]);
         }
     }
 
