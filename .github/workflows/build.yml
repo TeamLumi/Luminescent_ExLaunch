@@ -88,7 +88,7 @@ jobs:
       - name: Delete existing release if present
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.NIGHTLY_BUILD_TOKEN }}
         run: |
           gh release delete "${{ steps.nightly.outputs.tag }}" --yes --cleanup-tag
 
@@ -104,4 +104,4 @@ jobs:
             exefs_release.zip
             exefs_debug.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.NIGHTLY_BUILD_TOKEN }}
