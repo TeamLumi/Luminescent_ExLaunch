@@ -28,15 +28,13 @@ struct OpcState : ILClass<OpcState> {
         NOW_RECORD = 19,
         NOW_GREETINGS = 20,
         NOW_BALL_DECORATION = 21,
-        NULL_STATE = 22,  // Originally "_NULL" in IL2CPP — renamed to avoid macro clash
+        // Named `_NULL` in the game; `_NULL` is a predefined macro in the devkitPro/
+        // newlib toolchain (expands to 0), so it can't be used as an identifier here.
+        NULL_STATE = 22,
     };
 
     struct Fields : UnityEngine::MonoBehaviour::Fields {
         OnlineState _curretOnlineState;
         void* _OnChangeState; // Action<OnlineState>
     };
-
-    // Access fields via Object*: opcState->fields._curretOnlineState
-    // Methods that access fields directly can't be defined on the outer struct —
-    // the 'fields' member only exists on Object, not on T in ILClass<T>.
 };
