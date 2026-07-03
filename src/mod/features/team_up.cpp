@@ -274,6 +274,11 @@ static Pml::PokeParty::Object* s_captureSrcParty = nullptr;
 // conversion source at battle end. Reset per battle.
 static void* s_expApplyPokecon = nullptr;
 
+// Win money captured from our CalcWinMoney hook (which ungates it for team-up). The
+// game's MainModule bonus-money field isn't populated until near the exit, so we can't
+// read it at storeBattleResult — carry the value here and credit it on the win.
+static int32_t s_teamUpWinMoney = 0;
+
 // Per-enemy "our own pokemon already got this KO's exp" set, indexed [side][idx].
 // The comm exp calc normally skips enemies whose "checked" flag is set — but the host
 // SYNCS that flag to the joiner, so the joiner's own exp calc skips the final KO (the
@@ -2251,6 +2256,19 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             MP_LOG("[TeamUp] LOSS: switched competitor to TRAINER for proper exit sequence\n");
         }
 
+        // NPC-parity: on a WIN, credit the win money to the wallet. Our setSubProc remap
+        // makes the NPC exit UI DISPLAY "got money", but the actual wallet credit (done
+        // by the trainer's overworld script for a normal battle) is skipped on the comm
+        // path — so add it once here. GetBonusMoney @0x202DB50 is the value CalcWinMoney
+        // (which we ungate for team-up) produced and the exit screen shows.
+        if (!abnormal && fields->result != 0 && s_teamUpWinMoney > 0) {
+            int32_t cur = PlayerWork::GetMoney();
+            PlayerWork::SetMoney(cur + s_teamUpWinMoney);
+            MP_LOG("[TeamUp] NPC-parity: credited %d win money (wallet %d -> %d)\n",
+                        s_teamUpWinMoney, cur, cur + s_teamUpWinMoney);
+            s_teamUpWinMoney = 0;
+        }
+
         // On loss, skip the deferred restore — vanilla TRAINER exit handles whiteout.
         // Only save battle-modified data on win, where we need EXP/damage persistence.
 
@@ -2298,6 +2316,49 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             }
             s_savedWazaeffMode = -1;
         }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// NPC-parity: run the NPC trainer-defeat exit (demo + money) on a team-up WIN
+// ---------------------------------------------------------------------------
+// BTL_CLIENT::setSubProc(client, stateId:byte, out*) @ 0x1F4F4F0 sets up the client's
+// exit sub-proc from a state id: 0x19 = comm-trainer exit (bare PvP result sync, no
+// defeat demo/money), 0x1a = NPC exit (SubProc_UI_ExitForNPC: sad-face defeat demo +
+// "got money"). Team-up LOSSES already switch competitor->TRAINER so the server sends
+// 0x1a; only the team-up WIN takes 0x19. Remap that 0x19 -> 0x1a so a co-op win gets
+// the full NPC trainer-defeat presentation. (Both players were present for the win, so
+// the comm result sync the 0x19 path does is redundant here.)
+HOOK_DEFINE_TRAMPOLINE(TeamUpClientSetSubProc) {
+    static uint64_t Callback(void* client, uint8_t stateId, uint8_t* out, MethodInfo* mi) {
+        if (stateId == 0x19 && overworldMPIsTeamedUp() &&
+            overworldMPGetTeamUpState().battleType == 1) {
+            MP_LOG("[TeamUp] NPC-parity: remap comm-exit (0x19) -> NPC-exit (0x1a)\n");
+            stateId = 0x1a;
+        }
+        return Orig(client, stateId, out, mi);
+    }
+};
+
+// NPC-parity: win money. calc::CalcWinMoney @ 0x1F76980 returns 0 unless competitor is
+// TRAINER(1) (`if (*(int*)(param1+0x10) != 1) return 0;`). Team-up runs as COMM(3), so
+// the win money is 0. Present TRAINER for just this one call so the game's own trainer
+// win-money formula (last enemy level * trainer gold param * 4) runs; the value flows to
+// MainModule bonus money, which the now-active NPC exit UI adds + shows ("got money").
+HOOK_DEFINE_TRAMPOLINE(TeamUpCalcWinMoney) {
+    static int32_t Callback(void* param1, MethodInfo* mi) {
+        if (param1 != nullptr && overworldMPIsTeamedUp() &&
+            overworldMPGetTeamUpState().battleType == 1) {
+            int32_t* competitor = (int32_t*)((uintptr_t)param1 + 0x10);
+            int32_t saved = *competitor;
+            *competitor = 1;  // TRAINER, only across this call
+            int32_t money = Orig(param1, mi);
+            *competitor = saved;
+            s_teamUpWinMoney = money;  // credited on the win in storeBattleResult
+            MP_LOG("[TeamUp] NPC-parity: CalcWinMoney -> %d (was gated to 0)\n", money);
+            return money;
+        }
+        return Orig(param1, mi);
     }
 };
 
@@ -3184,6 +3245,8 @@ void exl_team_up_main() {
     TeamUpStoreBattleResult::InstallAtOffset(0x202D560);
     TeamUpBattleSetupClear::InstallAtOffset(0x1AC3AC0);
     TeamUpExecutorAddExp::InstallAtOffset(0x1F1DC90);
+    TeamUpClientSetSubProc::InstallAtOffset(0x1F4F4F0);
+    TeamUpCalcWinMoney::InstallAtOffset(0x1F76980);
 
     // Hook BtlNet error handling to suppress non-fatal errors in team-up
     TeamUpNotifyNetworkError::InstallAtOffset(0x2036E30);
