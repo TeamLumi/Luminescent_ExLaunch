@@ -840,6 +840,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         extern bool    s_tuAccumIsAck;
         extern uint8_t s_tuAccumTrainerCount;
         extern uint8_t s_tuAccumTrainerReceived;
+        extern uint8_t s_tuAccumTrainer2Count;
+        extern uint8_t s_tuAccumTrainer2Received;
 
         switch (subType) {
         case 0: { // HEADER
@@ -849,6 +851,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &memberCount);
             uint8_t trainerMemberCount = 0;
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &trainerMemberCount);
+            uint8_t trainerMemberCount2 = 0;  // second real trainer (slot 3), in send order
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &trainerMemberCount2);
             int32_t arenaID = 0;
             il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &arenaID);
             int32_t weatherType = 0;
@@ -870,6 +874,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             s_tuAccumReceivedCount = 0;
             s_tuAccumTrainerCount = (trainerMemberCount > 6) ? 6 : trainerMemberCount;
             s_tuAccumTrainerReceived = 0;
+            s_tuAccumTrainer2Count = (trainerMemberCount2 > 6) ? 6 : trainerMemberCount2;
+            s_tuAccumTrainer2Received = 0;
             s_tuAccumBattleType = battleType;
             s_tuAccumIsAck = isAck;
             memset(s_tuAccumBuf, 0, 6 * POKE_FULL_DATA_SIZE + 128);
@@ -880,6 +886,12 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             tu.trainerPartyBufSize = 0;
             tu.trainerPartyCount = 0;
             tu.trainerPartyValid = false;
+
+            // Reset second-trainer (slot 3) accumulation buffer
+            memset(tu.trainerParty2Buf, 0, sizeof(tu.trainerParty2Buf));
+            tu.trainerParty2BufSize = 0;
+            tu.trainerParty2Count = 0;
+            tu.trainerParty2Valid = false;
 
             // Store encounter data into TeamUpState
             if (!isAck) {
@@ -930,8 +942,9 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             }
             tu.partnerMystatusLen = mystOff;
 
-            // If no party members AND no trainer members, signal complete immediately
-            if (s_tuAccumMemberCount == 0 && s_tuAccumTrainerCount == 0) {
+            // If no party members AND no trainer members (both slots), signal complete immediately
+            if (s_tuAccumMemberCount == 0 && s_tuAccumTrainerCount == 0 &&
+                s_tuAccumTrainer2Count == 0) {
                 tu.partnerPartyCount = 0;
                 tu.partnerPartyBufSize = 0;
                 if (isAck) {
@@ -970,9 +983,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                         s_tuAccumIsAck ? "ACK" : "BATTLE",
                         (int)pokeIndex, (int)s_tuAccumReceivedCount, (int)s_tuAccumMemberCount);
 
-            // Check if all player party AND trainer party Pokemon received
+            // Check if all player party AND both trainer slots' Pokemon received
             if (s_tuAccumReceivedCount >= s_tuAccumMemberCount &&
-                s_tuAccumTrainerReceived >= s_tuAccumTrainerCount) {
+                s_tuAccumTrainerReceived >= s_tuAccumTrainerCount &&
+                s_tuAccumTrainer2Received >= s_tuAccumTrainer2Count) {
                 if (s_tuAccumIsAck) {
                     overworldMPOnTeamUpBattleAckReceived(s_tuAccumFromStation, nullptr, 0);
                 } else {
@@ -1019,14 +1033,57 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                         (int)pokeIndex, (int)s_tuAccumTrainerReceived,
                         (int)s_tuAccumTrainerCount, s_tuAccumIsAck ? "ACK" : "BATTLE");
 
-            // Check if all player party AND trainer party Pokemon received
+            // Check if all player party AND both trainer slots' Pokemon received
             if (s_tuAccumReceivedCount >= s_tuAccumMemberCount &&
-                s_tuAccumTrainerReceived >= s_tuAccumTrainerCount) {
+                s_tuAccumTrainerReceived >= s_tuAccumTrainerCount &&
+                s_tuAccumTrainer2Received >= s_tuAccumTrainer2Count) {
                 if (s_tuAccumIsAck) {
                     tu.partnerTrainerValid = true;
                 } else {
                     tu.trainerPartyValid = true;
                 }
+                if (s_tuAccumIsAck) {
+                    overworldMPOnTeamUpBattleAckReceived(s_tuAccumFromStation, nullptr, 0);
+                } else {
+                    overworldMPOnTeamUpBattleReceived(s_tuAccumFromStation, nullptr, 0);
+                }
+            }
+            break;
+        }
+
+        case 3: { // TRAINER_POKE2 (second real trainer's party, slot 3 — genuine two-trainer double only)
+            if (s_tuAccumFromStation < 0 || s_tuAccumFromStation != fromStation) break;
+            uint8_t pokeIndex = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
+            if (pokeIndex >= s_tuAccumTrainer2Count) break;
+
+            int32_t bufOffset = pokeIndex * POKE_FULL_DATA_SIZE;
+            uint8_t* destBuf = tu.trainerParty2Buf;
+            int32_t destBufSize = (int32_t)sizeof(tu.trainerParty2Buf);
+
+            for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
+                int32_t val = 0;
+                il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &val);
+                if (bufOffset + (int32_t)sizeof(int32_t) <= destBufSize) {
+                    memcpy(&destBuf[bufOffset], &val, 4);
+                    bufOffset += 4;
+                }
+            }
+            if (pokeIndex < s_tuAccumTrainer2Count)
+                s_tuAccumTrainer2Received++;
+
+            tu.trainerParty2BufSize = s_tuAccumTrainer2Count * POKE_FULL_DATA_SIZE;
+            tu.trainerParty2Count = s_tuAccumTrainer2Count;
+
+            MP_LOG("[OverworldMP] TeamUp TRAINER_POKE2[%d] (%d/%d) %s\n",
+                        (int)pokeIndex, (int)s_tuAccumTrainer2Received,
+                        (int)s_tuAccumTrainer2Count, s_tuAccumIsAck ? "ACK" : "BATTLE");
+
+            // Check if all player party AND both trainer slots' Pokemon received
+            if (s_tuAccumReceivedCount >= s_tuAccumMemberCount &&
+                s_tuAccumTrainerReceived >= s_tuAccumTrainerCount &&
+                s_tuAccumTrainer2Received >= s_tuAccumTrainer2Count) {
+                tu.trainerParty2Valid = true;
                 if (s_tuAccumIsAck) {
                     overworldMPOnTeamUpBattleAckReceived(s_tuAccumFromStation, nullptr, 0);
                 } else {

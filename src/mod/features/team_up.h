@@ -50,6 +50,14 @@ struct TeamUpState {
     int32_t trainerPartyCount;
     bool trainerPartyValid;         // set true when all trainer POKE sub-packets received
 
+    // Second real trainer's party (slot 3) — genuine two-trainer double battles only
+    // (battleTrainerID2 != 0). Sent by the initiator in TEAMUP_BATTLE alongside
+    // trainerPartyBuf so both consoles fight the same second trainer's Pokemon.
+    uint8_t trainerParty2Buf[6 * TEAMUP_POKE_FULL_DATA_SIZE];
+    int32_t trainerParty2BufSize;
+    int32_t trainerParty2Count;
+    bool trainerParty2Valid;
+
     // Partner's trainer party data (received from Player B in TEAMUP_BATTLE_ACK)
     // Used by Player A for dual-trainer mode when trainers mismatch and have < 3 Pokemon.
     uint8_t partnerTrainerBuf[6 * TEAMUP_POKE_FULL_DATA_SIZE];
@@ -110,6 +118,7 @@ struct TeamUpState {
 static constexpr uint8_t TEAMUP_SUB_HEADER       = 0;  // Header: battleType, memberCount, MYSTATUS, encounter data
 static constexpr uint8_t TEAMUP_SUB_POKE         = 1;  // Single Pokemon: pokeIndex + 344 bytes
 static constexpr uint8_t TEAMUP_SUB_TRAINER_POKE = 2;  // Trainer Pokemon: pokeIndex + 344 bytes (initiator sends their trainer's party)
+static constexpr uint8_t TEAMUP_SUB_TRAINER_POKE2 = 3; // Second real trainer's party (slot 3), genuine two-trainer double only
 
 // ---------------------------------------------------------------------------
 // Public API

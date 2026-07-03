@@ -133,6 +133,8 @@ bool    s_tuAccumIsAck = false;    // true if accumulating ACK (not initial BATT
 // Trainer party accumulation (TEAMUP_SUB_TRAINER_POKE sub-packets from initiator)
 uint8_t s_tuAccumTrainerCount = 0;    // expected trainer party members (from header)
 uint8_t s_tuAccumTrainerReceived = 0; // how many trainer POKE sub-packets received so far
+uint8_t s_tuAccumTrainer2Count = 0;   // expected second-trainer (slot 3) members
+uint8_t s_tuAccumTrainer2Received = 0;// second-trainer POKE sub-packets received
 
 // normalTrainer declared inline in team_up.h
 
@@ -951,6 +953,21 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
         }
     }
 
+    // Second real trainer's party (BSP slot 3) — only for a genuine two-trainer double
+    // (battleTrainerID2 != 0), and only in the BATTLE packet (the joiner never sends it).
+    uint8_t trainerMemberCount2 = 0;
+    if (dataId == OWMP_DATA_ID_TEAMUP_BATTLE &&
+        overworldMPGetTeamUpState().battleTrainerID2 != 0 && s_teamUpBSP != nullptr) {
+        auto* bspFields = &s_teamUpBSP->instance()->fields;
+        if (bspFields->party != nullptr && bspFields->party->max_length > 3) {
+            auto* trainerParty2 = bspFields->party->m_Items[3];
+            if (trainerParty2 != nullptr) {
+                trainerMemberCount2 = (uint8_t)trainerParty2->fields.m_memberCount;
+                if (trainerMemberCount2 > 6) trainerMemberCount2 = 6;
+            }
+        }
+    }
+
     il2cpp_vcall_void(pw, PW_RESET);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, dataId);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
@@ -958,6 +975,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, battleType);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)memberCount);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, trainerMemberCount);
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, trainerMemberCount2);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, arenaID);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, weatherType);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, trainerID);
@@ -1060,6 +1078,38 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
             MP_LOG("[TeamUp] Sent BATTLE TRAINER_POKE[%d]\n", i);
         }
     }
+
+    // --- Second real trainer's party (slot 3) — genuine two-trainer double only ---
+    // Same per-poke chunking as slot 1, tagged TEAMUP_SUB_TRAINER_POKE2.
+    if (trainerMemberCount2 > 0 && s_teamUpBSP != nullptr) {
+        auto* bspFields = &s_teamUpBSP->instance()->fields;
+        auto* trainerParty2 = bspFields->party->m_Items[3];
+
+        for (int32_t i = 0; i < trainerMemberCount2; i++) {
+            auto* poke = trainerParty2->GetMemberPointer(i);
+            uint8_t pokeBuf[POKE_FULL_DATA_SIZE];
+            memset(pokeBuf, 0, sizeof(pokeBuf));
+
+            if (poke != nullptr && poke->fields.m_accessor != nullptr) {
+                poke->fields.m_accessor->Serialize_FullData(pokeBuf);
+            }
+
+            il2cpp_vcall_void(pw, PW_RESET);
+            il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, dataId);
+            il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
+            il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, TEAMUP_SUB_TRAINER_POKE2);
+            il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)i);
+
+            for (int j = 0; j < POKE_FULL_DATA_INTS; j++) {
+                int32_t val = 0;
+                memcpy(&val, &pokeBuf[j * 4], 4);
+                il2cpp_vcall_write_s32(pw, PW_WRITE_S32, val);
+            }
+
+            Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
+            MP_LOG("[TeamUp] Sent BATTLE TRAINER_POKE2[%d]\n", i);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1128,27 +1178,25 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
 // normalTrainer must have been called first (so party[slot] and tr_data[slot] exist).
 // This replaces the Pokemon data while keeping BSP_TRAINER_DATA (AI, class, etc.) intact.
 // ---------------------------------------------------------------------------
-static void overwriteTrainerPartyFromBuffer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
-                                             int slot, TeamUpState& tu) {
+static void overwriteTrainerPartyFromBufferEx(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
+                                              int slot, const uint8_t* buf, int32_t bufSize, int32_t count) {
     auto* fields = &bsp->instance()->fields;
     if (fields->party == nullptr || (uint32_t)slot >= fields->party->max_length) return;
 
     auto* party = fields->party->m_Items[slot];
     if (party == nullptr) return;
 
-    int32_t count = tu.trainerPartyCount;
-    if (count <= 0 || count > 6) return;
+    if (count <= 0 || count > 6 || buf == nullptr) return;
 
     int32_t validCount = 0;
     for (int i = 0; i < count; i++) {
         int32_t bufOffset = i * POKE_FULL_DATA_SIZE;
-        if (bufOffset + POKE_FULL_DATA_SIZE > tu.trainerPartyBufSize) break;
+        if (bufOffset + POKE_FULL_DATA_SIZE > bufSize) break;
 
         auto* poke = party->GetMemberPointer(i);
         if (poke == nullptr || poke->fields.m_accessor == nullptr) break;
 
-        poke->fields.m_accessor->Deserialize_FullData(
-                                     &tu.trainerPartyBuf[bufOffset]);
+        poke->fields.m_accessor->Deserialize_FullData(&buf[bufOffset]);
 
         // Validate the injected (peer-supplied) trainer Pokemon, just like the human
         // party path. Without this, a malicious peer could write arbitrary serialized
@@ -1163,6 +1211,12 @@ static void overwriteTrainerPartyFromBuffer(Dpr::Battle::Logic::BATTLE_SETUP_PAR
     party->fields.m_memberCount = validCount;
 
     MP_LOG("[TeamUp] Overwrote party[%d] with %d/%d valid trainer Pokemon\n", slot, validCount, count);
+}
+
+// Slot-1 convenience wrapper (initiator's first trainer party).
+static void overwriteTrainerPartyFromBuffer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
+                                             int slot, TeamUpState& tu) {
+    overwriteTrainerPartyFromBufferEx(bsp, slot, tu.trainerPartyBuf, tu.trainerPartyBufSize, tu.trainerPartyCount);
 }
 
 // Deserialize MYSTATUS_COMM from buffer at given offset
@@ -1597,8 +1651,14 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
             overwriteTrainerPartyFromBuffer(bsp, 1, tu);
         }
         normalTrainer(bsp, 3, tu.battleTrainerID2);
-        MP_LOG("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
-                    tu.battleTrainerID, tu.trainerPartyCount, tu.battleTrainerID2);
+        // Sync the SECOND trainer's party from the initiator too (its party can be
+        // per-save randomized, otherwise slot 3 desyncs between consoles).
+        if (tu.trainerParty2Valid && tu.trainerParty2Count > 0) {
+            overwriteTrainerPartyFromBufferEx(bsp, 3, tu.trainerParty2Buf,
+                                              tu.trainerParty2BufSize, tu.trainerParty2Count);
+        }
+        MP_LOG("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
+                    tu.battleTrainerID, tu.trainerPartyCount, tu.battleTrainerID2, tu.trainerParty2Count);
     } else {
         bool dualTrainer = tu.trainerPartyCount < 3 &&
                            tu.syncTrainerID != tu.battleTrainerID &&
