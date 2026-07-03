@@ -1,0 +1,137 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64:20260219
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Mark workspace as a safe Git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup ccache
+        run: apt-get update -y && apt-get install -y ccache
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}
+
+      # -------------------------
+      # Release build
+      # -------------------------
+
+      - name: Configure Release
+        run: |
+          cmake -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake \
+            -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -Bbuild_release
+
+      - name: Build Release
+        working-directory: build_release
+        run: make -j$(nproc) RomBase_release_all
+
+      - name: Upload Release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exefs_release
+          path: build_release/RomBase_releases/atmosphere/
+
+      # -------------------------
+      # Debug build
+      # -------------------------
+
+      - name: Configure Debug
+        run: |
+          cmake -G "Unix Makefiles" \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake \
+            -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -Bbuild_debug
+
+      - name: Build Debug
+        working-directory: build_debug
+        run: make -j$(nproc) RomBase_release_all
+
+      - name: Upload Debug artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exefs_debug
+          path: build_debug/RomBase_releases/atmosphere/
+
+  release:
+    name: Create Nightly Release
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: exefs_release
+          path: release/atmosphere
+
+      - name: Download Debug artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: exefs_debug
+          path: debug/atmosphere
+
+      - name: Create Release ZIP
+        run: |
+          cd release
+          zip -r ../exefs_release.zip atmosphere
+
+      - name: Create Debug ZIP
+        run: |
+          cd debug
+          zip -r ../exefs_debug.zip atmosphere
+
+      - name: Generate nightly tag
+        id: nightly
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "tag=nightly-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Delete existing release if present
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTLY_BUILD_TOKEN }}
+        run: |
+          gh release delete "${{ steps.nightly.outputs.tag }}" --yes --cleanup-tag
+
+      - name: Create prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.nightly.outputs.tag }}
+          name: ${{ steps.nightly.outputs.tag }}
+          prerelease: true
+          make_latest: false
+          generate_release_notes: true
+          files: |
+            exefs_release.zip
+            exefs_debug.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.NIGHTLY_BUILD_TOKEN }}
