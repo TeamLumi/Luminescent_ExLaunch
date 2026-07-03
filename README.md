@@ -21,9 +21,20 @@ It has been modified to be used for Pokémon Luminescent.
 - 2-button poketch
 
 ### Building
+
+## Local Build
 Building requires Linux or a WSL instance for the building process.
 
 Detailed instructions can be found on [Team Luminescent's website](https://luminescent.team/rom-hacking/exefs/guide#building).
+
+## Containerized Build
+To build with Docker and export directly to a local `build` folder, run:
+
+```powershell
+docker buildx build --target artifacts --output type=local,dest=./build .
+```
+
+This outputs the build artifacts to `./build/atmosphere`, `./build/modmanager`, `./build/ryujinx`, and `./build/yuzu`.
 
 ### License
 

@@ -1,0 +1,9 @@
+.git/
+.cache/
+.idea/
+.vscode/
+build/
+build-release/
+cmake-build-*/
+config.cmake
+socket.log
