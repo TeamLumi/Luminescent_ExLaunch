@@ -1272,6 +1272,18 @@ static void showIncomingRequestDialog() {
 // Trade: reset helper
 // ---------------------------------------------------------------------------
 static void resetTradeState() {
+    // The trade BoxWindow is opened in selection mode and STAYS open after a poke
+    // is picked, so any teardown that reaches here with the box still open is an
+    // abort (local B-cancel, empty selection, partner's remote cancel, disconnect,
+    // sync/confirm timeout). We must make the game close the modal, not merely drop
+    // our reference — nulling s_boxWindow alone leaves the box on screen capturing
+    // input, freezing the local player behind it (the trade double-backout freeze).
+    // The gate makes this a no-op on the success path, which nulls s_boxWindow
+    // before handing the scene to Demo_Trade. CloseForce() locates the box via
+    // UIManager and is itself a safe no-op if one is already closing.
+    if (s_boxWindow != nullptr) {
+        Dpr::UI::BoxWindow::CloseForce();
+    }
     s_tradePartnerStation = -1;
     s_myTradePartySlot = -1;
     s_myTradeTrayIndex = -1;
@@ -1577,7 +1589,6 @@ static bool onTradeConfirmClicked(void* __this, Dpr::UI::ContextMenuItem::Object
         s_activeContextMenu = nullptr;  // menu auto-closes on return true
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         // Don't call SetTradeInfo/ToNextPhase — BoxWindow in selection mode, trade panel uninit
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1615,7 +1626,6 @@ static bool onTradeConfirmClicked(void* __this, Dpr::UI::ContextMenuItem::Object
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
         // Don't call SetTradeInfo/ToNextPhase — BoxWindow was opened in selection mode
         // (openType=1) so _tradeInfoCanvasGroup was never initialized by SetTraderName
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1754,9 +1764,6 @@ static void showTradeConfirmDialog() {
         MP_LOG("[OverworldMP] ERROR: Failed to open trade confirm Yes/No menu\n");
         hideInteractMsgWindow();
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
-        if (s_boxWindow != nullptr) {
-            s_boxWindow = nullptr;
-        }
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1777,7 +1784,6 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
     if (selected == nullptr || selected->max_length < 1 || selected->m_Items[0] == nullptr) {
         MP_LOG("[OverworldMP] BoxWindow selection was empty — cancelling trade\n");
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1795,7 +1801,6 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
     if (poke == nullptr) {
         MP_LOG("[OverworldMP] ERROR: selected pokemon Param is null\n");
         overworldMPSendTradeConfirm(s_tradePartnerStation, false);
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -1856,8 +1861,8 @@ static void onBoxSelected(Dpr::UI::BoxWindow::Object* window,
 // ---------------------------------------------------------------------------
 static void onBoxCancelled(MethodInfo* mi) {
     MP_LOG("[OverworldMP] BoxWindow trade selection cancelled\n");
-    // Don't call SetTradeInfo — BoxWindow was opened in selection mode, trade panel uninit
-    s_boxWindow = nullptr;
+    // Don't call SetTradeInfo — BoxWindow was opened in selection mode, trade panel uninit.
+    // resetTradeState() force-closes the still-open box (see comment there).
     overworldMPSendTradeConfirm(s_tradePartnerStation, false);
     resetTradeState();
     s_interact.Reset();
@@ -2050,7 +2055,6 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     auto* selectActionClass = System::Action::getClass(System::Action::BoxWindow_SelectedPokemon_TypeInfo);
     if (selectActionClass == nullptr) {
         MP_LOG("[OverworldMP] Failed to get Action<BoxWindow,SelectedPokemon[]> class\n");
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2076,7 +2080,6 @@ static void openTradeBoxWindow(int32_t partnerStation) {
     auto* cancelActionClass = System::Action::getClass(System::Action::void_TypeInfo);
     if (cancelActionClass == nullptr) {
         MP_LOG("[OverworldMP] Failed to get Action class for cancel\n");
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2158,7 +2161,6 @@ void overworldMPOnTradeConfirmReceived(int32_t fromStation, bool confirmed) {
             hideInteractMsgWindow();
         }
         // Don't call SetTradeInfo/ToNextPhase — BoxWindow in selection mode, trade panel uninit
-        s_boxWindow = nullptr;
         resetTradeState();
         s_interact.Reset();
         closeInteractionMenu();
@@ -2201,12 +2203,27 @@ void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_
     MP_LOG("[OverworldMP] Battle party received from station %d, size=%d\n",
                 fromStation, size);
 
-    // Reject if not in a battle exchange state (e.g., after timeout reset)
-    if (s_interact.state != InteractState::BattleExchangeParty &&
-        s_interact.state != InteractState::BattleSyncWait) {
-        MP_LOG("[OverworldMP] Ignoring battle party: not in exchange state (%d)\n",
-                    (int)s_interact.state);
-        return;
+    // Accept the party in any active battle-negotiation state, not just once we've
+    // reached BattleExchangeParty. With two low-latency local peers the partner's
+    // 0xC6 party can arrive BEFORE we've finished the accept transition and entered
+    // BattleExchangeParty; if we only accepted it in the exchange state we'd drop it
+    // (logged "received" but never stored), leaving partnerReceived=0 and both sides
+    // waiting forever. A 0xC6 only ever arrives for a battle, so buffering it in the
+    // pre-exchange battle states is safe; the tick handler still gates the actual
+    // battle start on (myPartySent && partnerReceived). Reject only when we're not in
+    // any battle context (e.g. Idle after a timeout/cancel, or a trade sub-state).
+    switch (s_interact.state) {
+        case InteractState::WaitingResponse:      // requester waiting for accept
+        case InteractState::ReceivedRequest:      // accepter, dialog up
+        case InteractState::Accepted:             // just accepted, transitioning
+        case InteractState::BattleMenuOpen:       // choosing single/double
+        case InteractState::BattleExchangeParty:  // exchanging
+        case InteractState::BattleSyncWait:       // sent READY, waiting
+            break;
+        default:
+            MP_LOG("[OverworldMP] Ignoring battle party: not in a battle state (%d)\n",
+                        (int)s_interact.state);
+            return;
     }
 
     if (s_battlePartnerStation != fromStation && s_battlePartnerStation != -1) {
@@ -2243,9 +2260,13 @@ void overworldMPOnBattlePartyReceived(int32_t fromStation, uint8_t* data, int32_
 // (overworldMPSetTeamUpBattleStarting removed — Player B now uses sync-wait + DeferEncountStart)
 
 void overworldMPOnBattleReadyReceived(int32_t fromStation) {
-    // Reject if not in a battle sync state
-    if (s_interact.state != InteractState::BattleSyncWait) {
-        MP_LOG("[OverworldMP] Ignoring BATTLE_READY: not in sync state (%d)\n",
+    // Accept BATTLE_READY during BattleExchangeParty too, not only BattleSyncWait:
+    // the partner can finish the exchange and send READY before we've entered
+    // BattleSyncWait, and the sync tick explicitly checks for a READY "received
+    // during party exchange". Only reject outside the battle exchange/sync states.
+    if (s_interact.state != InteractState::BattleExchangeParty &&
+        s_interact.state != InteractState::BattleSyncWait) {
+        MP_LOG("[OverworldMP] Ignoring BATTLE_READY: not in battle exchange/sync state (%d)\n",
                     (int)s_interact.state);
         return;
     }
@@ -2276,8 +2297,18 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
         return nullptr;
     }
 
-    // Create a new PokeParty — creates 6 empty PokemonParam slots
-    auto* party = Pml::PokeParty::newInstance();
+    // Create a new PokeParty via ctor — creates 6 empty PokemonParam slots.
+    // Reuse the EXISTING local party's class (always valid) + raw ctor instead of
+    // Pml::PokeParty::newInstance(): newInstance resolves the generic TypeInfo,
+    // whose lazy class-init null-derefs in the battle-setup context. This is the
+    // pattern the feature originally shipped with (regressed by a later refactor).
+    auto* partyKlass = (Il2CppClass*)localParty->klass;
+    if (partyKlass == nullptr) {
+        MP_LOG("[OverworldMP] ERROR: PokeParty class is null\n");
+        return nullptr;
+    }
+    auto* party = (Pml::PokeParty::Object*)il2cpp_object_new(partyKlass);
+    _ILExternal::external<void>(0x2055D10, party); // PokeParty::ctor()
 
     // Deserialize directly into the party's existing slots — matching how
     // the base game's CopyFrom works (slot-to-slot, no AddMember/GetMonsNo check).
@@ -2556,16 +2587,29 @@ void overworldMPSetupAndStartBattle() {
             }
         }
 
-        // (2) Store MyStatus pointers for the MyStatusGetColorID hook to match
+        // (2) MyStatus.colorID (byte at object offset 0x25). Write it directly AND
+        // register the pointers for the MyStatusGetColorID hook. The direct byte
+        // write is load-bearing: battle code paths that read the colorID field
+        // without going through GetColorID (which drive the remote trainer's hair
+        // and eye color) only see the synced per-slot color if the byte is set.
+        // b8678d4 replaced this with hook-only registration and regressed remote
+        // hair/eye sync; keep both so every reader is covered. Do not remove the
+        // byte write — 0x25 is the colorID field, not an unrelated hijack.
         extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
         extern void owmpClearBattleMyStatus();
         owmpClearBattleMyStatus();
         auto* statusArr = bsp->instance()->fields.playerStatus;
         if (statusArr != nullptr && statusArr->max_length >= 2) {
-            if (statusArr->m_Items[localSlot] != nullptr)
-                owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
-            if (statusArr->m_Items[opponentSlot] != nullptr)
-                owmpSetBattleMyStatus(opponentSlot, statusArr->m_Items[opponentSlot]);
+            auto* localMS  = statusArr->m_Items[localSlot];
+            auto* remoteMS = statusArr->m_Items[opponentSlot];
+            if (localMS != nullptr) {
+                *(uint8_t*)((uintptr_t)localMS + 0x25) = (uint8_t)localColor;
+                owmpSetBattleMyStatus(localSlot, localMS);
+            }
+            if (remoteMS != nullptr) {
+                *(uint8_t*)((uintptr_t)remoteMS + 0x25) = (uint8_t)remoteColor;
+                owmpSetBattleMyStatus(opponentSlot, remoteMS);
+            }
         }
 
         // (3) Slot color array + cursors for CardModelViewController and StoreCore
@@ -2580,6 +2624,12 @@ void overworldMPSetupAndStartBattle() {
         g_owmpStoreCoreCursor = 0;
         extern int32_t g_owmpSetSkinColorCursor;
         g_owmpSetSkinColorCursor = 0;
+        // PvP humans occupy slots 0 and 1 (contiguous) — render order maps directly.
+        extern int32_t g_owmpBattleHumanSlots[2];
+        g_owmpBattleHumanSlots[0] = 0;
+        g_owmpBattleHumanSlots[1] = 1;
+        extern bool g_owmpBattleIsTeamUp;
+        g_owmpBattleIsTeamUp = false;
 
         // (4) Custom battle colors for ALL slots with colorId == -1.
         // The CardModelViewController_LoadModels hook uses a cursor that may not
@@ -2599,6 +2649,11 @@ void overworldMPSetupAndStartBattle() {
         }
 
         // Remote player's slot — populate from received 0xCD packet data
+        MP_LOG("[ColorDiag] remote slot%d: colorId=%d hasCustom=%d fieldHair=(%d,%d,%d) fieldEyes=(%d,%d,%d) battleHair=(%d,%d,%d)\n",
+                    remoteSlotIdx, remoteColor, (int)remote.hasCustomColors,
+                    (int)(remote.customFieldColors[15]*255), (int)(remote.customFieldColors[16]*255), (int)(remote.customFieldColors[17]*255),
+                    (int)(remote.customFieldColors[6]*255),  (int)(remote.customFieldColors[7]*255),  (int)(remote.customFieldColors[8]*255),
+                    (int)(remote.customBattleColors[15]*255), (int)(remote.customBattleColors[16]*255), (int)(remote.customBattleColors[17]*255));
         if (remoteColor == -1 && remote.hasCustomColors) {
             g_owmpBattleSlotHasCustomColors[remoteSlotIdx] = true;
             auto& cs = g_owmpBattleSlotCustomColorSets[remoteSlotIdx];
@@ -3281,8 +3336,7 @@ void overworldMPOnInteractionPartnerLeft(int32_t stationIndex) {
     MP_LOG("[OverworldMP] Interaction partner station %d disconnected (state=%d) — aborting\n",
                 stationIndex, (int)s_interact.state);
 
-    // Don't call SetTradeInfo/ToNextPhase — BoxWindow in selection mode, trade panel uninit
-    s_boxWindow = nullptr;
+    // BoxWindow (if open) is force-closed by resetTradeState() below.
 
     // Close UIZukanRegister if showing partner pokemon preview
     if (s_zukanRegister != nullptr) {

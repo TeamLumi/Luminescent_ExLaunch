@@ -122,6 +122,11 @@ RomData::ColorSet GetCustomColorSet()
     return set;
 }
 
+// Defined later in this file — needed by the custom-color render fallback below.
+extern bool g_owmpBattleColorActive;
+extern bool g_owmpBattleSlotHasCustomColors[];
+extern RomData::ColorSet g_owmpBattleSlotCustomColorSets[];
+
 ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* variation, int32_t index)
 {
     system_load_typeinfo(0x2c09);
@@ -137,10 +142,30 @@ ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* var
         ColorVariation::Property::MaskColor::Array* colors = properties->m_Items[i].fields.colors;
 
         RomData::ColorSet set = {};
-        if (index == -1)
-            set = GetCustomColorSet();
-        else
+        if (index == -1) {
+            // Custom-color model. A correctly-set override (from the cursor hooks)
+            // wins. But those cursors can misalign with the model render order,
+            // leaving the override null for a remote custom model — in which case
+            // GetCustomColorSet() would return the LOCAL save's colors (wrong). When
+            // rendering and no override is set, recover from the custom battle slot.
+            // (Render-path only: GetCustomColorSet stays pure so setup can populate
+            // the slots without recursing into this fallback.)
+            if (s_customColorSetOverride == nullptr && g_owmpBattleColorActive) {
+                bool found = false;
+                for (int s = 0; s < 4; s++) {
+                    if (g_owmpBattleSlotHasCustomColors[s]) {
+                        set = g_owmpBattleSlotCustomColorSets[s];
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) set = GetCustomColorSet();
+            } else {
+                set = GetCustomColorSet();
+            }
+        } else {
             set = GetColorSet(index);
+        }
 
         if (gameObject->GetComponent(UnityEngine::Component::Method$$BattleCharacterEntity$$GetComponent) != nullptr)
         {
@@ -263,11 +288,26 @@ void owmpClearCapturedColorVariation(int32_t station) {
 // Set before entering battle, cleared after battle ends.
 bool g_owmpBattleColorActive = false;
 
+// True only for team-up (co-op) battles. In team-up the game reads the trainer
+// colorID from the partner's synced status (0 for a remote preset player) and never
+// calls MyStatus::GetColorID, so we must force the correct per-slot colorID into the
+// model. In PvP the game's colorID register is already correct per model (via the
+// GetColorID/byte path) and the model render order can differ per client, so forcing
+// it there would swap colors — leave PvP's register untouched.
+bool g_owmpBattleIsTeamUp = false;
+
 // Per-slot battle colors, indexed by client ID (0 = first, 1 = second, etc.).
 // Populated before battle in PvP (slots 0-1) and team-up (slots 0-3).
 // CardModelViewController_LoadModels uses a cursor to walk this array because
 // the hook fires once per trainer card model with no slot identifier.
 int32_t g_owmpBattleSlotColors[4] = {0, 0, 0, 0};
+
+// The two human player battle slots, in model render order (ascending slot). The
+// per-model color hooks fire once per HUMAN trainer model, but the human slots
+// aren't contiguous in team-up (PP_AA puts humans at 0 and 2, enemies at 1 and 3),
+// so a raw 0,1 cursor lands the 2nd human on an enemy slot. Set during battle
+// setup so the cursor maps model N -> g_owmpBattleHumanSlots[N]. PvP: {0,1}.
+int32_t g_owmpBattleHumanSlots[2] = {0, 1};
 int32_t g_owmpBattleSlotCursor = 0;
 int32_t g_owmpStoreCoreCursor = 0;
 
@@ -308,11 +348,15 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
 HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
     static int32_t Callback(Dpr::Battle::Logic::MyStatus::Object* __this) {
         if (g_owmpBattleColorActive && __this != nullptr) {
-            for (int i = 0; i < 4; i++) {
-                if (s_battleMyStatusPtrs[i] == __this) {
-                    return g_owmpBattleSlotColors[i];
-                }
-            }
+            // Read the per-slot colorID straight from the MyStatus field we wrote
+            // in battle setup. The pointer-matching approach (b8678d4) fell back to
+            // the LOCAL save color whenever the game called GetColorID with a
+            // MyStatus object that wasn't one of the two registered pointers, so the
+            // remote trainer's hair/eye color resolved to local/default. Reading the
+            // field is what the feature originally shipped with and always matches
+            // whatever __this the game passes. 0xFF == (uint8)-1 == custom colors.
+            uint8_t raw = *(uint8_t*)((uintptr_t)__this + 0x25);
+            return (raw == 0xFF) ? -1 : (int32_t)raw;
         }
         return getCustomSaveData()->playerColorVariation.playerColorID;
     }
@@ -347,21 +391,48 @@ HOOK_DEFINE_INLINE(SetColorID_TrainerParam_StoreCore) {
             trainerData->fields.colorID = saveColor;
             Logger::log("[ColorVar] StoreCore: mpActive=0, wrote colorID=%d from save\n", saveColor);
         } else {
-            // Battle engine creates fresh TRAINER_DATA during store_player —
-            // actively write per-slot colors from the slot array.
-            int slot = g_owmpStoreCoreCursor++;
-            if (slot < 4) {
-                trainerData->fields.colorID = g_owmpBattleSlotColors[slot];
-                // Set custom color override for this slot if needed
-                if (g_owmpBattleSlotColors[slot] == -1 && g_owmpBattleSlotHasCustomColors[slot]) {
-                    SetCustomColorSetOverride(&g_owmpBattleSlotCustomColorSets[slot]);
+            // Identify HUMAN players by their MyStatus. A human trainer's TRAINER_DATA
+            // carries a non-null playerStatus (their MyStatus, registered per battle
+            // slot at setup); enemy NPC trainers have none. This is the reliable
+            // human/NPC discriminator — the old per-call cursor mis-fired whenever an
+            // enemy model sat between the two humans (double battles) OR when the
+            // enemies used no color model at all (the cursor then counted only the two
+            // humans as slots 0,1, so the 2nd human — really slot 2 — was skipped and
+            // rendered the default blue).
+            extern bool g_owmpBattleIsTeamUp;
+            extern int32_t g_owmpBattleHumanSlots[2];
+            auto* ps = trainerData->fields.playerStatus;
+            if (ps != nullptr) {
+                // Prefer the exact slot via the registered pointer; if store_player
+                // copied the MyStatus (pointer differs), fall back to a HUMAN-ONLY
+                // cursor. Because NPCs never reach this branch, the Nth human here is
+                // the Nth human slot regardless of how the enemies are interleaved.
+                int slot = -1;
+                for (int i = 0; i < 4; i++) {
+                    if (s_battleMyStatusPtrs[i] == (Dpr::Battle::Logic::MyStatus::Object*)ps) { slot = i; break; }
+                }
+                if (slot < 0) {
+                    int n = g_owmpStoreCoreCursor++;
+                    slot = g_owmpBattleIsTeamUp ? (n < 2 ? g_owmpBattleHumanSlots[n] : -1) : n;
+                }
+                if (slot >= 0 && slot < 4) {
+                    trainerData->fields.colorID = g_owmpBattleSlotColors[slot];
+                    if (g_owmpBattleSlotColors[slot] == -1 && g_owmpBattleSlotHasCustomColors[slot]) {
+                        SetCustomColorSetOverride(&g_owmpBattleSlotCustomColorSets[slot]);
+                    } else {
+                        SetCustomColorSetOverride(nullptr);
+                    }
+                    Logger::log("[ColorVar] StoreCore: human slot=%d colorID=%d custom=%d (ps=%p)\n",
+                                slot, g_owmpBattleSlotColors[slot], (int)g_owmpBattleSlotHasCustomColors[slot], (void*)ps);
                 } else {
                     SetCustomColorSetOverride(nullptr);
+                    Logger::log("[ColorVar] StoreCore: human unmatched (ps=%p) — kept colorID=%d\n",
+                                (void*)ps, trainerData->fields.colorID);
                 }
-                Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d, wrote colorID=%d custom=%d\n",
-                            slot, g_owmpBattleSlotColors[slot], (int)g_owmpBattleSlotHasCustomColors[slot]);
             } else {
-                Logger::log("[ColorVar] StoreCore: mpActive=1, slot=%d (overflow), kept colorID=%d\n", slot, trainerData->fields.colorID);
+                // Enemy NPC trainer — keep its own designed colorID.
+                SetCustomColorSetOverride(nullptr);
+                Logger::log("[ColorVar] StoreCore: enemy NPC — kept colorID=%d\n", trainerData->fields.colorID);
             }
         }
         trainerData->fields.trainerID = 0;
@@ -413,21 +484,18 @@ int32_t g_owmpSetSkinColorCursor = 0;
 
 HOOK_DEFINE_INLINE(BattleCharacterEntity$$SetSkinColor_InlineColorID) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
-        // During MP battles, set the custom color override before UpdateColorVariation
-        // runs inside SetColorIndexFromInline. Without this, GetCustomColorSet() returns
-        // local save data for all models because the LoadModels override was already cleared.
-        if (g_owmpBattleColorActive) {
-            int slot = g_owmpSetSkinColorCursor++;
-            if (slot < 4 && g_owmpBattleSlotColors[slot] == -1 && g_owmpBattleSlotHasCustomColors[slot]) {
-                SetCustomColorSetOverride(&g_owmpBattleSlotCustomColorSets[slot]);
-            } else {
-                SetCustomColorSetOverride(nullptr);
-            }
-        }
-        SetColorIndexFromInline(ctx, 8, 19);
+        // The colorID register (W[19]) is already correct per trainer model: StoreCore
+        // wrote each human's slot color into TRAINER_DATA (matched by MyStatus) and left
+        // each enemy's own designed color, and W[19] follows that value. So we do NOT
+        // force it here — the old per-model cursor force is what repainted enemy NPCs
+        // (and mis-mapped humans when enemy models were interleaved or absent).
+        //
+        // Clear any stale custom override so custom (-1) models resolve through
+        // GetEditedProperty00's battle fallback (which pulls the custom slot's set).
         if (g_owmpBattleColorActive) {
             SetCustomColorSetOverride(nullptr);
         }
+        SetColorIndexFromInline(ctx, 8, 19);
     }
 };
 

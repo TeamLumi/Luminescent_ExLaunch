@@ -285,6 +285,14 @@ namespace Dpr::UI {
         static inline void LimitBox(bool enabled) {
             external<void>(0x1CB8770, enabled);
         }
+
+        // Force-close the currently-open BoxWindow. Locates it via
+        // UIManager::GetExistWindow<BoxWindow>() (does not need a local handle) and
+        // runs the close coroutine. Safe no-op when no box is open or one is already
+        // closing (both this and Close() bail on the _coClose guard).
+        static inline void CloseForce() {
+            external<void>(0x1CB5BA0);
+        }
         // Action<BoxWindow> TypeInfo is in System::Action::BoxWindow_TypeInfo
     };
 }

@@ -245,6 +245,48 @@ static int32_t s_savedFullPartyCount = 0;
 static uint8_t s_battleModPartyBuf[TEAMUP_PARTY_LIMIT * POKE_FULL_DATA_SIZE];
 static int32_t s_battleModPartyCount = 0;
 static bool s_battleAbnormal = false;
+// True when the (non-abnormal) team-up battle was a LOSS — the deferred restore
+// then heals the ENTIRE party to full (the pokémon-center restore) while keeping
+// the exp/level/move gains.
+static bool s_battleWasLoss = false;
+
+// Deferred exp capture — storeBattleResult fires BEFORE the final KO's exp is
+// fully applied to the battle POKECON, so capturing there under-counts the last
+// chunk (often a whole level). Instead we record the capture parameters here and
+// perform the actual POKECON→party conversion in the BATTLE_SETUP_PARAM::Clear
+// hook, which runs at the very end of FinalizeCoroutine — after every exp screen
+// has resolved but before the BSP is wiped and before the evolution check reads
+// PlayerWork. s_captureMainModule stays valid for that window.
+static bool  s_pendingExpCapture = false;
+static void* s_captureMainModule = nullptr;
+static uint8_t s_captureClientId = 0;
+static bool  s_captureIsWin = false;
+// The src party resolved at storeBattleResult (where GetSrcParty is valid). By
+// Clear time the accessor returns null, but the party OBJECT is still alive, so
+// we reuse this saved pointer as the conversion destination for the late top-up.
+static Pml::PokeParty::Object* s_captureSrcParty = nullptr;
+
+// The POKECON the client-side ServerCommandExecutor actually applies exp into (via
+// scProc_OP_AddExp → BTL_POKEPARAM::AddExp). On the joiner this is the LOCAL client
+// pokecon that executes every synced exp command (→ the leveled-up value you see),
+// which is a DIFFERENT object than the server-synced pokecon at mainModule+0x110 we
+// used to read (it lags the final KO). Captured live during the battle; used as the
+// conversion source at battle end. Reset per battle.
+static void* s_expApplyPokecon = nullptr;
+
+// Per-enemy "our own pokemon already got this KO's exp" set, indexed [side][idx].
+// The comm exp calc normally skips enemies whose "checked" flag is set — but the host
+// SYNCS that flag to the joiner, so the joiner's own exp calc skips the final KO (the
+// host processed it first). We drive the local (first) pass off THIS set instead, so
+// each client commits every KO its own pokemon earned exactly once, regardless of the
+// host's synced flag. Reset per battle.
+static bool s_localAwarded[4][6] = {};
+
+// Reset the per-battle exp-capture state at the start of each team-up battle.
+void owmpTeamUpResetBattleResultSync() {
+    memset(s_localAwarded, 0, sizeof(s_localAwarded));
+    s_expApplyPokecon = nullptr;
+}
 
 // Second-pass restore — vanilla FinalizeCoroutine may overwrite our deferred
 // restore. This timer triggers a re-apply one frame later as a safety net.
@@ -262,6 +304,9 @@ bool overworldMPIsTeamedUp() {
 // Full party save/restore
 // ---------------------------------------------------------------------------
 void overworldMPSaveFullParty() {
+    // New battle → clear any stale host-result sync state (received team from a prior
+    // fight, and the initiator's send-once latch).
+    owmpTeamUpResetBattleResultSync();
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) return;
     s_savedFullPartyCount = party->fields.m_memberCount;
@@ -336,35 +381,124 @@ static void restoreFullParty() {
                 restored, s_savedFullPartyCount);
 }
 
-// Save battle-modified party data from BSP.
-// Called from storeBattleResult BEFORE BSP::Clear wipes the data.
-// The actual write to PlayerWork happens in overworldMPHandleTeamUpPostBattle.
-// NOTE: Always read from party[0] — the vanilla engine writes the local player's
-// result to party[0] regardless of commPos. party[2] is stale for Player B.
-static void saveBattleModifiedParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp) {
+// Save the exp-modified party and write it straight into PlayerWork.
+// Called from storeBattleResult AFTER Orig, so ApplyBattlePartyData has already
+// deserialized the battle results (exp/level/moves/HP) into the "source party".
+//
+// The old code read BSP.party[0], which is WRONG: ApplyBattlePartyData writes the
+// results to the source party for the local client (MainModule::GetSrcParty), and
+// only CopyFrom's them into BSP.party[myClientId] — 2 for Player B, not 0 — and
+// even then BSP.party[0] holds the pre-exp copy. So exp never reached PlayerWork
+// and evolution (which reads PlayerWork in FinalizeCoroutine) never fired.
+//
+// GetSrcParty @ 0x20325A0 (mainModule, clientId, flag=1) returns the exp'd party.
+// We snapshot it (for the deferred re-apply safety net) AND write it into PlayerWork
+// immediately, so the vanilla evolution check later in FinalizeCoroutine sees the
+// leveled-up pokemon and plays the evolution demo.
+static void saveBattleModifiedParty(void* mainModule, uint8_t myClientId, bool isWin) {
+    // NOTE: do NOT zero s_battleModPartyCount here. This runs twice — once at
+    // storeBattleResult (guaranteed source data, but the final KO's exp may not
+    // have landed yet) and once at Clear (exp complete, but GetSrcParty may be
+    // gone). We only commit the buffer once a conversion actually produces
+    // members, so a failed second pass can't wipe a good first pass.
+    if (mainModule == nullptr) return;
+
+    // Resolve the battle POKECON (holds the real exp/level/moves earned in the fight)
+    // + result SendDataContainer, the same way ApplyBattlePartyData does. Comm-mode
+    // skips the conversion (gated on IsCompetitorScenarioMode/type==2), so we run it.
+    void* inner    = *(void**)((uintptr_t)mainModule + 0x10);
+    void* param2   = *(void**)((uintptr_t)mainModule + 0x110);
+    void* serverPokecon = (param2 != nullptr) ? *(void**)((uintptr_t)param2 + 0x10) : nullptr;
+    // Prefer the pokecon the client-side executor actually applied exp into (the one
+    // that leveled up on screen). On the joiner this holds the final KO the server-synced
+    // pokecon lags; on the host they're the same object, so this is safe for both.
+    void* pokecon  = (s_expApplyPokecon != nullptr) ? s_expApplyPokecon : serverPokecon;
+    void* sendData = (inner  != nullptr) ? *(void**)((uintptr_t)inner + 0x118) : nullptr;
+    if (pokecon == nullptr) {
+        MP_LOG("[TeamUp] saveBattleModifiedParty: pokecon null — cannot apply exp\n");
+        return;
+    }
+
+    auto* realParty = PlayerWork::get_playerParty();
+    if (realParty == nullptr) return;
+
+    // Use myClientId — the game's authoritative designation of THIS client's slot in
+    // the comm battle. It reliably indexes the local player's own party in the src
+    // array for both initiator and joiner roles. (PID matching was collision-prone:
+    // cloned saves and identical species share personality values, so it could match
+    // the partner's slot. myClientId can't collide — it IS us.)
+    auto* srcParty = (Pml::PokeParty::Object*)_ILExternal::external<void*>(
+        0x20325A0, mainModule, (uint32_t)myClientId, 1u);
+    if (srcParty == nullptr) {
+        // Clear-time: the accessor is torn down, but the object we resolved at
+        // storeBattleResult is still alive — reuse it as the conversion dest.
+        srcParty = s_captureSrcParty;
+    }
+    if (srcParty == nullptr) {
+        MP_LOG("[TeamUp] saveBattleModifiedParty: GetSrcParty(client=%u) null (no saved party)\n", (unsigned)myClientId);
+        return;
+    }
+    s_captureSrcParty = srcParty;  // remember for the later Clear top-up
+
+    // POKECON::ConvertToPokePartyByStartingOrder(pokecon, destParty, clientId, sendData)
+    // Reads the exp'd BTL_POKEPARAMs straight from the POKECON (needs only pokecon
+    // + clientId), Clears the dest, and refills it in starting order.
+    _ILExternal::external<void>(0x2041840, pokecon, srcParty, (uint32_t)myClientId, sendData);
+
+    // If the conversion produced nothing (e.g. the saved party was torn down after
+    // all), bail WITHOUT touching the buffer so we keep the earlier good capture.
+    if (srcParty->fields.m_memberCount <= 0) {
+        MP_LOG("[TeamUp] saveBattleModifiedParty: conversion yielded 0 members — keeping previous capture\n");
+        return;
+    }
     s_battleModPartyCount = 0;
-    if (bsp == nullptr) return;
 
-    auto* fields = &bsp->instance()->fields;
-    if (fields->party == nullptr) return;
-
-    if (fields->party->max_length < 1) return;
-    auto* battleParty = fields->party->m_Items[0];
-    if (battleParty == nullptr) return;
-
-    int32_t count = battleParty->fields.m_memberCount;
+    int32_t count = srcParty->fields.m_memberCount;
     if (count > TEAMUP_PARTY_LIMIT) count = TEAMUP_PARTY_LIMIT;
 
     for (int i = 0; i < count; i++) {
-        auto* poke = battleParty->GetMemberPointer(i);
+        auto* poke = srcParty->GetMemberPointer(i);
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             poke->fields.m_accessor->Serialize_FullData(
                 &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
             s_battleModPartyCount++;
+
+            // Immediate write into the real party so evolution (which reads
+            // PlayerWork's party) sees the results before the FinalizeCoroutine check.
+            if (realParty != nullptr) {
+                auto* dst = realParty->GetMemberPointer(i);
+                if (dst != nullptr && dst->fields.m_accessor != nullptr) {
+                    dst->fields.m_accessor->Deserialize_FullData(
+                        &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
+                }
+            }
         }
     }
-    MP_LOG("[TeamUp] Saved %d battle-modified Pokemon from BSP slot 0\n",
-                s_battleModPartyCount);
+
+    // On a WIN, keep the battle HP; but if every participating Pokemon fainted the
+    // team won while this player wiped — leave their first Pokemon at 1 HP so they
+    // aren't stuck with a fully-fainted party after a victory. Re-serialize so the
+    // deferred restore preserves it. (A LOSS heals the ENTIRE party — done in
+    // applyDeferredPartyRestore so it also covers non-participating Pokemon.)
+    if (isWin && realParty != nullptr && s_battleModPartyCount > 0) {
+        bool anyAlive = false;
+        for (int i = 0; i < s_battleModPartyCount; i++) {
+            auto* p = realParty->GetMemberPointer(i);
+            if (p != nullptr && ((Pml::PokePara::CoreParam*)p)->GetHp() > 0) { anyAlive = true; break; }
+        }
+        if (!anyAlive) {
+            auto* first = realParty->GetMemberPointer(0);
+            if (first != nullptr && first->fields.m_accessor != nullptr) {
+                ((Pml::PokePara::CoreParam*)first)->SetHp(1);
+                first->fields.m_accessor->Serialize_FullData(&s_battleModPartyBuf[0]);
+                MP_LOG("[TeamUp] Victory-wipe rescue — revived first Pokemon to 1 HP\n");
+            }
+        }
+    }
+    s_battleWasLoss = !isWin;
+
+    MP_LOG("[TeamUp] Saved+applied %d exp-modified Pokemon (isWin=%d) from GetSrcParty(client=%u)\n",
+                s_battleModPartyCount, (int)isWin, (unsigned)myClientId);
 }
 
 // Apply deferred party restore to PlayerWork.
@@ -398,6 +532,21 @@ void applyDeferredPartyRestore() {
         MP_LOG("[TeamUp] Applied %d battle-modified Pokemon to PlayerWork\n", written);
     }
     restoreNonParticipatingPokemon();
+
+    // On a LOSS, the pokémon-center restores the WHOLE party — heal every member to
+    // full (HP/PP/status) while keeping the exp/level/move gains applied above. Done
+    // here (the last restore step) so nothing re-damages them afterward.
+    if (s_battleWasLoss) {
+        int32_t total = party->fields.m_memberCount;
+        if (total > 6) total = 6;
+        for (int i = 0; i < total; i++) {
+            auto* poke = party->GetMemberPointer(i);
+            if (poke != nullptr) {
+                ((Pml::PokePara::CoreParam*)poke)->RecoverAll();
+            }
+        }
+        MP_LOG("[TeamUp] LOSS — full party healed (%d members)\n", total);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -917,7 +1066,11 @@ static Pml::PokeParty::Object* deserializeTeamUpParty(uint8_t* buf, int32_t size
     auto* localParty = PlayerWork::get_playerParty();
     if (localParty == nullptr) return nullptr;
 
-    auto* party = Pml::PokeParty::newInstance();
+    // Reuse the existing party's class + raw ctor instead of newInstance():
+    // newInstance's generic-TypeInfo lazy class-init null-derefs in the battle
+    // setup context. Load-bearing pattern — do not "clean up" to newInstance().
+    auto* party = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)localParty->klass);
+    _ILExternal::external<void>(0x2055D10, party); // PokeParty::ctor()
 
     int32_t validCount = 0;
     for (int i = 0; i < count; i++) {
@@ -1048,15 +1201,26 @@ static void applyTeamUpBattleColors(void* trData,
         setTd(partnerSlot, partnerColor);
     }
 
-    // (2) Store MyStatus pointers for the MyStatusGetColorID hook
+    // (2) MyStatus.colorID (byte at object offset 0x25) — write it directly per
+    // slot AND register the pointers for the hook. MyStatusGetColorID reads this
+    // field; without the byte write the partner's hair/eye color resolves to
+    // local/default (b8678d4 regressed this to hook-only registration). Keep both.
     extern void owmpSetBattleMyStatus(int32_t slot, void* myStatus);
     extern void owmpClearBattleMyStatus();
     owmpClearBattleMyStatus();
     if (statusArr != nullptr) {
-        if (statusArr->max_length > (uint32_t)localSlot && statusArr->m_Items[localSlot] != nullptr)
+        MP_LOG("[ColorDiag] TU byte-write: statusArr=%p len=%d localSlot=%d(color=%d ptr=%p) partnerSlot=%d(color=%d ptr=%p)\n",
+                    (void*)statusArr, (int)statusArr->max_length,
+                    localSlot, localColor, (localSlot < (int)statusArr->max_length) ? (void*)statusArr->m_Items[localSlot] : nullptr,
+                    partnerSlot, partnerColor, (partnerSlot < (int)statusArr->max_length) ? (void*)statusArr->m_Items[partnerSlot] : nullptr);
+        if (statusArr->max_length > (uint32_t)localSlot && statusArr->m_Items[localSlot] != nullptr) {
+            *(uint8_t*)((uintptr_t)statusArr->m_Items[localSlot] + 0x25) = (uint8_t)localColor;
             owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
-        if (statusArr->max_length > (uint32_t)partnerSlot && statusArr->m_Items[partnerSlot] != nullptr)
+        }
+        if (statusArr->max_length > (uint32_t)partnerSlot && statusArr->m_Items[partnerSlot] != nullptr) {
+            *(uint8_t*)((uintptr_t)statusArr->m_Items[partnerSlot] + 0x25) = (uint8_t)partnerColor;
             owmpSetBattleMyStatus(partnerSlot, statusArr->m_Items[partnerSlot]);
+        }
     }
 
     // (3) Slot color array + cursor for CardModelViewController
@@ -1069,6 +1233,13 @@ static void applyTeamUpBattleColors(void* trData,
     g_owmpBattleSlotCursor = 0;
     extern int32_t g_owmpSetSkinColorCursor;
     g_owmpSetSkinColorCursor = 0;
+    // Human slots in ascending (render) order so the per-model color cursor maps to
+    // the right slot — team-up humans are at localSlot/partnerSlot (0 and 2), not 0/1.
+    extern int32_t g_owmpBattleHumanSlots[2];
+    g_owmpBattleHumanSlots[0] = (localSlot < partnerSlot) ? localSlot : partnerSlot;
+    g_owmpBattleHumanSlots[1] = (localSlot < partnerSlot) ? partnerSlot : localSlot;
+    extern bool g_owmpBattleIsTeamUp;
+    g_owmpBattleIsTeamUp = true;
 
     // (4) Custom battle colors for slots with colorId == -1
     extern bool g_owmpBattleSlotHasCustomColors[];
@@ -1288,7 +1459,10 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         return;
     }
 
-    auto* myTrimmedParty = Pml::PokeParty::newInstance();
+    // Reuse the existing party's class + raw ctor instead of newInstance() —
+    // newInstance's lazy class-init null-derefs in the battle setup context.
+    auto* myTrimmedParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
+    _ILExternal::external<void>(0x2055D10, myTrimmedParty); // PokeParty::ctor()
     int32_t myCount = myParty->fields.m_memberCount;
     if (myCount > TEAMUP_PARTY_LIMIT) myCount = TEAMUP_PARTY_LIMIT;
     for (int i = 0; i < myCount; i++) {
@@ -1558,7 +1732,10 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         return;
     }
 
-    auto* myTrimmedParty = Pml::PokeParty::newInstance();
+    // Reuse the existing party's class + raw ctor instead of newInstance() —
+    // newInstance's lazy class-init null-derefs in the battle setup context.
+    auto* myTrimmedParty = (Pml::PokeParty::Object*)il2cpp_object_new((Il2CppClass*)myParty->klass);
+    _ILExternal::external<void>(0x2055D10, myTrimmedParty); // PokeParty::ctor()
     int32_t myCount = myParty->fields.m_memberCount;
     if (myCount > TEAMUP_PARTY_LIMIT) myCount = TEAMUP_PARTY_LIMIT;
     for (int i = 0; i < myCount; i++) {
@@ -2073,13 +2250,28 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         s_battleModPartyCount = 0;
 
         if (!abnormal) {
-            // Normal ending (win or loss) — save battle-modified Pokemon from
-            // BSP slot 0. Needed for both EXP persistence and party correctness
-            // (Player B's party[0] has Player A's data, deferred restore fixes it).
-            saveBattleModifiedParty(bsp);
+            // Persist exp/level/moves/evolution on BOTH win and loss (pull the
+            // exp-modified party from GetSrcParty via the POKECON conversion). The
+            // only difference is HP: on a WIN we keep the battle HP (with a wipe->1HP
+            // rescue if the team won while this player fainted); on a LOSS we heal the
+            // whole party to full (the pokémon-center restore) while still keeping the
+            // exp/level/move gains.
+            //
+            // Capture NOW as the guaranteed baseline (GetSrcParty is valid here),
+            // then flag a top-up at Clear. The final KO's exp may not have landed in
+            // the POKECON yet, so Clear re-runs the conversion once it has — but if
+            // that late pass fails it can't wipe this one (see saveBattleModifiedParty).
+            s_captureSrcParty   = nullptr;  // fresh resolve for this battle
+            saveBattleModifiedParty(mainModule, myClientId, /*isWin=*/fields->result != 0);
+            s_pendingExpCapture = true;
+            s_captureMainModule = mainModule;
+            s_captureClientId   = myClientId;
+            s_captureIsWin      = fields->result != 0;
+        } else {
+            s_pendingExpCapture = false;
         }
-        MP_LOG("[TeamUp] storeBattleResult: deferred restore (abnormal=%d, battleMod=%d)\n",
-                    (int)abnormal, s_battleModPartyCount);
+        MP_LOG("[TeamUp] storeBattleResult: capture deferred to Clear (abnormal=%d, pending=%d)\n",
+                    (int)abnormal, (int)s_pendingExpCapture);
 
         // Restore local animation setting — comm battles sync from the server,
         // which may have a different wazaeff_mode than us
@@ -2092,6 +2284,30 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
             }
             s_savedWazaeffMode = -1;
         }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// BATTLE_SETUP_PARAM::Clear hook — late exp capture
+// ---------------------------------------------------------------------------
+// FinalizeCoroutine calls Clear at its very end (after StopBGM), right before it
+// wipes the BSP and one state later reads PlayerWork for the evolution demo. This
+// is the latest safe point at which the battle POKECON still holds the FULL,
+// final exp — including the last KO's chunk that hadn't landed at storeBattleResult
+// time. When a team-up battle has flagged a pending capture, run the conversion +
+// PlayerWork writeback HERE (before Orig clears anything). Gated by the pending
+// flag so the identical Clear calls at battle SETUP and in solo battles are ignored.
+//
+// Clear @ 0x1AC3AC0
+HOOK_DEFINE_TRAMPOLINE(TeamUpBattleSetupClear) {
+    static void Callback(void* bsp, MethodInfo* mi) {
+        if (s_pendingExpCapture) {
+            s_pendingExpCapture = false;
+            MP_LOG("[TeamUp] Clear: running deferred exp capture (client=%u isWin=%d)\n",
+                        (unsigned)s_captureClientId, (int)s_captureIsWin);
+            saveBattleModifiedParty(s_captureMainModule, s_captureClientId, s_captureIsWin);
+        }
+        Orig(bsp, mi);
     }
 };
 
@@ -2807,11 +3023,48 @@ void overworldMPTickDeferredEncount() {
 // DeadRec::SetExpCheckedFlag @ 0x1D10B60
 
 static bool s_expSecondPass = false;
+// True when the vanilla first pass marked a newly-dead enemy as exp-checked THIS
+// frame — i.e. a real KO just happened. This is the correct "new KO" trigger for
+// the partner's second pass, independent of whether the LOCAL client's pokemon
+// participated (firstResult, the old trigger, was 0 for a partner-only KO — e.g.
+// the final enemy killed by the partner alone — so the partner never got that exp).
+static bool s_expNewEnemyChecked = false;
 // s_expSecondPassDone declared near top of file with other globals
+
+// Only the JOINER (non-initiator) needs the own-tracking override: it receives the
+// host's synced "checked" flags, which make its local calc skip the final KO for its
+// own pokemon. The initiator/host is authoritative — its real flags are correct, so we
+// leave it on vanilla (overriding it there corrupts its exp calc).
+static inline bool owmpJoinerExpFixActive() {
+    return overworldMPIsTeamedUp() &&
+           overworldMPGetTeamUpState().battleType == 1 &&
+           !overworldMPGetTeamUpState().isInitiator;
+}
+
+// Capture the pokecon the client-side executor applies exp into. This is the object
+// that actually levels up (matches the on-screen gauge/stat-summary), and on the joiner
+// it's NOT the server-synced pokecon we used to read. AddExp signature:
+//   AddExp(ServerCommandExecutor* exec, uint32 pokeID, int32 expAmount)
+//   pokecon = *(*(exec + 0x18) + 0x10)
+HOOK_DEFINE_TRAMPOLINE(TeamUpExecutorAddExp) {
+    static void Callback(void* exec, uint32_t pokeID, int32_t expAmount) {
+        if (overworldMPIsTeamedUp() && overworldMPGetTeamUpState().battleType == 1 && exec != nullptr) {
+            void* a = *(void**)((uintptr_t)exec + 0x18);
+            if (a != nullptr) s_expApplyPokecon = *(void**)((uintptr_t)a + 0x10);
+        }
+        Orig(exec, pokeID, expAmount);
+    }
+};
 
 HOOK_DEFINE_TRAMPOLINE(TeamUpGetExpCheckedFlag) {
     static bool Callback(void* deadRec, uint8_t side, uint8_t idx, void* mi) {
-        if (s_expSecondPass) return false;  // Force re-check for partner's party
+        if (s_expSecondPass) return false;  // partner (second) pass: re-check everything
+        // Joiner local (first) pass: trust OUR OWN per-record set, not the host-synced
+        // checked flag, so we commit every KO our own pokemon earned exactly once
+        // (false = not yet awarded → process). idx is the dead-RECORD index.
+        if (owmpJoinerExpFixActive() && idx < 6) {
+            return s_localAwarded[0][idx];
+        }
         return Orig(deadRec, side, idx, mi);
     }
 };
@@ -2819,6 +3072,12 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpGetExpCheckedFlag) {
 HOOK_DEFINE_TRAMPOLINE(TeamUpSetExpCheckedFlag) {
     static void Callback(void* deadRec, uint8_t side, uint8_t idx, void* mi) {
         if (s_expSecondPass) return;  // Don't mark during second pass
+        // Mark this dead record committed in our own set so the joiner won't re-award it
+        // (prevents a runaway when we ignore the host's synced flag above).
+        if (owmpJoinerExpFixActive() && idx < 6) {
+            s_localAwarded[0][idx] = true;
+        }
+        s_expNewEnemyChecked = true;  // first pass processed a newly-dead record → real KO
         Orig(deadRec, side, idx, mi);
     }
 };
@@ -2831,6 +3090,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCheckExpGetExecute) {
             return;
         }
 
+        s_expNewEnemyChecked = false;   // cleared before the first pass; set by SetExpCheckedFlag if a KO is processed
         Orig(param_1, param_2);
 
         if (!overworldMPIsTeamedUp()) return;
@@ -2843,9 +3103,12 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCheckExpGetExecute) {
         // Save first pass result
         uint8_t firstResult = *(uint8_t*)(param_2 + 0x10);
 
-        // Reset done-flag when new dead enemies are found (firstResult != 0).
-        // This allows the second pass to run exactly once per batch of KOs.
-        if (firstResult != 0) {
+        // Reset done-flag when a NEW enemy was actually KO'd this frame — detected via
+        // SetExpCheckedFlag, not firstResult. firstResult only reflects whether the
+        // LOCAL client's pokemon gained exp; when the partner alone lands a KO (very
+        // common for the final enemy) firstResult is 0 yet a real KO happened, and the
+        // old check skipped the partner's second pass so they lost that KO's exp.
+        if (s_expNewEnemyChecked) {
             s_expSecondPassDone = false;
         }
 
@@ -2902,6 +3165,8 @@ void exl_team_up_main() {
 
     // Hook storeBattleResult to prevent trainer defeat on disconnect/escape
     TeamUpStoreBattleResult::InstallAtOffset(0x202D560);
+    TeamUpBattleSetupClear::InstallAtOffset(0x1AC3AC0);
+    TeamUpExecutorAddExp::InstallAtOffset(0x1F1DC90);
 
     // Hook BtlNet error handling to suppress non-fatal errors in team-up
     TeamUpNotifyNetworkError::InstallAtOffset(0x2036E30);
