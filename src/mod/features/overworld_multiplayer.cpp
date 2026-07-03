@@ -853,6 +853,8 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &trainerMemberCount);
             uint8_t trainerMemberCount2 = 0;  // second real trainer (slot 3), in send order
             il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &trainerMemberCount2);
+            uint8_t battleMultiMode = 0;      // agreed BTL_MULTIMODE (2=PP_AA, 6=PA_A2 single)
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &battleMultiMode);
             int32_t arenaID = 0;
             il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &arenaID);
             int32_t weatherType = 0;
@@ -901,6 +903,9 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 tu.battleTrainerID = trainerID;
                 tu.battleTrainerID2 = trainerID2;
                 tu.battleEffectID = effectID;
+                // Joiner obeys the initiator's mode (2=PP_AA, 6=PA_A2 single).
+                tu.battleMultiMode = (battleMultiMode == TEAMUP_MULTIMODE_SINGLE)
+                                     ? TEAMUP_MULTIMODE_SINGLE : TEAMUP_MULTIMODE_PP_AA;
             } else {
                 // ACK includes Player B's trainer ID for dual-trainer mode
                 tu.partnerTrainerID = trainerID;

@@ -968,6 +968,24 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
         }
     }
 
+    // Decide the battle's multiMode (initiator is authoritative; the BATTLE packet
+    // carries it and the joiner obeys — this keeps both consoles' multiMode identical,
+    // which a divergent per-side decision would not). PA_A2 (single enemy trainer
+    // covering both positions) only for a genuine, matched single-trainer encounter:
+    // no pre-existing second trainer (battleTrainerID2==0) and the sync matched
+    // (not a dual-trainer merge of two different encounters).
+    auto& tuMode = overworldMPGetTeamUpState();
+    uint8_t battleMultiMode = TEAMUP_MULTIMODE_PP_AA;
+    if (dataId == OWMP_DATA_ID_TEAMUP_BATTLE &&
+        tuMode.battleTrainerID2 == 0 && !tuMode.partnerSyncMismatch) {
+        battleMultiMode = TEAMUP_MULTIMODE_SINGLE;
+    } else if (dataId == OWMP_DATA_ID_TEAMUP_BATTLE_ACK) {
+        // Joiner echoes the mode it was told, so the BATTLE sender can confirm it.
+        battleMultiMode = tuMode.battleMultiMode ? tuMode.battleMultiMode
+                                                 : TEAMUP_MULTIMODE_PP_AA;
+    }
+    tuMode.battleMultiMode = battleMultiMode;
+
     il2cpp_vcall_void(pw, PW_RESET);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, dataId);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
@@ -976,6 +994,7 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)memberCount);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, trainerMemberCount);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, trainerMemberCount2);
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, battleMultiMode);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, arenaID);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, weatherType);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, trainerID);
@@ -1364,6 +1383,21 @@ static void applyTeamUpBattleColors(void* trData,
     }
 }
 
+// Diagnostic: log the PA_A2 (mode 6) enemy topology so we can verify at runtime that
+// client 1 covers BOTH enemy positions and client 2 (the comm ally) is on the player
+// side. GetPosCoverClientId_Double @0x20CEF00 (multiMode, pos) -> covering client id.
+// Expected for PA_A2: pos0->0, pos1->1, pos2->2, pos3->1.
+static void owmpTeamUpLogMode6Topology(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp) {
+    (void)bsp;
+    uint8_t c[4];
+    for (uint8_t pos = 0; pos < 4; pos++) {
+        c[pos] = _ILExternal::external<uint8_t>(0x20CEF00,
+            (uint8_t)TEAMUP_MULTIMODE_SINGLE, pos, (void*)nullptr);
+    }
+    MP_LOG("[TeamUp] PA_A2 cover: pos0->c%d pos1->c%d pos2->c%d pos3->c%d (want 0,1,2,1)\n",
+                (int)c[0], (int)c[1], (int)c[2], (int)c[3]);
+}
+
 // ---------------------------------------------------------------------------
 // Modify BSP for PP_AA team-up battle
 // ---------------------------------------------------------------------------
@@ -1633,7 +1667,8 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         bspFields->stations->m_Items[2] = tmp;
     }
 
-    bspFields->multiMode = 2;  // PP_AA
+    bspFields->multiMode = (tu.battleMultiMode == TEAMUP_MULTIMODE_SINGLE)
+                           ? TEAMUP_MULTIMODE_SINGLE : TEAMUP_MULTIMODE_PP_AA;
     bspFields->commPos = 2;    // We (Player B) control slot 2
     // Keep competitor=COMM(3) from SetupBattleComm — this routes the server
     // through seq_EXIT_COMM which properly sends the battle result to comm
@@ -1659,6 +1694,16 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         }
         MP_LOG("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
                     tu.battleTrainerID, tu.trainerPartyCount, tu.battleTrainerID2, tu.trainerParty2Count);
+    } else if (bspFields->multiMode == TEAMUP_MULTIMODE_SINGLE) {
+        // Single-trainer PA_A2: client 1 covers BOTH enemy positions with its full
+        // party (two mons out from one origin). No slot-3 client, no party split.
+        normalTrainer(bsp, 1, tu.battleTrainerID);
+        if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
+            overwriteTrainerPartyFromBuffer(bsp, 1, tu);
+        }
+        owmpTeamUpLogMode6Topology(bsp);
+        MP_LOG("[TeamUp] Player B: SINGLE-TRAINER PA_A2 — slot1=%d (%d pokes), slot3 empty\n",
+                    tu.battleTrainerID, tu.trainerPartyCount);
     } else {
         bool dualTrainer = tu.trainerPartyCount < 3 &&
                            tu.syncTrainerID != tu.battleTrainerID &&
@@ -1897,7 +1942,8 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         fields->stations->m_Items[2] = tmp;
     }
 
-    fields->multiMode = 2;  // PP_AA
+    fields->multiMode = (tu.battleMultiMode == TEAMUP_MULTIMODE_SINGLE)
+                        ? TEAMUP_MULTIMODE_SINGLE : TEAMUP_MULTIMODE_PP_AA;
     fields->commPos = 0;    // We (Player A) control slot 0
     // Keep competitor=COMM(3) from SetupBattleComm — this routes the server
     // through seq_EXIT_COMM which properly sends the battle result to comm
@@ -1920,6 +1966,12 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         normalTrainer(bsp, 3, tu.battleTrainerID2);
         MP_LOG("[TeamUp] Player A: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
                     tu.battleTrainerID, myTrainerCount, tu.battleTrainerID2);
+    } else if (fields->multiMode == TEAMUP_MULTIMODE_SINGLE) {
+        // Single-trainer PA_A2: client 1 (already filled above via normalTrainer(1))
+        // covers BOTH enemy positions with its full party. No slot-3 client, no split.
+        owmpTeamUpLogMode6Topology(bsp);
+        MP_LOG("[TeamUp] Player A: SINGLE-TRAINER PA_A2 — slot1=%d (%d pokes), slot3 empty\n",
+                    tu.battleTrainerID, myTrainerCount);
     } else {
         bool dualTrainer = myTrainerCount < 3 &&
                            tu.partnerTrainerValid &&
@@ -2595,6 +2647,92 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpSendToClientCore) {
 };
 
 // ---------------------------------------------------------------------------
+// BattleRule::IsClientAi_Double hook  (PA_A2 single-trainer team-up)
+// ---------------------------------------------------------------------------
+// IsClientAi_Double @0x1881750 (param_1, multiMode, slot) -> bool.
+// For multiMode=6 (PA_A2) vanilla shares the [0,1,1,1] mask (BattleRule.txt:442-451),
+// which marks client 2 — our comm ally — as AI. Override so ONLY client 1 (the enemy
+// trainer covering both enemy positions) is AI; clients 0 and 2 are the two humans.
+// Gated on team-up + mode 6, so vanilla PA_A2 battles (story doubles with an AI
+// partner) are untouched. This is the highest-risk correction: a wrong bit here makes
+// the ally AI-controlled on one peer and silently desyncs the battle.
+HOOK_DEFINE_TRAMPOLINE(TeamUpIsClientAiDouble) {
+    static uint64_t Callback(uint32_t param_1, uint8_t multiMode, uint32_t slot) {
+        if (overworldMPIsTeamedUp() && multiMode == TEAMUP_MULTIMODE_SINGLE) {
+            return (slot == 1) ? 1 : 0;
+        }
+        return Orig(param_1, multiMode, slot);
+    }
+};
+
+// ---------------------------------------------------------------------------
+// MainModule::setup_comm_double hook  (PA_A2 enemy-client registration)
+// ---------------------------------------------------------------------------
+// setup_comm_double @0x2032B60. At step 0 the vanilla init registers the AI enemy
+// trainer client list only when multiMode==2 (MainModule.txt:4036-4048): it sets the
+// count at +0x9d and writes clients [1,3] into the byte list at *(+0xa0)+0x20/0x21.
+// For PA_A2 that block is skipped, so the lone enemy trainer (client 1) never gets
+// registered and its party would never be stored/synced. Inject count=1, list=[1]
+// after step 0. Defensive: only writes if the list object is allocated with capacity.
+HOOK_DEFINE_TRAMPOLINE(TeamUpSetupCommDouble) {
+    static uint64_t Callback(void* param_1, int32_t* param_2) {
+        int32_t step = (param_2 != nullptr) ? *param_2 : -1;
+        uint64_t r = Orig(param_1, param_2);
+        if (step == 0 && overworldMPIsTeamedUp()) {
+            uintptr_t p = (uintptr_t)param_1;
+            void* inner = *(void**)(p + 0x10);
+            if (inner != nullptr &&
+                *(uint8_t*)((uintptr_t)inner + 0x39) == TEAMUP_MULTIMODE_SINGLE) {
+                uintptr_t listObj = *(uintptr_t*)(p + 0xa0);
+                if (listObj != 0) {
+                    uint32_t cap = *(uint32_t*)(listObj + 0x18);
+                    if (cap >= 1) {
+                        *(uint8_t*)(p + 0x9d)       = 1;  // one enemy trainer client
+                        *(uint8_t*)(listObj + 0x20) = 1;  // list[0] = client 1
+                        MP_LOG("[TeamUp] PA_A2 inject: enemy client list=[1] count=1 (cap=%d)\n",
+                                    (int)cap);
+                    } else {
+                        MP_LOG("[TeamUp] PA_A2 inject SKIP: list cap=%d < 1\n", (int)cap);
+                    }
+                } else {
+                    MP_LOG("[TeamUp] PA_A2 inject SKIP: +0xa0 enemy list is null\n");
+                }
+            }
+        }
+        return r;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// BattleSequenceSystem::BTL_SEQ_FUNC_DEF_MessageDispStd hook  (PA_A2 intro greeting)
+// ---------------------------------------------------------------------------
+// The team-up TR_MULTI intro uses the TWO-trainer greeting label (0x211 / 0x212,
+// "... challenged by {A} and {B}!"), whose builder unconditionally registers two
+// enemy trainer names via GetEnemyClientID(0) and GetEnemyClientID(1). In our PA_A2
+// single-trainer battle both resolve to client 1, so the one trainer is named twice
+// ("... William and William"). Rewrite the label to the vanilla single-trainer
+// greeting (0x20f / 0x210), which registers exactly one name. Gated on team-up +
+// PA_A2 so genuine two-trainer doubles (two distinct enemy clients) keep "and".
+//
+// BTL_SEQ_FUNC_DEF_MessageDispStd @0x1743DF0
+//   (param_1, param_2, BattleViewSystem* param_3, cmdHolder param_4)
+//   msgId = *(int*)( *(void**)(param_4 + 0x30) + 0x30 )   (Ghidra plVar18[6])
+HOOK_DEFINE_TRAMPOLINE(TeamUpSingleTrainerGreeting) {
+    static void Callback(void* param_1, void* param_2, void* param_3, void* param_4) {
+        if (overworldMPIsTeamedUp() &&
+            overworldMPGetTeamUpState().battleMultiMode == TEAMUP_MULTIMODE_SINGLE) {
+            void* cmd = *(void**)((uintptr_t)param_4 + 0x30);
+            if (cmd != nullptr) {
+                int32_t* msgId = (int32_t*)((uintptr_t)cmd + 0x30);
+                if (*msgId == 0x211) *msgId = 0x20f;        // "A and B" -> "A"
+                else if (*msgId == 0x212) *msgId = 0x210;   // (same-species variant)
+            }
+        }
+        Orig(param_1, param_2, param_3, param_4);
+    }
+};
+
+// ---------------------------------------------------------------------------
 // MainModule::setupseq_comm_start_server hook
 // ---------------------------------------------------------------------------
 // The vanilla game blocks commMode=1 (wireless) + multiMode=2 (PP_AA) at step 3
@@ -2614,7 +2752,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCommStartServer) {
     static uint64_t Callback(void* mainModule, int32_t* stepPtr) {
         if (*stepPtr == 3) {
             int32_t multiMode = *(int32_t*)((uintptr_t)mainModule + 0x70);
-            if (multiMode == 2) {
+            if (multiMode == 2 || multiMode == TEAMUP_MULTIMODE_SINGLE) {
                 void* battleEnv = *(void**)((uintptr_t)mainModule + 0x10);
                 if (battleEnv != nullptr) {
                     uint8_t commMode = *(uint8_t*)((uintptr_t)battleEnv + 0x38);
@@ -2668,11 +2806,14 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCreateLocalClient) {
         uint8_t commMode  = *(uint8_t*)(input + 0x1c);
         uint8_t multiMode = *(uint8_t*)(input + 0x1d);
 
-        if (commMode == 0 || multiMode != 2) return 0;  // Not PP_AA + wireless
+        // Not a team-up comm double (PP_AA or PA_A2 single-trainer over wireless)
+        if (commMode == 0 || (multiMode != 2 && multiMode != TEAMUP_MULTIMODE_SINGLE))
+            return 0;
 
-        // PP_AA double has exactly 4 clients (0-3). SetupBattleComm may allocate
+        // Double battles have at most 4 clients (0-3). SetupBattleComm may allocate
         // 5 slots (commRule+3), but slot 4 is not a real participant.
         // IsClientAi creates a bool[4] — calling it with slot>=4 would OOB crash.
+        // (PA_A2 uses clients 0,1,2 only; the hooked IsClientAi returns AI for slot 1.)
         if (slot >= 4) return 0;
 
         // Check if this slot is AI via BattleRule::IsClientAi
@@ -3295,6 +3436,10 @@ void exl_team_up_main() {
 
     // Hook setupseq_comm_start_server to bypass step 3 PP_AA+wireless block
     TeamUpCommStartServer::InstallAtOffset(0x2033AF0);
+    // PA_A2 single-trainer team-up mode (one enemy trainer covers both enemy positions)
+    TeamUpIsClientAiDouble::InstallAtOffset(0x1881750);
+    TeamUpSetupCommDouble::InstallAtOffset(0x2032B60);
+    TeamUpSingleTrainerGreeting::InstallAtOffset(0x1743DF0);
 
     // GetEscapeMode hook merged into battle_escape_flag.cpp
 

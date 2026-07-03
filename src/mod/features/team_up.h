@@ -69,6 +69,10 @@ struct TeamUpState {
     // Active team-up battle state
     bool battlePending;             // waiting for partner's ACK during party exchange
     uint8_t battleType;             // 0 = wild, 1 = trainer
+    uint8_t battleMultiMode;        // agreed BTL_MULTIMODE for this battle (2=PP_AA two
+                                    // enemy clients; 6=PA_A2 single enemy trainer covering
+                                    // both enemy positions). Decided by the initiator and
+                                    // sent in the HEADER so both consoles never disagree.
     int32_t battleTrainerID;        // for trainer battles (enemyID0)
     int32_t battleTrainerID2;       // second trainer for already-double battles (enemyID1), 0 if single
     int32_t battleEffectID;         // BattleSetupEffectData index for intro/BGM (-1 = default)
@@ -119,6 +123,15 @@ static constexpr uint8_t TEAMUP_SUB_HEADER       = 0;  // Header: battleType, me
 static constexpr uint8_t TEAMUP_SUB_POKE         = 1;  // Single Pokemon: pokeIndex + 344 bytes
 static constexpr uint8_t TEAMUP_SUB_TRAINER_POKE = 2;  // Trainer Pokemon: pokeIndex + 344 bytes (initiator sends their trainer's party)
 static constexpr uint8_t TEAMUP_SUB_TRAINER_POKE2 = 3; // Second real trainer's party (slot 3), genuine two-trainer double only
+
+// BTL_MULTIMODE values used by team-up battles (indices into the game's baked
+// position-cover tables — see PokemonPosition::GetPosCoverClientId_Double @0x20CEF00).
+//   PP_AA (2): cover [0,1,2,3,5] — 2 human + 2 distinct AI enemy clients (slots 1,3).
+//   PA_A2 (6): cover [0,1,2,1,5] — client 1 covers BOTH enemy positions (one trainer,
+//              two mons from one origin, "Cyrus-style"); no client 3. Used for a
+//              genuine single-trainer team-up encounter.
+static constexpr uint8_t TEAMUP_MULTIMODE_PP_AA  = 2;
+static constexpr uint8_t TEAMUP_MULTIMODE_SINGLE = 6;  // PA_A2
 
 // ---------------------------------------------------------------------------
 // Public API
