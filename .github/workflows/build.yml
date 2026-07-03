@@ -80,7 +80,7 @@ jobs:
   release:
     name: Create Nightly Release
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     steps:
