@@ -36,6 +36,12 @@ docker buildx build --target artifacts --output type=local,dest=./build .
 
 This outputs the build artifacts to `./build/atmosphere`, `./build/modmanager`, `./build/ryujinx`, and `./build/yuzu`.
 
+Docker builds default to `Release`. To generate a debug build instead, set `BUILD_TYPE=Debug`:
+
+```powershell
+docker buildx build --build-arg BUILD_TYPE=Debug --target artifacts --output type=local,dest=./build .
+```
+
 ### License
 
 This project is licensed under the terms of the [BSD-3-Clause license](./LICENSE). 

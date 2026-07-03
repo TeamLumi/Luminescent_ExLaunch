@@ -2,6 +2,8 @@
 
 FROM devkitpro/devkita64:20260219 AS builder
 
+ARG BUILD_TYPE=Release
+
 ENV DEBIAN_FRONTEND=noninteractive \
     CCACHE_DIR=/root/.cache/ccache \
     CCACHE_COMPRESS=1 \
@@ -16,7 +18,7 @@ WORKDIR /src
 COPY . .
 
 RUN cmake -G "Unix Makefiles" \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake \
     -DCMAKE_CXX_FLAGS="-fpermissive -fPIC" \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \
