@@ -481,23 +481,29 @@ static void saveBattleModifiedParty(void* mainModule, uint8_t myClientId, bool i
         }
     }
 
-    // On a WIN, keep the battle HP; but if every participating Pokemon fainted the
-    // team won while this player wiped — leave their first Pokemon at 1 HP so they
-    // aren't stuck with a fully-fainted party after a victory. Re-serialize so the
-    // deferred restore preserves it. (A LOSS heals the ENTIRE party — done in
-    // applyDeferredPartyRestore so it also covers non-participating Pokemon.)
+    // On a WIN, keep the battle HP; but if every battle-able Pokemon fainted the
+    // team won while this player wiped — leave their first BATTLER at 1 HP so they
+    // aren't stuck with a fully-fainted party after a victory. Skip eggs / non-battlers:
+    // slot 0 can be an egg because the game battles with the first 3 VALID mons, not
+    // literally slots 0-2. CoreParam::IsEgg @ 0x2049370. (A LOSS heals the ENTIRE party
+    // in applyDeferredPartyRestore so it also covers non-participating Pokemon.)
     if (isWin && realParty != nullptr && s_battleModPartyCount > 0) {
         bool anyAlive = false;
         for (int i = 0; i < s_battleModPartyCount; i++) {
             auto* p = realParty->GetMemberPointer(i);
-            if (p != nullptr && ((Pml::PokePara::CoreParam*)p)->GetHp() > 0) { anyAlive = true; break; }
+            if (p != nullptr && !_ILExternal::external<bool>(0x2049370, p, 0) &&
+                ((Pml::PokePara::CoreParam*)p)->GetHp() > 0) { anyAlive = true; break; }
         }
         if (!anyAlive) {
-            auto* first = realParty->GetMemberPointer(0);
-            if (first != nullptr && first->fields.m_accessor != nullptr) {
-                ((Pml::PokePara::CoreParam*)first)->SetHp(1);
-                first->fields.m_accessor->Serialize_FullData(&s_battleModPartyBuf[0]);
-                MP_LOG("[TeamUp] Victory-wipe rescue — revived first Pokemon to 1 HP\n");
+            for (int i = 0; i < s_battleModPartyCount; i++) {
+                auto* p = realParty->GetMemberPointer(i);
+                if (p != nullptr && p->fields.m_accessor != nullptr &&
+                    !_ILExternal::external<bool>(0x2049370, p, 0)) {  // first non-egg battler
+                    ((Pml::PokePara::CoreParam*)p)->SetHp(1);
+                    p->fields.m_accessor->Serialize_FullData(&s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
+                    MP_LOG("[TeamUp] Victory-wipe rescue — revived first battler (slot %d) to 1 HP\n", i);
+                    break;
+                }
             }
         }
     }
@@ -1216,11 +1222,11 @@ static void applyTeamUpBattleColors(void* trData,
     owmpClearBattleMyStatus();
     if (statusArr != nullptr) {
         if (statusArr->max_length > (uint32_t)localSlot && statusArr->m_Items[localSlot] != nullptr) {
-            *(uint8_t*)((uintptr_t)statusArr->m_Items[localSlot] + 0x25) = (uint8_t)localColor;
+            *(uint8_t*)((uintptr_t)statusArr->m_Items[localSlot] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
             owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
         }
         if (statusArr->max_length > (uint32_t)partnerSlot && statusArr->m_Items[partnerSlot] != nullptr) {
-            *(uint8_t*)((uintptr_t)statusArr->m_Items[partnerSlot] + 0x25) = (uint8_t)partnerColor;
+            *(uint8_t*)((uintptr_t)statusArr->m_Items[partnerSlot] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
             owmpSetBattleMyStatus(partnerSlot, statusArr->m_Items[partnerSlot]);
         }
     }

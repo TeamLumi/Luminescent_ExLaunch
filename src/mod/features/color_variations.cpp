@@ -355,8 +355,8 @@ HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
             // remote trainer's hair/eye color resolved to local/default. Reading the
             // field is what the feature originally shipped with and always matches
             // whatever __this the game passes. 0xFF == (uint8)-1 == custom colors.
-            uint8_t raw = *(uint8_t*)((uintptr_t)__this + 0x25);
-            return (raw == 0xFF) ? -1 : (int32_t)raw;
+            uint8_t raw = *(uint8_t*)((uintptr_t)__this + MYSTATUS_COLORID_OFFSET);
+            return (raw == MYSTATUS_COLORID_CUSTOM) ? -1 : (int32_t)raw;
         }
         return getCustomSaveData()->playerColorVariation.playerColorID;
     }

@@ -2603,11 +2603,11 @@ void overworldMPSetupAndStartBattle() {
             auto* localMS  = statusArr->m_Items[localSlot];
             auto* remoteMS = statusArr->m_Items[opponentSlot];
             if (localMS != nullptr) {
-                *(uint8_t*)((uintptr_t)localMS + 0x25) = (uint8_t)localColor;
+                *(uint8_t*)((uintptr_t)localMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
                 owmpSetBattleMyStatus(localSlot, localMS);
             }
             if (remoteMS != nullptr) {
-                *(uint8_t*)((uintptr_t)remoteMS + 0x25) = (uint8_t)remoteColor;
+                *(uint8_t*)((uintptr_t)remoteMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)remoteColor;
                 owmpSetBattleMyStatus(opponentSlot, remoteMS);
             }
         }

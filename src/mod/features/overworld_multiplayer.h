@@ -48,6 +48,12 @@ static constexpr uint8_t OWMP_DATA_ID_CUSTOM_COLORS       = 0xCD; // Custom colo
 static constexpr uint8_t BATTLE_PARTY_SUB_HEADER = 0;  // Header: memberCount + MYSTATUS + subtype
 static constexpr uint8_t BATTLE_PARTY_SUB_POKE   = 1;  // Single Pokemon: pokeIndex + 344 bytes
 
+// Dpr::Battle::Logic::MyStatus colorID field. Verified via MyStatus::GetColorID
+// @0x203D3F0 which is literally `return *(int8_t*)(this + 0x25)`. It's a signed byte,
+// so a custom-color player (-1) is stored/read as (uint8)-1 == 0xFF.
+static constexpr uintptr_t MYSTATUS_COLORID_OFFSET = 0x25;
+static constexpr uint8_t   MYSTATUS_COLORID_CUSTOM = 0xFF;  // == (int8)-1 : custom colors
+
 // Per-remote-player state tracked by the overworld multiplayer system
 struct FieldPlayerNetData {
     int32_t stationIndex;
