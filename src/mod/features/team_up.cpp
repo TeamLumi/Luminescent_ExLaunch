@@ -283,9 +283,15 @@ static void* s_expApplyPokecon = nullptr;
 static bool s_localAwarded[4][6] = {};
 
 // Reset the per-battle exp-capture state at the start of each team-up battle.
+// Everything here must be cleared each battle so a prior battle's state (esp. after
+// an abnormal ending that skips saveBattleModifiedParty) can't leak forward.
 void owmpTeamUpResetBattleResultSync() {
     memset(s_localAwarded, 0, sizeof(s_localAwarded));
     s_expApplyPokecon = nullptr;
+    s_pendingExpCapture = false;   // else a leaked pending fires at an unrelated Clear
+    s_battleWasLoss = false;       // else a stale loss full-heals a later battle
+    s_captureSrcParty = nullptr;
+    s_captureMainModule = nullptr;
 }
 
 // Second-pass restore — vanilla FinalizeCoroutine may overwrite our deferred
@@ -1209,10 +1215,6 @@ static void applyTeamUpBattleColors(void* trData,
     extern void owmpClearBattleMyStatus();
     owmpClearBattleMyStatus();
     if (statusArr != nullptr) {
-        MP_LOG("[ColorDiag] TU byte-write: statusArr=%p len=%d localSlot=%d(color=%d ptr=%p) partnerSlot=%d(color=%d ptr=%p)\n",
-                    (void*)statusArr, (int)statusArr->max_length,
-                    localSlot, localColor, (localSlot < (int)statusArr->max_length) ? (void*)statusArr->m_Items[localSlot] : nullptr,
-                    partnerSlot, partnerColor, (partnerSlot < (int)statusArr->max_length) ? (void*)statusArr->m_Items[partnerSlot] : nullptr);
         if (statusArr->max_length > (uint32_t)localSlot && statusArr->m_Items[localSlot] != nullptr) {
             *(uint8_t*)((uintptr_t)statusArr->m_Items[localSlot] + 0x25) = (uint8_t)localColor;
             owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
@@ -2301,10 +2303,11 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
 // Clear @ 0x1AC3AC0
 HOOK_DEFINE_TRAMPOLINE(TeamUpBattleSetupClear) {
     static void Callback(void* bsp, MethodInfo* mi) {
-        if (s_pendingExpCapture) {
+        // Belt-and-suspenders: only act inside an active team-up battle, so a leaked
+        // s_pendingExpCapture can never run the capture against a solo battle's teardown.
+        if (s_pendingExpCapture && overworldMPIsTeamedUp() &&
+            overworldMPGetTeamUpState().battleType == 1) {
             s_pendingExpCapture = false;
-            MP_LOG("[TeamUp] Clear: running deferred exp capture (client=%u isWin=%d)\n",
-                        (unsigned)s_captureClientId, (int)s_captureIsWin);
             saveBattleModifiedParty(s_captureMainModule, s_captureClientId, s_captureIsWin);
         }
         Orig(bsp, mi);
@@ -3047,12 +3050,12 @@ static inline bool owmpJoinerExpFixActive() {
 //   AddExp(ServerCommandExecutor* exec, uint32 pokeID, int32 expAmount)
 //   pokecon = *(*(exec + 0x18) + 0x10)
 HOOK_DEFINE_TRAMPOLINE(TeamUpExecutorAddExp) {
-    static void Callback(void* exec, uint32_t pokeID, int32_t expAmount) {
+    static void Callback(void* exec, uint32_t pokeID, int32_t expAmount, MethodInfo* mi) {
         if (overworldMPIsTeamedUp() && overworldMPGetTeamUpState().battleType == 1 && exec != nullptr) {
             void* a = *(void**)((uintptr_t)exec + 0x18);
             if (a != nullptr) s_expApplyPokecon = *(void**)((uintptr_t)a + 0x10);
         }
-        Orig(exec, pokeID, expAmount);
+        Orig(exec, pokeID, expAmount, mi);
     }
 };
 
@@ -3061,9 +3064,11 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpGetExpCheckedFlag) {
         if (s_expSecondPass) return false;  // partner (second) pass: re-check everything
         // Joiner local (first) pass: trust OUR OWN per-record set, not the host-synced
         // checked flag, so we commit every KO our own pokemon earned exactly once
-        // (false = not yet awarded → process). idx is the dead-RECORD index.
-        if (owmpJoinerExpFixActive() && idx < 6) {
-            return s_localAwarded[0][idx];
+        // (false = not yet awarded → process). calcExp queries with side=0 + the
+        // dead-RECORD index; index by the real (side,idx) with bounds so any other
+        // (side,idx) the game might use falls back to the real flag instead of aliasing.
+        if (owmpJoinerExpFixActive() && side < 4 && idx < 6) {
+            return s_localAwarded[side][idx];
         }
         return Orig(deadRec, side, idx, mi);
     }

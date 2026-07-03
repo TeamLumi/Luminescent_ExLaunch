@@ -2649,11 +2649,6 @@ void overworldMPSetupAndStartBattle() {
         }
 
         // Remote player's slot — populate from received 0xCD packet data
-        MP_LOG("[ColorDiag] remote slot%d: colorId=%d hasCustom=%d fieldHair=(%d,%d,%d) fieldEyes=(%d,%d,%d) battleHair=(%d,%d,%d)\n",
-                    remoteSlotIdx, remoteColor, (int)remote.hasCustomColors,
-                    (int)(remote.customFieldColors[15]*255), (int)(remote.customFieldColors[16]*255), (int)(remote.customFieldColors[17]*255),
-                    (int)(remote.customFieldColors[6]*255),  (int)(remote.customFieldColors[7]*255),  (int)(remote.customFieldColors[8]*255),
-                    (int)(remote.customBattleColors[15]*255), (int)(remote.customBattleColors[16]*255), (int)(remote.customBattleColors[17]*255));
         if (remoteColor == -1 && remote.hasCustomColors) {
             g_owmpBattleSlotHasCustomColors[remoteSlotIdx] = true;
             auto& cs = g_owmpBattleSlotCustomColorSets[remoteSlotIdx];
