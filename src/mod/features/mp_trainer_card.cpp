@@ -80,7 +80,8 @@ static constexpr uintptr_t NAMEDATA_LANG     = 0x1C;
 
 struct __attribute__((packed)) CardBlob {
     uint8_t  fashion;
-    uint8_t  colorId;      // fills Param.PlayerBodyType, as vanilla does
+    uint8_t  colorId;      // model color variant (LoadModels hook)
+    uint8_t  bodyType;     // Param.PlayerBodyType (2D layout variant)
     uint8_t  genderid;     // MYSTATUS sex byte ^ 1, as vanilla sends it
     uint8_t  langId;
     uint8_t  cardRank;
@@ -98,12 +99,14 @@ struct __attribute__((packed)) CardBlob {
     int16_t  fossilCount;
     uint8_t  statueKinds;
 };
-static_assert(sizeof(CardBlob) == 73, "CardBlob wire size");
+static_assert(sizeof(CardBlob) == 74, "CardBlob wire size");
 
 // Pending received card (opened from the tick, not the packet callback)
 static bool     s_cardPending = false;
 static int32_t  s_cardFromStation = -1;
 static CardBlob s_pendingBlob = {};
+// One-shot: next CardModelViewController.LoadModels shows the peer's appearance
+static bool     s_modelOverrideArmed = false;
 
 // ---------------------------------------------------------------------------
 // Local collection (vanilla accessor set)
@@ -124,6 +127,7 @@ static void collectLocalCardBlob(CardBlob* b) {
 
     b->fashion   = (uint8_t)PlayerWork::get_playerFashion();
     b->colorId   = (uint8_t)_ILExternal::external<int32_t>(RVA_PW_GET_COLOR_ID);
+    b->bodyType  = status ? status->fields.body_type : 0;
     b->genderid  = status ? (uint8_t)(*(uint8_t*)((uintptr_t)status + MYSTATUS_SEX_OFFSET) ^ 1) : 0;
     b->langId    = (uint8_t)PlayerWork::get_msgLangID();
     b->cardRank  = (uint8_t)_ILExternal::external<int32_t>(RVA_PW_GET_TRAINER_RANK);
@@ -151,9 +155,9 @@ static void collectLocalCardBlob(CardBlob* b) {
     b->renshou[2] = _ILExternal::external<uint32_t>(RVA_RECORDWORK_GET, REC_RENSHOU_MSINGLE);
     b->renshou[3] = _ILExternal::external<uint32_t>(RVA_RECORDWORK_GET, REC_RENSHOU_MDOUBLE);
 
-    // TODO: poffinCount — vanilla derives it from get_poffinSaveData's second
-    // return register (inlined count); shows 0 until wired.
-    b->poffinCount = 0;
+    // PoffinSaveData is returned by value: { Poffins array, CookingCount } —
+    // CookingCount is the card's "Poffins cooked" stat.
+    b->poffinCount = (uint8_t)PlayerWork::get_poffinSaveData().fields.CookingCount;
 
     // Dig fossil play count = first u16 of UgCountRecord
     void* ugRec = _ILExternal::external<void*>(RVA_PW_GET_UG_COUNT_REC);
@@ -271,7 +275,7 @@ static void openReceivedCard() {
     *(uint8_t*)(p + PARAM_IS_SHOW_BADGE) = 0;              // badge case: local-only system
     *(int32_t*)(p + PARAM_CARD_RANK)     = b.cardRank;
     *(uint8_t*)(p + PARAM_FASHION)       = b.fashion;
-    *(uint8_t*)(p + PARAM_BODY_TYPE)     = b.colorId;      // vanilla stores colorID here
+    *(uint8_t*)(p + PARAM_BODY_TYPE)     = b.bodyType;
     *(uint8_t*)(p + PARAM_SEX)           = (b.genderid != 1) ? 1 : 0;
     *(uint32_t*)(p + PARAM_PLAYER_ID)    = b.trainerId;
     *(void**)(p + PARAM_NAME_DATA)       = nameData;
@@ -296,8 +300,40 @@ static void openReceivedCard() {
         MP_LOG("[TrainerCard] CreateUIWindow<UICard> failed\n");
         return;
     }
+    // Arm the model override BEFORE Open: the OpOpen coroutine loads the 3D
+    // player model with LOCAL PlayerWork appearance; the LoadModels hook below
+    // substitutes the peer's fashion/color/sex for this one card.
+    s_modelOverrideArmed = true;
     window->Open(param, -2);
     MP_LOG("[TrainerCard] Opened card for station %d (%s)\n", station, peerName);
+}
+
+// ---------------------------------------------------------------------------
+// Peer appearance on the card's 3D model
+// ---------------------------------------------------------------------------
+// CardModelViewController.LoadModels(this, byte fashion, byte colorId, bool sex)
+// @0x1A31010 builds the model from explicit appearance args — but its caller
+// (inlined in the card-open path) always passes the LOCAL player's values.
+// While a peer card is opening, substitute the peer's blob values (one-shot).
+HOOK_DEFINE_TRAMPOLINE(CardModelViewController$$LoadModels) {
+    static void Callback(void* __this, uint8_t fashion, uint8_t colorId, uint8_t sex) {
+        if (s_modelOverrideArmed) {
+            s_modelOverrideArmed = false;
+            uint8_t peerSex = (uint8_t)(s_pendingBlob.genderid ^ 1);  // undo the wire inversion
+            MP_LOG("[TrainerCard] Model override: fashion %d->%d color %d->%d sex %d->%d\n",
+                        (int)fashion, (int)s_pendingBlob.fashion,
+                        (int)colorId, (int)s_pendingBlob.colorId,
+                        (int)sex, (int)peerSex);
+            Orig(__this, s_pendingBlob.fashion, s_pendingBlob.colorId, peerSex);
+            return;
+        }
+        Orig(__this, fashion, colorId, sex);
+    }
+};
+
+void exl_mp_trainer_card_hooks() {
+    CardModelViewController$$LoadModels::InstallAtOffset(0x1A31010);
+    MP_LOG("[TrainerCard] LoadModels hook installed\n");
 }
 
 void mpTrainerCardTick(float deltaTime) {

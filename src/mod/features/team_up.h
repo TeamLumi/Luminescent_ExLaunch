@@ -149,6 +149,11 @@ void overworldMPTeamUp(int32_t partnerStation);
 // Disband team-up (send notification + clear state)
 void overworldMPTeamUpDisband();
 
+// Top-of-screen area-name toast with arbitrary text (label-lookup bypass) and
+// its dismissal. Shared by minigames/tower for transient HUD messages.
+void overworldMPShowAreaText(const char* text);
+void overworldMPResetAreaText();
+
 // Auto-disband check (called each tick from overworldMPUpdate)
 void overworldMPTeamUpAutoDisband();
 

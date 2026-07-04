@@ -82,6 +82,8 @@ enum class InteractState : int32_t {
     IncomingRequestPending = 20, // Deferred incoming request dialog (wait a few frames)
     TradePreviewPending = 21,    // Deferred trade preview (BoxWindow callback must complete first)
     TradeWarningMsg = 22,          // Showing "need 2+ pokemon" MsgWindow, waiting for A/B dismiss
+    GamesMenuPending = 23,         // Main menu closing, minigames sub-menu about to open
+    GamesMenuOpen = 24,            // Minigames sub-menu displayed
 };
 
 struct InteractContext {
@@ -892,9 +894,42 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             closeInteractionMenu();
             break;
 
-        case 5: // Hide-and-Seek invite (requester hides)
-        case 6: { // Catch Contest invite
-            MinigameKind kind = (index == 5) ? MinigameKind::HideAndSeek
+        case 5: // Minigames → open sub-menu after the main menu closes
+            MP_LOG("[OverworldMP] Minigames selected — opening sub-menu\n");
+            s_interact.state = InteractState::GamesMenuPending;
+            s_interact.emoteMenuDelay = 0.3f;
+            break;
+
+        case 6: // Cancel
+        default:
+            MP_LOG("[OverworldMP] Interaction cancelled\n");
+            s_interact.Reset();
+            closeInteractionMenu();
+            break;
+    }
+
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// Minigames sub-menu (Hide-and-Seek / Catch Contest / Cancel)
+// ---------------------------------------------------------------------------
+static MethodInfo* s_gamesMenuMethodInfo = nullptr;
+
+static bool onGamesMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item, MethodInfo* mi) {
+    if (item == nullptr) {
+        s_interact.Reset();
+        closeInteractionMenu();
+        return true;
+    }
+
+    int32_t index = (int32_t)item->fields._param->fields.menuId;
+    MP_LOG("[OverworldMP] Games menu selection: index=%d\n", index);
+
+    switch (index) {
+        case 0: // Hide-and-Seek invite (requester hides)
+        case 1: { // Catch Contest invite
+            MinigameKind kind = (index == 0) ? MinigameKind::HideAndSeek
                                              : MinigameKind::CatchContest;
             MP_LOG("[OverworldMP] Minigame invite (kind=%d) to station %d\n",
                         (int)kind, s_interact.targetStationIndex);
@@ -908,15 +943,31 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             break;
         }
 
-        case 7: // Cancel
+        case 2: // Cancel
         default:
-            MP_LOG("[OverworldMP] Interaction cancelled\n");
+            MP_LOG("[OverworldMP] Games menu cancelled\n");
             s_interact.Reset();
             closeInteractionMenu();
             break;
     }
 
     return true;
+}
+
+static void overworldMPShowGamesMenu() {
+    static char itemHns[64], itemCatch[64];
+    strncpy(itemHns, overworldMPGetMessageCStr("SS_mp_HideAndSeek", "Hide-and-Seek"), sizeof(itemHns) - 1);
+    strncpy(itemCatch, overworldMPGetMessageCStr("SS_mp_CatchContest", "Catch Contest"), sizeof(itemCatch) - 1);
+    itemHns[sizeof(itemHns) - 1] = itemCatch[sizeof(itemCatch) - 1] = '\0';
+    const char* labels[]    = { nullptr, nullptr, "SS_mp_Cancel" };
+    const char* textItems[] = { itemHns, itemCatch, nullptr };
+    s_interact.state = InteractState::GamesMenuOpen;
+
+    if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 3, 2, &onGamesMenuClicked, &s_gamesMenuMethodInfo)) {
+        MP_LOG("[OverworldMP] ERROR: Failed to open games menu\n");
+        s_interact.Reset();
+        closeInteractionMenu();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1134,16 +1185,15 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         // bundle label with an English fallback (labels ship via the
         // companion Romhack_Unity message PR); copies avoid the shared
         // buffer in overworldMPGetMessageCStr.
-        static char itemCard[64], itemHns[64], itemCatch[64];
+        static char itemCard[64], itemGames[64];
         strncpy(itemCard, overworldMPGetMessageCStr("SS_mp_TrainerCard", "Trainer Card"), sizeof(itemCard) - 1);
-        strncpy(itemHns, overworldMPGetMessageCStr("SS_mp_HideAndSeek", "Hide-and-Seek"), sizeof(itemHns) - 1);
-        strncpy(itemCatch, overworldMPGetMessageCStr("SS_mp_CatchContest", "Catch Contest"), sizeof(itemCatch) - 1);
-        itemCard[sizeof(itemCard) - 1] = itemHns[sizeof(itemHns) - 1] = itemCatch[sizeof(itemCatch) - 1] = '\0';
+        strncpy(itemGames, overworldMPGetMessageCStr("SS_mp_Minigames", "Minigames"), sizeof(itemGames) - 1);
+        itemCard[sizeof(itemCard) - 1] = itemGames[sizeof(itemGames) - 1] = '\0';
         const char* labels[]    = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote",
-                                    nullptr, nullptr, nullptr, "SS_mp_Cancel" };
+                                    nullptr, nullptr, "SS_mp_Cancel" };
         const char* textItems[] = { nullptr, nullptr, nullptr, nullptr,
-                                    itemCard, itemHns, itemCatch, nullptr };
-        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 8, 7, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
+                                    itemCard, itemGames, nullptr };
+        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 7, 6, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
             MP_LOG("[OverworldMP] ERROR: Failed to open interaction menu\n");
             s_interact.Reset();
             closeInteractionMenu();
@@ -3308,6 +3358,15 @@ void overworldMPCheckInteraction() {
         s_interact.emoteMenuDelay -= dt; // ~1 frame at 30fps
         if (s_interact.emoteMenuDelay <= 0.0f) {
             overworldMPShowEmoteMenu();
+        }
+        return;
+    }
+
+    // Main menu closed, waiting to open the minigames submenu
+    if (s_interact.state == InteractState::GamesMenuPending) {
+        s_interact.emoteMenuDelay -= dt;
+        if (s_interact.emoteMenuDelay <= 0.0f) {
+            overworldMPShowGamesMenu();
         }
         return;
     }

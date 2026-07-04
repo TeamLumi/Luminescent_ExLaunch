@@ -92,6 +92,16 @@ HOOK_DEFINE_TRAMPOLINE(AreaNameWindowSetNameText) {
     }
 };
 
+static void showCustomAreaNameText(const char* text);
+
+// Exported: top-of-screen toast for other MP modules (minigames, tower).
+void overworldMPShowAreaText(const char* text) {
+    showCustomAreaNameText(text);
+}
+void overworldMPResetAreaText() {
+    safeResetAreaNameWindow();
+}
+
 // Show custom text in the area name window (safe: bypasses label lookup)
 static void showCustomAreaNameText(const char* text) {
     if (!isFieldCanvasReady()) {

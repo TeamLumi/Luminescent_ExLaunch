@@ -304,10 +304,52 @@ static inline bool towerIsLegendary(int32_t monsNo, uint8_t formNo) {
         || _ILExternal::external<bool>(0x1BCD4F0, monsNo);
 }
 
-// Registration clause (v1): reject if either of our lead-2 mons is a
+// PokeRegulation.ModifyLevelPokeParty(party, LevelRangeType.Flat=0, 50)
+// @0x1BCD5E0 — flat-Lv50 normalization (revises each member's level + stats).
+static inline void towerNormalizeLevels(Pml::PokeParty::Object* party) {
+    if (party == nullptr) return;
+    _ILExternal::external<void>(0x1BCD5E0, party, /*LevelRangeType.Flat*/0, 50u);
+}
+
+// Species + held-item clauses over the combined four lead mons (2 local + 2
+// partner): no duplicate species, no duplicate held item (empty item ignored).
+// Both consoles have both parties, so the check is deterministic on each side.
+static bool towerCombinedClausesOk(Pml::PokeParty::Object* localParty,
+                                   Pml::PokeParty::Object* partnerParty) {
+    int32_t species[4] = {0, 0, 0, 0};
+    int32_t items[4]   = {0, 0, 0, 0};
+    int32_t n = 0;
+    Pml::PokeParty::Object* parties[2] = { localParty, partnerParty };
+    for (int p = 0; p < 2 && n < 4; p++) {
+        if (parties[p] == nullptr) return false;
+        for (int i = 0; i < TOWER_PARTY_LIMIT && n < 4; i++) {
+            auto* member = parties[p]->GetMemberPointer(i);
+            if (member == nullptr) return false;
+            auto* core = member->cast<Pml::PokePara::CoreParam>();
+            if (core == nullptr) return false;
+            species[n] = (int32_t)core->GetMonsNo();
+            items[n]   = (int32_t)core->GetItem();
+            n++;
+        }
+    }
+    for (int a = 0; a < n; a++) {
+        for (int b = a + 1; b < n; b++) {
+            if (species[a] == species[b]) {
+                MP_LOG("[Tower] Clause fail: duplicate species %d\n", species[a]);
+                return false;
+            }
+            if (items[a] != 0 && items[a] == items[b]) {
+                MP_LOG("[Tower] Clause fail: duplicate item %d\n", items[a]);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Registration clause: reject if either of our lead-2 mons is a
 // legendary/mythical. Each console checks its OWN party, so the ban is fully
-// enforced across the pair. (The species/item-duplicate clauses and flat-Lv50
-// normalization are deferred — see the run-start TODO.)
+// enforced across the pair.
 static bool towerLocalPartyLegal() {
     auto* party = PlayerWork::get_playerParty();
     if (party == nullptr) return false;
@@ -459,6 +501,9 @@ static void towerEndRun(const char* label, const char* fallback) {
         towerHudMsgL(label, fallback);
     }
     MP_LOG("[Tower] Run ended (round=%d, phase=%d)\n", s_tw.round, (int)s_tw.phase);
+    // Revert any flat-Lv50 normalization / battle writes to the run-start party
+    // so an abnormal end never leaves the live party modified.
+    towerRestoreSnapshot();
     s_tw.Clear();
 }
 
@@ -698,13 +743,24 @@ static bool towerSetupAndStartBattle() {
     MYSTATUS_COMM::Object partnerStatus =
         towerDeserializeStatus(tw.partnerMystatusBuf, tw.partnerMystatusLen);
 
-    // Regulation: the legendary ban is enforced at registration
-    // (towerLocalPartyLegal, each console checks its own lead-2). STILL TODO:
-    // flat-Lv50 normalization (PokeRegulation.ModifyLevelPokeParty @0x1BCD5E0 —
-    // deferred: it mutates the party, wants the verified snapshot/restore path)
-    // and the species/item-duplicate clauses over the combined four
-    // (CheckBothPoke @0x1BCD8A0 / CheckBothItem @0x1BCDAE0 — need the partner's
-    // mon data compared against ours). See docs/superpowers/specs/multi-battle-tower.md.
+    // Regulation. Legendary ban already enforced at registration. Now the
+    // species/item clauses over the combined four (deterministic on both
+    // consoles) — a violation aborts the run.
+    auto* localParty = PlayerWork::get_playerParty();
+    if (!towerCombinedClausesOk(localParty, partnerParty)) {
+        towerHudMsgL("SS_mp_TowerClause",
+                     "Multi Tower \xe2\x80\x94 no duplicate species or items allowed!");
+        s_tw.Clear();
+        return false;
+    }
+    // Flat-Lv50: normalize every battler. The live party is reverted by the
+    // post-round snapshot restore (so no permanent change / no exp); the
+    // partner and enemy parties are throwaway deserialized copies.
+    towerNormalizeLevels(localParty);
+    towerNormalizeLevels(partnerParty);
+    towerNormalizeLevels(enemyParty0);
+    towerNormalizeLevels(enemyParty1);
+
     uint8_t regulation[4] = { 1, 6, 2, 0x07 };
     static uint8_t s_towerEmptyCapsule[32] = {};
     void* emptyCapsule = (void*)s_towerEmptyCapsule;
@@ -1232,8 +1288,12 @@ void mpTowerTick(float deltaTime) {
         s_tw.timer -= deltaTime;
         if (s_tw.timer <= 0.0f) {
             if (!towerSetupAndStartBattle()) {
-                towerEndRun("SS_mp_TowerAbort",
-                            "Multi Tower \xe2\x80\x94 battle setup failed; run over.");
+                // A clause/rejection inside setup already messaged + cleared;
+                // only show the generic failure if the run is still active.
+                if (s_tw.active) {
+                    towerEndRun("SS_mp_TowerAbort",
+                                "Multi Tower \xe2\x80\x94 battle setup failed; run over.");
+                }
                 return;
             }
             s_tw.phase = TowerPhase::InBattle;

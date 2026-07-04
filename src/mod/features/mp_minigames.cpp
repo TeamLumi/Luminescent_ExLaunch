@@ -3,6 +3,7 @@
 #include "features/mp_net.h"
 #include "features/mp_minigames.h"
 #include "features/overworld_multiplayer.h"
+#include "features/team_up.h"
 
 #include "helpers/InputHelper.h"
 
@@ -87,8 +88,15 @@ int32_t mpMinigameHiddenStation() {
 // Helpers
 // ---------------------------------------------------------------------------
 
+// HUD: top-of-screen area-name toast (raw text via team_up's label bypass)
+// with an auto-dismiss timer — ticked in mpMinigameTick even when no game is
+// active, so end-of-game messages still clear themselves.
+static float s_hudCloseTimer = 0.0f;
+static constexpr float HUD_MSG_SECONDS = 4.0f;
+
 static void hudMsg(const char* text) {
-    FieldCanvas::Debug_ShowDisplayMessage(System::String::Create(text));
+    overworldMPShowAreaText(text);
+    s_hudCloseTimer = HUD_MSG_SECONDS;
 }
 
 // Label-routed HUD message: uses the ss_multiplayer bundle label when it
@@ -102,6 +110,28 @@ static void hudMsgF(const char* fmt, int v) {
     char buf[96];
     snprintf(buf, sizeof(buf), fmt, v);
     hudMsg(buf);
+}
+
+static void hudTick(float dt) {
+    if (s_hudCloseTimer > 0.0f) {
+        s_hudCloseTimer -= dt;
+        if (s_hudCloseTimer <= 0.0f) {
+            overworldMPResetAreaText();
+        }
+    }
+}
+
+// Partner's display name (falls back to "your friend" until the name syncs).
+static const char* partnerName() {
+    static char buf[52];
+    auto& ctx = getOverworldMPContext();
+    if (s_mg.partner >= 0 && s_mg.partner < OW_MP_MAX_PLAYERS &&
+        ctx.remotePlayers[s_mg.partner].playerNameSet) {
+        strncpy(buf, ctx.remotePlayers[s_mg.partner].playerNameBuf, sizeof(buf) - 1);
+        buf[sizeof(buf) - 1] = '\0';
+        return buf;
+    }
+    return "your friend";
 }
 
 static bool getLocalPlayerPos(UnityEngine::Vector3::Object* out) {
@@ -304,8 +334,8 @@ static void showCatchWinner() {
     } else if (tie) {
         snprintf(buf, sizeof(buf), "Catching Contest tied at %d!", s_mg.myScore);
     } else if (myScore < s_mg.peerScore) {
-        snprintf(buf, sizeof(buf), "Your friend wins the Catching Contest! (%d vs %d)",
-                 s_mg.peerScore, s_mg.myScore);
+        snprintf(buf, sizeof(buf), "%s wins the Catching Contest! (%d vs %d)",
+                 partnerName(), s_mg.peerScore, s_mg.myScore);
     } else {
         snprintf(buf, sizeof(buf), "No catches — no contest!");
     }
@@ -335,7 +365,11 @@ static void startLocal(MinigameKind kind, int32_t partner, bool initiator) {
         bool iAmSeeker = !initiator;
         if (iAmSeeker) {
             overworldMPSetEntityVisible(partner, false);
-            hudMsgL("SS_mp_HnS_TheyHide", "Hide-and-Seek! Your friend is hiding... (30s)");
+            {
+            char b[96];
+            snprintf(b, sizeof(b), "Hide-and-Seek! %s is hiding... (30s)", partnerName());
+            hudMsg(b);
+        }
         } else {
             hudMsgL("SS_mp_HnS_GoHide", "Hide-and-Seek! Go hide! (30s)");
         }
@@ -393,17 +427,29 @@ void mpMinigameOnEndReceived(void* pr) {
 
     if ((EndReason)reason == EndReason::Forfeit) {
         // The sender gave up — receiver wins (no contest prize either way).
-        endLocal(overworldMPGetMessageCStr("SS_mp_PeerForfeited", "Your friend gave up — you win!"));
+        {
+        char b[96];
+        snprintf(b, sizeof(b), "%s gave up — you win!", partnerName());
+        endLocal(b);
+    }
         return;
     }
 
     if (s_mg.kind == MinigameKind::HideAndSeek) {
         if ((EndReason)reason == EndReason::Found) {
-            endLocal(overworldMPGetMessageCStr(s_mg.iAmInitiator ? "SS_mp_HnS_WasFound" : "SS_mp_HnS_Found",
-                     s_mg.iAmInitiator ? "You were found!" : "You found them!"));
+            {
+            char b[96];
+            if (s_mg.iAmInitiator) snprintf(b, sizeof(b), "%s found you!", partnerName());
+            else snprintf(b, sizeof(b), "You found %s!", partnerName());
+            endLocal(b);
+        }
         } else if ((EndReason)reason == EndReason::Timeout) {
-            endLocal(overworldMPGetMessageCStr(s_mg.iAmInitiator ? "SS_mp_HnS_TimeUpWin" : "SS_mp_HnS_TimeUpLose",
-                     s_mg.iAmInitiator ? "Time's up — you win!" : "Time's up — they win!"));
+            {
+            char b[96];
+            if (s_mg.iAmInitiator) snprintf(b, sizeof(b), "Time's up — you win!");
+            else snprintf(b, sizeof(b), "Time's up — %s wins!", partnerName());
+            endLocal(b);
+        }
         } else {
             endLocal(overworldMPGetMessageCStr("SS_mp_HnS_Off", "Hide-and-Seek called off."));
         }
@@ -518,17 +564,26 @@ static void tickCatchContest(float dt) {
     if (s_mg.peerResultReceived) {
         showCatchWinner();
     } else if (s_mg.timer <= 0.0f) {
-        endLocal(overworldMPGetMessageCStr("SS_mp_Catch_Void", "No result from your friend — contest void."));
+        {
+        char b[96];
+        snprintf(b, sizeof(b), "No result from %s — contest void.", partnerName());
+        endLocal(b);
+    }
     }
 }
 
 void mpMinigameTick(float deltaTime) {
+    hudTick(deltaTime);
     if (!mpMinigameIsActive()) return;
 
     // Partner gone from the lobby entirely?
     auto& ctx = getOverworldMPContext();
     if (s_mg.partner < 0 || !ctx.remotePlayers[s_mg.partner].isActive) {
-        endLocal(overworldMPGetMessageCStr("SS_mp_Disconnected", "Your friend disconnected — game over."));
+        {
+        char b[96];
+        snprintf(b, sizeof(b), "%s disconnected — game over.", partnerName());
+        endLocal(b);
+    }
         return;
     }
 
@@ -578,5 +633,9 @@ void mpMinigameOnAreaChange() {
 
 void mpMinigameOnPeerLeft(int32_t stationIndex) {
     if (!mpMinigameIsActive() || stationIndex != s_mg.partner) return;
-    endLocal(overworldMPGetMessageCStr("SS_mp_Disconnected", "Your friend disconnected — game over."));
+    {
+        char b[96];
+        snprintf(b, sizeof(b), "%s disconnected — game over.", partnerName());
+        endLocal(b);
+    }
 }

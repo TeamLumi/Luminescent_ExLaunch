@@ -20,3 +20,6 @@ void mpTrainerCardOnDataReceived(void* pr);
 // Per-frame tick — opens the UICard window on the frame after a blob arrives
 // (never open UI from inside the packet callback).
 void mpTrainerCardTick(float deltaTime);
+
+// Install the card-model appearance hook (peer cards show the peer's model).
+void exl_mp_trainer_card_hooks();
