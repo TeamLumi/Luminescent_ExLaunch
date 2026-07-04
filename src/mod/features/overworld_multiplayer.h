@@ -251,6 +251,11 @@ void overworldMPSetEntityVisible(int32_t stationIndex, bool visible);
 // return, cutscene — resets colors via OnEnable). Returns true if matched.
 bool overworldMPHealRemoteColors(void* cvComp);
 
+// Schedule a delayed re-broadcast of our custom colors (0xCD) — used at battle
+// end so the send doesn't share a frame with the battle system's own exit
+// packets on the shared PacketWriter.
+void overworldMPScheduleColorRebroadcast(float delaySec);
+
 // Send local player's position to peers
 void overworldMPSendPosition();
 

@@ -1605,6 +1605,7 @@ void overworldMPStop() {
 static void spawnQueueClear();
 static void spawnQueueProcessNext();
 static bool spawnQueueEmpty();
+static void colorRebroadcastTick(float deltaTime);
 
 // ---------------------------------------------------------------------------
 // Per-frame update
@@ -1884,6 +1885,7 @@ void overworldMPUpdate(float deltaTime) {
     mpPoffinTick(deltaTime);
     mpContestTick(deltaTime);
     mpCounterTick(deltaTime);
+    colorRebroadcastTick(deltaTime);
 
     // Linked-world dailies (host broadcast / guest overlay upkeep)
     mpDailiesTick(deltaTime);
@@ -1919,6 +1921,29 @@ void overworldMPUpdate(float deltaTime) {
         auto* entity = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[i];
         if (entity == nullptr) {
             continue;
+        }
+
+        // Self-heal: Unity can destroy our entity behind our back — e.g. an
+        // entity spawned while a (wild) battle scene was up gets torn down
+        // with that scene. A destroyed object's m_CachedPtr is 0; touching its
+        // Transform throws a managed exception → guest abort. Detect it, drop
+        // our bookkeeping, and let the normal spawn logic respawn cleanly.
+        if (entity->cast<UnityEngine::_Object>()->fields.m_CachedPtr == 0) {
+            MP_LOG("[OverworldMP] Entity for station %d was destroyed externally — clearing state\n", i);
+            s_mpContext.spawnedEntities[i] = nullptr;
+            remote.isSpawned = false;
+            remote.colorVariationComp = nullptr;
+            remote.colorRefreshTimer = 0.0f;
+            remote.followPokeEntity = nullptr;
+            remote.followPokeSpawned = false;
+            continue;
+        }
+        auto* pokeCheck = (FieldObjectEntity::Object*)remote.followPokeEntity;
+        if (pokeCheck != nullptr && remote.followPokeSpawned &&
+            pokeCheck->cast<UnityEngine::_Object>()->fields.m_CachedPtr == 0) {
+            MP_LOG("[OverworldMP] Follow pokemon for station %d was destroyed externally — clearing state\n", i);
+            remote.followPokeEntity = nullptr;
+            remote.followPokeSpawned = false;
         }
 
         // Interpolate position toward target
@@ -2098,9 +2123,23 @@ void overworldMPUpdate(float deltaTime) {
         }
     }
 
+    // Field-idle check shared by the spawn pumps below: no instantiation while
+    // a battle scene or transition owns the field (wild battles included).
+    bool fieldIdleForSpawns = false;
+    {
+        auto* fmIdle = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
+        fieldIdleForSpawns = (fmIdle != nullptr && fmIdle->fields._updateType == 0);
+    }
+
+    // Retry pump: spawns queued while the field was busy start once it's idle
+    // (spawnQueueProcessNext re-checks and no-ops otherwise).
+    if (!s_spawnInFlight && !spawnQueueEmpty() && fieldIdleForSpawns) {
+        spawnQueueProcessNext();
+    }
+
     // Spawn follow pokemon for remote players (after player entity exists)
     if (!s_spawnInFlight && spawnQueueEmpty() && !s_pokeSpawnInFlight
-        && s_zoneChangeGraceTime <= 0.0f) {
+        && s_zoneChangeGraceTime <= 0.0f && fieldIdleForSpawns) {
         for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
             auto& remote = s_mpContext.remotePlayers[i];
             if (remote.isActive && remote.isSpawned && remote.followPokeActive
@@ -2360,6 +2399,19 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
         return;
     }
 
+    // Field-idle guard — the load may complete after a battle scene (wild
+    // battles included) took the field. An entity instantiated now would be
+    // destroyed with that scene's teardown, leaving dangling pointers (this
+    // exact sequence caused a post-wild-battle Transform abort). Re-queue and
+    // let the tick pump retry once the field is back.
+    if (fmInst == nullptr || fmInst->fields._updateType != 0) {
+        MP_LOG("[OverworldMP] Field busy after load (battle/transition) — requeueing spawn for station %d\n",
+                    stationIndex);
+        remote.isSpawned = false;
+        spawnQueuePush(stationIndex);
+        return;
+    }
+
     MP_LOG("[OverworldMP] Asset loaded for station %d: obj=%p klass=%p\n",
                 stationIndex, loadedAsset,
                 loadedAsset ? *(void**)loadedAsset : nullptr);
@@ -2493,6 +2545,18 @@ static void spawnQueueStartLoad(int32_t stationIndex);
 static void spawnQueueProcessNext() {
     if (s_spawnInFlight) {
         return; // Already loading one — will chain when it completes
+    }
+
+    // Never spawn while the field isn't idle (battle scene — wild battles
+    // included — or a transition): an entity instantiated then gets destroyed
+    // with the battle scene's teardown, leaving dangling pointers. The queue
+    // stays intact; the tick pump retries once the field returns.
+    {
+        FieldManager::getClass()->initIfNeeded();
+        auto* fmIdle = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
+        if (fmIdle == nullptr || fmIdle->fields._updateType != 0) {
+            return;
+        }
     }
 
     while (!spawnQueueEmpty()) {
@@ -2685,6 +2749,23 @@ void overworldMPSetEntityVisible(int32_t stationIndex, bool visible) {
 // the deferred refresh so the peer's colors re-apply once renderers are ready.
 // Pointer match against a live component is safe: despawn nulls the captured
 // pointer, so a stale address can never equal an enabling __this we act on.
+// Delayed 0xCD rebroadcast (battle end): keeps the send off the teardown frame
+// where the battle system may still use the shared PacketWriter.
+static float s_colorRebroadcastDelay = 0.0f;
+
+void overworldMPScheduleColorRebroadcast(float delaySec) {
+    s_colorRebroadcastDelay = delaySec;
+}
+
+static void colorRebroadcastTick(float deltaTime) {
+    if (s_colorRebroadcastDelay <= 0.0f) return;
+    s_colorRebroadcastDelay -= deltaTime;
+    if (s_colorRebroadcastDelay <= 0.0f) {
+        s_colorRebroadcastDelay = 0.0f;
+        overworldMPSendCustomColors();
+    }
+}
+
 bool overworldMPHealRemoteColors(void* cvComp) {
     if (cvComp == nullptr || s_mpContext.state != OverworldMPState::Connected) return false;
     for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {

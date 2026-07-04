@@ -3193,10 +3193,11 @@ void overworldMPCheckInteraction() {
             }
 
             // Color self-heal, packet side: re-broadcast our custom colors so
-            // peers get fresh 0xCD data right when everyone's field scene is
-            // re-enabling (0xCD receipt now always schedules a color refresh).
-            // No-op for standard presets (0xC0's colorId covers those).
-            overworldMPSendCustomColors();
+            // peers get fresh 0xCD data as their field scenes re-enable (0xCD
+            // receipt now always schedules a color refresh). DELAYED a second:
+            // the battle system may still exchange exit packets this frame and
+            // the PacketWriter is shared — don't reset it mid-teardown.
+            overworldMPScheduleColorRebroadcast(1.0f);
 
             // Stop battle BGM and restart field BGM (matching base game sequence)
             auto* amInstance = Audio::AudioManager::get_Instance();
