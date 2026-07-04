@@ -217,9 +217,16 @@ static void grantPickupPrize(int32_t score) {
         return;
     }
 
-    int32_t band = score / 24;           // 0..239 → bands 0..9
-    if (band < 0) band = 0;
-    if (band > 9) band = 9;
+    // Bands 0..8 climb at the original /19 pace; the top band is reserved
+    // for scores of 180+ (near-perfect IVs, or great IVs + level/shiny).
+    int32_t band;
+    if (score >= 180) {
+        band = 9;
+    } else {
+        band = score / 19;
+        if (band < 0) band = 0;
+        if (band > 8) band = 8;
+    }
 
     // RandomGroupWork.Value @0x199F420 — the game's general random
     int32_t roll = (int32_t)(_ILExternal::external<uint32_t>(0x199F420) % 100);
