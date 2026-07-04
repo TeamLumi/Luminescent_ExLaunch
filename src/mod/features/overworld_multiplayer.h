@@ -52,6 +52,7 @@ static constexpr uint8_t OWMP_DATA_ID_EVENT_RESULT        = 0xD4; // Minigame re
 static constexpr uint8_t OWMP_DATA_ID_WORLD_DAILIES       = 0xD5; // Host's daily world values (broadcast)
 static constexpr uint8_t OWMP_DATA_ID_TOWER_ROUND          = 0xD6; // Multi Tower round data (targeted, chunked)
 static constexpr uint8_t OWMP_DATA_ID_POFFIN_RESULT       = 0xD7; // Group Poffin cook-end stats (targeted)
+static constexpr uint8_t OWMP_DATA_ID_CONTEST_RESULT      = 0xD8; // Contest section/result score exchange (targeted)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -163,6 +164,7 @@ enum class InteractionType : uint8_t {
     Minigame = 3,   // subtype byte carries MinigameKind
     Tower = 4,      // Multi Battle Tower invite (teamed-up pairs only)
     Poffin = 5,     // Group Poffin cooking invite (teamed-up pairs only)
+    Contest = 6,    // Multiplayer Super Contest invite (teamed-up pairs only)
 };
 
 // Battle subtypes
@@ -241,6 +243,11 @@ void overworldMPDespawnAllEntities();
 // Toggle a spawned remote entity's visibility (GameObject.SetActive on the
 // entity + follow pokemon). Position sync continues while hidden.
 void overworldMPSetEntityVisible(int32_t stationIndex, bool visible);
+
+// Color self-heal: if cvComp is a spawned remote's captured ColorVariation,
+// schedule that remote's deferred color refresh (any SetActive cycle — battle
+// return, cutscene — resets colors via OnEnable). Returns true if matched.
+bool overworldMPHealRemoteColors(void* cvComp);
 
 // Send local player's position to peers
 void overworldMPSendPosition();

@@ -1212,9 +1212,11 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                     remote.customFieldColors[0], remote.customFieldColors[1], remote.customFieldColors[2],
                     remote.customFieldColors[15], remote.customFieldColors[16], remote.customFieldColors[17]);
 
-        // If already spawned with colorId == -1, live-apply custom colors
-        if (remote.isSpawned && remote.colorId == -1) {
-            // Schedule a deferred color refresh to apply on next frame
+        // Color packets self-apply: if the entity is spawned, always schedule
+        // the deferred refresh. The refresh branches on colorId itself (custom
+        // palette vs standard preset), so this is safe for both — and it heals
+        // any drift whenever fresh color data arrives.
+        if (remote.isSpawned) {
             remote.colorRefreshTimer = 0.05f;
         }
         break;
@@ -2654,6 +2656,26 @@ void overworldMPSetEntityVisible(int32_t stationIndex, bool visible) {
     }
     MP_LOG("[OverworldMP] Entity visibility for station %d -> %d\n",
                 stationIndex, (int)visible);
+}
+
+// Self-heal: called from ColorVariation_OnEnable for every enable that is NOT
+// our own MP spawn. If the enabling component is one we captured for a spawned
+// remote, that remote's entity just went through a SetActive cycle (battle
+// return, cutscene, menu transition...) and vanilla reset its colors — schedule
+// the deferred refresh so the peer's colors re-apply once renderers are ready.
+// Pointer match against a live component is safe: despawn nulls the captured
+// pointer, so a stale address can never equal an enabling __this we act on.
+bool overworldMPHealRemoteColors(void* cvComp) {
+    if (cvComp == nullptr || s_mpContext.state != OverworldMPState::Connected) return false;
+    for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
+        auto& remote = s_mpContext.remotePlayers[i];
+        if (!remote.isActive || !remote.isSpawned) continue;
+        if (remote.colorVariationComp != cvComp) continue;
+        remote.colorRefreshTimer = 0.05f;
+        MP_LOG("[OverworldMP] OnEnable on remote %d's ColorVariation — scheduling color heal\n", i);
+        return true;
+    }
+    return false;
 }
 
 // ---------------------------------------------------------------------------

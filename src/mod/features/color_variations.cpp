@@ -357,6 +357,14 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
             }
         } else {
             UpdateColorVariation(__this);
+            // Color self-heal: if this component belongs to a spawned remote,
+            // its entity just went through a SetActive cycle (battle return,
+            // cutscene, ...) and the line above re-resolved with LOCAL data —
+            // schedule the remote's deferred refresh to re-apply their colors.
+            {
+                extern bool overworldMPHealRemoteColors(void* cvComp);
+                overworldMPHealRemoteColors(__this);
+            }
             // Trainer-card peer color: apply the peer's appearance to the first
             // ColorVariation that enables while armed (the card model's), then
             // disarm. Without this the card resolves color via PlayerWork.GetColorID
