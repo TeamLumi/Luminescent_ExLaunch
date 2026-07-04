@@ -195,6 +195,20 @@ bool overworldMPIsStationConnected(int32_t stationIndex) {
 // gets it intact (both callbacks share the same PacketReader object).
 static bool s_inBattleScene = false;
 
+// No-op delegate method used to neutralize the SessionConnector's session
+// event/error/finish delegates during overworld MP (see DoStartSession).
+// We point each delegate's method pointer (delegate+0x10) here instead of
+// nulling the field: nulling caused a post-battle hard abort — if the game
+// invokes one of these delegates (e.g. onFinishSession on battle exit) without
+// a null-check, the null-deref throws an IL2CPP exception, and because a mod
+// hook is on the call stack the unwinder can't parse the mod's GCC-emitted
+// .eh_frame_hdr, so the catchable exception becomes a fatal abort. Keeping the
+// valid delegate object but redirecting its method to this no-op means an
+// invoke does nothing (no ErrorApplet, no crash). Takes up to 4 pointer args so
+// it safely covers Action, Action<SessionEventData> and Action<SessionErrorType>
+// dispatches (extra unused register args are harmless on AArch64).
+static void owmpNoopSessionDelegate(void*, void*, void*, void*) {}
+
 // Battle party accumulation state — for chunked 0xC6 protocol.
 // The PIA PacketWriter has a ~340-byte user data limit, but a full party
 // is 6×344 + MYSTATUS + overhead ≈ 2100 bytes. So we send one Pokemon
@@ -1559,10 +1573,23 @@ void overworldMPUpdate(float deltaTime) {
             // SC Fields: +0x20=onSessionEvent, +0x28=onSessionError, +0x30=onFinishSession
             if (nm->fields.sessionConnector != nullptr) {
                 auto* sc = (void*)nm->fields.sessionConnector;
-                *(void**)((uintptr_t)sc + 0x20) = nullptr; // onSessionEvent
-                *(void**)((uintptr_t)sc + 0x28) = nullptr; // onSessionError
-                *(void**)((uintptr_t)sc + 0x30) = nullptr; // onFinishSession
-                MP_LOG("[OverworldMP] Suppressed SC session event/error/finish delegates\n");
+                // Neutralize onSessionEvent(+0x20), onSessionError(+0x28) and
+                // onFinishSession(+0x30) WITHOUT nulling them (nulling crashes if
+                // the game invokes them, e.g. on battle exit — see
+                // owmpNoopSessionDelegate). Keep each valid delegate object but
+                // redirect its method pointer (delegate+0x10) to the no-op, so an
+                // invoke does nothing instead of null-dereferencing.
+                const uintptr_t delegateOffsets[] = { 0x20, 0x28, 0x30 };
+                int neutralized = 0;
+                for (uintptr_t off : delegateOffsets) {
+                    void* del = *(void**)((uintptr_t)sc + off);
+                    if (del != nullptr) {
+                        *(void**)((uintptr_t)del + 0x10) = (void*)&owmpNoopSessionDelegate;
+                        neutralized++;
+                    }
+                }
+                MP_LOG("[OverworldMP] Neutralized %d/3 SC session delegates (no-op, not null)\n",
+                            neutralized);
             }
 
             s_searchingFrameCount = 0;
