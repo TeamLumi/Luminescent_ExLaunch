@@ -2841,6 +2841,16 @@ void overworldMPSetupAndStartBattle() {
         int32_t localSlot    = (commPos == 0) ? 0 : 1;
         int32_t opponentSlot = (commPos == 0) ? 1 : 0;
 
+        // Custom colors are stamped as slot-carrying sentinels (-2 - slot,
+        // bytes 0xFE..0xFB) instead of a shared -1: with BOTH humans custom,
+        // -1 couldn't say whose palette a model wears and every model rendered
+        // the first custom slot's colors. GetEditedProperty00 decodes the
+        // sentinel straight to g_owmpBattleSlotCustomColorSets[slot].
+        int32_t localColorW  = (localColor == -1)
+                                   ? (-2 - localSlot) : localColor;
+        int32_t remoteColorW = (remoteColor == -1 && remote.hasCustomColors)
+                                   ? (-2 - opponentSlot) : remoteColor;
+
         // (1) TRAINER_DATA.colorID
         void* trDataRaw = bsp->instance()->fields.tr_data;
         if (trDataRaw != nullptr) {
@@ -2849,12 +2859,12 @@ void overworldMPSetupAndStartBattle() {
                 auto* localTD = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
                     ((uintptr_t)trDataRaw + 0x20 + (uint64_t)localSlot * 8);
                 if (localTD != nullptr)
-                    localTD->fields.colorID = localColor;
+                    localTD->fields.colorID = localColorW;
 
                 auto* opponentTD = *(Dpr::Battle::Logic::TRAINER_DATA::Object**)
                     ((uintptr_t)trDataRaw + 0x20 + (uint64_t)opponentSlot * 8);
                 if (opponentTD != nullptr)
-                    opponentTD->fields.colorID = remoteColor;
+                    opponentTD->fields.colorID = remoteColorW;
             }
         }
 
@@ -2874,11 +2884,11 @@ void overworldMPSetupAndStartBattle() {
             auto* localMS  = statusArr->m_Items[localSlot];
             auto* remoteMS = statusArr->m_Items[opponentSlot];
             if (localMS != nullptr) {
-                *(uint8_t*)((uintptr_t)localMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
+                *(uint8_t*)((uintptr_t)localMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColorW;
                 owmpSetBattleMyStatus(localSlot, localMS);
             }
             if (remoteMS != nullptr) {
-                *(uint8_t*)((uintptr_t)remoteMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)remoteColor;
+                *(uint8_t*)((uintptr_t)remoteMS + MYSTATUS_COLORID_OFFSET) = (uint8_t)remoteColorW;
                 owmpSetBattleMyStatus(opponentSlot, remoteMS);
             }
         }
@@ -2887,8 +2897,8 @@ void overworldMPSetupAndStartBattle() {
         extern int32_t g_owmpBattleSlotColors[];
         extern int32_t g_owmpBattleSlotCursor;
         extern int32_t g_owmpStoreCoreCursor;
-        g_owmpBattleSlotColors[0] = (commPos == 0) ? localColor : remoteColor;
-        g_owmpBattleSlotColors[1] = (commPos == 0) ? remoteColor : localColor;
+        g_owmpBattleSlotColors[0] = (commPos == 0) ? localColorW : remoteColorW;
+        g_owmpBattleSlotColors[1] = (commPos == 0) ? remoteColorW : localColorW;
         g_owmpBattleSlotColors[2] = 0;
         g_owmpBattleSlotColors[3] = 0;
         g_owmpBattleSlotCursor = 0;

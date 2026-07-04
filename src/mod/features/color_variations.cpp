@@ -162,7 +162,19 @@ ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* var
         ColorVariation::Property::MaskColor::Array* colors = properties->m_Items[i].fields.colors;
 
         RomData::ColorSet set = {};
-        if (index == -1) {
+        if (index <= -2 && index >= -5) {
+            // Slot-carrying custom sentinel (-2 - slot), stamped into the battle
+            // color pipeline by the MP battle setup. Unlike the shared -1, it
+            // identifies WHICH player's custom palette this model wears — the
+            // -1 + override/fallback scheme was ambiguous when BOTH humans used
+            // custom colors (first custom slot won for every model).
+            int slot = -2 - index;
+            if (g_owmpBattleSlotHasCustomColors[slot]) {
+                set = g_owmpBattleSlotCustomColorSets[slot];
+            } else {
+                set = GetCustomColorSet();
+            }
+        } else if (index == -1) {
             // Custom-color model. A correctly-set override (from the cursor hooks)
             // wins. But those cursors can misalign with the model render order,
             // leaving the override null for a remote custom model — in which case
@@ -401,7 +413,9 @@ HOOK_DEFINE_REPLACE(MyStatusGetColorID) {
             // field is what the feature originally shipped with and always matches
             // whatever __this the game passes. 0xFF == (uint8)-1 == custom colors.
             uint8_t raw = *(uint8_t*)((uintptr_t)__this + MYSTATUS_COLORID_OFFSET);
-            return (raw == MYSTATUS_COLORID_CUSTOM) ? -1 : (int32_t)raw;
+            // 0xFF == -1 == plain custom; 0xFE..0xFB == -2..-5 == slot-carrying
+            // custom sentinels (see GetEditedProperty00) — sign-extend all of them.
+            return (raw >= 0xFB) ? (int32_t)(int8_t)raw : (int32_t)raw;
         }
         return getCustomSaveData()->playerColorVariation.playerColorID;
     }

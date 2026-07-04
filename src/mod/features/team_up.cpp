@@ -1306,6 +1306,15 @@ void owmpApplyTeamUpBattleColors(void* trData,
                                  int32_t localSlot, int32_t partnerSlot) {
     int32_t partnerColor = remote.colorId; // -1 passes through for custom colors
 
+    // Custom colors are stamped as slot-carrying sentinels (-2 - slot) instead
+    // of a shared -1 — see the PvP setup / GetEditedProperty00 for the scheme.
+    // With both humans custom, -1 was ambiguous and every model rendered the
+    // first custom slot's palette.
+    int32_t localColorW   = (localColor == -1)
+                                ? (-2 - localSlot) : localColor;
+    int32_t partnerColorW = (partnerColor == -1 && remote.hasCustomColors)
+                                ? (-2 - partnerSlot) : partnerColor;
+
     // (1) TRAINER_DATA.colorID — human slots take our/partner color, AI slots unchanged.
     if (trData != nullptr) {
         uint32_t arrLen = *(uint32_t*)((uintptr_t)trData + 0x18);
@@ -1316,8 +1325,8 @@ void owmpApplyTeamUpBattleColors(void* trData,
                 if (td != nullptr) td->fields.colorID = color;
             }
         };
-        setTd(localSlot, localColor);
-        setTd(partnerSlot, partnerColor);
+        setTd(localSlot, localColorW);
+        setTd(partnerSlot, partnerColorW);
     }
 
     // (2) MyStatus.colorID (byte at object offset 0x25) — write it directly per
@@ -1329,11 +1338,11 @@ void owmpApplyTeamUpBattleColors(void* trData,
     owmpClearBattleMyStatus();
     if (statusArr != nullptr) {
         if (statusArr->max_length > (uint32_t)localSlot && statusArr->m_Items[localSlot] != nullptr) {
-            *(uint8_t*)((uintptr_t)statusArr->m_Items[localSlot] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColor;
+            *(uint8_t*)((uintptr_t)statusArr->m_Items[localSlot] + MYSTATUS_COLORID_OFFSET) = (uint8_t)localColorW;
             owmpSetBattleMyStatus(localSlot, statusArr->m_Items[localSlot]);
         }
         if (statusArr->max_length > (uint32_t)partnerSlot && statusArr->m_Items[partnerSlot] != nullptr) {
-            *(uint8_t*)((uintptr_t)statusArr->m_Items[partnerSlot] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColor;
+            *(uint8_t*)((uintptr_t)statusArr->m_Items[partnerSlot] + MYSTATUS_COLORID_OFFSET) = (uint8_t)partnerColorW;
             owmpSetBattleMyStatus(partnerSlot, statusArr->m_Items[partnerSlot]);
         }
     }
@@ -1341,8 +1350,8 @@ void owmpApplyTeamUpBattleColors(void* trData,
     // (3) Slot color array + cursor for CardModelViewController
     extern int32_t g_owmpBattleSlotColors[];
     extern int32_t g_owmpBattleSlotCursor;
-    g_owmpBattleSlotColors[localSlot]   = localColor;
-    g_owmpBattleSlotColors[partnerSlot] = partnerColor;
+    g_owmpBattleSlotColors[localSlot]   = localColorW;
+    g_owmpBattleSlotColors[partnerSlot] = partnerColorW;
     g_owmpBattleSlotColors[1] = 0;  // enemy NPC
     g_owmpBattleSlotColors[3] = 0;  // enemy NPC
     g_owmpBattleSlotCursor = 0;
