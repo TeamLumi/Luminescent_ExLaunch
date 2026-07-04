@@ -42,6 +42,8 @@ static constexpr uint8_t OWMP_DATA_ID_TEAMUP_BATTLE_ACK = 0xCA; // Team-up battl
 static constexpr uint8_t OWMP_DATA_ID_TEAMUP_SYNC_WAIT   = 0xCB; // Team-up sync wait (trainer rendezvous)
 static constexpr uint8_t OWMP_DATA_ID_TEAMUP_SYNC_CANCEL  = 0xCC; // Team-up sync cancel (going solo)
 static constexpr uint8_t OWMP_DATA_ID_CUSTOM_COLORS       = 0xCD; // Custom color data (reliable, on join/zone change)
+static constexpr uint8_t OWMP_DATA_ID_MAP_INFO            = 0xCE; // Town Map location broadcast (zone + grid cell)
+static constexpr uint8_t OWMP_DATA_ID_MAP_PIN             = 0xCF; // Meet-up pin place/clear
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).

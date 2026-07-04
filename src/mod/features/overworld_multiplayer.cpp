@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "features/overworld_multiplayer.h"
+#include "features/mp_map_icons.h"
 #include "features/team_up.h"
 
 #include "data/settings.h"
@@ -1213,6 +1214,14 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         break;
     }
 
+    case OWMP_DATA_ID_MAP_INFO:
+        mpMapIconsOnInfoReceived(pr);
+        break;
+
+    case OWMP_DATA_ID_MAP_PIN:
+        mpMapIconsOnPinReceived(pr);
+        break;
+
     default:
         // Not our packet — ignore silently
         break;
@@ -1511,6 +1520,9 @@ void overworldMPStop() {
     // Despawn all remote player entities
     overworldMPDespawnAllEntities();
 
+    // Clear map icon/pin state (peer data is session-scoped)
+    mpMapIconsClearAll();
+
     // Leave and finish the network session via NetworkManager (only if singleton exists)
     auto* nmInstance = getNMInstance();
     if (nmInstance != nullptr) {
@@ -1794,6 +1806,9 @@ void overworldMPUpdate(float deltaTime) {
 
     // Tick emote balloon timers
     overworldMPTickBalloons(deltaTime);
+
+    // Town Map location broadcast (slow cadence)
+    mpMapIconsTick(deltaTime);
 
     // Team-up auto-disband check
     overworldMPTeamUpAutoDisband();
@@ -2117,6 +2132,9 @@ void overworldMPOnPlayerLeave(int32_t stationIndex) {
     if (s_mpContext.remotePlayers[stationIndex].isSpawned) {
         overworldMPDespawnEntity(stationIndex);
     }
+
+    // Drop their map icon info + pin
+    mpMapIconsOnPeerLeft(stationIndex);
 
     s_mpContext.remotePlayers[stationIndex].Clear();
 }
@@ -4870,6 +4888,9 @@ void exl_overworld_multiplayer_main() {
     SessionManager$$OnFinishedSession::InstallAtOffset(0x19A9920);
     SessionManager$$StartSessionComplete::InstallAtOffset(0x19A9CB0);
     MP_LOG("[OverworldMP] Native-session coexistence hooks installed\n");
+
+    // Town Map player icons + meet-up pins
+    exl_mp_map_icons_hooks();
 
     // Setting toggle detection: we poll the save data setting each frame in
     // FieldManager.Update. When the value changes, start/stop is triggered.
