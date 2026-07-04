@@ -9,6 +9,7 @@
 #include "features/team_up.h"
 
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
+#include "externals/FieldManager.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -27,15 +28,31 @@ struct CounterState {
     bool  partnerCheckin[COUNTER_ACTIVITY_COUNT] = {};
     float localTtl[COUNTER_ACTIVITY_COUNT] = {};
 
+    // Deferred tower start: the rendezvous can complete while the receptionist
+    // dialogue is still open (the check-in runs inside the ev script). Starting
+    // the run then would race the battle transition against the TALK context —
+    // wait until the field is idle (_updateType == 0) before initiating.
+    bool    towerStartPending = false;
+    int32_t towerStartPartner = -1;
+    float   towerStartTimeout = 0.0f;
+
     void Clear() {
         for (int i = 0; i < COUNTER_ACTIVITY_COUNT; i++) {
             localCheckin[i] = false;
             partnerCheckin[i] = false;
             localTtl[i] = 0.0f;
         }
+        towerStartPending = false;
+        towerStartPartner = -1;
+        towerStartTimeout = 0.0f;
     }
 };
 static CounterState s_cnt;
+
+static bool counterFieldIdle() {
+    auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
+    return fm != nullptr && fm->fields._updateType == 0;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -72,8 +89,12 @@ static void counterRendezvous(MpCounterActivity activity) {
     if (activity == MpCounterActivity::Tower) {
         // Exactly one side initiates the run (lots round 1, sends 0xD6); the
         // other activates on the round packet — deterministic by station index.
+        // Deferred to the tick: the rendezvous may fire mid-dialogue, and the
+        // run start must wait for the TALK context to close (field idle).
         if (mpThisStationIndex() < partner) {
-            mpTowerStartAsInitiator(partner);
+            s_cnt.towerStartPending = true;
+            s_cnt.towerStartPartner = partner;
+            s_cnt.towerStartTimeout = 30.0f;
         }
         overworldMPShowAreaText("Multi Battle Room — your challenge begins!");
     } else {
@@ -191,6 +212,22 @@ void mpCounterOnCheckinReceived(void* pr) {
 // ---------------------------------------------------------------------------
 
 void mpCounterTick(float deltaTime) {
+    // Deferred tower start — fire once the receptionist dialogue has closed.
+    if (s_cnt.towerStartPending) {
+        s_cnt.towerStartTimeout -= deltaTime;
+        if (counterFieldIdle()) {
+            int32_t partner = s_cnt.towerStartPartner;
+            s_cnt.towerStartPending = false;
+            s_cnt.towerStartPartner = -1;
+            MP_LOG("[Counter] Field idle — starting tower run (partner=%d)\n", partner);
+            mpTowerStartAsInitiator(partner);
+        } else if (s_cnt.towerStartTimeout <= 0.0f) {
+            MP_LOG("[Counter] Deferred tower start timed out (field never idle)\n");
+            s_cnt.towerStartPending = false;
+            s_cnt.towerStartPartner = -1;
+        }
+    }
+
     for (int a = 0; a < COUNTER_ACTIVITY_COUNT; a++) {
         if (!s_cnt.localCheckin[a]) continue;
         s_cnt.localTtl[a] -= deltaTime;
