@@ -12,6 +12,7 @@
 #include "externals/DPData/MYSTATUS.h"
 #include "externals/FieldCanvas.h"
 #include "externals/FieldManager.h"
+#include "externals/GameData/DataManager.h"
 #include "externals/GameManager.h"
 #include "externals/MYSTATUS_COMM.h"
 #include "externals/PlayerWork.h"
@@ -72,8 +73,21 @@ static inline int32_t towerGetRenshou(uint32_t mode) {
     return _ILExternal::external<int32_t>(0x18E0D90, mode);
 }
 
+// BtlTowerWork::GetBP @0x18DF170 / SetBP @0x18DF070 (btlTowerSave.btl_point +0xC).
+static inline int32_t towerGetBP() {
+    return _ILExternal::external<int32_t>(0x18DF170);
+}
+static inline void towerSetBP(int32_t val) {
+    _ILExternal::external<void>(0x18DF070, val);
+}
+// XLSXContent.TowerBattlePoint::get_Item(int index) @0x17D6760 -> Sheetpoint.
+static inline void* towerBPGetRow(void* table, int32_t index) {
+    return _ILExternal::external<void*>(0x17D6760, table, index);
+}
+
 // The Multi Tower persists into the reserved NORMAL_TAG class (mode 1).
 static constexpr uint32_t TOWER_MODE = 1;
+
 // TrainerSystem::CreateTowerLotResult(TowerLotRule lotRule, TowerLotCls lotCls,
 //   int rank, int round, ulong seed) @0x2CC0320. Does its own lazy TypeInfo
 // init (system_load_typeinfo 0x8c65 at entry). Returns null when no
@@ -210,6 +224,36 @@ struct TowerState {
 static TowerState s_tw;
 
 bool mpTowerIsActive() { return s_tw.active; }
+
+// Award Battle Points for a cleared set, mirroring EvCmdAddBtlPoint exactly:
+// payout = TowerBattlePoint.point[rank-1].BattlePoint[mode]; SetBP(payout + GetBP()).
+// Each console pays its own player into its own save.
+static void towerAwardBP() {
+    int32_t rank = s_tw.rank;
+    if (rank < TOWER_RANK_MIN) rank = TOWER_RANK_MIN;
+
+    GameData::DataManager::getClass()->initIfNeeded();
+    void* table = GameData::DataManager::getClass()->static_fields->TowerBattlePoint;
+    if (table == nullptr) {
+        MP_LOG("[Tower] TowerBattlePoint table unavailable — no BP\n");
+        return;
+    }
+    // Sheetpoint row for this rank (rank-1), then BattlePoint[mode].
+    void* row = towerBPGetRow(table, rank - 1);
+    if (row == nullptr) return;
+    // Sheetpoint.BattlePoint (int[]) at +0x10; array: length @+0x18, data @+0x20.
+    void* arr = *(void**)((uintptr_t)row + 0x10);
+    if (arr == nullptr) return;
+    uint32_t len = *(uint32_t*)((uintptr_t)arr + 0x18);
+    if (TOWER_MODE >= len) return;
+    int32_t payout = *(int32_t*)((uintptr_t)arr + 0x20 + TOWER_MODE * 4);
+    if (payout <= 0) return;
+
+    int32_t before = towerGetBP();
+    towerSetBP(payout + before);  // SetBP caps at 9999 internally
+    MP_LOG("[Tower] Awarded %d BP (rank %d): %d -> %d\n",
+                payout, rank, before, towerGetBP());
+}
 
 // ---------------------------------------------------------------------------
 // HUD helpers (same FieldCanvas route as mp_minigames)
@@ -1117,15 +1161,14 @@ static void towerFinishRound() {
 
     if (s_tw.round >= TOWER_ROUND_COUNT) {
         // Set cleared (7 wins). Bank the best-streak record and rank up so the
-        // next run is harder, then persist a fresh round for the next set.
-        // TODO(bp-reward): pay BP from the TowerBattlePoint table
-        // (GameData.DataManager static +0xA8, TowerBattlePoint.Sheetpoint).
+        // next run is harder, pay Battle Points, then start a fresh set.
         towerUpdateRenshou(TOWER_MODE, (uint32_t)towerGetRenshou(TOWER_MODE));
+        towerAwardBP();
         int32_t nextRank = s_tw.rank + 1;
         if (nextRank > TOWER_RANK_MAX) nextRank = TOWER_RANK_MAX;
         towerSetRank(TOWER_MODE, (uint8_t)nextRank);
         towerSetRound(TOWER_MODE, 0);
-        MP_LOG("[Tower] Set CLEARED — rank %d->%d, streak banked\n", s_tw.rank, nextRank);
+        MP_LOG("[Tower] Set CLEARED — rank %d->%d, streak banked, BP paid\n", s_tw.rank, nextRank);
         towerEndRun("SS_mp_TowerClear", "Multi Tower cleared! (7 wins)");
         return;
     }
