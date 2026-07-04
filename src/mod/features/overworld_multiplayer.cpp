@@ -207,6 +207,11 @@ static bool s_inBattleScene = false;
 // invoke does nothing (no ErrorApplet, no crash). Takes up to 4 pointer args so
 // it safely covers Action, Action<SessionEventData> and Action<SessionErrorType>
 // dispatches (extra unused register args are harmless on AArch64).
+//
+// Assumes the SC delegates bind NON-VIRTUAL target methods — they do:
+// SessionConnector.Initialize sets private instance methods, which take the
+// method_ptr(+0x10) fast path in Action<T>.Invoke (@0x2630500). A virtual target
+// would dispatch via vtable and bypass this rewrite; not the case here.
 static void owmpNoopSessionDelegate(void*, void*, void*, void*) {}
 
 // Battle party accumulation state — for chunked 0xC6 protocol.
