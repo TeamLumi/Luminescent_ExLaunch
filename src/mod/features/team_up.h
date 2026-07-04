@@ -211,6 +211,20 @@ inline void normalTrainer(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp, i
 // Split a single trainer's party between two AI slots for PP_AA double battles
 void splitTrainerParty(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp, int slot1, int slot3);
 
+// Apply the human-trainer color overrides for a PP_AA comm battle (TRAINER_DATA
+// colorID + MyStatus byte + slot color arrays). Shared with mp_tower.cpp —
+// the tower battle uses the identical human slot layout (0/2).
+struct FieldPlayerNetData;
+void owmpApplyTeamUpBattleColors(void* trData,
+                                 Dpr::Battle::Logic::MyStatus::Array* statusArr,
+                                 FieldPlayerNetData& remote, int32_t localColor,
+                                 int32_t localSlot, int32_t partnerSlot);
+
+// Arm/disarm the CreateLocalClient force-create hook (PP_AA + wireless AI
+// slots). team_up arms it in its own BSP handlers; mp_tower arms it for tower
+// rounds. Disarmed by overworldMPClearTeamUpBattleState after every battle.
+void owmpTeamUpSetCommClientHookActive(bool active);
+
 // True if the local party has a battle-eligible lead in the first TEAMUP_PARTY_LIMIT
 // slots (non-egg, HP>0). Used to skip team-up when the player has no usable lead.
 bool overworldMPLocalHasTeamUpLead();

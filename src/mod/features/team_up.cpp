@@ -4,6 +4,7 @@
 #include "features/mp_poke_validate.h"
 
 #include "features/team_up.h"
+#include "features/mp_tower.h"
 #include "features/overworld_multiplayer.h"
 
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
@@ -199,6 +200,11 @@ Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* s_teamUpBSP = nullptr;
 
 // Guard flag for CreateLocalClient hook
 static bool s_teamUpCreateLocalClientActive = false;
+
+// mp_tower.cpp arms the same hook for its own PP_AA comm battles.
+void owmpTeamUpSetCommClientHookActive(bool active) {
+    s_teamUpCreateLocalClientActive = active;
+}
 
 // Pre-Orig guard: set BEFORE SetupBattleTrainer::Orig() so DeferEncountStart
 // can catch EncountStart calls that happen INSIDE SetupBattleTrainer.
@@ -1277,10 +1283,10 @@ static MYSTATUS_COMM::Object deserializeTeamUpStatus(uint8_t* buf, int32_t size,
 //   localColor — our save-data colorID (-1 = custom)
 //   localSlot / partnerSlot — PP_AA slots (Player A: 0/2, Player B: 2/0)
 // ---------------------------------------------------------------------------
-static void applyTeamUpBattleColors(void* trData,
-                                    Dpr::Battle::Logic::MyStatus::Array* statusArr,
-                                    FieldPlayerNetData& remote, int32_t localColor,
-                                    int32_t localSlot, int32_t partnerSlot) {
+void owmpApplyTeamUpBattleColors(void* trData,
+                                 Dpr::Battle::Logic::MyStatus::Array* statusArr,
+                                 FieldPlayerNetData& remote, int32_t localColor,
+                                 int32_t localSlot, int32_t partnerSlot) {
     int32_t partnerColor = remote.colorId; // -1 passes through for custom colors
 
     // (1) TRAINER_DATA.colorID — human slots take our/partner color, AI slots unchanged.
@@ -1790,8 +1796,8 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         // from PlayerWork (the comm BSP), not this call's bsp param.
         auto* bspInst = PlayerWork::get_battleSetupParam();
         auto* statusArr = (bspInst != nullptr) ? bspInst->instance()->fields.playerStatus : nullptr;
-        applyTeamUpBattleColors(bspFields->tr_data, statusArr, remote, localColor,
-                                /*localSlot=*/2, /*partnerSlot=*/0);
+        owmpApplyTeamUpBattleColors(bspFields->tr_data, statusArr, remote, localColor,
+                                    /*localSlot=*/2, /*partnerSlot=*/0);
     }
     {
         extern bool g_owmpBattleColorActive;
@@ -2063,8 +2069,8 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
                     localColor, remote.colorId, (int)remote.hasCustomColors);
         // Player A PP_AA layout: local=slot0, partner=slot2. Status comes from this
         // BSP's own fields (already the comm BSP built by SetupBattleComm).
-        applyTeamUpBattleColors(fields->tr_data, fields->playerStatus, remote, localColor,
-                                /*localSlot=*/0, /*partnerSlot=*/2);
+        owmpApplyTeamUpBattleColors(fields->tr_data, fields->playerStatus, remote, localColor,
+                                    /*localSlot=*/0, /*partnerSlot=*/2);
     }
     {
         extern bool g_owmpBattleColorActive;
@@ -2261,7 +2267,10 @@ void overworldMPClearTeamUpBattleState() {
 
 HOOK_DEFINE_TRAMPOLINE(TeamUpIsExpSeqEnable) {
     static bool Callback(void* mainModule, MethodInfo* mi) {
-        if (overworldMPIsTeamedUp() && overworldMPGetTeamUpState().battleType == 1) {
+        // Multi Tower rounds are exp-less (vanilla tower battles run on flat
+        // copies) — leave the vanilla comm gating (false) in place for them.
+        if (overworldMPIsTeamedUp() && overworldMPGetTeamUpState().battleType == 1 &&
+            !mpTowerIsActive()) {
             return true;
         }
         return Orig(mainModule, mi);
@@ -2359,11 +2368,16 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         tu.battleResult = fields->result;
         tu.battleGetMoney = fields->getMoney;
 
+        // Feed the Multi Tower round state machine (self-guards on tower state).
+        mpTowerOnBattleResult(fields->result, abnormal);
+
         // On LOSS: switch competitor from COMM(3) back to TRAINER(1) so the
         // exit sequence uses seq_EXIT_NPC instead of seq_EXIT_COMM. This
         // ensures the event script sees the loss result and triggers whiteout.
         // On WIN, keep COMM(3) so the comm sync works properly.
-        if (fields->result == 0) {
+        // Multi Tower rounds have no event script — keep the comm exit (the
+        // same scriptless path PvP losses take) so nothing waits on a script.
+        if (fields->result == 0 && !mpTowerIsActive()) {
             fields->competitor = (Dpr::Battle::Logic::BtlCompetitor)1; // BTL_COMPETITOR_TRAINER
             MP_LOG("[TeamUp] LOSS: switched competitor to TRAINER for proper exit sequence\n");
         }
@@ -2373,7 +2387,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         // by the trainer's overworld script for a normal battle) is skipped on the comm
         // path — so add it once here. GetBonusMoney @0x202DB50 is the value CalcWinMoney
         // (which we ungate for team-up) produced and the exit screen shows.
-        if (!abnormal && fields->result != 0 && s_teamUpWinMoney > 0) {
+        if (!abnormal && fields->result != 0 && s_teamUpWinMoney > 0 && !mpTowerIsActive()) {
             int32_t cur = PlayerWork::GetMoney();
             PlayerWork::SetMoney(cur + s_teamUpWinMoney);
             MP_LOG("[TeamUp] NPC-parity: credited %d win money (wallet %d -> %d)\n",
@@ -2393,7 +2407,11 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         s_battleAbnormal = abnormal;
         s_battleModPartyCount = 0;
 
-        if (!abnormal) {
+        // Multi Tower: NO exp write-back — vanilla tower battles never persist
+        // party changes (PokeRegulation operates on a battle copy). The tower's
+        // run-snapshot restore is the only post-battle party write. This gate
+        // is the ConvertToPokePartyByStartingOrder (0x2041840) path.
+        if (!abnormal && !mpTowerIsActive()) {
             // Persist exp/level/moves/evolution on BOTH win and loss (pull the
             // exp-modified party from GetSrcParty via the POKECON conversion). The
             // only difference is HP: on a WIN we keep the battle HP (with a wipe->1HP
@@ -2443,8 +2461,9 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
 // the comm result sync the 0x19 path does is redundant here.)
 HOOK_DEFINE_TRAMPOLINE(TeamUpClientSetSubProc) {
     static uint64_t Callback(void* client, uint8_t stateId, uint8_t* out, MethodInfo* mi) {
+        // Multi Tower keeps the bare comm exit (no defeat demo, no "got money").
         if (stateId == 0x19 && overworldMPIsTeamedUp() &&
-            overworldMPGetTeamUpState().battleType == 1) {
+            overworldMPGetTeamUpState().battleType == 1 && !mpTowerIsActive()) {
             MP_LOG("[TeamUp] NPC-parity: remap comm-exit (0x19) -> NPC-exit (0x1a)\n");
             stateId = 0x1a;
         }
@@ -2459,8 +2478,9 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpClientSetSubProc) {
 // MainModule bonus money, which the now-active NPC exit UI adds + shows ("got money").
 HOOK_DEFINE_TRAMPOLINE(TeamUpCalcWinMoney) {
     static int32_t Callback(void* param1, MethodInfo* mi) {
+        // Multi Tower pays no money (vanilla-accurate) — keep the COMM gate to 0.
         if (param1 != nullptr && overworldMPIsTeamedUp() &&
-            overworldMPGetTeamUpState().battleType == 1) {
+            overworldMPGetTeamUpState().battleType == 1 && !mpTowerIsActive()) {
             int32_t* competitor = (int32_t*)((uintptr_t)param1 + 0x10);
             int32_t saved = *competitor;
             *competitor = 1;  // TRAINER, only across this call
@@ -3315,7 +3335,8 @@ static bool s_expNewEnemyChecked = false;
 static inline bool owmpJoinerExpFixActive() {
     return overworldMPIsTeamedUp() &&
            overworldMPGetTeamUpState().battleType == 1 &&
-           !overworldMPGetTeamUpState().isInitiator;
+           !overworldMPGetTeamUpState().isInitiator &&
+           !mpTowerIsActive();  // tower rounds are exp-less
 }
 
 // Capture the pokecon the client-side executor applies exp into. This is the object
@@ -3373,6 +3394,7 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCheckExpGetExecute) {
         Orig(param_1, param_2);
 
         if (!overworldMPIsTeamedUp()) return;
+        if (mpTowerIsActive()) return;  // no exp in tower rounds — no second pass
         auto& tu = overworldMPGetTeamUpState();
         if (tu.battleType != 1) return;
 

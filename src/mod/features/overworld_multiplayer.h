@@ -50,6 +50,7 @@ static constexpr uint8_t OWMP_DATA_ID_EVENT_START         = 0xD2; // Minigame st
 static constexpr uint8_t OWMP_DATA_ID_EVENT_END           = 0xD3; // Minigame end: found/timeout/forfeit (targeted)
 static constexpr uint8_t OWMP_DATA_ID_EVENT_RESULT        = 0xD4; // Minigame result exchange (targeted)
 static constexpr uint8_t OWMP_DATA_ID_WORLD_DAILIES       = 0xD5; // Host's daily world values (broadcast)
+static constexpr uint8_t OWMP_DATA_ID_TOWER_ROUND          = 0xD6; // Multi Tower round data (targeted, chunked)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -159,6 +160,7 @@ enum class InteractionType : uint8_t {
     Trade = 1,
     TeamUp = 2,
     Minigame = 3,   // subtype byte carries MinigameKind
+    Tower = 4,      // Multi Battle Tower invite (teamed-up pairs only)
 };
 
 // Battle subtypes
@@ -326,6 +328,13 @@ void overworldMPOnBattleReadyReceived(int32_t fromStation);
 // system's ReceivePacketExCallback gets clean PacketReaders.
 void overworldMPSetInBattleScene(bool inBattle);
 bool overworldMPIsInBattleScene();
+
+// Scriptless comm-battle transition (extracted from the PvP battle start):
+// clears balloons, sets the battle-scene flag, runs EncountStart's setup
+// side-effects, bypasses the encounter-effect state machine, swaps BGM, fades
+// to black and flags the Sequencer to load the battle scene. `bsp` is the
+// fully prepared BATTLE_SETUP_PARAM::Object* (void* to keep this header light).
+void overworldMPBeginCommBattleTransition(void* bsp);
 
 // Restore local party to pre-battle state (HP/PP/status) after a PvP battle.
 // Called when the battle scene ends and _updateType returns to 0.

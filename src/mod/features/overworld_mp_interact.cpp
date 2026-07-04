@@ -5,6 +5,7 @@
 
 #include "features/overworld_multiplayer.h"
 #include "features/mp_minigames.h"
+#include "features/mp_tower.h"
 #include "features/mp_trainer_card.h"
 #include "features/team_up.h"
 #include "romdata/data/ColorSet.h"
@@ -966,7 +967,26 @@ static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             s_interact.emoteMenuDelay = 0.3f;
             break;
 
-        case 3: // Cancel
+        case 3: { // Multi Tower invite (7-round co-op tower set)
+            auto& tuTower = overworldMPGetTeamUpState();
+            if (mpTowerIsActive() || mpMinigameIsActive() || tuTower.battlePending) {
+                MP_LOG("[OverworldMP] Multi Tower blocked: tower/minigame/battle busy\n");
+                s_interact.Reset();
+                closeInteractionMenu();
+                break;
+            }
+            MP_LOG("[OverworldMP] Multi Tower invite to partner station %d\n",
+                        s_interact.targetStationIndex);
+            s_pendingRequestType = InteractionType::Tower;
+            s_isRequester = true;
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Tower, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+        }
+
+        case 4: // Cancel
         default:
             MP_LOG("[OverworldMP] Team menu cancelled\n");
             s_interact.Reset();
@@ -1084,9 +1104,18 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
 
     auto& tu = overworldMPGetTeamUpState();
     if (tu.isTeamedUp && tu.partnerStation == targetStationIndex) {
-        // Teamed up, targeting partner: Disband, Trade, Emote, Cancel
-        const char* labels[] = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote", "SS_mp_Cancel" };
-        if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 4, 3, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
+        // Teamed up, targeting partner: Disband, Trade, Emote, Multi Tower,
+        // Cancel. Multi Tower resolves its bundle label with an English
+        // fallback (label ships via the companion Romhack_Unity message PR);
+        // the copy avoids the shared buffer in overworldMPGetMessageCStr.
+        static char itemTower[64];
+        strncpy(itemTower, overworldMPGetMessageCStr("SS_mp_MultiTower", "Multi Tower"),
+                sizeof(itemTower) - 1);
+        itemTower[sizeof(itemTower) - 1] = '\0';
+        const char* labels[]    = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote",
+                                    nullptr, "SS_mp_Cancel" };
+        const char* textItems[] = { nullptr, nullptr, nullptr, itemTower, nullptr };
+        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 5, 4, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
             MP_LOG("[OverworldMP] ERROR: Failed to open team menu\n");
             s_interact.Reset();
             closeInteractionMenu();
@@ -1177,9 +1206,10 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
             s_pendingFromStation = -1;
             s_interact.Reset();
             closeInteractionMenu();
-        } else if (s_pendingRequestType == InteractionType::Minigame) {
-            // Nothing to start locally — the initiator's EVENT_START (0xD2)
-            // begins the game on both consoles.
+        } else if (s_pendingRequestType == InteractionType::Minigame ||
+                   s_pendingRequestType == InteractionType::Tower) {
+            // Nothing to start locally — the initiator's EVENT_START (0xD2) /
+            // TOWER_ROUND (0xD6) begins the game on both consoles.
             s_pendingFromStation = -1;
             s_interact.Reset();
             closeInteractionMenu();
@@ -1283,6 +1313,9 @@ static void showIncomingRequestDialog() {
             actionLabel = "SS_mp_CatchInvite";
             actionFallback = "Have a Catching Contest";
         }
+    } else if (type == InteractionType::Tower) {
+        actionLabel = "SS_mp_TowerInvite";
+        actionFallback = "Challenge the Multi Tower";
     }
 
     // Load translatable action name
@@ -2468,6 +2501,95 @@ static MYSTATUS_COMM::Object deserializeBattleStatus(uint8_t* buf, int32_t size,
 }
 
 // ---------------------------------------------------------------------------
+// Scriptless comm-battle transition — shared by the PvP battle start and the
+// Multi Tower rounds (mp_tower.cpp). The BSP must be fully prepared before
+// this is called; from here the battle scene takes over.
+//
+// EncountStart(0) alone would play the wild grass encounter animation, and
+// EncountStart(1) crashes because it expects real trainer IDs. The Union Room
+// doesn't use EncountStart at all — it goes through BattleMatchingManager.
+// We take a similar approach: use EncountStart only for its setup
+// side-effects (stop player, hide poketch, set _updateType=Encount), then
+// immediately skip the encounter effect state machine and trigger the battle
+// scene with a simple fade-out.
+// ---------------------------------------------------------------------------
+void overworldMPBeginCommBattleTransition(void* bspRaw) {
+    auto* bsp = (Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*)bspRaw;
+    auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
+
+    // Clear emote balloons before the battle transition starts — prevents
+    // the accept emote (heart) from rendering on top of the transition.
+    overworldMPClearAllBalloons(true);
+
+    // Suppress overworld packet reading so the battle system's ExCallback
+    // gets clean PacketReaders (both share the same object per packet).
+    overworldMPSetInBattleScene(true);
+
+    // Start the battle scene via FieldManager
+    if (fm != nullptr) {
+        // 1. EncountStart does essential setup: SetSaveObj, PlayIdle,
+        //    StopBicycleDecelerate, _updateType=2, HidePoketch.
+        fm->EncountStart(0, 0, 0);
+
+        // 2. Immediately skip the encounter effect state machine.
+        //    _encountUpdateType=4 (End) prevents EncountUpdate from
+        //    loading the wild grass effect or any encounter sequence.
+        fm->fields._encountUpdateType = 4;  // EncountUpdateType.End
+
+        // 3. PrepareOperationStatic — normally called in EncountUpdate
+        //    state 0, we call it ourselves since we skipped that state.
+        //    BattleConnector::PrepareOperationStatic @ 0x1D69360
+        _ILExternal::external<void>(0x1D69360);
+
+        // 4. Audio transition — replicate what EncountUpdate state 1 does:
+        //    stop field BGM and start battle intro BGM.
+        {
+            // AudioManager::get_Instance() -> PostEvent(stopFieldBGM)
+            auto* amInstance = Audio::AudioManager::get_Instance();
+            if (amInstance != nullptr) {
+                // Stop field BGM: event hash 0x35f93cfe, callbackFlags=0x100009
+                // AudioManager::PostEvent(this, eventId, callbackFlags, isThroughSameEvent) @ 0x021EB100
+                _ILExternal::external<uint32_t>(0x021EB100, amInstance,
+                    (uint32_t)0x35f93cfe, (uint32_t)0x100009, (bool)false);
+                MP_LOG("[OverworldMP] Stopped field BGM\n");
+
+                // Get battle BGM event name from BattleEffectComponentData
+                void* btlEff = bsp->instance()->fields.btlEffComponent;
+                if (btlEff != nullptr) {
+                    // BattleEffectComponentData::get_battleBgm() @ 0x0187B510
+                    auto* bgmStr = (System::String::Object*)
+                        _ILExternal::external<void*>(0x0187B510, btlEff);
+                    if (bgmStr != nullptr && bgmStr->fields.m_stringLength > 0) {
+                        // AkSoundEngine::GetIDFromString(string) @ 0x02465FA0
+                        uint32_t bgmId = _ILExternal::external<uint32_t>(0x02465FA0, bgmStr);
+                        // Play battle BGM
+                        _ILExternal::external<uint32_t>(0x021EB100, amInstance,
+                            bgmId, (uint32_t)0x100009, (bool)false);
+                        MP_LOG("[OverworldMP] Started battle BGM (id=0x%08x)\n", bgmId);
+                    } else {
+                        MP_LOG("[OverworldMP] No battleBgm string in effect data\n");
+                    }
+                }
+            }
+        }
+
+        // 5. Fade to black — Fader::set_fadeMode(0=Color) + FadeOut(0.5s)
+        //    This replaces the wild encounter animation with a clean fade.
+        //    Fader::set_fadeMode @ 0x209D490, Fader::FadeOut(float) @ 0x209E5E0
+        _ILExternal::external<void>(0x209D490, 0);     // fadeMode = Color
+        _ILExternal::external<void>(0x209E5E0, 0.5f);  // FadeOut(0.5s)
+
+        // 6. Tell the Sequencer it's time to load the battle scene.
+        //    PlayerWork::set_isEncount(true) @ 0x2CEF7C0
+        _ILExternal::external<void>(0x2CEF7C0, true);
+
+        MP_LOG("[OverworldMP] Battle transition: fade-to-black (bypassed encounter effect)\n");
+    } else {
+        MP_LOG("[OverworldMP] ERROR: FieldManager instance is null\n");
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Battle: setup and start the battle scene
 // ---------------------------------------------------------------------------
 void overworldMPSetupAndStartBattle() {
@@ -2832,88 +2954,10 @@ void overworldMPSetupAndStartBattle() {
         }
     }
 
-    // Battle transition: bypass the encounter effect entirely.
-    // EncountStart(0) would play the wild grass encounter animation, and
-    // EncountStart(1) crashes because it expects real trainer IDs.
-    // The Union Room doesn't use EncountStart at all — it goes through
-    // BattleMatchingManager.  We take a similar approach: use EncountStart
-    // only for its setup side-effects (stop player, hide poketch, set
-    // _updateType=Encount), then immediately skip the encounter effect
-    // state machine and trigger the battle scene with a simple fade-out.
-    auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-
-    // Clear emote balloons before the battle transition starts — prevents
-    // the accept emote (heart) from rendering on top of the transition.
-    overworldMPClearAllBalloons(true);
-
-    // g_owmpBattleColorActive was already set before SetupBattleComm above
-
-    // Suppress overworld packet reading so the battle system's ExCallback
-    // gets clean PacketReaders (both share the same object per packet).
-    overworldMPSetInBattleScene(true);
-
-    // Start the battle scene via FieldManager
-    if (fm != nullptr) {
-        // 1. EncountStart does essential setup: SetSaveObj, PlayIdle,
-        //    StopBicycleDecelerate, _updateType=2, HidePoketch.
-        fm->EncountStart(0, 0, 0);
-
-        // 2. Immediately skip the encounter effect state machine.
-        //    _encountUpdateType=4 (End) prevents EncountUpdate from
-        //    loading the wild grass effect or any encounter sequence.
-        fm->fields._encountUpdateType = 4;  // EncountUpdateType.End
-
-        // 3. PrepareOperationStatic — normally called in EncountUpdate
-        //    state 0, we call it ourselves since we skipped that state.
-        //    BattleConnector::PrepareOperationStatic @ 0x1D69360
-        _ILExternal::external<void>(0x1D69360);
-
-        // 4. Audio transition — replicate what EncountUpdate state 1 does:
-        //    stop field BGM and start battle intro BGM.
-        {
-            // AudioManager::get_Instance() -> PostEvent(stopFieldBGM)
-            auto* amInstance = Audio::AudioManager::get_Instance();
-            if (amInstance != nullptr) {
-                // Stop field BGM: event hash 0x35f93cfe, callbackFlags=0x100009
-                // AudioManager::PostEvent(this, eventId, callbackFlags, isThroughSameEvent) @ 0x021EB100
-                _ILExternal::external<uint32_t>(0x021EB100, amInstance,
-                    (uint32_t)0x35f93cfe, (uint32_t)0x100009, (bool)false);
-                MP_LOG("[OverworldMP] Stopped field BGM\n");
-
-                // Get battle BGM event name from BattleEffectComponentData
-                void* btlEff = bsp->instance()->fields.btlEffComponent;
-                if (btlEff != nullptr) {
-                    // BattleEffectComponentData::get_battleBgm() @ 0x0187B510
-                    auto* bgmStr = (System::String::Object*)
-                        _ILExternal::external<void*>(0x0187B510, btlEff);
-                    if (bgmStr != nullptr && bgmStr->fields.m_stringLength > 0) {
-                        // AkSoundEngine::GetIDFromString(string) @ 0x02465FA0
-                        uint32_t bgmId = _ILExternal::external<uint32_t>(0x02465FA0, bgmStr);
-                        // Play battle BGM
-                        _ILExternal::external<uint32_t>(0x021EB100, amInstance,
-                            bgmId, (uint32_t)0x100009, (bool)false);
-                        MP_LOG("[OverworldMP] Started battle BGM (id=0x%08x)\n", bgmId);
-                    } else {
-                        MP_LOG("[OverworldMP] No battleBgm string in effect data\n");
-                    }
-                }
-            }
-        }
-
-        // 5. Fade to black — Fader::set_fadeMode(0=Color) + FadeOut(0.5s)
-        //    This replaces the wild encounter animation with a clean fade.
-        //    Fader::set_fadeMode @ 0x209D490, Fader::FadeOut(float) @ 0x209E5E0
-        _ILExternal::external<void>(0x209D490, 0);     // fadeMode = Color
-        _ILExternal::external<void>(0x209E5E0, 0.5f);  // FadeOut(0.5s)
-
-        // 6. Tell the Sequencer it's time to load the battle scene.
-        //    PlayerWork::set_isEncount(true) @ 0x2CEF7C0
-        _ILExternal::external<void>(0x2CEF7C0, true);
-
-        MP_LOG("[OverworldMP] Battle transition: fade-to-black (bypassed encounter effect)\n");
-    } else {
-        MP_LOG("[OverworldMP] ERROR: FieldManager instance is null\n");
-    }
+    // Battle transition: bypass the encounter effect entirely (shared with the
+    // Multi Tower rounds — see overworldMPBeginCommBattleTransition above).
+    // g_owmpBattleColorActive was already set before SetupBattleComm above.
+    overworldMPBeginCommBattleTransition(bsp);
 
     // Record which station is our battle partner BEFORE resetBattleState
     // clears s_battlePartnerStation. This persists through the battle scene
@@ -2946,6 +2990,13 @@ void overworldMPOnRequestAccepted(int32_t partnerStation) {
     } else if (s_pendingRequestType == InteractionType::Minigame) {
         // We initiated: send EVENT_START and begin the local game.
         mpMinigameStartAsInitiator(partnerStation, (MinigameKind)s_pendingBattleSubtype);
+        s_pendingFromStation = -1;
+        s_interact.Reset();
+        closeInteractionMenu();
+    } else if (s_pendingRequestType == InteractionType::Tower) {
+        // We initiated: lot round 1 and send TOWER_ROUND (0xD6) — the receiver
+        // just resets; the round packet drives its side.
+        mpTowerStartAsInitiator(partnerStation);
         s_pendingFromStation = -1;
         s_interact.Reset();
         closeInteractionMenu();
