@@ -5,6 +5,7 @@
 #include "features/overworld_multiplayer.h"
 #include "features/team_up.h"
 
+#include "externals/PlayerWork.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 
 #include <cstdint>
@@ -73,6 +74,11 @@ struct PoffinState {
 static PoffinState s_pf;
 
 bool mpPoffinIsArmed() { return s_pf.armed; }
+
+// Poffin Case = ItemNo 449 (POFINKEESU). Owning it = Poffins unlocked.
+bool mpPoffinUnlocked() {
+    return PlayerWork::GetItem(449).fields.Count > 0;
+}
 
 void mpPoffinArm(int32_t partnerStation) {
     s_pf.armed = true;

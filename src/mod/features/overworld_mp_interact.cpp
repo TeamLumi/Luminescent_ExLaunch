@@ -975,6 +975,9 @@ static void overworldMPShowGamesMenu() {
 // Teamed-up menu callback (targeting partner: Disband, Trade, Emote, Cancel)
 // ---------------------------------------------------------------------------
 static MethodInfo* s_teamMenuMethodInfo = nullptr;
+// Whether the current teamed-up menu includes the "Cook Poffins" item at
+// index 4 (Poffins unlocked); otherwise index 4 is Cancel.
+static bool s_teamMenuHasPoffin = false;
 
 static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* item, MethodInfo* mi) {
     if (item == nullptr) {
@@ -1038,18 +1041,25 @@ static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             break;
         }
 
-        case 4: // Cook Poffins together (arms the co-op merge until disband)
-            MP_LOG("[OverworldMP] Poffin co-op invite to partner station %d\n",
-                        s_interact.targetStationIndex);
-            s_pendingRequestType = InteractionType::Poffin;
-            s_isRequester = true;
-            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
-                                              InteractionType::Poffin, BattleSubtype::Single);
-            s_interact.state = InteractState::WaitingResponse;
-            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+        case 4: // Cook Poffins together (only when the Poffin item is present)
+            if (s_teamMenuHasPoffin) {
+                MP_LOG("[OverworldMP] Poffin co-op invite to partner station %d\n",
+                            s_interact.targetStationIndex);
+                s_pendingRequestType = InteractionType::Poffin;
+                s_isRequester = true;
+                overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                                  InteractionType::Poffin, BattleSubtype::Single);
+                s_interact.state = InteractState::WaitingResponse;
+                s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            } else {
+                // Poffin hidden → index 4 is Cancel.
+                MP_LOG("[OverworldMP] Team menu cancelled\n");
+                s_interact.Reset();
+                closeInteractionMenu();
+            }
             break;
 
-        case 5: // Cancel
+        case 5: // Cancel (Poffin-present layout)
         default:
             MP_LOG("[OverworldMP] Team menu cancelled\n");
             s_interact.Reset();
@@ -1171,16 +1181,29 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         // Cancel. Multi Tower resolves its bundle label with an English
         // fallback (label ships via the companion Romhack_Unity message PR);
         // the copy avoids the shared buffer in overworldMPGetMessageCStr.
+        // "Cook Poffins together" only appears once Poffins are unlocked
+        // (Poffin Case owned); when hidden, Cancel takes index 4.
         static char itemTower[64], itemPoffin[64];
         strncpy(itemTower, overworldMPGetMessageCStr("SS_mp_MultiTower", "Multi Tower"),
                 sizeof(itemTower) - 1);
         strncpy(itemPoffin, overworldMPGetMessageCStr("SS_mp_CookPoffins", "Cook Poffins together"),
                 sizeof(itemPoffin) - 1);
         itemTower[sizeof(itemTower) - 1] = itemPoffin[sizeof(itemPoffin) - 1] = '\0';
-        const char* labels[]    = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote",
-                                    nullptr, nullptr, "SS_mp_Cancel" };
-        const char* textItems[] = { nullptr, nullptr, nullptr, itemTower, itemPoffin, nullptr };
-        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 6, 5, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
+        s_teamMenuHasPoffin = mpPoffinUnlocked();
+
+        bool ok;
+        if (s_teamMenuHasPoffin) {
+            const char* labels[]    = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote",
+                                        nullptr, nullptr, "SS_mp_Cancel" };
+            const char* textItems[] = { nullptr, nullptr, nullptr, itemTower, itemPoffin, nullptr };
+            ok = openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 6, 5, &onTeamMenuClicked, &s_teamMenuMethodInfo);
+        } else {
+            const char* labels[]    = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote",
+                                        nullptr, "SS_mp_Cancel" };
+            const char* textItems[] = { nullptr, nullptr, nullptr, itemTower, nullptr };
+            ok = openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 5, 4, &onTeamMenuClicked, &s_teamMenuMethodInfo);
+        }
+        if (!ok) {
             MP_LOG("[OverworldMP] ERROR: Failed to open team menu\n");
             s_interact.Reset();
             closeInteractionMenu();

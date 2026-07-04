@@ -14,6 +14,10 @@
 //
 // 0xD7 POFFIN_RESULT (targeted): berry TagNo + burns/spills/time/smoothness.
 
+// True once the player owns the Poffin Case (ItemNo 449) — i.e. Poffins are
+// unlocked. Gates the "Cook Poffins together" menu entry.
+bool mpPoffinUnlocked();
+
 // Arm/disarm the co-op pairing (from the interaction accept path / disband).
 void mpPoffinArm(int32_t partnerStation);
 void mpPoffinDisarm();

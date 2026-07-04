@@ -2646,6 +2646,12 @@ void overworldMPSetEntityVisible(int32_t stationIndex, bool visible) {
         auto* go = poke->cast<UnityEngine::Component>()->get_gameObject();
         if (go != nullptr) go->SetActive(visible);
     }
+    // Re-showing the entity runs ColorVariation.OnEnable, which resets to the
+    // default (colorId) preset — re-apply the peer's custom colors on the next
+    // frame so hide-and-seek doesn't strip them.
+    if (visible && remote.colorId == -1 && remote.hasCustomColors) {
+        remote.colorRefreshTimer = 0.05f;
+    }
     MP_LOG("[OverworldMP] Entity visibility for station %d -> %d\n",
                 stationIndex, (int)visible);
 }

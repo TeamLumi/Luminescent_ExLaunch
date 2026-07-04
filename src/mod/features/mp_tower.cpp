@@ -256,10 +256,22 @@ static void towerAwardBP() {
 }
 
 // ---------------------------------------------------------------------------
-// HUD helpers (same FieldCanvas route as mp_minigames)
+// HUD helpers — top-of-screen area-name toast (team_up label bypass) with a
+// self-dismiss timer, matching the minigame HUD.
 // ---------------------------------------------------------------------------
+static float s_towerHudTimer = 0.0f;
+static constexpr float TOWER_HUD_SECONDS = 4.0f;
+
 static void towerHudMsg(const char* text) {
-    FieldCanvas::Debug_ShowDisplayMessage(System::String::Create(text));
+    overworldMPShowAreaText(text);
+    s_towerHudTimer = TOWER_HUD_SECONDS;
+}
+
+static void towerHudTick(float dt) {
+    if (s_towerHudTimer > 0.0f) {
+        s_towerHudTimer -= dt;
+        if (s_towerHudTimer <= 0.0f) overworldMPResetAreaText();
+    }
 }
 
 static void towerHudMsgL(const char* label, const char* fallback) {
@@ -1260,6 +1272,7 @@ static void towerFinishRound() {
 // Tick / events
 // ---------------------------------------------------------------------------
 void mpTowerTick(float deltaTime) {
+    towerHudTick(deltaTime);  // self-dismiss the HUD toast even after a run ends
     if (!s_tw.active) return;
 
     // Partner gone / team disbanded — but let an in-flight battle (and its

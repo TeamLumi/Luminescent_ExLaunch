@@ -320,11 +320,17 @@ HOOK_DEFINE_TRAMPOLINE(CardModelViewController$$LoadModels) {
         if (s_modelOverrideArmed) {
             s_modelOverrideArmed = false;
             uint8_t peerSex = (uint8_t)(s_pendingBlob.genderid ^ 1);  // undo the wire inversion
+            // colorId 0xFF is the custom-colors sentinel (no standard model
+            // color index) — fall back to 0 so the model renders validly with
+            // the peer's fashion. (Full custom-color rendering on the card
+            // would need the peer's ColorVariation applied to the loaded model;
+            // tracked as a follow-up.)
+            uint8_t peerColor = (s_pendingBlob.colorId == 0xFF) ? 0 : s_pendingBlob.colorId;
             MP_LOG("[TrainerCard] Model override: fashion %d->%d color %d->%d sex %d->%d\n",
                         (int)fashion, (int)s_pendingBlob.fashion,
-                        (int)colorId, (int)s_pendingBlob.colorId,
+                        (int)colorId, (int)peerColor,
                         (int)sex, (int)peerSex);
-            Orig(__this, s_pendingBlob.fashion, s_pendingBlob.colorId, peerSex);
+            Orig(__this, s_pendingBlob.fashion, peerColor, peerSex);
             return;
         }
         Orig(__this, fashion, colorId, sex);
