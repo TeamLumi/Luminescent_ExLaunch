@@ -253,6 +253,34 @@ static bool towerLocalPartyOk() {
     return true;
 }
 
+// PokeRegulation legendary checks (the tower's "no legendaries" clause).
+// CheckLegend(MonsNo, byte formno=0) @0x1BCD400, CheckSubLegend(MonsNo) @0x1BCD4F0.
+static inline bool towerIsLegendary(int32_t monsNo, uint8_t formNo) {
+    return _ILExternal::external<bool>(0x1BCD400, monsNo, formNo)
+        || _ILExternal::external<bool>(0x1BCD4F0, monsNo);
+}
+
+// Registration clause (v1): reject if either of our lead-2 mons is a
+// legendary/mythical. Each console checks its OWN party, so the ban is fully
+// enforced across the pair. (The species/item-duplicate clauses and flat-Lv50
+// normalization are deferred — see the run-start TODO.)
+static bool towerLocalPartyLegal() {
+    auto* party = PlayerWork::get_playerParty();
+    if (party == nullptr) return false;
+    for (int i = 0; i < TOWER_PARTY_LIMIT; i++) {
+        auto* member = party->GetMemberPointer(i);
+        if (member == nullptr) return false;
+        auto* core = member->cast<Pml::PokePara::CoreParam>();
+        if (core == nullptr) return false;
+        if (towerIsLegendary((int32_t)core->GetMonsNo(), (uint8_t)core->GetFormNo())) {
+            MP_LOG("[Tower] Registration rejected: legendary in slot %d (mons=%d)\n",
+                        i, (int32_t)core->GetMonsNo());
+            return false;
+        }
+    }
+    return true;
+}
+
 static void towerSnapshotParty() {
     s_tw.snapshotCount = 0;
     s_tw.snapshotValid = false;
@@ -626,11 +654,13 @@ static bool towerSetupAndStartBattle() {
     MYSTATUS_COMM::Object partnerStatus =
         towerDeserializeStatus(tw.partnerMystatusBuf, tw.partnerMystatusLen);
 
-    // TODO(regulation): v1 skips the vanilla multi-room rules gate — flat Lv50
-    // (PokeRegulation.ModifyLevelPokeParty @0x1BCD5E0, operates on the battle
-    // copy), legendary ban (CheckLegend @0x1BCD400 / CheckSubLegend), and the
-    // species/item clauses over the combined four (CheckBothPoke @0x1BCD8A0,
-    // CheckBothItem @0x1BCDAE0). See docs/superpowers/specs/multi-battle-tower.md.
+    // Regulation: the legendary ban is enforced at registration
+    // (towerLocalPartyLegal, each console checks its own lead-2). STILL TODO:
+    // flat-Lv50 normalization (PokeRegulation.ModifyLevelPokeParty @0x1BCD5E0 —
+    // deferred: it mutates the party, wants the verified snapshot/restore path)
+    // and the species/item-duplicate clauses over the combined four
+    // (CheckBothPoke @0x1BCD8A0 / CheckBothItem @0x1BCDAE0 — need the partner's
+    // mon data compared against ours). See docs/superpowers/specs/multi-battle-tower.md.
     uint8_t regulation[4] = { 1, 6, 2, 0x07 };
     static uint8_t s_towerEmptyCapsule[32] = {};
     void* emptyCapsule = (void*)s_towerEmptyCapsule;
@@ -786,6 +816,11 @@ void mpTowerStartAsInitiator(int32_t partnerStation) {
                      "Multi Tower needs 2 healthy Pok\xc3\xa9mon leading your party!");
         return;
     }
+    if (!towerLocalPartyLegal()) {
+        towerHudMsgL("SS_mp_TowerNoLegend",
+                     "Multi Tower \xe2\x80\x94 no Legendary Pok\xc3\xa9mon allowed!");
+        return;
+    }
 
     s_tw.Clear();
     s_tw.active = true;
@@ -919,6 +954,12 @@ void mpTowerOnRoundPacket(void* pr) {
             if (!towerLocalPartyOk()) {
                 towerHudMsgL("SS_mp_TowerNeedTwo",
                              "Multi Tower needs 2 healthy Pok\xc3\xa9mon leading your party!");
+                return;
+            }
+            if (!towerLocalPartyLegal()) {
+                // Decline by not ACKing — the initiator times out on AwaitAck.
+                towerHudMsgL("SS_mp_TowerNoLegend",
+                             "Multi Tower \xe2\x80\x94 no Legendary Pok\xc3\xa9mon allowed!");
                 return;
             }
             s_tw.Clear();
