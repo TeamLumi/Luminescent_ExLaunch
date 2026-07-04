@@ -2,6 +2,7 @@
 #include "features/mp_log.h"
 #include "features/mp_net.h"
 #include "features/mp_map_icons.h"
+#include "features/mp_minigames.h"
 #include "features/overworld_multiplayer.h"
 
 #include "helpers/InputHelper.h"
@@ -157,6 +158,10 @@ void mpMapIconsTick(float deltaTime) {
     if (s_sendTimer < MAP_INFO_SEND_INTERVAL) return;
     s_sendTimer = 0.0f;
 
+    // Hide-and-seek: while hiding, broadcasting my map location would hand
+    // the seeker a wallhack — go dark until the game ends.
+    if (mpMinigameAmHiding()) return;
+
     int32_t zone = 0, gx = 0, gz = 0;
     if (getMyMapCell(&zone, &gx, &gz)) {
         s_myInfoValid = true;
@@ -277,11 +282,14 @@ static bool resolvePeerCell(void* townmap, const PeerMapInfo& info, float* outX,
 static void spawnAllMarkers(void* townmap) {
     auto& ctx = getOverworldMPContext();
 
-    // Peer icons
+    // Peer icons. During hide-and-seek the hider is never drawn on the
+    // seeker's map (their last-known cell would still leak the trail).
+    int32_t hiddenStation = mpMinigameHiddenStation();
     for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
         auto& remote = ctx.remotePlayers[i];
         auto& info = s_peerMapInfo[i];
         if (!remote.isActive || !info.valid) continue;
+        if (i == hiddenStation) continue;
 
         float cx = 0.0f, cz = 0.0f;
         if (!resolvePeerCell(townmap, info, &cx, &cz)) {

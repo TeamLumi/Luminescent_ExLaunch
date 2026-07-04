@@ -72,6 +72,17 @@ static MinigameState s_mg;
 
 bool mpMinigameIsActive() { return s_mg.kind != MinigameKind::None; }
 
+bool mpMinigameAmHiding() {
+    return s_mg.kind == MinigameKind::HideAndSeek && s_mg.iAmInitiator;
+}
+
+int32_t mpMinigameHiddenStation() {
+    if (s_mg.kind == MinigameKind::HideAndSeek && !s_mg.iAmInitiator) {
+        return s_mg.partner;  // I'm the seeker — the hider stays off my map
+    }
+    return -1;
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

@@ -34,3 +34,11 @@ void mpMinigameOnAreaChange();
 void mpMinigameOnPeerLeft(int32_t stationIndex);
 
 bool mpMinigameIsActive();
+
+// Map-icon integration (hide-and-seek must not leak the hider's location):
+// true while I'm the HIDER in an active game — my console stops broadcasting
+// Town Map info.
+bool mpMinigameAmHiding();
+// The station whose map icon must NOT be rendered on MY map (the hider,
+// from the seeker's perspective), or -1.
+int32_t mpMinigameHiddenStation();
