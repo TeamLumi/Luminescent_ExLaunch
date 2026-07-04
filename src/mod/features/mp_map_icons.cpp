@@ -48,6 +48,11 @@ static constexpr uintptr_t SHEETDATA_NOWPOS_OFFSET  = 0x24; // SheetData.NowPosX
 static constexpr float MAP_CELL_SIZE   = 24.0f;
 static constexpr float MAP_HALF_CELL   = 12.0f;
 
+// Peer icons render smaller than the local player's marker, and players
+// sharing a map cell fan out horizontally so nobody is buried.
+static constexpr float PEER_ICON_SCALE = 0.65f;
+static constexpr float STACK_FAN_PX    = 10.0f;
+
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
@@ -235,6 +240,36 @@ static UnityEngine::Vector3::Object cellToWorldPos(void* townmap, float cellX, f
     return out;
 }
 
+// Per-render-pass occupancy tracking: how many markers already sit on a
+// given cell. Reset at the start of each spawnAllMarkers pass.
+struct CellOccupancy { float x, z; int32_t count; };
+static CellOccupancy s_occupancy[OW_MP_MAX_PLAYERS * 2 + 1];
+static int32_t s_occupancyCount = 0;
+
+static void resetOccupancy() { s_occupancyCount = 0; }
+
+// Returns the stack index (0 = first marker on this cell) and records the marker.
+static int32_t occupyCell(float cellX, float cellZ) {
+    for (int32_t i = 0; i < s_occupancyCount; i++) {
+        if (fabsf(s_occupancy[i].x - cellX) < 0.5f &&
+            fabsf(s_occupancy[i].z - cellZ) < 0.5f) {
+            return s_occupancy[i].count++;
+        }
+    }
+    if (s_occupancyCount < (int32_t)(sizeof(s_occupancy) / sizeof(s_occupancy[0]))) {
+        s_occupancy[s_occupancyCount] = { cellX, cellZ, 1 };
+        s_occupancyCount++;
+    }
+    return 0;
+}
+
+// Symmetric horizontal fan: 0, +10, -10, +20, -20, ... pixels.
+static float stackFanOffset(int32_t stackIndex) {
+    if (stackIndex == 0) return 0.0f;
+    int32_t step = (stackIndex + 1) / 2;
+    return (stackIndex % 2 == 1) ? STACK_FAN_PX * step : -STACK_FAN_PX * step;
+}
+
 // Clone the vanilla TownmapPlayerIcon and place it at a cell. Returns the
 // cloned component (owned by the window hierarchy — dies with the window).
 static void* spawnIconClone(void* townmap, float cellX, float cellZ,
@@ -246,10 +281,21 @@ static void* spawnIconClone(void* townmap, float cellX, float cellZ,
     if (clone == nullptr) return nullptr;
 
     // Parent under the cell root (same canvas), keep world positioning.
+    // Co-located markers fan out horizontally; peer icons render smaller
+    // than the local player's marker.
     auto* cellRoot = *(UnityEngine::Transform::Object**)((uintptr_t)townmap + TOWNMAP_CELLROOT_OFFSET);
     auto* cloneTf = ((UnityEngine::Component*)clone)->get_transform();
     cloneTf->cast<UnityEngine::Transform>()->SetParent((UnityEngine::Transform*)cellRoot, false);
-    cloneTf->cast<UnityEngine::Transform>()->set_position(cellToWorldPos(townmap, cellX, cellZ));
+
+    auto pos = cellToWorldPos(townmap, cellX, cellZ);
+    pos.fields.x += stackFanOffset(occupyCell(cellX, cellZ));
+    cloneTf->cast<UnityEngine::Transform>()->set_position(pos);
+
+    UnityEngine::Vector3::Object scale = {};
+    scale.fields.x = PEER_ICON_SCALE;
+    scale.fields.y = PEER_ICON_SCALE;
+    scale.fields.z = 1.0f;
+    cloneTf->cast<UnityEngine::Transform>()->set_localScale(scale);
 
     // Override the face sprite with the peer's fashion/color (the clone's
     // Awake set the LOCAL player's face). fashionId < 0 → keep local sprite.
@@ -281,6 +327,20 @@ static bool resolvePeerCell(void* townmap, const PeerMapInfo& info, float* outX,
 
 static void spawnAllMarkers(void* townmap) {
     auto& ctx = getOverworldMPContext();
+    resetOccupancy();
+
+    // Seed the occupancy with the LOCAL player's cell so peers standing on
+    // top of you fan out instead of hiding under the vanilla marker.
+    {
+        int32_t zone = 0, gx = 0, gz = 0;
+        if (getMyMapCell(&zone, &gx, &gz)) {
+            PeerMapInfo mine = { true, zone, gx, gz };
+            float cx = 0.0f, cz = 0.0f;
+            if (resolvePeerCell(townmap, mine, &cx, &cz)) {
+                occupyCell(cx, cz);
+            }
+        }
+    }
 
     // Peer icons. During hide-and-seek the hider is never drawn on the
     // seeker's map (their last-known cell would still leak the trail).
