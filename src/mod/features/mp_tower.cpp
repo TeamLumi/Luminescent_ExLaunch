@@ -35,6 +35,45 @@
 static inline int32_t towerGetRank(uint32_t mode) {
     return _ILExternal::external<int32_t>(0x18DF1F0, mode);
 }
+
+// --- Persistence writers (all self-contained: they get/set_btlTowerSave, so
+// the write lands in the real save. Verified 2026-07-04: the NORMAL_TAG slot
+// round-trips a save/reload, and vanilla never touches modes 1/3, so these are
+// safe. Field map (class_data[mode], stride 0x40): +0x20 clear_flag,
+// +0x38 tower_round (GameClear: >6), +0x58 renshou. ---
+// BtlTowerWork::SetRank(mode, byte) @0x18DF290
+static inline void towerSetRank(uint32_t mode, uint8_t val) {
+    _ILExternal::external<void>(0x18DF290, mode, val);
+}
+// BtlTowerWork::SetRound(mode, int) @0x18E0980 — set tower_round.
+static inline void towerSetRound(uint32_t mode, int32_t val) {
+    _ILExternal::external<void>(0x18E0980, mode, val);
+}
+// BtlTowerWork::RoundAdd(mode) @0x18E0AD0 — round++ and renshou++ (once round>0).
+static inline void towerRoundAdd(uint32_t mode) {
+    _ILExternal::external<void>(0x18E0AD0, mode);
+}
+// BtlTowerWork::AddLose(mode) @0x18E01C0 — bump the loss counter.
+static inline void towerAddLose(uint32_t mode) {
+    _ILExternal::external<void>(0x18E01C0, mode);
+}
+// BtlTowerWork::ResetRenshou(mode) @0x18E03A0 — banks the streak record
+// (calls UpdateRenshou internally) then clears the current streak.
+static inline void towerResetRenshou(uint32_t mode) {
+    _ILExternal::external<void>(0x18E03A0, mode);
+}
+// BtlTowerWork::UpdateRenshou(mode, wins) @0x18DFD00 — records best streak into
+// RecordWork[mode*2+6] if wins beats it (NOT a setter for the live streak).
+static inline void towerUpdateRenshou(uint32_t mode, uint32_t wins) {
+    _ILExternal::external<void>(0x18DFD00, mode, wins);
+}
+// BtlTowerWork::GetRenshou(mode) @0x18E0D90 — current streak (class_data+0x58).
+static inline int32_t towerGetRenshou(uint32_t mode) {
+    return _ILExternal::external<int32_t>(0x18E0D90, mode);
+}
+
+// The Multi Tower persists into the reserved NORMAL_TAG class (mode 1).
+static constexpr uint32_t TOWER_MODE = 1;
 // TrainerSystem::CreateTowerLotResult(TowerLotRule lotRule, TowerLotCls lotCls,
 //   int rank, int round, ulong seed) @0x2CC0320. Does its own lazy TypeInfo
 // init (system_load_typeinfo 0x8c65 at entry). Returns null when no
@@ -109,6 +148,7 @@ struct TowerState {
 
     int32_t round = 0;              // 1..TOWER_ROUND_COUNT
     int32_t rank = TOWER_RANK_MIN;
+    int32_t partnerRank = -1;       // learned from the partner's header (-1 = unknown)
 
     // Current round's lotted opponents (initiator: from the lot pipeline;
     // partner: from the TOWER_ROUND packet)
@@ -159,6 +199,7 @@ struct TowerState {
         memset(this, 0, sizeof(*this));
         partner = -1;
         rank = TOWER_RANK_MIN;
+        partnerRank = -1;
         trainerID0 = -1;
         trainerID1 = -1;
         roundResult = -1;
@@ -468,6 +509,7 @@ static void towerSendRound(bool isAck) {
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)ownCount);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, e1);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, e2);
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)s_tw.rank); // own TAG rank (for min-difficulty)
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, s_tw.trainerID0);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, s_tw.trainerID1);
 
@@ -752,13 +794,15 @@ void mpTowerStartAsInitiator(int32_t partnerStation) {
     s_tw.round = 1;
 
     // Difficulty: the reserved NORMAL_TAG rank slot (mode 1), floored at 1.
-    // The spec's min(rankA, rankB) needs the partner's rank in the handshake —
-    // v1 uses the initiator's TAG rank (both start at 1 until
-    // TODO(tag-persistence) writes ranks back).
-    int32_t rank = towerGetRank(1);
+    // Round 1 lots with our own rank (the partner's rank isn't known until its
+    // ACK); from the ACK we take min(rankA, rankB) for rounds 2+.
+    int32_t rank = towerGetRank(TOWER_MODE);
     if (rank < TOWER_RANK_MIN) rank = TOWER_RANK_MIN;
     if (rank > TOWER_RANK_MAX) rank = TOWER_RANK_MAX;
     s_tw.rank = rank;
+
+    // Start a fresh set in the persistent slot (round counter → 0).
+    towerSetRound(TOWER_MODE, 0);
 
     towerSnapshotParty();
 
@@ -824,13 +868,14 @@ void mpTowerOnRoundPacket(void* pr) {
     il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &sub);
 
     if (sub == TOWER_SUB_HEADER) {
-        uint8_t isAck = 0, round = 0, ownCount = 0, e1Count = 0, e2Count = 0;
+        uint8_t isAck = 0, round = 0, ownCount = 0, e1Count = 0, e2Count = 0, hdrRank = 0;
         int32_t tid0 = -1, tid1 = -1;
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &isAck);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &round);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &ownCount);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &e1Count);
         il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &e2Count);
+        il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &hdrRank);
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &tid0);
         il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &tid1);
 
@@ -880,8 +925,24 @@ void mpTowerOnRoundPacket(void* pr) {
             s_tw.active = true;
             s_tw.isInitiator = false;
             s_tw.partner = fromStation;
+            // Our own TAG rank (sent in the ACK so the initiator can min()).
+            int32_t pr = towerGetRank(TOWER_MODE);
+            if (pr < TOWER_RANK_MIN) pr = TOWER_RANK_MIN;
+            if (pr > TOWER_RANK_MAX) pr = TOWER_RANK_MAX;
+            s_tw.rank = pr;
+            towerSetRound(TOWER_MODE, 0);  // fresh set on the partner's save too
             towerSnapshotParty();
-            MP_LOG("[Tower] Run started as partner (initiator=%d)\n", fromStation);
+            MP_LOG("[Tower] Run started as partner (initiator=%d, rank=%d)\n",
+                        fromStation, s_tw.rank);
+        }
+
+        // Record the sender's rank; the initiator floors difficulty at the
+        // lower of the two ranks for subsequent rounds.
+        s_tw.partnerRank = hdrRank;
+        if (s_tw.isInitiator && hdrRank >= TOWER_RANK_MIN && hdrRank < s_tw.rank) {
+            MP_LOG("[Tower] Partner rank %d < ours %d — flooring difficulty\n",
+                        (int)hdrRank, s_tw.rank);
+            s_tw.rank = hdrRank;
         }
 
         if (isAck) {
@@ -992,26 +1053,38 @@ static void towerFinishRound() {
             towerEndRun("SS_mp_TowerAbort",
                         "Multi Tower \xe2\x80\x94 battle ended abnormally; run over.");
         } else {
+            // Persist the loss: banks the streak record, then resets streak +
+            // round in the NORMAL_TAG slot (both consoles, own save).
+            towerAddLose(TOWER_MODE);
+            towerResetRenshou(TOWER_MODE);
+            towerSetRound(TOWER_MODE, 0);
             char buf[80];
             snprintf(buf, sizeof(buf),
                      "Multi Tower \xe2\x80\x94 defeated in Round %d/%d.",
                      s_tw.round, TOWER_ROUND_COUNT);
             towerHudMsg(buf);
-            MP_LOG("[Tower] Run ended in defeat (round=%d)\n", s_tw.round);
+            MP_LOG("[Tower] Run ended in defeat (round=%d) — loss persisted\n", s_tw.round);
             s_tw.Clear();
         }
         return;
     }
 
+    // Win: advance the persistent round + streak (RoundAdd handles both).
+    towerRoundAdd(TOWER_MODE);
+    MP_LOG("[Tower] Round %d won — persisted (renshou now %d)\n",
+                s_tw.round, towerGetRenshou(TOWER_MODE));
+
     if (s_tw.round >= TOWER_ROUND_COUNT) {
-        // TODO(tag-persistence): bank streak/rounds into the reserved NORMAL_TAG
-        // class_data slot — SetRound @0x18E0980 / RoundAdd @0x18E0AD0 /
-        // UpdateRenshou @0x18DFD00 with mode 1; GameClear @0x18E0CD0 is already
-        // clear_flag==1 || tower_round>6. Blocked on the save serializer
-        // round-trip test of class_data[1]/[3] (spec, 2026-07-03 findings).
+        // Set cleared (7 wins). Bank the best-streak record and rank up so the
+        // next run is harder, then persist a fresh round for the next set.
         // TODO(bp-reward): pay BP from the TowerBattlePoint table
-        // (GameData.DataManager static +0xA8, TowerBattlePoint.Sheetpoint) to
-        // each player's own save.
+        // (GameData.DataManager static +0xA8, TowerBattlePoint.Sheetpoint).
+        towerUpdateRenshou(TOWER_MODE, (uint32_t)towerGetRenshou(TOWER_MODE));
+        int32_t nextRank = s_tw.rank + 1;
+        if (nextRank > TOWER_RANK_MAX) nextRank = TOWER_RANK_MAX;
+        towerSetRank(TOWER_MODE, (uint8_t)nextRank);
+        towerSetRound(TOWER_MODE, 0);
+        MP_LOG("[Tower] Set CLEARED — rank %d->%d, streak banked\n", s_tw.rank, nextRank);
         towerEndRun("SS_mp_TowerClear", "Multi Tower cleared! (7 wins)");
         return;
     }
