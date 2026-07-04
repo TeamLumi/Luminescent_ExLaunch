@@ -4,10 +4,14 @@
 #include "features/mp_minigames.h"
 #include "features/overworld_multiplayer.h"
 
+#include "helpers/InputHelper.h"
+
 #include "externals/BaseEntity.h"
 #include "externals/EntityManager.h"
 #include "externals/FieldCanvas.h"
+#include "externals/GameData/DataManager.h"
 #include "externals/GameManager.h"
+#include "externals/ItemWork.h"
 #include "externals/PlayerWork.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/Pml/PokePara/CoreParam.h"
@@ -167,13 +171,15 @@ static bool wasInSnapshot(uint32_t rnd) {
     return false;
 }
 
+// Catch quality score (user design 2026-07-04): the IV total is the score
+// (0-186), shinies add +5. Level doesn't matter — it's about catch QUALITY.
+static constexpr int32_t CATCH_SCORE_MAX = 186 + 5;
+
 static int32_t scorePokemon(Pml::PokePara::CoreParam* core) {
     int32_t ivSum = 0;
     for (int32_t t = 0; t < 6; t++)
         ivSum += (int32_t)core->GetTalentPower(t);
-    int32_t score = (int32_t)core->GetLevel() * 2 + ivSum / 6;
-    if (core->IsRare()) score += 50;
-    return score;
+    return ivSum + (core->IsRare() ? 5 : 0);
 }
 
 // Best NEW party member since the snapshot (caught during the contest).
@@ -199,10 +205,48 @@ static void computeMyCatchResult() {
     }
 }
 
+// Prize: one random item from the Pickup ability's loot table
+// (XLSXContent.MonohiroiTable: rows of {ItemNo, Ratios[10]}). The winner's
+// SCORE picks the table band — a better catch rolls on a richer band, the
+// same way higher-level Pickup mons find better loot.
+static void grantPickupPrize(int32_t score) {
+    GameData::DataManager::getClass()->initIfNeeded();
+    auto* table = GameData::DataManager::getClass()->static_fields->MonohiroiTable;
+    if (table == nullptr || table->fields.MonoHiroi == nullptr) {
+        MP_LOG("[Minigame] MonohiroiTable unavailable — no prize\n");
+        return;
+    }
+
+    int32_t band = score / 19;           // 0..186+5 → bands 0..9
+    if (band < 0) band = 0;
+    if (band > 9) band = 9;
+
+    // RandomGroupWork.Value @0x199F420 — the game's general random
+    int32_t roll = (int32_t)(_ILExternal::external<uint32_t>(0x199F420) % 100);
+
+    auto* rows = table->fields.MonoHiroi;
+    int32_t cumulative = 0;
+    for (uint64_t i = 0; i < rows->max_length; i++) {
+        auto* row = rows->m_Items[i];
+        if (row == nullptr || row->fields.Ratios == nullptr) continue;
+        if ((uint64_t)band >= row->fields.Ratios->max_length) continue;
+        cumulative += (int32_t)row->fields.Ratios->m_Items[band];
+        if (roll < cumulative) {
+            int32_t itemNo = (int32_t)row->fields.ID;
+            ItemWork::AddItem(itemNo, 1);
+            MP_LOG("[Minigame] Contest prize: item %d (band %d, roll %d)\n",
+                        itemNo, band, roll);
+            hudMsgL("SS_mp_Catch_Prize", "You won a prize! Check your bag!");
+            return;
+        }
+    }
+    MP_LOG("[Minigame] Prize roll missed the table (band %d, roll %d)\n", band, roll);
+}
+
 // Peer result must be a species/level that can exist in the contest zone.
 static bool validatePeerResult() {
     if (s_mg.peerScore == 0) return true;  // "caught nothing" is always valid
-    if (s_mg.peerScore < 0 || s_mg.peerScore > 400) return false;
+    if (s_mg.peerScore < 0 || s_mg.peerScore > CATCH_SCORE_MAX) return false;
     auto* table = GameManager::GetFieldEncountData(s_mg.contestZone);
     if (table == nullptr) return false;
     MonsLv::Array* lists[] = {
@@ -233,16 +277,26 @@ static void showCatchWinner() {
         s_mg.peerScore = 0;
     }
     char buf[128];
-    if (s_mg.myScore > s_mg.peerScore) {
+    int32_t myScore = s_mg.myScore;
+    bool iWin = myScore > s_mg.peerScore;
+    bool tie = myScore == s_mg.peerScore && myScore > 0;
+    if (iWin) {
         snprintf(buf, sizeof(buf), "You win the Catching Contest! (%d vs %d)",
                  s_mg.myScore, s_mg.peerScore);
-    } else if (s_mg.myScore < s_mg.peerScore) {
+    } else if (tie) {
+        snprintf(buf, sizeof(buf), "Catching Contest tied at %d!", s_mg.myScore);
+    } else if (myScore < s_mg.peerScore) {
         snprintf(buf, sizeof(buf), "Your friend wins the Catching Contest! (%d vs %d)",
                  s_mg.peerScore, s_mg.myScore);
     } else {
-        snprintf(buf, sizeof(buf), "Catching Contest tied at %d!", s_mg.myScore);
+        snprintf(buf, sizeof(buf), "No catches — no contest!");
     }
     endLocal(buf);
+
+    // Winner takes a Pickup-table prize on their own console (ties: both).
+    if (iWin || tie) {
+        grantPickupPrize(myScore);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -318,6 +372,12 @@ void mpMinigameOnEndReceived(void* pr) {
     il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &reason);
     if (target != mpThisStationIndex()) return;
     if (!mpMinigameIsActive() || fromStation != s_mg.partner) return;
+
+    if ((EndReason)reason == EndReason::Forfeit) {
+        // The sender gave up — receiver wins (no contest prize either way).
+        endLocal(overworldMPGetMessageCStr("SS_mp_PeerForfeited", "Your friend gave up — you win!"));
+        return;
+    }
 
     if (s_mg.kind == MinigameKind::HideAndSeek) {
         if ((EndReason)reason == EndReason::Found) {
@@ -452,6 +512,32 @@ void mpMinigameTick(float deltaTime) {
     if (s_mg.partner < 0 || !ctx.remotePlayers[s_mg.partner].isActive) {
         endLocal(overworldMPGetMessageCStr("SS_mp_Disconnected", "Your friend disconnected — game over."));
         return;
+    }
+
+    // Forfeit control: hold ZL+ZR for 1.5s to give up (roam-anywhere means
+    // there's no natural way out otherwise). Forfeiting loses; the catch
+    // contest pays no prize either way.
+    {
+        static float s_forfeitHold = 0.0f;
+        nn::hid::NpadBaseState padState = InputHelper::readNpadStateDirect();
+        bool held = padState.mButtons.isBitSet(nn::hid::NpadButton::ZL) &&
+                    padState.mButtons.isBitSet(nn::hid::NpadButton::ZR);
+        if (held) {
+            float before = s_forfeitHold;
+            s_forfeitHold += deltaTime;
+            if (before < 0.5f && s_forfeitHold >= 0.5f) {
+                hudMsgL("SS_mp_ForfeitHold", "Keep holding ZL+ZR to give up...");
+            }
+            if (s_forfeitHold >= 1.5f) {
+                s_forfeitHold = 0.0f;
+                MP_LOG("[Minigame] Forfeit (ZL+ZR held)\n");
+                sendEnd(EndReason::Forfeit);
+                endLocal(overworldMPGetMessageCStr("SS_mp_Forfeited", "You gave up!"));
+                return;
+            }
+        } else {
+            s_forfeitHold = 0.0f;
+        }
     }
 
     if (s_mg.kind == MinigameKind::HideAndSeek) tickHideAndSeek(deltaTime);
