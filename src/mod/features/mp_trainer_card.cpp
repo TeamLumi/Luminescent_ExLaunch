@@ -9,6 +9,7 @@
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/UICard.h"
 #include "externals/System/String.h"
+#include "romdata/data/ColorSet.h"
 
 #include <cstring>
 
@@ -311,35 +312,91 @@ static void openReceivedCard() {
 // ---------------------------------------------------------------------------
 // Peer appearance on the card's 3D model
 // ---------------------------------------------------------------------------
-// CardModelViewController.LoadModels(this, byte fashion, byte colorId, bool sex)
+// CardModelViewController.LoadModels(this, byte fashion, byte bodyType, bool sex)
 // @0x1A31010 builds the model from explicit appearance args — but its caller
-// (inlined in the card-open path) always passes the LOCAL player's values.
-// While a peer card is opening, substitute the peer's blob values (one-shot).
+// always passes the LOCAL player's values, and the model's colors resolve via
+// PlayerWork.GetColorID (hooked to return the LOCAL player). While a peer card
+// is opening we (a) substitute the peer's fashion/bodyType/sex for the model
+// asset and (b) arm owmpArmCardColor so the model's ColorVariation renders the
+// peer's color instead of ours. Note: LoadModels has NO colorId parameter —
+// color is a property of the ColorVariation component, applied post-load.
+extern void owmpArmCardColor(int32_t colorId, const RomData::ColorSet* customSet);
+
+// Build a ColorSet from a peer's synced 18-float field + battle color arrays
+// (6 colors × RGB each), mirroring the battle-slot construction in team_up.cpp.
+static void buildPeerColorSet(RomData::ColorSet& cs, const float* fieldColors, const float* battleColors) {
+    float* fieldBase = &cs.fieldSkinFace.r;   // 6 Color structs, contiguous
+    for (int c = 0; c < 6; c++) {
+        fieldBase[c * 4 + 0] = fieldColors[c * 3 + 0];
+        fieldBase[c * 4 + 1] = fieldColors[c * 3 + 1];
+        fieldBase[c * 4 + 2] = fieldColors[c * 3 + 2];
+        fieldBase[c * 4 + 3] = 1.0f;
+    }
+    float* battleBase = &cs.battleSkinFace.r;
+    for (int c = 0; c < 6; c++) {
+        battleBase[c * 4 + 0] = battleColors[c * 3 + 0];
+        battleBase[c * 4 + 1] = battleColors[c * 3 + 1];
+        battleBase[c * 4 + 2] = battleColors[c * 3 + 2];
+        battleBase[c * 4 + 3] = 1.0f;
+    }
+}
+
 HOOK_DEFINE_TRAMPOLINE(CardModelViewController$$LoadModels) {
-    static void Callback(void* __this, uint8_t fashion, uint8_t colorId, uint8_t sex) {
+    static void Callback(void* __this, uint8_t fashion, uint8_t bodyType, uint8_t sex) {
         if (s_modelOverrideArmed) {
             s_modelOverrideArmed = false;
             uint8_t peerSex = (uint8_t)(s_pendingBlob.genderid ^ 1);  // undo the wire inversion
-            // colorId 0xFF is the custom-colors sentinel (no standard model
-            // color index) — fall back to 0 so the model renders validly with
-            // the peer's fashion. (Full custom-color rendering on the card
-            // would need the peer's ColorVariation applied to the loaded model;
-            // tracked as a follow-up.)
-            uint8_t peerColor = (s_pendingBlob.colorId == 0xFF) ? 0 : s_pendingBlob.colorId;
-            MP_LOG("[TrainerCard] Model override: fashion %d->%d color %d->%d sex %d->%d\n",
+
+            // Arm the peer's color for the model's ColorVariation (applied on
+            // its OnEnable, post async load).
+            if (s_pendingBlob.colorId == 0xFF) {
+                // Custom colors — pull the peer's synced palette from their
+                // FieldPlayerNetData (present since the card can only be viewed
+                // during an active MP session).
+                RomData::ColorSet peerSet = {};
+                bool haveCustom = false;
+                if (s_cardFromStation >= 0 && s_cardFromStation < OW_MP_MAX_PLAYERS) {
+                    auto& remote = getOverworldMPContext().remotePlayers[s_cardFromStation];
+                    if (remote.hasCustomColors) {
+                        buildPeerColorSet(peerSet, remote.customFieldColors, remote.customBattleColors);
+                        haveCustom = true;
+                    }
+                }
+                if (haveCustom) {
+                    owmpArmCardColor(-1, &peerSet);
+                } else {
+                    owmpArmCardColor(0, nullptr);  // no palette received — safe default
+                }
+            } else {
+                owmpArmCardColor((int32_t)s_pendingBlob.colorId, nullptr);
+            }
+
+            MP_LOG("[TrainerCard] Model override: fashion %d->%d bodyType %d->%d sex %d->%d colorId=%d\n",
                         (int)fashion, (int)s_pendingBlob.fashion,
-                        (int)colorId, (int)peerColor,
-                        (int)sex, (int)peerSex);
-            Orig(__this, s_pendingBlob.fashion, peerColor, peerSex);
+                        (int)bodyType, (int)s_pendingBlob.bodyType,
+                        (int)sex, (int)peerSex, (int)s_pendingBlob.colorId);
+            Orig(__this, s_pendingBlob.fashion, s_pendingBlob.bodyType, peerSex);
             return;
         }
-        Orig(__this, fashion, colorId, sex);
+        Orig(__this, fashion, bodyType, sex);
+    }
+};
+
+// Safety: if the card closes before its model's ColorVariation ever enabled
+// (load aborted), clear a still-armed peer color so it can't leak onto the next
+// unrelated ColorVariation (e.g. an overworld NPC).
+extern void owmpDisarmCardColor();
+HOOK_DEFINE_TRAMPOLINE(CardModelViewController$$Dispose) {
+    static void Callback(void* __this) {
+        owmpDisarmCardColor();
+        Orig(__this);
     }
 };
 
 void exl_mp_trainer_card_hooks() {
     CardModelViewController$$LoadModels::InstallAtOffset(0x1A31010);
-    MP_LOG("[TrainerCard] LoadModels hook installed\n");
+    CardModelViewController$$Dispose::InstallAtOffset(0x1A308A0);
+    MP_LOG("[TrainerCard] LoadModels + Dispose hooks installed\n");
 }
 
 void mpTrainerCardTick(float deltaTime) {

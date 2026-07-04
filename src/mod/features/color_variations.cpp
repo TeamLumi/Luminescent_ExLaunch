@@ -38,6 +38,26 @@ void SetCustomColorSetOverride(RomData::ColorSet* override) {
     s_customColorSetOverride = override;
 }
 
+// --- Trainer-card peer color arming -----------------------------------------
+// The card model loads async; GetComponent<ColorVariation> is dead here (null
+// TypeInfo), so we can't fetch its ColorVariation directly. Instead the card
+// code arms a one-shot: the next ColorVariation.OnEnable (the card model's)
+// gets the peer's color applied instead of the local player's. Standard color
+// -> set ColorIndex; custom -> ColorIndex -1 with the peer's ColorSet override.
+static bool           g_owmpCardColorArmed  = false;
+static int32_t        g_owmpCardColorId     = 0;
+static bool           g_owmpCardColorCustom = false;
+static RomData::ColorSet g_owmpCardColorSet = {};
+
+void owmpArmCardColor(int32_t colorId, const RomData::ColorSet* customSet) {
+    g_owmpCardColorArmed  = true;
+    g_owmpCardColorId     = colorId;
+    g_owmpCardColorCustom = (customSet != nullptr);
+    if (customSet != nullptr) g_owmpCardColorSet = *customSet;
+}
+
+void owmpDisarmCardColor() { g_owmpCardColorArmed = false; }
+
 RomData::ColorSet GetCustomColorSet()
 {
     if (s_customColorSetOverride != nullptr) {
@@ -337,6 +357,23 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
             }
         } else {
             UpdateColorVariation(__this);
+            // Trainer-card peer color: apply the peer's appearance to the first
+            // ColorVariation that enables while armed (the card model's), then
+            // disarm. Without this the card resolves color via PlayerWork.GetColorID
+            // (hooked to always return the LOCAL player), so a peer's card showed
+            // your colors.
+            if (g_owmpCardColorArmed) {
+                g_owmpCardColorArmed = false;
+                if (g_owmpCardColorCustom) {
+                    s_customColorSetOverride = &g_owmpCardColorSet;
+                    __this->fields.ColorIndex = -1;
+                    UpdateColorVariation(__this);
+                    s_customColorSetOverride = nullptr;
+                } else {
+                    __this->fields.ColorIndex = g_owmpCardColorId;
+                    UpdateColorVariation(__this);
+                }
+            }
         }
     }
 };
