@@ -6,6 +6,7 @@
 
 #include "features/overworld_multiplayer.h"
 #include "features/mp_map_icons.h"
+#include "features/mp_trainer_card.h"
 #include "features/team_up.h"
 
 #include "data/settings.h"
@@ -1222,6 +1223,14 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         mpMapIconsOnPinReceived(pr);
         break;
 
+    case OWMP_DATA_ID_CARD_REQUEST:
+        mpTrainerCardOnRequestReceived(pr);
+        break;
+
+    case OWMP_DATA_ID_CARD_DATA:
+        mpTrainerCardOnDataReceived(pr);
+        break;
+
     default:
         // Not our packet — ignore silently
         break;
@@ -1809,6 +1818,9 @@ void overworldMPUpdate(float deltaTime) {
 
     // Town Map location broadcast (slow cadence)
     mpMapIconsTick(deltaTime);
+
+    // Trainer card: open a received card outside the packet callback
+    mpTrainerCardTick(deltaTime);
 
     // Team-up auto-disband check
     overworldMPTeamUpAutoDisband();

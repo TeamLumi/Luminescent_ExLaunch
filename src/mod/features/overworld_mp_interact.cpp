@@ -4,6 +4,7 @@
 #include "features/mp_net.h"
 
 #include "features/overworld_multiplayer.h"
+#include "features/mp_trainer_card.h"
 #include "features/team_up.h"
 #include "romdata/data/ColorSet.h"
 
@@ -875,7 +876,15 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             s_interact.emoteMenuDelay = 0.3f;
             break;
 
-        case 4: // Cancel
+        case 4: // Trainer Card — fire-and-forget; the card opens when the blob arrives
+            MP_LOG("[OverworldMP] Trainer card requested from station %d\n",
+                        s_interact.targetStationIndex);
+            mpTrainerCardRequest(s_interact.targetStationIndex);
+            s_interact.Reset();
+            closeInteractionMenu();
+            break;
+
+        case 5: // Cancel
         default:
             MP_LOG("[OverworldMP] Interaction cancelled\n");
             s_interact.Reset();
@@ -1068,9 +1077,11 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
             closeInteractionMenu();
         }
     } else {
-        // Not teamed up: Battle, Trade, Team Up, Emote, Cancel
-        const char* labels[] = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote", "SS_mp_Cancel" };
-        if (!openContextMenuFromLabels(MP_MESSAGE_FILE, labels, 5, 4, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
+        // Not teamed up: Battle, Trade, Team Up, Emote, Trainer Card, Cancel.
+        // "Trainer Card" is raw text (no bundle label yet) via the mixed menu.
+        const char* labels[]    = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote", nullptr, "SS_mp_Cancel" };
+        const char* textItems[] = { nullptr, nullptr, nullptr, nullptr, "Trainer Card", nullptr };
+        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 6, 5, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
             MP_LOG("[OverworldMP] ERROR: Failed to open interaction menu\n");
             s_interact.Reset();
             closeInteractionMenu();
