@@ -268,6 +268,11 @@ void overworldMPSendInteractionResponse(int32_t targetStation, bool accepted);
 // Get current interaction state
 InteractionState overworldMPGetInteractionState();
 
+// Load a ss_multiplayer message label as a C string, with English fallback
+// when the label is missing from the deployed bundle. NOT reentrant: result
+// points into a shared static buffer — copy before the next call.
+const char* overworldMPGetMessageCStr(const char* label, const char* fallback);
+
 // Reset network-level interaction state back to None (call after interaction completes)
 void overworldMPResetInteractionState();
 

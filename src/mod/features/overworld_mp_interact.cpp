@@ -561,6 +561,12 @@ static const char* getMPMessageCStr(const char* label, const char* fallback) {
     return s_msgBuf;
 }
 
+// Exported label-with-fallback lookup for other MP modules (minigames, cards).
+// Same aliasing caveat as getMPMessageCStr: copy the result before reuse.
+const char* overworldMPGetMessageCStr(const char* label, const char* fallback) {
+    return getMPMessageCStr(label, fallback);
+}
+
 // ---------------------------------------------------------------------------
 // Build the trade-confirm prompt ("Trade for {name}'s Lv.{lv}{♂/♀} {species}{★}?")
 // into outBuf. Shared by showTradePreview and showTradeConfirmDialog. A null
@@ -1095,12 +1101,19 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         }
     } else {
         // Not teamed up: Battle, Trade, Team Up, Emote, Trainer Card,
-        // Hide-and-Seek, Catch Contest, Cancel. New entries are raw text
-        // (no bundle labels yet) via the mixed menu.
+        // Hide-and-Seek, Catch Contest, Cancel. New entries resolve their
+        // bundle label with an English fallback (labels ship via the
+        // companion Romhack_Unity message PR); copies avoid the shared
+        // buffer in overworldMPGetMessageCStr.
+        static char itemCard[64], itemHns[64], itemCatch[64];
+        strncpy(itemCard, overworldMPGetMessageCStr("SS_mp_TrainerCard", "Trainer Card"), sizeof(itemCard) - 1);
+        strncpy(itemHns, overworldMPGetMessageCStr("SS_mp_HideAndSeek", "Hide-and-Seek"), sizeof(itemHns) - 1);
+        strncpy(itemCatch, overworldMPGetMessageCStr("SS_mp_CatchContest", "Catch Contest"), sizeof(itemCatch) - 1);
+        itemCard[sizeof(itemCard) - 1] = itemHns[sizeof(itemHns) - 1] = itemCatch[sizeof(itemCatch) - 1] = '\0';
         const char* labels[]    = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote",
                                     nullptr, nullptr, nullptr, "SS_mp_Cancel" };
         const char* textItems[] = { nullptr, nullptr, nullptr, nullptr,
-                                    "Trainer Card", "Hide-and-Seek", "Catch Contest", nullptr };
+                                    itemCard, itemHns, itemCatch, nullptr };
         if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 8, 7, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
             MP_LOG("[OverworldMP] ERROR: Failed to open interaction menu\n");
             s_interact.Reset();
@@ -1263,10 +1276,13 @@ static void showIncomingRequestDialog() {
         actionLabel = "SS_mp_TeamUp";
         actionFallback = "Team Up";
     } else if (type == InteractionType::Minigame) {
-        actionLabel = "";  // no bundle label yet — fallback text only
-        actionFallback = ((MinigameKind)battleSubtype == MinigameKind::HideAndSeek)
-                             ? "Play Hide-and-Seek (they hide)"
-                             : "Have a Catching Contest";
+        if ((MinigameKind)battleSubtype == MinigameKind::HideAndSeek) {
+            actionLabel = "SS_mp_HnSInvite";
+            actionFallback = "Play Hide-and-Seek (they hide)";
+        } else {
+            actionLabel = "SS_mp_CatchInvite";
+            actionFallback = "Have a Catching Contest";
+        }
     }
 
     // Load translatable action name

@@ -76,6 +76,13 @@ static void hudMsg(const char* text) {
     FieldCanvas::Debug_ShowDisplayMessage(System::String::Create(text));
 }
 
+// Label-routed HUD message: uses the ss_multiplayer bundle label when it
+// exists, the English fallback otherwise. Labels ship via the companion
+// Romhack_Unity message-bundle PR.
+static void hudMsgL(const char* label, const char* fallback) {
+    hudMsg(overworldMPGetMessageCStr(label, fallback));
+}
+
 static void hudMsgF(const char* fmt, int v) {
     char buf[96];
     snprintf(buf, sizeof(buf), fmt, v);
@@ -256,16 +263,16 @@ static void startLocal(MinigameKind kind, int32_t partner, bool initiator) {
         bool iAmSeeker = !initiator;
         if (iAmSeeker) {
             overworldMPSetEntityVisible(partner, false);
-            hudMsg("Hide-and-Seek! Your friend is hiding... (30s)");
+            hudMsgL("SS_mp_HnS_TheyHide", "Hide-and-Seek! Your friend is hiding... (30s)");
         } else {
-            hudMsg("Hide-and-Seek! Go hide! (30s)");
+            hudMsgL("SS_mp_HnS_GoHide", "Hide-and-Seek! Go hide! (30s)");
         }
     } else if (kind == MinigameKind::CatchContest) {
         s_mg.phase = 0;
         s_mg.timer = CATCH_SECONDS;
         s_mg.contestZone = PlayerWork::get_zoneID();
         snapshotParty();
-        hudMsg("Catching Contest! Best new catch in 5 minutes wins!");
+        hudMsgL("SS_mp_Catch_Start", "Catching Contest! Best new catch in 5 minutes wins!");
     }
     MP_LOG("[Minigame] Started kind=%d partner=%d initiator=%d\n",
                 (int)kind, partner, (int)initiator);
@@ -314,14 +321,16 @@ void mpMinigameOnEndReceived(void* pr) {
 
     if (s_mg.kind == MinigameKind::HideAndSeek) {
         if ((EndReason)reason == EndReason::Found) {
-            endLocal(s_mg.iAmInitiator ? "You were found!" : "You found them!");
+            endLocal(overworldMPGetMessageCStr(s_mg.iAmInitiator ? "SS_mp_HnS_WasFound" : "SS_mp_HnS_Found",
+                     s_mg.iAmInitiator ? "You were found!" : "You found them!"));
         } else if ((EndReason)reason == EndReason::Timeout) {
-            endLocal(s_mg.iAmInitiator ? "Time's up — you win!" : "Time's up — they win!");
+            endLocal(overworldMPGetMessageCStr(s_mg.iAmInitiator ? "SS_mp_HnS_TimeUpWin" : "SS_mp_HnS_TimeUpLose",
+                     s_mg.iAmInitiator ? "Time's up — you win!" : "Time's up — they win!"));
         } else {
-            endLocal("Hide-and-Seek called off.");
+            endLocal(overworldMPGetMessageCStr("SS_mp_HnS_Off", "Hide-and-Seek called off."));
         }
     } else {
-        endLocal("Contest called off.");
+        endLocal(overworldMPGetMessageCStr("SS_mp_Catch_Off", "Contest called off."));
     }
 }
 
@@ -357,17 +366,24 @@ static void tickHideAndSeek(float dt) {
             s_mg.timer = HNS_SEEK_SECONDS;
             s_mg.pingTimer = HNS_PING_INTERVAL;
             s_mg.lastDistSq = -1.0f;
-            hudMsg(s_mg.iAmInitiator ? "They're coming! Stay hidden! (3 min)"
-                                     : "Go find them! (3 min)");
+            s_mg.iAmInitiator ? hudMsgL("SS_mp_HnS_StayHidden", "They're coming! Stay hidden! (3 min)")
+                          : hudMsgL("SS_mp_HnS_SeekStart", "Go find them! (3 min)");
         }
         return;
     }
 
-    // Seek phase
+    // Seek phase. World coordinates are only comparable within the same area
+    // (interiors have their own coordinate spaces), so both the FOUND check
+    // and the pings gate on the pair being in the same area — being in a
+    // different area simply reads as the coldest possible ping.
+    auto& ctx = getOverworldMPContext();
+    bool sameArea = (s_mg.partner >= 0 &&
+                     ctx.remotePlayers[s_mg.partner].areaID == ctx.myAreaID);
+
     bool iAmHider = s_mg.iAmInitiator;
     if (iAmHider) {
         // FOUND authority: the hider's console knows its own true position.
-        float d = distSqToPartner();
+        float d = sameArea ? distSqToPartner() : -1.0f;
         if (d >= 0.0f && d < HNS_FOUND_RADIUS * HNS_FOUND_RADIUS) {
             sendEnd(EndReason::Found);
             endLocal("You were found!");
@@ -384,12 +400,18 @@ static void tickHideAndSeek(float dt) {
         s_mg.pingTimer -= dt;
         if (s_mg.pingTimer <= 0.0f) {
             s_mg.pingTimer = HNS_PING_INTERVAL;
-            float d = distSqToPartner();
-            if (d >= 0.0f) {
-                if (s_mg.lastDistSq >= 0.0f) {
-                    hudMsg(d < s_mg.lastDistSq ? "Warmer..." : "Colder...");
+            if (!sameArea) {
+                hudMsgL("SS_mp_HnS_OtherArea", "They're somewhere else...");
+                s_mg.lastDistSq = -1.0f;
+            } else {
+                float d = distSqToPartner();
+                if (d >= 0.0f) {
+                    if (s_mg.lastDistSq >= 0.0f) {
+                        if (d < s_mg.lastDistSq) hudMsgL("SS_mp_HnS_Warmer", "Warmer...");
+                        else hudMsgL("SS_mp_HnS_Colder", "Colder...");
+                    }
+                    s_mg.lastDistSq = d;
                 }
-                s_mg.lastDistSq = d;
             }
         }
     }
@@ -407,7 +429,7 @@ static void tickCatchContest(float dt) {
             s_mg.phase = 1;
             computeMyCatchResult();
             sendMyResult();
-            hudMsg("Time's up! Comparing catches...");
+            hudMsgL("SS_mp_Catch_TimeUp", "Time's up! Comparing catches...");
             s_mg.timer = 20.0f;  // result-exchange timeout
         }
         return;
@@ -418,7 +440,7 @@ static void tickCatchContest(float dt) {
     if (s_mg.peerResultReceived) {
         showCatchWinner();
     } else if (s_mg.timer <= 0.0f) {
-        endLocal("No result from your friend — contest void.");
+        endLocal(overworldMPGetMessageCStr("SS_mp_Catch_Void", "No result from your friend — contest void."));
     }
 }
 
@@ -428,7 +450,7 @@ void mpMinigameTick(float deltaTime) {
     // Partner gone from the lobby entirely?
     auto& ctx = getOverworldMPContext();
     if (s_mg.partner < 0 || !ctx.remotePlayers[s_mg.partner].isActive) {
-        endLocal("Your friend disconnected — game over.");
+        endLocal(overworldMPGetMessageCStr("SS_mp_Disconnected", "Your friend disconnected — game over."));
         return;
     }
 
@@ -441,17 +463,16 @@ void mpMinigameTick(float deltaTime) {
 // ---------------------------------------------------------------------------
 
 void mpMinigameOnAreaChange() {
-    if (!mpMinigameIsActive()) return;
-    // Hide-and-seek: leaving the zone is a forfeit. Catching contest allows
-    // roaming (the CATCH is validated against the agreed zone, not the player).
-    if (s_mg.kind == MinigameKind::HideAndSeek) {
-        MP_LOG("[Minigame] Zone change during hide-and-seek — forfeiting\n");
-        sendEnd(EndReason::Forfeit);
-        endLocal("You left the area — game forfeited.");
+    // Roam-anywhere by design (user decision 2026-07-04): area boundaries are
+    // weird to reason about mid-chase, and the warmer/colder pings make the
+    // whole world playable — different-area cases read as the coldest ping.
+    // No forfeit for any current game; footrace (later) may want one.
+    if (mpMinigameIsActive()) {
+        MP_LOG("[Minigame] Area change during minigame — continuing (roam-anywhere)\n");
     }
 }
 
 void mpMinigameOnPeerLeft(int32_t stationIndex) {
     if (!mpMinigameIsActive() || stationIndex != s_mg.partner) return;
-    endLocal("Your friend disconnected — game over.");
+    endLocal(overworldMPGetMessageCStr("SS_mp_Disconnected", "Your friend disconnected — game over."));
 }
