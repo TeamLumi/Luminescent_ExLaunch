@@ -285,6 +285,19 @@ static bool s_nmOnUpdateReady = false;
 // Guard against duplicate NM.Start() calls (manual + Unity lifecycle)
 static void* s_nmStartedInstance = nullptr;
 
+// ---------------------------------------------------------------------------
+// Native-session coexistence state
+// ---------------------------------------------------------------------------
+// The game's own comm features (Grand Underground, Union Room, Coliseum) all
+// start their PIA session through SessionManager.StartSession — a layer the
+// overworld MP session never touches (we call NM.DoStartSession directly).
+// While a native session is (or may be) live, overworld MP must stay down:
+// two sessions on one PIA stack is assumed fatal (PIA aborts on unexpected
+// state, see the enable_internet_access socket-abort incident).
+static bool  s_nativeSessionActive = false;    // set at SessionManager.StartSession
+static bool  s_nativeResumePending = false;    // set when the native session ends
+static float s_nativeStateIdleTime = 0.0f;     // fallback timer: flag set but SessionState idle/error
+
 // PIA state machine monitoring — only logs on state CHANGE to avoid spam
 static uint32_t s_lastLoggedPiaState = 0xFFFFFFFF;
 static int32_t s_searchingFrameCount = 0;
@@ -1428,6 +1441,11 @@ static bool ensureNetworkManagerSingleton() {
 // ---------------------------------------------------------------------------
 
 void overworldMPStart() {
+    if (s_nativeSessionActive) {
+        MP_LOG("[OverworldMP] Start suppressed — native comm session active\n");
+        return;
+    }
+
     if (s_mpContext.state != OverworldMPState::Disabled) {
         MP_LOG("[OverworldMP] Already started, state=%d\n", (int)s_mpContext.state);
         return;
@@ -3682,14 +3700,50 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
 
         // Periodic self-heal: if the setting is on but the session is Disabled
         // (e.g. after a dead session, failed restart, or edge case), restart it.
-        // Check every ~10 seconds to avoid spamming.
-        if (enabled && s_mpContext.state == OverworldMPState::Disabled) {
+        // Check every ~10 seconds to avoid spamming. Suppressed while a native
+        // comm session (GU/Union Room/Coliseum) is active.
+        if (enabled && !s_nativeSessionActive
+                && s_mpContext.state == OverworldMPState::Disabled) {
             static float s_selfHealAccumulator = 0.0f;
             s_selfHealAccumulator += UnityEngine::Time::get_deltaTime();
             if (s_selfHealAccumulator >= 10.0f) {
                 s_selfHealAccumulator = 0.0f;
                 MP_LOG("[OverworldMP] Self-heal: setting ON but session Disabled, restarting...\n");
                 overworldMPStart();
+            }
+        }
+
+        // Native-session coexistence: resume once the native session has ended.
+        // The resume is deferred to here (FM.Update, field context) rather than
+        // running inside the OnFinishedSession callback.
+        if (s_nativeResumePending && !s_nativeSessionActive) {
+            s_nativeResumePending = false;
+            if (enabled && s_mpContext.state == OverworldMPState::Disabled) {
+                MP_LOG("[OverworldMP] Native session over — resuming overworld MP\n");
+                overworldMPStart();
+            }
+        }
+
+        // Fallback for missed end/failure signals: if the native flag is set but
+        // the session state has sat idle (None) or in error for 5s — cancelled
+        // matchmaking, start failure with no callback, etc. — clear the flag so
+        // the resume path (or self-heal) can bring overworld MP back.
+        if (s_nativeSessionActive) {
+            auto* nmInstance = getNMInstance();
+            int32_t st = (nmInstance != nullptr)
+                    ? Dpr::NetworkUtils::NetworkManager::get_SessionState()
+                    : 0;
+            // IlcaNetSessionState: 0=None, 7=GamingError, 9=Crash
+            if (st == 0 || st == 7 || st == 9) {
+                s_nativeStateIdleTime += UnityEngine::Time::get_deltaTime();
+                if (s_nativeStateIdleTime >= 5.0f) {
+                    MP_LOG("[OverworldMP] Native flag set but SessionState=%d for 5s — clearing (fallback)\n", st);
+                    s_nativeSessionActive = false;
+                    s_nativeResumePending = true;
+                    s_nativeStateIdleTime = 0.0f;
+                }
+            } else {
+                s_nativeStateIdleTime = 0.0f;
             }
         }
 
@@ -4638,6 +4692,70 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetComponent$$Update) {
 };
 
 // ---------------------------------------------------------------------------
+// Native-session coexistence hooks
+// ---------------------------------------------------------------------------
+// Grand Underground (UgNetworkManager), Union Room (UnionRoomManager) and
+// Coliseum (ColiseumRoomManager) all inherit NetUseManager<T>, whose matching
+// setup funnels into SessionManager.StartSession. Overworld MP never calls
+// SessionManager (we drive NM.DoStartSession directly), so these hooks fire
+// exclusively for the game's own comm features.
+
+// SessionManager.StartSession @ 0x19A9A80
+// Signature: void StartSession(SessionManager* this, MatchingParam param)
+// Yield BEFORE the native session initializes: disband team-up, stop our
+// session (LeaveSession + FinishSession + entity teardown), then let the
+// native start proceed on a clean PIA stack.
+HOOK_DEFINE_TRAMPOLINE(SessionManager$$StartSession) {
+    static void Callback(void* __this, void* matchingParam) {
+        MP_LOG("[OverworldMP] Native SessionManager.StartSession (SM=%p) — yielding\n",
+                    __this);
+        s_nativeSessionActive = true;
+        s_nativeResumePending = false;
+        s_nativeStateIdleTime = 0.0f;
+        if (s_mpContext.state != OverworldMPState::Disabled) {
+            overworldMPTeamUpDisband();
+            overworldMPStop();
+        }
+        Orig(__this, matchingParam);
+    }
+};
+
+// SessionManager.OnFinishedSession @ 0x19A9920
+// Fires when the native session closes (player leaves GU/Union Room/Coliseum).
+// Only flag the resume here — the actual restart runs from FM.Update on the
+// field, never from inside a session callback.
+HOOK_DEFINE_TRAMPOLINE(SessionManager$$OnFinishedSession) {
+    static void Callback(void* __this) {
+        MP_LOG("[OverworldMP] Native SessionManager.OnFinishedSession (SM=%p)\n", __this);
+        Orig(__this);
+        if (s_nativeSessionActive) {
+            s_nativeSessionActive = false;
+            s_nativeResumePending = true;
+        }
+    }
+};
+
+// SessionManager.<StartSession>b__8_0 @ 0x19A9CB0 — StartSession's completion
+// callback. StartSessionResult { SessionErrorType errorType; /*+0x0*/
+// bool bIsSuccess; /*+0x4*/ } is 8 bytes, passed by value in one register.
+// On failure the native session never went live: clear the flag immediately so
+// overworld MP can resume without waiting for the 5s state-poll fallback.
+HOOK_DEFINE_TRAMPOLINE(SessionManager$$StartSessionComplete) {
+    static void Callback(void* __this, uint64_t result) {
+        int32_t errorType = (int32_t)(result & 0xFFFFFFFF);
+        bool isSuccess = ((result >> 32) & 0xFF) != 0;
+        MP_LOG("[OverworldMP] Native StartSession complete: success=%d errorType=%d\n",
+                    (int)isSuccess, errorType);
+        Orig(__this, result);
+        if (!isSuccess && s_nativeSessionActive) {
+            MP_LOG("[OverworldMP] Native session start FAILED — clearing native flag\n");
+            s_nativeSessionActive = false;
+            s_nativeResumePending = true;
+        }
+    }
+};
+
+// ---------------------------------------------------------------------------
 // Feature entry point
 // ---------------------------------------------------------------------------
 
@@ -4743,6 +4861,15 @@ void exl_overworld_multiplayer_main() {
     // (hooked at SC level instead of NM.OnSessionEvent — more reliable since it
     //  doesn't depend on the delegate chain from SC to NM being set up)
     SessionConnector$$OnSessionEventCallback::InstallAtOffset(0x1BC8670);
+
+    // Native-session coexistence: yield to the game's own comm features
+    // (Grand Underground / Union Room / Coliseum) and resume afterwards.
+    // All three funnel through SessionManager.StartSession, which overworld
+    // MP itself never calls.
+    SessionManager$$StartSession::InstallAtOffset(0x19A9A80);
+    SessionManager$$OnFinishedSession::InstallAtOffset(0x19A9920);
+    SessionManager$$StartSessionComplete::InstallAtOffset(0x19A9CB0);
+    MP_LOG("[OverworldMP] Native-session coexistence hooks installed\n");
 
     // Setting toggle detection: we poll the save data setting each frame in
     // FieldManager.Update. When the value changes, start/stop is triggered.
