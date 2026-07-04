@@ -171,15 +171,15 @@ static bool wasInSnapshot(uint32_t rnd) {
     return false;
 }
 
-// Catch quality score (user design 2026-07-04): the IV total is the score
-// (0-186), shinies add +5. Level doesn't matter — it's about catch QUALITY.
-static constexpr int32_t CATCH_SCORE_MAX = 186 + 5;
+// Catch quality score (user design 2026-07-04): IV total (0-186)
+// + level/3 rounded down (0-33) + 20 for a shiny. Max 239.
+static constexpr int32_t CATCH_SCORE_MAX = 186 + 33 + 20;
 
 static int32_t scorePokemon(Pml::PokePara::CoreParam* core) {
     int32_t ivSum = 0;
     for (int32_t t = 0; t < 6; t++)
         ivSum += (int32_t)core->GetTalentPower(t);
-    return ivSum + (core->IsRare() ? 5 : 0);
+    return ivSum + (int32_t)core->GetLevel() / 3 + (core->IsRare() ? 20 : 0);
 }
 
 // Best NEW party member since the snapshot (caught during the contest).
@@ -217,7 +217,7 @@ static void grantPickupPrize(int32_t score) {
         return;
     }
 
-    int32_t band = score / 19;           // 0..186+5 → bands 0..9
+    int32_t band = score / 24;           // 0..239 → bands 0..9
     if (band < 0) band = 0;
     if (band > 9) band = 9;
 
