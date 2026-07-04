@@ -7,6 +7,7 @@
 #include "helpers/InputHelper.h"
 
 #include "externals/FieldManager.h"
+#include "externals/PlayerWork.h"
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/System/String.h"
@@ -117,11 +118,19 @@ static void sendMapInfo() {
     auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
     if (pw == nullptr) return;
 
+    // Trainer ID rides along for Loto-ID pooling (MYSTATUS +0x8)
+    int32_t myTrainerId = 0;
+    auto* status = PlayerWork::get_playerStatus();
+    if (status != nullptr) {
+        myTrainerId = *(int32_t*)((uintptr_t)status + 0x8);
+    }
+
     il2cpp_vcall_void(pw, PW_RESET);
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, OWMP_DATA_ID_MAP_INFO);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, s_myZone);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, s_myGridX);
     il2cpp_vcall_write_s32(pw, PW_WRITE_S32, s_myGridZ);
+    il2cpp_vcall_write_s32(pw, PW_WRITE_S32, myTrainerId);
     Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
 }
 
@@ -167,6 +176,11 @@ void mpMapIconsOnInfoReceived(void* pr) {
     il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &info.gridX);
     il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &info.gridZ);
     info.valid = true;
+
+    // Trainer ID for Loto-ID pooling
+    int32_t tid = 0;
+    il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &tid);
+    getOverworldMPContext().remotePlayers[fromStation].trainerId = tid;
 }
 
 void mpMapIconsOnPinReceived(void* pr) {

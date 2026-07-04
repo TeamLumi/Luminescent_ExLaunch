@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "features/overworld_multiplayer.h"
+#include "features/mp_dailies.h"
 #include "features/mp_map_icons.h"
 #include "features/mp_minigames.h"
 #include "features/mp_trainer_card.h"
@@ -1244,6 +1245,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         mpMinigameOnResultReceived(pr);
         break;
 
+    case OWMP_DATA_ID_WORLD_DAILIES:
+        mpDailiesOnWorldReceived(pr);
+        break;
+
     default:
         // Not our packet — ignore silently
         break;
@@ -1545,6 +1550,9 @@ void overworldMPStop() {
     // Clear map icon/pin state (peer data is session-scoped)
     mpMapIconsClearAll();
 
+    // Drop the linked-world overlay (local dailies resume)
+    mpDailiesClear();
+
     // Leave and finish the network session via NetworkManager (only if singleton exists)
     auto* nmInstance = getNMInstance();
     if (nmInstance != nullptr) {
@@ -1837,6 +1845,9 @@ void overworldMPUpdate(float deltaTime) {
 
     // Field minigames (hide-and-seek / catching contest)
     mpMinigameTick(deltaTime);
+
+    // Linked-world dailies (host broadcast / guest overlay upkeep)
+    mpDailiesTick(deltaTime);
 
     // Team-up auto-disband check
     overworldMPTeamUpAutoDisband();
@@ -4943,6 +4954,9 @@ void exl_overworld_multiplayer_main() {
 
     // Town Map player icons + meet-up pins
     exl_mp_map_icons_hooks();
+
+    // Linked-world dailies overlays + Loto-ID pooling
+    exl_mp_dailies_hooks();
 
     // Setting toggle detection: we poll the save data setting each frame in
     // FieldManager.Update. When the value changes, start/stop is triggered.

@@ -49,6 +49,7 @@ static constexpr uint8_t OWMP_DATA_ID_CARD_DATA           = 0xD1; // Trainer car
 static constexpr uint8_t OWMP_DATA_ID_EVENT_START         = 0xD2; // Minigame start (targeted)
 static constexpr uint8_t OWMP_DATA_ID_EVENT_END           = 0xD3; // Minigame end: found/timeout/forfeit (targeted)
 static constexpr uint8_t OWMP_DATA_ID_EVENT_RESULT        = 0xD4; // Minigame result exchange (targeted)
+static constexpr uint8_t OWMP_DATA_ID_WORLD_DAILIES       = 0xD5; // Host's daily world values (broadcast)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -74,6 +75,7 @@ struct FieldPlayerNetData {
     bool isRunning;          // true if movement speed suggests running (vs walking)
     int32_t avatarId;
     int32_t colorId;
+    int32_t trainerId;       // MYSTATUS trainer ID (via 0xCE MAP_INFO; 0 = unknown)
     bool hasCustomColors;          // true if 0xCD custom color packet received
     float customFieldColors[18];   // 6 field colors × RGB: SkinFace, SkinMouth, Eyes, Eyebrows, SkinBody, Hair
     float customBattleColors[18];  // 6 battle colors × RGB: SkinFace, HairExtra, EyeLeft, EyeRight, SkinBody, Hair
@@ -116,6 +118,7 @@ struct FieldPlayerNetData {
         isBicycle = false;
         avatarId = 0;
         colorId = 0;
+        trainerId = 0;
         hasCustomColors = false;
         memset(customFieldColors, 0, sizeof(customFieldColors));
         memset(customBattleColors, 0, sizeof(customBattleColors));
