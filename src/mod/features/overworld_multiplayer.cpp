@@ -8,6 +8,7 @@
 #include "features/mp_dailies.h"
 #include "features/mp_map_icons.h"
 #include "features/mp_minigames.h"
+#include "features/mp_poffin.h"
 #include "features/mp_tower.h"
 #include "features/mp_trainer_card.h"
 #include "features/team_up.h"
@@ -1255,6 +1256,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         mpTowerOnRoundPacket(pr);
         break;
 
+    case OWMP_DATA_ID_POFFIN_RESULT:
+        mpPoffinOnResultReceived(pr);
+        break;
+
     default:
         // Not our packet — ignore silently
         break;
@@ -1561,6 +1566,7 @@ void overworldMPStop() {
 
     // Abandon any Multi Tower run (session-scoped state)
     mpTowerReset();
+    mpPoffinDisarm();
 
     // Leave and finish the network session via NetworkManager (only if singleton exists)
     auto* nmInstance = getNMInstance();
@@ -1857,6 +1863,7 @@ void overworldMPUpdate(float deltaTime) {
 
     // Multi Battle Tower round state machine
     mpTowerTick(deltaTime);
+    mpPoffinTick(deltaTime);
 
     // Linked-world dailies (host broadcast / guest overlay upkeep)
     mpDailiesTick(deltaTime);
@@ -2195,6 +2202,7 @@ void overworldMPOnPlayerLeave(int32_t stationIndex) {
 
     // End any Multi Tower run with this partner
     mpTowerOnPeerLeft(stationIndex);
+    mpPoffinOnPeerLeft(stationIndex);
 
     s_mpContext.remotePlayers[stationIndex].Clear();
 }
@@ -5011,6 +5019,9 @@ void exl_overworld_multiplayer_main() {
 
     // Trainer card: peer appearance on the card's 3D model
     exl_mp_trainer_card_hooks();
+
+    // Group Poffin cooking
+    exl_mp_poffin_hooks();
 
     // Setting toggle detection: we poll the save data setting each frame in
     // FieldManager.Update. When the value changes, start/stop is triggered.

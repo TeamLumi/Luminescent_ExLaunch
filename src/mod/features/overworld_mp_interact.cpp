@@ -5,6 +5,7 @@
 
 #include "features/overworld_multiplayer.h"
 #include "features/mp_minigames.h"
+#include "features/mp_poffin.h"
 #include "features/mp_tower.h"
 #include "features/mp_trainer_card.h"
 #include "features/team_up.h"
@@ -1037,7 +1038,18 @@ static bool onTeamMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             break;
         }
 
-        case 4: // Cancel
+        case 4: // Cook Poffins together (arms the co-op merge until disband)
+            MP_LOG("[OverworldMP] Poffin co-op invite to partner station %d\n",
+                        s_interact.targetStationIndex);
+            s_pendingRequestType = InteractionType::Poffin;
+            s_isRequester = true;
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Poffin, BattleSubtype::Single);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+
+        case 5: // Cancel
         default:
             MP_LOG("[OverworldMP] Team menu cancelled\n");
             s_interact.Reset();
@@ -1159,14 +1171,16 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
         // Cancel. Multi Tower resolves its bundle label with an English
         // fallback (label ships via the companion Romhack_Unity message PR);
         // the copy avoids the shared buffer in overworldMPGetMessageCStr.
-        static char itemTower[64];
+        static char itemTower[64], itemPoffin[64];
         strncpy(itemTower, overworldMPGetMessageCStr("SS_mp_MultiTower", "Multi Tower"),
                 sizeof(itemTower) - 1);
-        itemTower[sizeof(itemTower) - 1] = '\0';
+        strncpy(itemPoffin, overworldMPGetMessageCStr("SS_mp_CookPoffins", "Cook Poffins together"),
+                sizeof(itemPoffin) - 1);
+        itemTower[sizeof(itemTower) - 1] = itemPoffin[sizeof(itemPoffin) - 1] = '\0';
         const char* labels[]    = { "SS_mp_Disband", "SS_mp_Trade", "SS_mp_Emote",
-                                    nullptr, "SS_mp_Cancel" };
-        const char* textItems[] = { nullptr, nullptr, nullptr, itemTower, nullptr };
-        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 5, 4, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
+                                    nullptr, nullptr, "SS_mp_Cancel" };
+        const char* textItems[] = { nullptr, nullptr, nullptr, itemTower, itemPoffin, nullptr };
+        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 6, 5, &onTeamMenuClicked, &s_teamMenuMethodInfo)) {
             MP_LOG("[OverworldMP] ERROR: Failed to open team menu\n");
             s_interact.Reset();
             closeInteractionMenu();
@@ -1260,6 +1274,13 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
                    s_pendingRequestType == InteractionType::Tower) {
             // Nothing to start locally — the initiator's EVENT_START (0xD2) /
             // TOWER_ROUND (0xD6) begins the game on both consoles.
+            s_pendingFromStation = -1;
+            s_interact.Reset();
+            closeInteractionMenu();
+        } else if (s_pendingRequestType == InteractionType::Poffin) {
+            // Arm the co-op merge; both then cook normally and results combine.
+            mpPoffinArm(s_pendingFromStation);
+            overworldMPShowAreaText("Cook a Poffin together! Head to the Poffin House.");
             s_pendingFromStation = -1;
             s_interact.Reset();
             closeInteractionMenu();
@@ -1366,6 +1387,9 @@ static void showIncomingRequestDialog() {
     } else if (type == InteractionType::Tower) {
         actionLabel = "SS_mp_TowerInvite";
         actionFallback = "Challenge the Multi Tower";
+    } else if (type == InteractionType::Poffin) {
+        actionLabel = "SS_mp_PoffinInvite";
+        actionFallback = "Cook Poffins together";
     }
 
     // Load translatable action name
@@ -3047,6 +3071,13 @@ void overworldMPOnRequestAccepted(int32_t partnerStation) {
         // We initiated: lot round 1 and send TOWER_ROUND (0xD6) — the receiver
         // just resets; the round packet drives its side.
         mpTowerStartAsInitiator(partnerStation);
+        s_pendingFromStation = -1;
+        s_interact.Reset();
+        closeInteractionMenu();
+    } else if (s_pendingRequestType == InteractionType::Poffin) {
+        // Partner accepted: arm the co-op merge on our side too.
+        mpPoffinArm(partnerStation);
+        overworldMPShowAreaText("Cook a Poffin together! Head to the Poffin House.");
         s_pendingFromStation = -1;
         s_interact.Reset();
         closeInteractionMenu();

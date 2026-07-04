@@ -51,6 +51,7 @@ static constexpr uint8_t OWMP_DATA_ID_EVENT_END           = 0xD3; // Minigame en
 static constexpr uint8_t OWMP_DATA_ID_EVENT_RESULT        = 0xD4; // Minigame result exchange (targeted)
 static constexpr uint8_t OWMP_DATA_ID_WORLD_DAILIES       = 0xD5; // Host's daily world values (broadcast)
 static constexpr uint8_t OWMP_DATA_ID_TOWER_ROUND          = 0xD6; // Multi Tower round data (targeted, chunked)
+static constexpr uint8_t OWMP_DATA_ID_POFFIN_RESULT       = 0xD7; // Group Poffin cook-end stats (targeted)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -161,6 +162,7 @@ enum class InteractionType : uint8_t {
     TeamUp = 2,
     Minigame = 3,   // subtype byte carries MinigameKind
     Tower = 4,      // Multi Battle Tower invite (teamed-up pairs only)
+    Poffin = 5,     // Group Poffin cooking invite (teamed-up pairs only)
 };
 
 // Battle subtypes

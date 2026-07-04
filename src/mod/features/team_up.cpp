@@ -3,6 +3,7 @@
 #include "features/mp_net.h"
 #include "features/mp_poke_validate.h"
 
+#include "features/mp_poffin.h"
 #include "features/team_up.h"
 #include "features/mp_tower.h"
 #include "features/overworld_multiplayer.h"
@@ -623,6 +624,7 @@ void overworldMPTeamUpDisband() {
     int32_t partner = s_teamUpState.partnerStation;
     sendTeamUpDisband(partner);
     s_teamUpState.Clear();
+    mpPoffinDisarm();
     // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
     MP_LOG("[TeamUp] Disbanded (was teamed with station %d)\n", partner);
 }
