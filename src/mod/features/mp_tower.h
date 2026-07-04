@@ -61,3 +61,8 @@ void mpTowerReset();
 // True while a tower run is active. team_up.cpp gates its exp write-back,
 // win-money and NPC-exit paths behind !mpTowerIsActive().
 bool mpTowerIsActive();
+
+// Entry validation, exported for the receptionist counter (mp_counter.cpp):
+// 2 healthy lead Pokémon / no banned legendaries in the leads.
+bool mpTowerLocalPartyOk();
+bool mpTowerLocalPartyLegal();

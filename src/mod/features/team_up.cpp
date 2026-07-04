@@ -4,6 +4,7 @@
 #include "features/mp_poke_validate.h"
 
 #include "features/mp_poffin.h"
+#include "features/mp_contest.h"
 #include "features/team_up.h"
 #include "features/mp_tower.h"
 #include "features/overworld_multiplayer.h"
@@ -625,6 +626,7 @@ void overworldMPTeamUpDisband() {
     sendTeamUpDisband(partner);
     s_teamUpState.Clear();
     mpPoffinDisarm();
+    mpContestDisarm();
     // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
     MP_LOG("[TeamUp] Disbanded (was teamed with station %d)\n", partner);
 }
@@ -634,6 +636,9 @@ void overworldMPOnTeamUpDisbandReceived(int32_t fromStation) {
     if (s_teamUpState.partnerStation != fromStation) return;
 
     s_teamUpState.Clear();
+    // Team-scoped co-op pairings end with the team (either side disbanding).
+    mpPoffinDisarm();
+    mpContestDisarm();
     // Area name window dismissed by releaseDeferredEncount when _updateType returns to 0
     MP_LOG("[TeamUp] Partner station %d disbanded\n", fromStation);
 }

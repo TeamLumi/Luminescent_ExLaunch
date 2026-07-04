@@ -515,3 +515,23 @@ bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] maxValue: Maximum value that the player can input.
 //   [String] headerLabel: Message Label containing text to be displayed in the header.
 bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Queries the MP receptionist-counter status for an activity.
+// Arguments:
+//   [Work, Number] activity: 0 = Multi Battle Room (tower), 1 = co-op Contest Show.
+//   [Work] status: Result — 0 no MP session, 1 not teamed up, 2 busy,
+//                  3 party not ok (tower), 4 party illegal (tower), 5 ready,
+//                  6 already waiting, 7 partner waiting, 8 contest armed.
+bool MpCounterStatusCmd(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Checks in at the MP receptionist counter for an activity.
+// Arguments:
+//   [Work, Number] activity: 0 = Multi Battle Room (tower), 1 = co-op Contest Show.
+//   [Work] result: 0 = now waiting for the partner, 1 = rendezvous complete
+//                  (activity launched/armed), 2 = failed (state changed).
+bool MpCounterCheckinCmd(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Cancels an MP counter check-in (and an armed-but-unused contest pairing).
+// Arguments:
+//   [Work, Number] activity: 0 = Multi Battle Room (tower), 1 = co-op Contest Show.
+bool MpCounterCancelCmd(Dpr::EvScript::EvDataManager::Object* manager);

@@ -379,6 +379,11 @@ static bool towerLocalPartyLegal() {
     return true;
 }
 
+// Exported for the receptionist counter (mp_counter.cpp) — same checks the
+// invite path runs, so the receptionist can explain failures in dialogue.
+bool mpTowerLocalPartyOk()    { return towerLocalPartyOk(); }
+bool mpTowerLocalPartyLegal() { return towerLocalPartyLegal(); }
+
 static void towerSnapshotParty() {
     s_tw.snapshotCount = 0;
     s_tw.snapshotValid = false;
