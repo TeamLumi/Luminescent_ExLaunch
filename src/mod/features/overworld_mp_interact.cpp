@@ -4,6 +4,7 @@
 #include "features/mp_net.h"
 
 #include "features/overworld_multiplayer.h"
+#include "features/mp_minigames.h"
 #include "features/mp_trainer_card.h"
 #include "features/team_up.h"
 #include "romdata/data/ColorSet.h"
@@ -884,7 +885,23 @@ static bool onMainMenuClicked(void* __this, Dpr::UI::ContextMenuItem::Object* it
             closeInteractionMenu();
             break;
 
-        case 5: // Cancel
+        case 5: // Hide-and-Seek invite (requester hides)
+        case 6: { // Catch Contest invite
+            MinigameKind kind = (index == 5) ? MinigameKind::HideAndSeek
+                                             : MinigameKind::CatchContest;
+            MP_LOG("[OverworldMP] Minigame invite (kind=%d) to station %d\n",
+                        (int)kind, s_interact.targetStationIndex);
+            s_pendingRequestType = InteractionType::Minigame;
+            s_pendingBattleSubtype = (BattleSubtype)kind;
+            s_isRequester = true;
+            overworldMPSendInteractionRequest(s_interact.targetStationIndex,
+                                              InteractionType::Minigame, (BattleSubtype)kind);
+            s_interact.state = InteractState::WaitingResponse;
+            s_interact.timeoutTimer = INTERACT_TIMEOUT;
+            break;
+        }
+
+        case 7: // Cancel
         default:
             MP_LOG("[OverworldMP] Interaction cancelled\n");
             s_interact.Reset();
@@ -1077,11 +1094,14 @@ void overworldMPShowInteractionMenu(int32_t targetStationIndex) {
             closeInteractionMenu();
         }
     } else {
-        // Not teamed up: Battle, Trade, Team Up, Emote, Trainer Card, Cancel.
-        // "Trainer Card" is raw text (no bundle label yet) via the mixed menu.
-        const char* labels[]    = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote", nullptr, "SS_mp_Cancel" };
-        const char* textItems[] = { nullptr, nullptr, nullptr, nullptr, "Trainer Card", nullptr };
-        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 6, 5, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
+        // Not teamed up: Battle, Trade, Team Up, Emote, Trainer Card,
+        // Hide-and-Seek, Catch Contest, Cancel. New entries are raw text
+        // (no bundle labels yet) via the mixed menu.
+        const char* labels[]    = { "SS_mp_Battle", "SS_mp_Trade", "SS_mp_TeamUp", "SS_mp_Emote",
+                                    nullptr, nullptr, nullptr, "SS_mp_Cancel" };
+        const char* textItems[] = { nullptr, nullptr, nullptr, nullptr,
+                                    "Trainer Card", "Hide-and-Seek", "Catch Contest", nullptr };
+        if (!openContextMenuMixed(MP_MESSAGE_FILE, labels, textItems, 8, 7, &onMainMenuClicked, &s_mainMenuMethodInfo)) {
             MP_LOG("[OverworldMP] ERROR: Failed to open interaction menu\n");
             s_interact.Reset();
             closeInteractionMenu();
@@ -1141,6 +1161,12 @@ static bool onIncomingRequestClicked(void* __this, Dpr::UI::ContextMenuItem::Obj
         if (s_pendingRequestType == InteractionType::TeamUp) {
             // Team-up needs no UI transition — complete immediately and unlock
             overworldMPTeamUp(s_pendingFromStation);
+            s_pendingFromStation = -1;
+            s_interact.Reset();
+            closeInteractionMenu();
+        } else if (s_pendingRequestType == InteractionType::Minigame) {
+            // Nothing to start locally — the initiator's EVENT_START (0xD2)
+            // begins the game on both consoles.
             s_pendingFromStation = -1;
             s_interact.Reset();
             closeInteractionMenu();
@@ -1236,6 +1262,11 @@ static void showIncomingRequestDialog() {
     } else if (type == InteractionType::TeamUp) {
         actionLabel = "SS_mp_TeamUp";
         actionFallback = "Team Up";
+    } else if (type == InteractionType::Minigame) {
+        actionLabel = "";  // no bundle label yet — fallback text only
+        actionFallback = ((MinigameKind)battleSubtype == MinigameKind::HideAndSeek)
+                             ? "Play Hide-and-Seek (they hide)"
+                             : "Have a Catching Contest";
     }
 
     // Load translatable action name
@@ -2893,6 +2924,12 @@ void overworldMPOnRequestAccepted(int32_t partnerStation) {
     if (s_pendingRequestType == InteractionType::TeamUp) {
         // Team-up needs no UI transition — complete immediately and unlock
         overworldMPTeamUp(partnerStation);
+        s_pendingFromStation = -1;
+        s_interact.Reset();
+        closeInteractionMenu();
+    } else if (s_pendingRequestType == InteractionType::Minigame) {
+        // We initiated: send EVENT_START and begin the local game.
+        mpMinigameStartAsInitiator(partnerStation, (MinigameKind)s_pendingBattleSubtype);
         s_pendingFromStation = -1;
         s_interact.Reset();
         closeInteractionMenu();

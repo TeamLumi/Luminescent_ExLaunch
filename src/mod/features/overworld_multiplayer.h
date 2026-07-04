@@ -46,6 +46,9 @@ static constexpr uint8_t OWMP_DATA_ID_MAP_INFO            = 0xCE; // Town Map lo
 static constexpr uint8_t OWMP_DATA_ID_MAP_PIN             = 0xCF; // Meet-up pin place/clear
 static constexpr uint8_t OWMP_DATA_ID_CARD_REQUEST        = 0xD0; // Trainer card request (targeted)
 static constexpr uint8_t OWMP_DATA_ID_CARD_DATA           = 0xD1; // Trainer card blob (targeted)
+static constexpr uint8_t OWMP_DATA_ID_EVENT_START         = 0xD2; // Minigame start (targeted)
+static constexpr uint8_t OWMP_DATA_ID_EVENT_END           = 0xD3; // Minigame end: found/timeout/forfeit (targeted)
+static constexpr uint8_t OWMP_DATA_ID_EVENT_RESULT        = 0xD4; // Minigame result exchange (targeted)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
@@ -152,6 +155,7 @@ enum class InteractionType : uint8_t {
     Battle = 0,
     Trade = 1,
     TeamUp = 2,
+    Minigame = 3,   // subtype byte carries MinigameKind
 };
 
 // Battle subtypes
@@ -226,6 +230,10 @@ void overworldMPOnPlayerLeave(int32_t stationIndex);
 void overworldMPSpawnEntity(int32_t stationIndex);
 void overworldMPDespawnEntity(int32_t stationIndex);
 void overworldMPDespawnAllEntities();
+
+// Toggle a spawned remote entity's visibility (GameObject.SetActive on the
+// entity + follow pokemon). Position sync continues while hidden.
+void overworldMPSetEntityVisible(int32_t stationIndex, bool visible);
 
 // Send local player's position to peers
 void overworldMPSendPosition();

@@ -6,6 +6,7 @@
 
 #include "features/overworld_multiplayer.h"
 #include "features/mp_map_icons.h"
+#include "features/mp_minigames.h"
 #include "features/mp_trainer_card.h"
 #include "features/team_up.h"
 
@@ -1231,6 +1232,18 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
         mpTrainerCardOnDataReceived(pr);
         break;
 
+    case OWMP_DATA_ID_EVENT_START:
+        mpMinigameOnStartReceived(pr);
+        break;
+
+    case OWMP_DATA_ID_EVENT_END:
+        mpMinigameOnEndReceived(pr);
+        break;
+
+    case OWMP_DATA_ID_EVENT_RESULT:
+        mpMinigameOnResultReceived(pr);
+        break;
+
     default:
         // Not our packet — ignore silently
         break;
@@ -1822,6 +1835,9 @@ void overworldMPUpdate(float deltaTime) {
     // Trainer card: open a received card outside the packet callback
     mpTrainerCardTick(deltaTime);
 
+    // Field minigames (hide-and-seek / catching contest)
+    mpMinigameTick(deltaTime);
+
     // Team-up auto-disband check
     overworldMPTeamUpAutoDisband();
 
@@ -2060,6 +2076,9 @@ void overworldMPOnAreaChange(int32_t newAreaID) {
 
     MP_LOG("[OverworldMP] Area change: %d -> %d\n", oldAreaID, newAreaID);
 
+    // Zone-leave is a hide-and-seek forfeit
+    mpMinigameOnAreaChange();
+
     // Notify peers of our area change + custom colors
     overworldMPSendAreaChange(newAreaID);
     overworldMPSendCustomColors();
@@ -2147,6 +2166,9 @@ void overworldMPOnPlayerLeave(int32_t stationIndex) {
 
     // Drop their map icon info + pin
     mpMapIconsOnPeerLeft(stationIndex);
+
+    // End any minigame with this partner
+    mpMinigameOnPeerLeft(stationIndex);
 
     s_mpContext.remotePlayers[stationIndex].Clear();
 }
@@ -2574,6 +2596,24 @@ void overworldMPDespawnAllEntities() {
     for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
         overworldMPDespawnEntity(i);
     }
+}
+
+void overworldMPSetEntityVisible(int32_t stationIndex, bool visible) {
+    if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) return;
+    auto& remote = s_mpContext.remotePlayers[stationIndex];
+
+    auto* entity = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[stationIndex];
+    if (remote.isSpawned && entity != nullptr) {
+        auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
+        if (go != nullptr) go->SetActive(visible);
+    }
+    auto* poke = (FieldObjectEntity::Object*)remote.followPokeEntity;
+    if (remote.followPokeSpawned && poke != nullptr) {
+        auto* go = poke->cast<UnityEngine::Component>()->get_gameObject();
+        if (go != nullptr) go->SetActive(visible);
+    }
+    MP_LOG("[OverworldMP] Entity visibility for station %d -> %d\n",
+                stationIndex, (int)visible);
 }
 
 // ---------------------------------------------------------------------------
