@@ -4432,69 +4432,6 @@ HOOK_DEFINE_TRAMPOLINE(NetClient$$sendToServerVersionCoreAll) {
     }
 };
 
-// Diagnostic: BattleViewSystem.CMD_WaitSetup_Comm @ 0x1C8AEE0 — the view-ready
-// poll that gates setupseq_comm_start_server sub=1 (via MainModule.m_viewCore).
-// The comm intro is a staged sequence machine: stage(+0x1AC) 1=StartSetView,
-// 2=wait→ThrowEnemy, 3=rare seq, 4=ThrowSelf, ...; each stage waits on the
-// pending-sequence counter (+0x110) reaching 0 and the wait-camera state.
-// Log stage/pending transitions to pinpoint where a hung battle intro stalls.
-HOOK_DEFINE_TRAMPOLINE(BattleViewSystem$$CMD_WaitSetup_Comm) {
-    static bool Callback(void* __this) {
-        bool done = Orig(__this);
-        if (isOverworldMPActive() && overworldMPIsInBattleScene()) {
-            static int32_t s_count = 0;
-            static int32_t s_prevStage = -1;
-            static int32_t s_prevPending = -1;
-            s_count++;
-            int32_t stage   = *(int32_t*)((uintptr_t)__this + 0x1AC);
-            int32_t pending = *(int32_t*)((uintptr_t)__this + 0x110);
-            void*   camSys  = *(void**)((uintptr_t)__this + 0x50);
-            if (stage != s_prevStage || pending != s_prevPending ||
-                s_count <= 5 || s_count % 300 == 0) {
-                MP_LOG("[BtlView] WaitSetup_Comm: stage=%d pending=%d cam=%p done=%d (call #%d)\n",
-                            stage, pending, camSys, (int)done, s_count);
-                s_prevStage = stage;
-                s_prevPending = pending;
-            }
-        }
-        return done;
-    }
-};
-
-// Diagnostic: BattleViewCore.<InitializeSystem>d__20.MoveNext @ 0x1E4D720 —
-// the view-core init coroutine (state @+0x10: 0 = first run, 1 = waiting on
-// the battle-UI-system bundle load). MainModule's start_server sub=1 waits on
-// the view's Initialize, which waits on this.
-HOOK_DEFINE_TRAMPOLINE(BattleViewCore$$InitializeSystemMoveNext) {
-    static bool Callback(void* __this) {
-        int32_t stateBefore = *(int32_t*)((uintptr_t)__this + 0x10);
-        bool more = Orig(__this);
-        static int32_t s_count = 0;
-        s_count++;
-        if (s_count <= 20 || s_count % 300 == 0) {
-            MP_LOG("[BtlView] InitializeSystem.MoveNext: state %d -> %d more=%d (#%d)\n",
-                        stateBefore, *(int32_t*)((uintptr_t)__this + 0x10), (int)more, s_count);
-        }
-        return more;
-    }
-};
-
-// Diagnostic: BattleViewAssetManager.<LoadBattleViewUISystem>d__22.MoveNext
-// @ 0x1E4BD50 — the battle UI system bundle load enumerator.
-HOOK_DEFINE_TRAMPOLINE(BattleViewAssetManager$$LoadUISystemMoveNext) {
-    static bool Callback(void* __this) {
-        int32_t stateBefore = *(int32_t*)((uintptr_t)__this + 0x10);
-        bool more = Orig(__this);
-        static int32_t s_count = 0;
-        s_count++;
-        if (s_count <= 20 || s_count % 300 == 0) {
-            MP_LOG("[BtlView] LoadUISystem.MoveNext: state %d -> %d more=%d (#%d)\n",
-                        stateBefore, *(int32_t*)((uintptr_t)__this + 0x10), (int)more, s_count);
-        }
-        return more;
-    }
-};
-
 // Hook BattleProc.UpdateInitialze @ 0x187D510
 // Called each frame during battle init phase (before main loop starts).
 // param_1 = BattleProc instance.  +0x20 = mainModule, +0x28 = updateCoreFunc delegate
@@ -5169,10 +5106,6 @@ void exl_overworld_multiplayer_main() {
     SessionConnector$$SendTo::InstallAtOffset(0x1BC7D70);
     // BattleProc lifecycle — trace init → main loop transition
     BattleProc$$UpdateInitialze::InstallAtOffset(0x187D510);
-    // View-ready poll (gates comm start_server sub=1) — intro stall diagnosis
-    BattleViewSystem$$CMD_WaitSetup_Comm::InstallAtOffset(0x1C8AEE0);
-    BattleViewCore$$InitializeSystemMoveNext::InstallAtOffset(0x1E4D720);
-    BattleViewAssetManager$$LoadUISystemMoveNext::InstallAtOffset(0x1E4BD50);
     BattleProc$$UpdateMainRun::InstallAtOffset(0x187D810);
     // Net.Client ServerVersion exchange diagnostics
     NetClient$$sendToServerVersionCoreAll::InstallAtOffset(0x203DD80);
