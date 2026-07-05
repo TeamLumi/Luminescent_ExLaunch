@@ -1001,18 +1001,13 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
     uint8_t battleMultiMode = TEAMUP_MULTIMODE_PP_AA;
     if (dataId == OWMP_DATA_ID_TEAMUP_BATTLE &&
         tuMode.battleTrainerID2 == 0 && !tuMode.partnerSyncMismatch) {
-        // PA_A2 has ONE enemy trainer throw TWO mons to cover both enemy
-        // positions — it needs the trainer to actually have >=2 Pokemon. The
-        // second rival (and many story trainers) has a single starter, so slot 3
-        // would be empty and the battle-view character load would hang forever
-        // waiting for a mon that never loads. For a 1-mon trainer, run a normal
-        // PP_AA double and put EACH player's version of that same trainer in the
-        // two enemy positions (their differing starter choices show up as two
-        // rivals). Both consoles compute this identically (same trainer, matched
-        // sync, enemy mon count == 1), so no extra packet field is needed.
-        battleMultiMode = (trainerMemberCount >= 2)
-                          ? TEAMUP_MULTIMODE_SINGLE
-                          : TEAMUP_MULTIMODE_PP_AA;
+        // PA_A2: ONE enemy trainer throws TWO mons to cover both enemy positions
+        // (a single rival on stage). It needs a 2-mon enemy party. When the
+        // matched trainer has only 1 mon (e.g. the rival's single starter), the
+        // SINGLE setup below fills the 2nd party slot with the PARTNER's version
+        // of that same trainer's mon — so the one rival throws both starters
+        // (ours + theirs, reflecting each save's choice). Stays PA_A2 either way.
+        battleMultiMode = TEAMUP_MULTIMODE_SINGLE;
     } else if (dataId == OWMP_DATA_ID_TEAMUP_BATTLE_ACK) {
         // Joiner echoes the mode it was told, so the BATTLE sender can confirm it.
         battleMultiMode = tuMode.battleMultiMode ? tuMode.battleMultiMode
@@ -1738,49 +1733,39 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         MP_LOG("[TeamUp] Player B: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d(%d pokes)\n",
                     tu.battleTrainerID, tu.trainerPartyCount, tu.battleTrainerID2, tu.trainerParty2Count);
     } else if (bspFields->multiMode == TEAMUP_MULTIMODE_SINGLE) {
-        // Single-trainer PA_A2: client 1 covers BOTH enemy positions with its full
-        // party (two mons out from one origin). No slot-3 client, no party split.
+        // Single-trainer PA_A2: client 1 (one rival on stage) covers BOTH enemy
+        // positions with its party — two mons out from one origin.
         normalTrainer(bsp, 1, tu.battleTrainerID);
         if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
-            overwriteTrainerPartyFromBuffer(bsp, 1, tu);
+            overwriteTrainerPartyFromBuffer(bsp, 1, tu);   // slot 1 = initiator's version
+        }
+        // If that trainer has only ONE mon, PA_A2 would leave enemy position 3
+        // empty (the character load hangs on a missing model). Append the
+        // PARTNER's version of this same trainer's first mon as the 2nd party
+        // member, so the single rival throws BOTH starters (ours + theirs —
+        // the rival's starter follows each save's own choice). s_myTrainerBuf
+        // holds our (the joiner's) captured version.
+        if (tu.trainerPartyCount <= 1 && s_myTrainerCount >= 1 && !tu.partnerSyncMismatch) {
+            auto* party1 = bspFields->party->m_Items[1];
+            if (party1 != nullptr) {
+                auto* poke = party1->GetMemberPointer(1);
+                if (poke && poke->fields.m_accessor) {
+                    poke->fields.m_accessor->Deserialize_FullData(&s_myTrainerBuf[0]);
+                    party1->fields.m_memberCount = 2;
+                    MP_LOG("[TeamUp] Player B: PA_A2 dual-version — rival %d throws slot1(init)+slot2(ours)\n",
+                                tu.battleTrainerID);
+                }
+            }
         }
         owmpTeamUpLogMode6Topology(bsp);
-        MP_LOG("[TeamUp] Player B: SINGLE-TRAINER PA_A2 — slot1=%d (%d pokes), slot3 empty\n",
+        MP_LOG("[TeamUp] Player B: SINGLE-TRAINER PA_A2 — slot1=%d (%d pokes)\n",
                     tu.battleTrainerID, tu.trainerPartyCount);
     } else {
-        // Dual-VERSION single trainer: both players synced at the SAME 1-mon
-        // trainer (matched sync), but each save's copy of that trainer has a
-        // different Pokemon (e.g. the rival's starter follows each player's own
-        // choice). Show BOTH: slot 1 = the initiator's version, slot 3 = this
-        // (joiner's) version — s_myTrainerBuf, captured from our own table above.
-        bool dualVersion = !tu.partnerSyncMismatch &&
-                           tu.syncTrainerID == tu.battleTrainerID &&
-                           tu.trainerPartyCount <= 1 && s_myTrainerCount > 0;
-
         bool dualTrainer = tu.trainerPartyCount < 3 &&
                            tu.syncTrainerID != tu.battleTrainerID &&
                            s_myTrainerCount > 0;
 
-        if (dualVersion) {
-            normalTrainer(bsp, 1, tu.battleTrainerID);
-            if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
-                overwriteTrainerPartyFromBuffer(bsp, 1, tu);   // slot 1 = initiator's version
-            }
-            normalTrainer(bsp, 3, tu.battleTrainerID);          // same trainer, our version
-            auto* party3 = bspFields->party->m_Items[3];
-            if (party3 != nullptr) {
-                for (int i = 0; i < s_myTrainerCount; i++) {
-                    auto* poke = party3->GetMemberPointer(i);
-                    if (poke && poke->fields.m_accessor) {
-                        poke->fields.m_accessor->Deserialize_FullData(
-                            &s_myTrainerBuf[i * TEAMUP_POKE_FULL_DATA_SIZE]);
-                    }
-                }
-                party3->fields.m_memberCount = s_myTrainerCount;
-            }
-            MP_LOG("[TeamUp] Player B: DUAL-VERSION trainer %d — slot1=%d poke(init), slot3=%d poke(ours)\n",
-                        tu.battleTrainerID, tu.trainerPartyCount, s_myTrainerCount);
-        } else if (dualTrainer) {
+        if (dualTrainer) {
             // Case 2: Mismatched encounters — Player B's own trainer in slot 3
             normalTrainer(bsp, 1, tu.battleTrainerID);
             if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
@@ -2038,43 +2023,33 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         MP_LOG("[TeamUp] Player A: DOUBLE BATTLE — slot1=%d(%d pokes), slot3=%d\n",
                     tu.battleTrainerID, myTrainerCount, tu.battleTrainerID2);
     } else if (fields->multiMode == TEAMUP_MULTIMODE_SINGLE) {
-        // Single-trainer PA_A2: client 1 (already filled above via normalTrainer(1))
-        // covers BOTH enemy positions with its full party. No slot-3 client, no split.
+        // Single-trainer PA_A2: client 1 (one rival on stage, already filled via
+        // normalTrainer(1) above = OUR version) covers BOTH enemy positions.
+        // If that trainer has only 1 mon, append the PARTNER's version of the
+        // same trainer's first mon (received in their ACK -> partnerTrainerBuf)
+        // as the 2nd party member, so the single rival throws BOTH starters.
+        if (myTrainerCount <= 1 && tu.partnerTrainerValid && tu.partnerTrainerCount >= 1 &&
+            !tu.partnerSyncMismatch) {
+            auto* party1 = fields->party->m_Items[1];
+            if (party1 != nullptr) {
+                auto* poke = party1->GetMemberPointer(1);
+                if (poke && poke->fields.m_accessor) {
+                    poke->fields.m_accessor->Deserialize_FullData(&tu.partnerTrainerBuf[0]);
+                    party1->fields.m_memberCount = 2;
+                    MP_LOG("[TeamUp] Player A: PA_A2 dual-version — rival %d throws slot1(ours)+slot2(partner)\n",
+                                tu.battleTrainerID);
+                }
+            }
+        }
         owmpTeamUpLogMode6Topology(bsp);
-        MP_LOG("[TeamUp] Player A: SINGLE-TRAINER PA_A2 — slot1=%d (%d pokes), slot3 empty\n",
+        MP_LOG("[TeamUp] Player A: SINGLE-TRAINER PA_A2 — slot1=%d (%d pokes)\n",
                     tu.battleTrainerID, myTrainerCount);
     } else {
-        // Dual-VERSION single trainer: both players synced at the SAME 1-mon
-        // trainer, but each save's copy has a different Pokemon (the rival's
-        // starter follows each player's own choice). slot 1 already holds OUR
-        // version (normalTrainer above); slot 3 gets the PARTNER's version,
-        // received in their ACK (partnerTrainerBuf). Mirror of the joiner side.
-        bool dualVersion = !tu.partnerSyncMismatch && myTrainerCount <= 1 &&
-                           tu.partnerTrainerValid && tu.partnerTrainerCount > 0;
-
         bool dualTrainer = myTrainerCount < 3 &&
                            tu.partnerTrainerValid &&
                            tu.partnerTrainerID != tu.battleTrainerID;
 
-        if (dualVersion) {
-            normalTrainer(bsp, 3, tu.battleTrainerID);   // same trainer, partner's version
-            auto* party3 = fields->party->m_Items[3];
-            if (party3 != nullptr) {
-                int32_t ptCount = tu.partnerTrainerCount;
-                if (ptCount > 6) ptCount = 6;
-                for (int i = 0; i < ptCount; i++) {
-                    int32_t bufOff = i * TEAMUP_POKE_FULL_DATA_SIZE;
-                    if (bufOff + TEAMUP_POKE_FULL_DATA_SIZE > tu.partnerTrainerBufSize) break;
-                    auto* poke = party3->GetMemberPointer(i);
-                    if (poke && poke->fields.m_accessor) {
-                        poke->fields.m_accessor->Deserialize_FullData(&tu.partnerTrainerBuf[bufOff]);
-                    }
-                }
-                party3->fields.m_memberCount = ptCount;
-            }
-            MP_LOG("[TeamUp] Player A: DUAL-VERSION trainer %d — slot1=%d poke(ours), slot3=%d poke(partner)\n",
-                        tu.battleTrainerID, myTrainerCount, tu.partnerTrainerCount);
-        } else if (dualTrainer) {
+        if (dualTrainer) {
             // Case 2: Mismatched encounters — Player B's trainer in slot 3
             normalTrainer(bsp, 3, tu.partnerTrainerID);
             auto* party3 = fields->party->m_Items[3];
