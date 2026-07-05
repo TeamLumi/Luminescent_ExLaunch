@@ -394,6 +394,9 @@ HOOK_DEFINE_TRAMPOLINE(CardModelViewController$$Dispose) {
 };
 
 void exl_mp_trainer_card_hooks() {
+    // Bisect result (2026-07-05): these were disabled to test the team-up sync
+    // black-screen; the hang reproduced with them off, so they are NOT the
+    // cause — re-enabled.
     CardModelViewController$$LoadModels::InstallAtOffset(0x1A31010);
     CardModelViewController$$Dispose::InstallAtOffset(0x1A308A0);
     MP_LOG("[TrainerCard] LoadModels + Dispose hooks installed\n");
