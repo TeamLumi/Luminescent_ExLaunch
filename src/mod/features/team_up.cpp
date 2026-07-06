@@ -1363,6 +1363,13 @@ void owmpApplyTeamUpBattleColors(void* trData,
     g_owmpBattleSlotCursor = 0;
     extern int32_t g_owmpSetSkinColorCursor;
     g_owmpSetSkinColorCursor = 0;
+    // Reset the StoreCore human cursor too. Without this, on the SECOND team-up
+    // (or tower round) the cursor is still at 2 from the first battle, so when
+    // the MyStatus pointer match misses (the battle recreates MyStatus objects),
+    // the fallback returns slot -1 and BOTH players render the default color.
+    // PvP already resets it; team-up/tower did not — the regression.
+    extern int32_t g_owmpStoreCoreCursor;
+    g_owmpStoreCoreCursor = 0;
     // Human slots in ascending (render) order so the per-model color cursor maps to
     // the right slot — team-up humans are at localSlot/partnerSlot (0 and 2), not 0/1.
     extern int32_t g_owmpBattleHumanSlots[2];
