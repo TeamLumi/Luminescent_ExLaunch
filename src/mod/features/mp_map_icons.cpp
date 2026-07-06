@@ -276,9 +276,15 @@ static void* spawnIconClone(void* townmap, float cellX, float cellZ,
                             int32_t fashionId, int32_t colorId) {
     auto* playerIcon = *(UnityEngine::_Object::Object**)((uintptr_t)townmap + TOWNMAP_PLAYER_OFFSET);
     if (playerIcon == nullptr) return nullptr;
+    // Unity "fake null": the managed reference can be non-null while the native
+    // object is already destroyed (m_CachedPtr == 0) — e.g. opening the Town Map
+    // mid-transition before its player-icon template is (re)created. Instantiate
+    // would dereference the dead native object and crash (observed: null access
+    // inside UnityEngine.Object.Instantiate). Treat a dead template as absent.
+    if (playerIcon->fields.m_CachedPtr == 0) return nullptr;
 
     auto* clone = UnityEngine::_Object::Instantiate<UnityEngine::_Object>((UnityEngine::_Object*)playerIcon);
-    if (clone == nullptr) return nullptr;
+    if (clone == nullptr || clone->fields.m_CachedPtr == 0) return nullptr;
 
     // Parent under the cell root (same canvas), keep world positioning.
     // Co-located markers fan out horizontally; peer icons render smaller
