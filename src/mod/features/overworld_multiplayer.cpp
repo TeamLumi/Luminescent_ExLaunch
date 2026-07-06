@@ -495,6 +495,26 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 overworldMPSpawnEntity(fromStation);
             }
         }
+
+        // Visibility self-heal: cutscenes (egg hatching, evolutions, story
+        // events) can deactivate the remote's GameObject without re-activating
+        // it, leaving the peer invisible after the scene. A position packet
+        // means they're up and moving again — re-show them. Skip a peer that's
+        // intentionally hidden for hide-and-seek (the hider on the seeker's
+        // screen) and the zone-change grace window.
+        if (remote.isSpawned && areaID == s_mpContext.myAreaID &&
+            s_zoneChangeGraceTime <= 0.0f &&
+            fromStation != mpMinigameHiddenStation()) {
+            auto* ent = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[fromStation];
+            if (ent != nullptr) {
+                auto* go = ent->cast<UnityEngine::Component>()->get_gameObject();
+                if (go != nullptr && !go->get_activeSelf()) {
+                    MP_LOG("[OverworldMP] Remote %d hidden after a cutscene — re-showing\n",
+                                fromStation);
+                    overworldMPSetEntityVisible(fromStation, true);
+                }
+            }
+        }
         break;
     }
 

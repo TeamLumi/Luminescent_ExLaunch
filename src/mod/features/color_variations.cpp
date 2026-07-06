@@ -39,15 +39,17 @@ void SetCustomColorSetOverride(RomData::ColorSet* override) {
 }
 
 // --- Trainer-card peer color arming -----------------------------------------
-// The card model loads async; GetComponent<ColorVariation> is dead here (null
-// TypeInfo), so we can't fetch its ColorVariation directly. Instead the card
-// code arms a one-shot: the next ColorVariation.OnEnable (the card model's)
-// gets the peer's color applied instead of the local player's. Standard color
-// -> set ColorIndex; custom -> ColorIndex -1 with the peer's ColorSet override.
-static bool           g_owmpCardColorArmed  = false;
-static int32_t        g_owmpCardColorId     = 0;
-static bool           g_owmpCardColorCustom = false;
-static RomData::ColorSet g_owmpCardColorSet = {};
+// While a PEER's trainer card is open, the card model must render the peer's
+// colors, not the local player's. The card model resolves its color from
+// TrainerSimpleParam.colorID (set in the CardModelViewController_LoadModels
+// inline hook, right before BattleCharacterEntity.Initialize -> SetSkinColor).
+// owmpArmCardColor stores the peer's color; the inline hook applies it while
+// armed. Armed from the LoadModels trampoline (mp_trainer_card.cpp), disarmed
+// on card Dispose. Standard color -> ColorIndex; custom -> -1 + ColorSet override.
+bool                  g_owmpCardColorArmed  = false;
+int32_t               g_owmpCardColorId     = 0;
+bool                  g_owmpCardColorCustom = false;
+RomData::ColorSet     g_owmpCardColorSet    = {};
 
 void owmpArmCardColor(int32_t colorId, const RomData::ColorSet* customSet) {
     g_owmpCardColorArmed  = true;
@@ -377,23 +379,13 @@ HOOK_DEFINE_TRAMPOLINE(ColorVariation_OnEnable) {
                 extern bool overworldMPHealRemoteColors(void* cvComp);
                 overworldMPHealRemoteColors(__this);
             }
-            // Trainer-card peer color: apply the peer's appearance to the first
-            // ColorVariation that enables while armed (the card model's), then
-            // disarm. Without this the card resolves color via PlayerWork.GetColorID
-            // (hooked to always return the LOCAL player), so a peer's card showed
-            // your colors.
-            if (g_owmpCardColorArmed) {
-                g_owmpCardColorArmed = false;
-                if (g_owmpCardColorCustom) {
-                    s_customColorSetOverride = &g_owmpCardColorSet;
-                    __this->fields.ColorIndex = -1;
-                    UpdateColorVariation(__this);
-                    s_customColorSetOverride = nullptr;
-                } else {
-                    __this->fields.ColorIndex = g_owmpCardColorId;
-                    UpdateColorVariation(__this);
-                }
-            }
+            // NOTE: the trainer-card peer color is applied in the
+            // CardModelViewController_LoadModels inline hook (which sets
+            // TrainerSimpleParam.colorID right before BattleCharacterEntity
+            // .Initialize), NOT here. Applying it in OnEnable was clobbered:
+            // Initialize's SetSkinColor runs afterwards and re-wrote the card's
+            // ColorVariation from the (local) TrainerSimpleParam.colorID — so
+            // the peer's outfit showed but their hair/eye color did not.
         }
     }
 };
@@ -520,6 +512,18 @@ HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
                 Logger::log("[ColorVar] LoadModels: mpActive=1 slot=%d colorID=%d custom=%d\n",
                             slot, g_owmpBattleSlotColors[slot], (int)g_owmpBattleSlotHasCustomColors[slot]);
             }
+        } else if (g_owmpCardColorArmed) {
+            // Viewing a PEER's trainer card: apply the peer's color (not local).
+            // This is the write that sticks — Initialize -> SetSkinColor reads
+            // TrainerSimpleParam.colorID into the card's ColorVariation.
+            if (g_owmpCardColorCustom) {
+                trainerParam->fields.colorID = -1;
+                SetCustomColorSetOverride(&g_owmpCardColorSet);
+            } else {
+                trainerParam->fields.colorID = g_owmpCardColorId;
+            }
+            Logger::log("[ColorVar] LoadModels: cardPeer colorID=%d custom=%d\n",
+                        trainerParam->fields.colorID, (int)g_owmpCardColorCustom);
         } else {
             // Non-MP battle: apply local save color to all trainer models
             int32_t saveColor = getCustomSaveData()->playerColorVariation.playerColorID;
