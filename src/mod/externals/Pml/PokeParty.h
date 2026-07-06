@@ -4,7 +4,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace Pml {
-    struct PokeParty : ILClass<PokeParty, 0x04C57580> {
+    struct PokeParty : ILClass<PokeParty, 0x04c59e80> {
         struct Fields {
             Pml::PokePara::PokemonParam::Array* m_member;
             uint32_t m_memberCount;
