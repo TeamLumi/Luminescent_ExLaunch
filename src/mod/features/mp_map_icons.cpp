@@ -85,6 +85,11 @@ static constexpr float MAP_INFO_SEND_INTERVAL = 2.0f;
 // Live Town Map window state (valid between Townmap.Setup and window close;
 // only dereferenced from inside the window's own callbacks)
 static void* s_curTownmap = nullptr;
+// Marker spawn is deferred from Townmap.Setup to the first TownmapWindow.OnUpdate:
+// at Setup-return the player-icon template's GameObject hierarchy isn't always
+// finished initializing, and cloning it then intermittently crashed inside
+// UnityEngine.Object.Instantiate. By the first Update the map is fully built.
+static bool  s_markersPending = false;
 // Hovered cell cache (from TownmapWindow.OnCellChanged)
 static bool  s_hoverValid = false;
 static float s_hoverCellX = 0.0f;
@@ -399,9 +404,12 @@ HOOK_DEFINE_TRAMPOLINE(Townmap$$Setup) {
         s_curTownmap = __this;
         s_hoverValid = false;
         s_myPinClone = nullptr;
+        s_markersPending = false;
 
         if (!isOverworldMPActive()) return;
-        spawnAllMarkers(__this);
+        // Defer the actual spawn to the first OnUpdate (see s_markersPending) —
+        // spawning here races the player-icon template's initialization.
+        s_markersPending = true;
     }
 };
 
@@ -426,6 +434,13 @@ HOOK_DEFINE_TRAMPOLINE(TownmapWindow$$OnUpdate) {
         Orig(__this);
 
         if (!isOverworldMPActive()) { s_prevZL = false; return; }
+
+        // Deferred peer-marker spawn (moved out of Townmap.Setup to dodge the
+        // Instantiate crash on a not-yet-ready icon template).
+        if (s_markersPending) {
+            s_markersPending = false;
+            if (s_curTownmap != nullptr) spawnAllMarkers(s_curTownmap);
+        }
 
         nn::hid::NpadBaseState padState = InputHelper::readNpadStateDirect();
         bool zlHeld = padState.mButtons.isBitSet(nn::hid::NpadButton::ZL);
