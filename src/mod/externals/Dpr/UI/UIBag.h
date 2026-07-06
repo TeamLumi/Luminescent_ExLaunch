@@ -17,6 +17,16 @@
 
 namespace Dpr::UI {
     struct UIBag : ILClass<UIBag> {
+
+        static inline StaticILMethod<0x04c80270, PokemonPartyItem, int32_t> Method$$OnPokemonPartyClickedToUseItem {};
+
+        static inline MethodInfo* Method$$BuildContextMenu = nullptr;
+        static MethodInfo* getMethod$$BuildContextMenu(Il2CppMethodPointer method) {
+            if (Method$$BuildContextMenu == nullptr)
+                Method$$BuildContextMenu = (*Method$$OnPokemonPartyClickedToUseItem)->copyWith(method);
+            return Method$$BuildContextMenu;
+        };
+
         struct __c__DisplayClass127_0 : ILClass<__c__DisplayClass127_0> {
             struct Fields {
                 Dpr::UI::UIBag::Object* __4__this;
@@ -28,6 +38,9 @@ namespace Dpr::UI {
                 void* __9__13;
                 void* __9__19;
             };
+            inline void EndUseAction() {
+                external<void>(0x01bdd4b0, this);
+            }
 
             static inline StaticILMethod<0x04c80068> Method$$ShowItemContextMenu_EndUseAction {};
         };
@@ -65,6 +78,12 @@ namespace Dpr::UI {
                 if (Method$$OnSelectedIncenseBurner == nullptr)
                     Method$$OnSelectedIncenseBurner = (*Method$$DisplayClass144_0_UseFormChange)->copyWith(method);
                 return Method$$OnSelectedIncenseBurner;
+            };
+            static inline MethodInfo* Method$$OnSelectedProVitaminCase = nullptr;
+            static MethodInfo* getMethod$$OnSelectedProVitaminCase(Il2CppMethodPointer method) {
+                if (Method$$OnSelectedProVitaminCase == nullptr)
+                    Method$$OnSelectedProVitaminCase = (*Method$$DisplayClass144_0_UseFormChange)->copyWith(method);
+                return Method$$OnSelectedProVitaminCase;
             };
 
             inline void ctor() {
@@ -115,6 +134,10 @@ namespace Dpr::UI {
             UnityEngine::Vector2::Fields pivotProxy = { .x = pivot.fields.x, .y = pivot.fields.y };
             UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
             external<void>(0x0185c1f0, this, contextMenuIDs, onSelected, pivotProxy, posProxy, onClosed, isNoDecideSe, isNoCancelSe);
+        }
+
+        inline void StartSelectPokemonParty(UnityEngine::Events::UnityAction::Object* onClicked) {
+            external<void>(0x0185c080, this, onClicked);
         }
     };
 }
