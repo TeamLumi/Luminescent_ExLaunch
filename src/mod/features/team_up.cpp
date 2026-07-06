@@ -258,6 +258,14 @@ static constexpr float DEFERRED_ENCOUNT_TIMEOUT = 5.0f;
 static uint8_t s_savedFullPartyBuf[6 * POKE_FULL_DATA_SIZE];
 static int32_t s_savedFullPartyCount = 0;
 
+// Pre-battle level of each party slot, captured alongside the full-party save.
+// Team-up trainer battles run with competitor=COMM(3), which makes vanilla
+// EncountTools.OnPostBattle skip its level-up -> evolution-target detection
+// entirely. We re-derive that ourselves post-battle by comparing the (already
+// written-back) post-battle levels against this snapshot. See TeamUpOnPostBattle.
+static uint8_t s_preBattleLevels[6] = {};
+static int32_t s_preBattleLevelCount = 0;
+
 // Battle-modified party buffer — during storeBattleResult, save the battle-
 // modified Pokemon (slots 0-TEAMUP_PARTY_LIMIT) before BSP::Clear wipes them.
 // The actual restore happens in the post-battle handler, AFTER the vanilla
@@ -352,7 +360,10 @@ void overworldMPSaveFullParty() {
         }
         poke->fields.m_accessor->Serialize_FullData(
             &s_savedFullPartyBuf[i * POKE_FULL_DATA_SIZE]);
+        // Snapshot pre-battle level for post-battle evolution detection.
+        s_preBattleLevels[i] = (uint8_t)poke->cast<Pml::PokePara::CoreParam>()->GetLevel();
     }
+    s_preBattleLevelCount = s_savedFullPartyCount;
     MP_LOG("[TeamUp] Saved full party: %d members\n", s_savedFullPartyCount);
 }
 
@@ -2595,6 +2606,237 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpCalcWinMoney) {
 };
 
 // ---------------------------------------------------------------------------
+// EncountTools.OnPostBattle — restore vanilla post-battle behaviours for team-up
+// ---------------------------------------------------------------------------
+// OnPostBattle's whole post-battle block is gated on `2 < competitor-2U`
+// (unsigned) — runs for WILD(0)/TRAINER(1), SKIPPED for INST(2)/COMM(3)/
+// DEMO_CAPTURE(4). Team-up wins run as COMM(3), so the block (evolution bitmask,
+// Pokerus catch/infection, battle-form reverts, Pickup/Honey Gather) is skipped.
+//
+// Decompile-verified that a competitor flip at finalization is netcode-safe
+// (ServerRequestGenerator has no competitor reads; both exit sequences do the
+// same adapter handshake) and cannot hang the field return (flag-driven, no
+// script needed). So we SCOPE-FLIP competitor COMM->TRAINER just across Orig to
+// run that whole block, then restore COMM so the exit still uses seq_EXIT_COMM +
+// our setSubProc remap. Only wins need this — losses already flipped to TRAINER
+// at storeBattleResult. Two guards:
+//   * zero getMoney (BSP+0xd0) across the call so the block's MoneyWork.Add is a
+//     no-op (the mod credits win money itself); restore it after.
+//   * still re-derive the evolution bitmask from our pre-battle snapshot: the
+//     block's own level test compares playerParty vs the battle party, but the
+//     mod writes post-battle levels into playerParty BEFORE this, so vanilla's
+//     compare sees no change. Our snapshot is the source of truth (OR'd in, so
+//     it's harmless if vanilla also sets a bit).
+// Item-revert is NOT re-enabled — it lives in ApplyBattlePartyData (a different
+// phase we don't touch), so held items stay consumed as intended.
+//
+// OnPostBattle @ 0x2C3C0B0
+HOOK_DEFINE_TRAMPOLINE(TeamUpOnPostBattle) {
+    static void Callback(void* bsp, Pml::PokeParty::Object* playerParty,
+                         int32_t* outEvolveTargets, void* outDispError, MethodInfo* mi) {
+        bool teamUp = overworldMPIsTeamedUp() &&
+                      overworldMPGetTeamUpState().battleType == 1 && !mpTowerIsActive();
+
+        int32_t* competitor = (int32_t*)((uintptr_t)bsp + 0x10);
+        int32_t* getMoney   = (int32_t*)((uintptr_t)bsp + 0xd0);
+        bool     flipped    = false;
+        int32_t  savedMoney = 0;
+        if (teamUp && *competitor == 3) {  // COMM = a win (losses are already TRAINER)
+            *competitor = 1;               // TRAINER: run the full post-battle block
+            savedMoney  = *getMoney;
+            *getMoney   = 0;               // suppress vanilla MoneyWork.Add (mod credits itself)
+            flipped     = true;
+            MP_LOG("[TeamUp] OnPostBattle: scoped competitor COMM->TRAINER\n");
+        }
+
+        Orig(bsp, playerParty, outEvolveTargets, outDispError, mi);
+
+        if (flipped) {
+            *competitor = 3;               // back to COMM for the exit sequence
+            *getMoney   = savedMoney;
+        }
+
+        if (!teamUp || playerParty == nullptr || outEvolveTargets == nullptr) return;
+        int32_t count = playerParty->fields.m_memberCount;
+        if (count > 6) count = 6;
+        for (int i = 0; i < count && i < s_preBattleLevelCount; i++) {
+            auto* poke = playerParty->GetMemberPointer(i);
+            if (poke == nullptr || poke->fields.m_accessor == nullptr) continue;
+            uint32_t nowLv = poke->cast<Pml::PokePara::CoreParam>()->GetLevel();
+            if (nowLv > s_preBattleLevels[i]) {
+                *outEvolveTargets |= (1 << i);
+                MP_LOG("[TeamUp] evo eligible: slot %d lv %u->%u\n",
+                            i, (unsigned)s_preBattleLevels[i], nowLv);
+            }
+        }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// In-battle friendship + Pokédex-seen — momentary competitor flip
+// ---------------------------------------------------------------------------
+// These MainModule methods all gate on competitor<2 (WILD/TRAINER) and so are
+// no-ops for team-up's COMM(3): friendship gain on level-up, friendship loss on
+// faint, in-battle affection bonuses, and Pokédex "seen" for the opponent. They
+// run DURING the battle, so a finalization flip can't reach them; instead we
+// present competitor=TRAINER for just the single call (same approach as
+// CalcWinMoney) and let the vanilla logic run against the real friendship/rule.
+// competitor lives at *(MainModule+0x10)+0x10 (the held BSP). These are local
+// state updates (friendship is not a battle-sim input except via the affection
+// predicate, which the server evaluates authoritatively), so applying them
+// per-instance is safe.
+static inline int32_t* mmCompetitorPtr(void* mainModule) {
+    if (mainModule == nullptr) return nullptr;
+    uintptr_t bsp = *(uintptr_t*)((uintptr_t)mainModule + 0x10);
+    if (bsp == 0) return nullptr;
+    return (int32_t*)(bsp + 0x10);
+}
+
+static inline bool teamUpTrainerBattle() {
+    return overworldMPIsTeamedUp() &&
+           overworldMPGetTeamUpState().battleType == 1 && !mpTowerIsActive();
+}
+
+// MainModule.NotifyPokemonLevelup @ 0x2037C70 — friendship gain on level-up
+HOOK_DEFINE_TRAMPOLINE(TeamUpNotifyPokemonLevelup) {
+    static void Callback(void* mm, void* bpp, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, bpp, mi);
+        if (comp) *comp = saved;
+    }
+};
+
+// MainModule.ReflectNatsukiDead @ 0x20370F0 — friendship loss on faint
+HOOK_DEFINE_TRAMPOLINE(TeamUpReflectNatsukiDead) {
+    static void Callback(void* mm, void* bpp, bool fLargeDiffLevel, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, bpp, fLargeDiffLevel, mi);
+        if (comp) *comp = saved;
+    }
+};
+
+// MainModule.IsFriendshipActive @ 0x20378D0 — in-battle affection bonuses (predicate)
+HOOK_DEFINE_TRAMPOLINE(TeamUpIsFriendshipActive) {
+    static bool Callback(void* mm, void* bpp, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        bool r = Orig(mm, bpp, mi);
+        if (comp) *comp = saved;
+        return r;
+    }
+};
+
+// MainModule.RegisterZukanSeeFlag @ 0x20352C0 — Pokédex "seen" for the opponent
+HOOK_DEFINE_TRAMPOLINE(TeamUpRegisterZukanSeeFlag) {
+    static void Callback(void* mm, void* bpp, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, bpp, mi);
+        if (comp) *comp = saved;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// Poké-memory records — momentary competitor flip
+// ---------------------------------------------------------------------------
+// Memories.SetMemories_On* (static, MainModule first arg) each INLINE the gate
+// `rule != 2 && competitor < 2` (they don't route through canSetMemories), and
+// MainModule.NotifyPokeMemory_AllDead uses the same gate. All skipped for COMM(3).
+// Flip competitor->TRAINER for the single call so the link-memory records write.
+HOOK_DEFINE_TRAMPOLINE(TeamUpSetMemoriesOnWazaNotEffective) {
+    static void Callback(void* mm, void* poke, int32_t wazano, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, poke, wazano, mi);
+        if (comp) *comp = saved;
+    }
+};
+HOOK_DEFINE_TRAMPOLINE(TeamUpSetMemoriesOnUseWaruagaki) {
+    static void Callback(void* mm, void* poke, void* defPoke, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, poke, defPoke, mi);
+        if (comp) *comp = saved;
+    }
+};
+HOOK_DEFINE_TRAMPOLINE(TeamUpSetMemoriesOnKill) {
+    static void Callback(void* mm, void* poke, void* deadPoke, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, poke, deadPoke, mi);
+        if (comp) *comp = saved;
+    }
+};
+HOOK_DEFINE_TRAMPOLINE(TeamUpSetMemoriesOnFaceToG) {
+    static void Callback(void* mm, void* poke, void* gPoke, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, poke, gPoke, mi);
+        if (comp) *comp = saved;
+    }
+};
+HOOK_DEFINE_TRAMPOLINE(TeamUpSetMemoriesOnGStart) {
+    static void Callback(void* mm, void* poke, void* oppPoke, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(mm, poke, oppPoke, mi);
+        if (comp) *comp = saved;
+    }
+};
+HOOK_DEFINE_TRAMPOLINE(TeamUpNotifyPokeMemoryAllDead) {
+    static void Callback(void* self, uint8_t causedPokeID, MethodInfo* mi) {
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(self) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        Orig(self, causedPokeID, mi);
+        if (comp) *comp = saved;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// BattleResult.ApplyBattlePartyData — item-revert + boss friendship (fighters)
+// ---------------------------------------------------------------------------
+// The scenario branch (taken for IsCompetitorScenarioMode i.e. competitor==1, or
+// rule==2) applies, to the BATTLE party (GetSrcParty = the mons that were sent):
+//   * revertItem — restores non-consumable held items removed by Thief/Knock Off/
+//     Trick (item param 0x13==0), while leaving Berries/Gems (0x13!=0) CONSUMED;
+//   * BOSS_BATTLE friendship for a gym/E4/champion (trainerGroup 3/4/5);
+//   * and it SKIPS PGLRecord (that fires only for competitor==3), avoiding a
+//     stray online-battle record.
+// Team-up runs as COMM(3) so none of this happens. Scope-flip competitor->TRAINER
+// across the call to enable it — only for the battle party, i.e. the fighters
+// (benched slots aren't in GetSrcParty; the mod restores them from the pre-battle
+// save either way). This applies on win AND loss (matching vanilla, which gates on
+// trainer group, not result); the mod's storeBattleResult loss-flip happens after
+// this, so competitor is still COMM here. setupParam(param_1) is the BSP.
+// ApplyBattlePartyData @ 0x187F1F0
+HOOK_DEFINE_TRAMPOLINE(TeamUpApplyBattlePartyData) {
+    static void Callback(void* setupParam, void* envServer, void* envClient,
+                         void* mainModule, uint8_t myClientId, MethodInfo* mi) {
+        int32_t* comp = nullptr;
+        int32_t  saved = 0;
+        if (teamUpTrainerBattle() && setupParam != nullptr) {
+            comp = (int32_t*)((uintptr_t)setupParam + 0x10);
+            if (*comp == 3) { saved = *comp; *comp = 1; }  // COMM -> TRAINER
+            else comp = nullptr;
+        }
+        Orig(setupParam, envServer, envClient, mainModule, myClientId, mi);
+        if (comp) *comp = saved;
+    }
+};
+
+// ---------------------------------------------------------------------------
 // BATTLE_SETUP_PARAM::Clear hook — late exp capture
 // ---------------------------------------------------------------------------
 // FinalizeCoroutine calls Clear at its very end (after StopBGM), right before it
@@ -3574,6 +3816,18 @@ void exl_team_up_main() {
     TeamUpExecutorAddExp::InstallAtOffset(0x1F1DC90);
     TeamUpClientSetSubProc::InstallAtOffset(0x1F4F4F0);
     TeamUpCalcWinMoney::InstallAtOffset(0x1F76980);
+    TeamUpOnPostBattle::InstallAtOffset(0x2C3C0B0);
+    TeamUpNotifyPokemonLevelup::InstallAtOffset(0x2037C70);
+    TeamUpReflectNatsukiDead::InstallAtOffset(0x20370F0);
+    TeamUpIsFriendshipActive::InstallAtOffset(0x20378D0);
+    TeamUpRegisterZukanSeeFlag::InstallAtOffset(0x20352C0);
+    TeamUpSetMemoriesOnWazaNotEffective::InstallAtOffset(0x203CCE0);
+    TeamUpSetMemoriesOnUseWaruagaki::InstallAtOffset(0x203CD80);
+    TeamUpSetMemoriesOnKill::InstallAtOffset(0x203CE30);
+    TeamUpSetMemoriesOnFaceToG::InstallAtOffset(0x203CEE0);
+    TeamUpSetMemoriesOnGStart::InstallAtOffset(0x203CF90);
+    TeamUpNotifyPokeMemoryAllDead::InstallAtOffset(0x203A4D0);
+    TeamUpApplyBattlePartyData::InstallAtOffset(0x187F1F0);
 
     // Hook BtlNet error handling to suppress non-fatal errors in team-up
     TeamUpNotifyNetworkError::InstallAtOffset(0x2036E30);
