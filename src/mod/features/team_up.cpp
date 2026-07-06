@@ -2656,6 +2656,24 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpOnPostBattle) {
             *getMoney   = savedMoney;
         }
 
+        // Undo the vanilla block's party clobber. Running that block (via the win
+        // flip, or the loss-flip already applied in storeBattleResult) executes
+        // CopyFrom(playerParty[i], BSP.party[0][i]) — hardcoded to slot 0, which on
+        // the JOINER is the host's pre-exp party, reverting our leveled mons.
+        // FinalizeCoroutine reads playerParty right after this for the evolution
+        // demo (and the bitmask loop below reads its levels), so re-apply the exp'd
+        // battle party captured in storeBattleResult now — the deferred restore
+        // runs too late (after FinalizeCoroutine).
+        if (teamUp && s_battleModPartyCount > 0 && playerParty != nullptr) {
+            for (int i = 0; i < s_battleModPartyCount; i++) {
+                auto* poke = playerParty->GetMemberPointer(i);
+                if (poke != nullptr && poke->fields.m_accessor != nullptr) {
+                    poke->fields.m_accessor->Deserialize_FullData(
+                        &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
+                }
+            }
+        }
+
         if (!teamUp || playerParty == nullptr || outEvolveTargets == nullptr) return;
         int32_t count = playerParty->fields.m_memberCount;
         if (count > 6) count = 6;
