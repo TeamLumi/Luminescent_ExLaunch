@@ -41,6 +41,15 @@ namespace UnityEngine {
             external<void>(0x26b1bd0, this, name);
         }
 
+        // GameObject.ctor(string name, Type[] components) @ 0x26b1d60
+        // Creates the GO with the given component types. Passing a RectTransform
+        // type makes the GO's transform a RectTransform (a plain Transform GO
+        // cannot have RectTransform added afterwards), so this is the canonical
+        // way to build a UI object from scratch.
+        inline void ctor(System::String::Object* name, System::Type::Array* components) {
+            external<void>(0x26b1d60, this, name, components);
+        }
+
         // Non-generic AddComponent(Type) — uses Unity's internal AddComponent
         // @ 0x26b1880
         inline UnityEngine::Component::Object* AddComponentByType(System::Type::Object* componentType) {

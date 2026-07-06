@@ -12,10 +12,15 @@
 #include "externals/Dpr/NetworkUtils/NetworkManager.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/System/String.h"
+#include "externals/System/Type.h"
 #include "externals/UnityEngine/_Object.h"
 #include "externals/UnityEngine/Component.h"
+#include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/Transform.h"
+#include "externals/UnityEngine/RectTransform.h"
 #include "externals/UnityEngine/UI/Image.h"
+#include "externals/UnityEngine/Color.h"
+#include "externals/UnityEngine/Vector2.h"
 #include "externals/UnityEngine/Vector3.h"
 
 #include <cstdio>
@@ -275,55 +280,148 @@ static float stackFanOffset(int32_t stackIndex) {
     return (stackIndex % 2 == 1) ? STACK_FAN_PX * step : -STACK_FAN_PX * step;
 }
 
-// Clone the vanilla TownmapPlayerIcon and place it at a cell. Returns the
-// cloned component (owned by the window hierarchy — dies with the window).
+// Deterministic distinct badge color keyed to a peer's synced colorId, so a
+// given player keeps the same map color across the session. This is what tells
+// multiple peers apart. colorId < 0 (our own meet-up pin) -> gold.
+static UnityEngine::Color::Fields peerBadgeColor(int32_t colorId) {
+    static const float palette[8][3] = {
+        {0.95f, 0.30f, 0.30f}, // red
+        {0.30f, 0.55f, 0.95f}, // blue
+        {0.35f, 0.80f, 0.40f}, // green
+        {0.95f, 0.80f, 0.25f}, // yellow
+        {0.75f, 0.45f, 0.90f}, // purple
+        {0.95f, 0.55f, 0.25f}, // orange
+        {0.35f, 0.85f, 0.85f}, // cyan
+        {0.95f, 0.50f, 0.75f}, // pink
+    };
+    UnityEngine::Color::Fields c{};
+    if (colorId < 0) { c.r = 1.0f; c.g = 0.85f; c.b = 0.30f; c.a = 1.0f; return c; }
+    const float* p = palette[colorId & 7];
+    c.r = p[0]; c.g = p[1]; c.b = p[2]; c.a = 1.0f;
+    return c;
+}
+
+// Build a System.Type from a LIVE instance's runtime class (first field = klass).
+// Lets us name RectTransform/Image without a compile-time TypeInfo address.
+static System::Type::Object* typeOfInstance(void* inst) {
+    if (inst == nullptr) return nullptr;
+    Il2CppClass* klass = *(Il2CppClass**)inst;
+    System::RuntimeTypeHandle::Object handle{};
+    handle.fields.value = &((UnityEngine::GameObject::Class*)klass)->_1.byval_arg;
+    return System::Type::GetTypeFromHandle(handle);
+}
+
+static UnityEngine::Vector2::Object vec2(float x, float y) {
+    UnityEngine::Vector2::Object v{}; v.fields.x = x; v.fields.y = y; return v;
+}
+
+// Create a fresh UI GameObject (RectTransform + Image), NO Instantiate. Passing
+// a RectTransform type to the GameObject ctor makes the transform a RectTransform
+// (a plain-Transform GO can't have one added after). AddComponentByType(Image)
+// auto-adds CanvasRenderer via RequireComponent and returns the Image.
+static UnityEngine::UI::Image::Object* makeUiImage(
+        System::Type::Object* rectType, System::Type::Object* imageType,
+        const char* name, float w, float h) {
+    if (rectType == nullptr || imageType == nullptr) return nullptr;
+    auto* typeArr = (System::Type::Array*)system_array_new(
+        (Il2CppClass*)System::Type::getClass(), 1L);
+    if (typeArr == nullptr) return nullptr;
+    typeArr->m_Items[0] = rectType;
+    UnityEngine::GameObject::getClass()->initIfNeeded();
+    auto* go = (UnityEngine::GameObject::Object*)il2cpp_object_new(
+        (Il2CppClass*)UnityEngine::GameObject::getClass());
+    if (go == nullptr) return nullptr;
+    go->cast<UnityEngine::GameObject>()->ctor(System::String::Create(name), typeArr);
+    auto* img = (UnityEngine::UI::Image::Object*)
+        go->cast<UnityEngine::GameObject>()->AddComponentByType(imageType);
+    if (img == nullptr) return nullptr;
+    auto* tf = ((UnityEngine::Component*)img)->get_transform();
+    auto* rt = reinterpret_cast<UnityEngine::RectTransform::Object*>(tf);
+    rt->set_anchorMin(vec2(0.5f, 0.5f));
+    rt->set_anchorMax(vec2(0.5f, 0.5f));
+    rt->set_pivot(vec2(0.5f, 0.5f));
+    rt->set_sizeDelta(vec2(w, h));
+    return img;
+}
+
+// Build a from-scratch peer marker at a cell: a colored badge (peer's synced
+// color, for telling peers apart) with the trainer face on top. Returns the
+// badge root (owned by the window hierarchy — dies with the window). No
+// Instantiate anywhere: cloning this in-scene town map object faults at the
+// UnityEngine engine level on Ryujinx, so we compose the marker by hand.
+// Peer-icon RENDERING is disabled: on Ryujinx, every way of materialising a
+// marker faults in a different part of the UI subsystem — Instantiate of the
+// vanilla icon deep-clones an Animator (engine crash), Instantiate of the child
+// Image faults at the engine level (scene-clone path), and even the from-scratch
+// path crashes just reading the town map's own _image via get_transform, i.e.
+// the town map's live UI objects aren't safe to touch at this lifecycle point.
+// The meet-up PIN DATA (coordinate sharing) is unaffected and stays live; only
+// the on-map dots are suppressed. Flip this to re-enable a future attempt that
+// builds markers on an isolated overlay canvas we own end-to-end (never reading
+// town map internals).
+static constexpr bool MP_MAP_PEER_ICONS_ENABLED = false;
+
 static void* spawnIconClone(void* townmap, float cellX, float cellZ,
                             int32_t fashionId, int32_t colorId) {
+    if (!MP_MAP_PEER_ICONS_ENABLED) return nullptr;
+    MP_LOG("[MapIcons] spawnIconClone ENTER townmap=%p fashion=%d color=%d\n", townmap, fashionId, colorId);
     auto* playerIcon = *(UnityEngine::_Object::Object**)((uintptr_t)townmap + TOWNMAP_PLAYER_OFFSET);
-    if (playerIcon == nullptr) return nullptr;
-    // Unity "fake null": the managed reference can be non-null while the native
-    // object is already destroyed (m_CachedPtr == 0) — e.g. opening the Town Map
-    // mid-transition before its player-icon template is (re)created. Instantiate
-    // would dereference the dead native object and crash (observed: null access
-    // inside UnityEngine.Object.Instantiate). Treat a dead template as absent.
-    if (playerIcon->fields.m_CachedPtr == 0) return nullptr;
+    if (playerIcon == nullptr || !UnityEngine::_Object::op_Inequality(playerIcon, nullptr)) return nullptr;
+    auto* srcImage = *(UnityEngine::_Object::Object**)((uintptr_t)playerIcon + PLAYERICON_IMAGE_OFFSET);
+    if (srcImage == nullptr || !UnityEngine::_Object::op_Inequality(srcImage, nullptr)) return nullptr;
 
-    auto* clone = UnityEngine::_Object::Instantiate<UnityEngine::_Object>((UnityEngine::_Object*)playerIcon);
-    if (clone == nullptr || clone->fields.m_CachedPtr == 0) return nullptr;
+    // Sample the RectTransform + Image runtime types from the live vanilla icon.
+    auto* srcTf = ((UnityEngine::Component*)srcImage)->get_transform();
+    auto* rectType  = typeOfInstance(srcTf);
+    auto* imageType = typeOfInstance(srcImage);
+    if (rectType == nullptr || imageType == nullptr) return nullptr;
 
-    // Parent under the cell root (same canvas), keep world positioning.
-    // Co-located markers fan out horizontally; peer icons render smaller
-    // than the local player's marker.
+    // Size off the vanilla marker; peers render a bit smaller, badge a bit bigger.
+    auto srcSize = reinterpret_cast<UnityEngine::RectTransform::Object*>(srcTf)->get_sizeDelta();
+    float baseW = (srcSize.fields.x > 1.0f) ? srcSize.fields.x : 24.0f;
+    float baseH = (srcSize.fields.y > 1.0f) ? srcSize.fields.y : 24.0f;
+    float faceW = baseW * PEER_ICON_SCALE, faceH = baseH * PEER_ICON_SCALE;
+    float badgeW = faceW * 1.30f, badgeH = faceH * 1.30f;
+
     auto* cellRoot = *(UnityEngine::Transform::Object**)((uintptr_t)townmap + TOWNMAP_CELLROOT_OFFSET);
-    auto* cloneTf = ((UnityEngine::Component*)clone)->get_transform();
-    cloneTf->cast<UnityEngine::Transform>()->SetParent((UnityEngine::Transform*)cellRoot, false);
 
+    // Badge (colored backing quad — Image with no sprite renders solid color).
+    auto* badge = makeUiImage(rectType, imageType, "MPPeerBadge", badgeW, badgeH);
+    if (badge == nullptr) return nullptr;
+    badge->cast<UnityEngine::UI::Image>()->virtual_set_color(peerBadgeColor(colorId));
+    auto* badgeTf = ((UnityEngine::Component*)badge)->get_transform();
+    badgeTf->cast<UnityEngine::Transform>()->SetParent((UnityEngine::Transform*)cellRoot, false);
     auto pos = cellToWorldPos(townmap, cellX, cellZ);
     pos.fields.x += stackFanOffset(occupyCell(cellX, cellZ));
-    cloneTf->cast<UnityEngine::Transform>()->set_position(pos);
+    badgeTf->cast<UnityEngine::Transform>()->set_position(pos);
 
-    UnityEngine::Vector3::Object scale = {};
-    scale.fields.x = PEER_ICON_SCALE;
-    scale.fields.y = PEER_ICON_SCALE;
-    scale.fields.z = 1.0f;
-    cloneTf->cast<UnityEngine::Transform>()->set_localScale(scale);
+    // Face (child of badge, centered, drawn on top). Peers use their fashion
+    // face sprite; our own pin (fashion < 0) reuses the live local face sprite.
+    auto* face = makeUiImage(rectType, imageType, "MPPeerFace", faceW, faceH);
+    if (face != nullptr) {
+        auto* faceTf = ((UnityEngine::Component*)face)->get_transform();
+        faceTf->cast<UnityEngine::Transform>()->SetParent((UnityEngine::Transform*)badgeTf, false);
+        UnityEngine::Vector3::Object zero{}; zero.fields.x = 0; zero.fields.y = 0; zero.fields.z = 0;
+        faceTf->cast<UnityEngine::Transform>()->set_localPosition(zero);
+        UnityEngine::Color::Fields white{}; white.r = white.g = white.b = white.a = 1.0f;
+        face->cast<UnityEngine::UI::Image>()->virtual_set_color(white);
 
-    // Override the face sprite with the peer's fashion/color (the clone's
-    // Awake set the LOCAL player's face). fashionId < 0 → keep local sprite.
-    if (fashionId >= 0) {
-        auto* image = *(UnityEngine::UI::Image::Object**)((uintptr_t)clone + PLAYERICON_IMAGE_OFFSET);
-        if (image != nullptr) {
+        UnityEngine::Sprite::Object* sprite = nullptr;
+        if (fashionId >= 0) {
             char nameBuf[48];
             int32_t safeColor = (colorId < 0) ? 0 : colorId;
             snprintf(nameBuf, sizeof(nameBuf), "prefab_npc_%d_%d", fashionId, safeColor);
-            auto* sprite = Dpr::UI::UIManager::get_Instance()->GetAtlasSprite(
+            sprite = Dpr::UI::UIManager::get_Instance()->GetAtlasSprite(
                 (SpriteAtlasID)3, System::String::Create(nameBuf));
-            if (sprite != nullptr) {
-                image->cast<UnityEngine::UI::Image>()->set_sprite(sprite);
-            }
+        } else {
+            sprite = ((UnityEngine::UI::Image::Object*)srcImage)->cast<UnityEngine::UI::Image>()->get_sprite();
+        }
+        if (sprite != nullptr) {
+            face->cast<UnityEngine::UI::Image>()->set_sprite(sprite);
         }
     }
-    return clone;
+    MP_LOG("[MapIcons] spawnIconClone OK badge=%p fashion=%d\n", badge, fashionId);
+    return badge;
 }
 
 // Resolve a peer's (zone, grid) to the map cell floats via Townmap.GetData.
@@ -465,7 +563,14 @@ HOOK_DEFINE_TRAMPOLINE(TownmapWindow$$OnUpdate) {
         // Live-refresh my pin icon on the open map.
         if (s_curTownmap != nullptr) {
             if (s_myPinClone != nullptr) {
-                UnityEngine::_Object::Destroy((UnityEngine::_Object::Object*)s_myPinClone);
+                // s_myPinClone is the cloned Image component; destroy its whole
+                // GameObject so the old marker's visual goes away (destroying the
+                // component alone would leave the graphic on the map).
+                if (UnityEngine::_Object::op_Inequality(
+                        (UnityEngine::_Object::Object*)s_myPinClone, nullptr)) {
+                    auto* go = ((UnityEngine::Component*)s_myPinClone)->get_gameObject();
+                    UnityEngine::_Object::Destroy((UnityEngine::_Object::Object*)go);
+                }
                 s_myPinClone = nullptr;
             }
             if (s_myPin.active) {
