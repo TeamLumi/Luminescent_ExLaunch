@@ -1746,21 +1746,32 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         if (tu.trainerPartyValid && tu.trainerPartyCount > 0) {
             overwriteTrainerPartyFromBuffer(bsp, 1, tu);   // slot 1 = initiator's version
         }
-        // If that trainer has only ONE mon, PA_A2 would leave enemy position 3
-        // empty (the character load hangs on a missing model). Append the
-        // PARTNER's version of this same trainer's first mon as the 2nd party
-        // member, so the single rival throws BOTH starters (ours + theirs —
-        // the rival's starter follows each save's own choice). s_myTrainerBuf
-        // holds our (the joiner's) captured version.
-        if (tu.trainerPartyCount <= 1 && s_myTrainerCount >= 1 && !tu.partnerSyncMismatch) {
+        // A 1-mon trainer would leave enemy position 3 empty -> character-load
+        // hang. Always give it a 2nd mon: preferred = OUR captured version of
+        // the same trainer (s_myTrainerBuf, the joiner's starter) so the rival
+        // throws both players' starters; fallback = duplicate member 0 (the
+        // initiator's version, identical to Player A's, so it stays symmetric).
+        // Not gated on partnerSyncMismatch: this branch only runs when the
+        // initiator chose SINGLE mode (already a matched single trainer); the
+        // joiner's own copy of that flag is a packet-ordering race that
+        // intermittently left position 3 empty and hung the battle.
+        if (tu.trainerPartyCount == 1) {
             auto* party1 = bspFields->party->m_Items[1];
             if (party1 != nullptr) {
-                auto* poke = party1->GetMemberPointer(1);
-                if (poke && poke->fields.m_accessor) {
-                    poke->fields.m_accessor->Deserialize_FullData(&s_myTrainerBuf[0]);
+                auto* poke0 = party1->GetMemberPointer(0);
+                auto* poke1 = party1->GetMemberPointer(1);
+                if (poke1 != nullptr && poke1->fields.m_accessor != nullptr) {
+                    if (s_myTrainerCount >= 1) {
+                        poke1->fields.m_accessor->Deserialize_FullData(&s_myTrainerBuf[0]);
+                        MP_LOG("[TeamUp] Player B: PA_A2 dual-version — rival %d throws init+ours\n",
+                                    tu.battleTrainerID);
+                    } else if (poke0 != nullptr && poke0->fields.m_accessor != nullptr) {
+                        uint8_t dup[TEAMUP_POKE_FULL_DATA_SIZE];
+                        poke0->fields.m_accessor->Serialize_FullData(dup);
+                        poke1->fields.m_accessor->Deserialize_FullData(dup);
+                        MP_LOG("[TeamUp] Player B: PA_A2 1-mon fallback — duplicated init mon (no own version)\n");
+                    }
                     party1->fields.m_memberCount = 2;
-                    MP_LOG("[TeamUp] Player B: PA_A2 dual-version — rival %d throws slot1(init)+slot2(ours)\n",
-                                tu.battleTrainerID);
                 }
             }
         }
@@ -2032,19 +2043,35 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     } else if (fields->multiMode == TEAMUP_MULTIMODE_SINGLE) {
         // Single-trainer PA_A2: client 1 (one rival on stage, already filled via
         // normalTrainer(1) above = OUR version) covers BOTH enemy positions.
-        // If that trainer has only 1 mon, append the PARTNER's version of the
-        // same trainer's first mon (received in their ACK -> partnerTrainerBuf)
-        // as the 2nd party member, so the single rival throws BOTH starters.
-        if (myTrainerCount <= 1 && tu.partnerTrainerValid && tu.partnerTrainerCount >= 1 &&
-            !tu.partnerSyncMismatch) {
+        // A 1-mon trainer would leave enemy position 3 empty -> the battle-view
+        // character load hangs on a missing model. Always give it a 2nd mon:
+        //  - preferred: the PARTNER's version of the same trainer's first mon
+        //    (their starter, from their ACK -> partnerTrainerBuf) so the rival
+        //    throws BOTH players' starters;
+        //  - fallback: duplicate our own mon if the partner's version didn't
+        //    arrive. Member 0 is identical on both consoles (A's version), so
+        //    both duplicate the same thing -> stays symmetric, no desync, no
+        //    hang. (Do NOT gate on partnerSyncMismatch — the initiator already
+        //    picked SINGLE mode only for a matched single trainer; the joiner's
+        //    own copy of that flag is a packet-ordering race that intermittently
+        //    vetoed the append and left position 3 empty.)
+        if (myTrainerCount == 1) {
             auto* party1 = fields->party->m_Items[1];
             if (party1 != nullptr) {
-                auto* poke = party1->GetMemberPointer(1);
-                if (poke && poke->fields.m_accessor) {
-                    poke->fields.m_accessor->Deserialize_FullData(&tu.partnerTrainerBuf[0]);
+                auto* poke0 = party1->GetMemberPointer(0);
+                auto* poke1 = party1->GetMemberPointer(1);
+                if (poke1 != nullptr && poke1->fields.m_accessor != nullptr) {
+                    if (tu.partnerTrainerValid && tu.partnerTrainerCount >= 1) {
+                        poke1->fields.m_accessor->Deserialize_FullData(&tu.partnerTrainerBuf[0]);
+                        MP_LOG("[TeamUp] Player A: PA_A2 dual-version — rival %d throws ours+partner\n",
+                                    tu.battleTrainerID);
+                    } else if (poke0 != nullptr && poke0->fields.m_accessor != nullptr) {
+                        uint8_t dup[TEAMUP_POKE_FULL_DATA_SIZE];
+                        poke0->fields.m_accessor->Serialize_FullData(dup);
+                        poke1->fields.m_accessor->Deserialize_FullData(dup);
+                        MP_LOG("[TeamUp] Player A: PA_A2 1-mon fallback — duplicated own mon (no partner version)\n");
+                    }
                     party1->fields.m_memberCount = 2;
-                    MP_LOG("[TeamUp] Player A: PA_A2 dual-version — rival %d throws slot1(ours)+slot2(partner)\n",
-                                tu.battleTrainerID);
                 }
             }
         }
