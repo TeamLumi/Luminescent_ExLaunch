@@ -423,3 +423,12 @@ bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] partner: The ID of the partner trainer.
 //   [Work, Number] opponent: The ID of the opponent trainer.
 bool TrainerMultiBattleSingle(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Initiates a double battle by calling the game's BattleTrainer directly.
+// With one opponent: a double battle vs a single trainer that sends out two Pokemon
+// (the command replacement for the old "set FLAG_TRAINER_DOUBLE then _TRAINER_BTL_SET").
+// With two opponents: a standard 2-vs-2 doubles, same as _TRAINER_BTL_SET(a, b).
+// Arguments:
+//   [Work, Number] opponent: The ID of the (first) opponent trainer.
+//   [Work, Number] opponent2 (optional): The ID of the second opponent trainer, or 0.
+bool TrainerDoubleBattle(Dpr::EvScript::EvDataManager::Object* manager);

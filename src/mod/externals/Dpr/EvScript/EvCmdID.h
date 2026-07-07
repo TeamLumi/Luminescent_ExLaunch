@@ -1295,6 +1295,7 @@ namespace Dpr::EvScript {
             _SET_CAMERA_OFFSET_ANGLE = 1285,
             _SP_WILD_BTL_SET_EXTRA = 1286,
             _TRAINER_MULTI_BTL_SINGLE = 1287,
+            _TRAINER_DOUBLE_BTL = 1288,
 
             CUSTOM_CMD_END = 1500,
         };
