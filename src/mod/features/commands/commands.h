@@ -416,19 +416,11 @@ bool SetCameraOffsetAngle(Dpr::EvScript::EvDataManager::Object* manager);
 //   [String] overrideBGM: (optional) Overrides the Battle Background Music.
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Initiates a multi battle with one partner trainer and one opponent using two Pokemon (2v2 format).
-// The partner provides one Pokemon and the player provides one Pokemon.
-// The opponent provides two Pokemon.
+// Initiates a trainer battle by calling the game's BattleTrainer directly, deriving the
+// battle type from the filled client slots (single / doubles / multi / PA_A2).
 // Arguments:
-//   [Work, Number] partner: The ID of the partner trainer.
-//   [Work, Number] opponent: The ID of the opponent trainer.
-bool TrainerMultiBattleSingle(Dpr::EvScript::EvDataManager::Object* manager);
-
-// Initiates a double battle by calling the game's BattleTrainer directly.
-// With one opponent: a double battle vs a single trainer that sends out two Pokemon
-// (the command replacement for the old "set FLAG_TRAINER_DOUBLE then _TRAINER_BTL_SET").
-// With two opponents: a standard 2-vs-2 doubles, same as _TRAINER_BTL_SET(a, b).
-// Arguments:
-//   [Work, Number] opponent: The ID of the (first) opponent trainer.
-//   [Work, Number] opponent2 (optional): The ID of the second opponent trainer, or 0.
-bool TrainerDoubleBattle(Dpr::EvScript::EvDataManager::Object* manager);
+//   [Work, Number] enemyA: first enemy trainer (client 1). Required.
+//   [Work, Number] ally (optional): partner trainer (client 2), or 0 for none.
+//   [Work, Number] enemyB (optional): second enemy trainer (client 3), or 0 for none.
+//   [Work, Number] rule (optional): BtlRule override (0 = SINGLE, 1 = DOUBLE); derived if omitted.
+bool TrainerBattleSetEx(Dpr::EvScript::EvDataManager::Object* manager);

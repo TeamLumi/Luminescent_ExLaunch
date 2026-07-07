@@ -1294,8 +1294,7 @@ namespace Dpr::EvScript {
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
             _SET_CAMERA_OFFSET_ANGLE = 1285,
             _SP_WILD_BTL_SET_EXTRA = 1286,
-            _TRAINER_MULTI_BTL_SINGLE = 1287,
-            _TRAINER_DOUBLE_BTL = 1288,
+            _TRAINER_BTL_SET_EX = 1287,
 
             CUSTOM_CMD_END = 1500,
         };

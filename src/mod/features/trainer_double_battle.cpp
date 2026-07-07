@@ -2,10 +2,6 @@
 #include "logger/logger.h"
 #include "externals/il2cpp-api.h"
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
-#include "externals/PlayerWork.h"
-#include "externals/Dpr/Battle/Logic/BtlRule.h"
-#include "externals/FlagWork.h"
-#include "externals/FlagWork_Enums.h"
 
 #include "features/trainer_battle.h"
 
@@ -32,23 +28,12 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
                          int32_t enemyID1, int32_t partnerID, MethodInfo *method)
     {
         // Snapshot and consume the one-shot override up front so a re-entrant call can't
-        // reuse it.
+        // reuse it. When nothing is armed the hook is a no-op and the game behaves normally.
         PendingOverride pending = s_pending;
         s_pending.active = false;
 
-        if (pending.active)
-        {
-            // New command path: honor whatever rule the caller asked for.
-            if (pending.rule != BTL_RULE_DERIVE)
-                rule = pending.rule;
-        }
-        else if (FlagWork::GetFlag(FlagWork_Flag::FLAG_TRAINER_DOUBLE))
-        {
-            // Legacy path: baked event scripts (gyms, common_scr, dungeons) set flag 2196
-            // before a normal _TRAINER_BTL_SET to force a double battle vs a single trainer.
-            // TODO: remove once all baked scripts migrate to the _TRAINER_DOUBLE_BTL command.
-            rule = (int32_t) BtlRule::BTL_RULE_DOUBLE;
-        }
+        if (pending.active && pending.rule != BTL_RULE_DERIVE)
+            rule = pending.rule;
 
         Orig(battleSetupParam, arenaID, mapAttrib, weatherType, rule, enemyID0, enemyID1, partnerID, method);
 
