@@ -21,6 +21,9 @@ static constexpr int32_t TEAMUP_POKE_FULL_DATA_SIZE = 344;
 // Max Pokemon per player in team-up battles (first 3 of party)
 static constexpr int32_t TEAMUP_PARTY_LIMIT = 3;
 
+// Max seal stickers per ball capsule (CapsuleData::Clear allocates AffixSealData[20])
+static constexpr int32_t TEAMUP_MAX_SEALS = 20;
+
 // Sync phase for the trainer rendezvous state machine
 enum class SyncPhase : int32_t {
     SYNC_NONE     = 0,  // Not in sync — normal operation
@@ -42,6 +45,24 @@ struct TeamUpState {
     // Partner MYSTATUS_COMM (received in TEAMUP_BATTLE / ACK)
     uint8_t partnerMystatusBuf[128];
     int32_t partnerMystatusLen;
+
+    // Partner ball-capsule (seal) data per battle-party slot (TEAMUP_SUB_CAPSULE).
+    // Capsules live in each console's SAVE (bound to a mon by ID + PersonalRnd),
+    // so the 344-byte mon blobs can't carry them — they ride their own sub-packet.
+    // valid=false → that mon has no capsule attached.
+    struct NetCapsule {
+        bool valid;
+        uint32_t attachPokemonId;
+        uint32_t attachPersonalRnd;
+        uint8_t is3DEditMode;
+        uint8_t isAppliedTemplate;
+        uint8_t sealCount;
+        struct {
+            uint16_t sealId;
+            int16_t x, y, z;
+        } seals[TEAMUP_MAX_SEALS];
+    };
+    NetCapsule partnerCapsules[TEAMUP_PARTY_LIMIT];
 
     // Trainer party data (received from initiator in TEAMUP_BATTLE)
     // Used so both players fight the same enemy Pokemon regardless of per-save randomization.
@@ -123,6 +144,7 @@ static constexpr uint8_t TEAMUP_SUB_HEADER       = 0;  // Header: battleType, me
 static constexpr uint8_t TEAMUP_SUB_POKE         = 1;  // Single Pokemon: pokeIndex + 344 bytes
 static constexpr uint8_t TEAMUP_SUB_TRAINER_POKE = 2;  // Trainer Pokemon: pokeIndex + 344 bytes (initiator sends their trainer's party)
 static constexpr uint8_t TEAMUP_SUB_TRAINER_POKE2 = 3; // Second real trainer's party (slot 3), genuine two-trainer double only
+static constexpr uint8_t TEAMUP_SUB_CAPSULE      = 4;  // Ball-capsule (seal) data: one per battle-party slot, sent BEFORE the POKE packets
 
 // BTL_MULTIMODE values used by team-up battles (indices into the game's baked
 // position-cover tables — see PokemonPosition::GetPosCoverClientId_Double @0x20CEF00).

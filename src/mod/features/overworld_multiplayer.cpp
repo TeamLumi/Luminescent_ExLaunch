@@ -956,6 +956,10 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
             tu.trainerParty2Count = 0;
             tu.trainerParty2Valid = false;
 
+            // Reset partner capsule (seal) data — stale capsules from a previous
+            // battle must not leak into this one
+            memset(tu.partnerCapsules, 0, sizeof(tu.partnerCapsules));
+
             // Store encounter data into TeamUpState
             if (!isAck) {
                 tu.battleType = battleType;
@@ -1156,6 +1160,53 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                     overworldMPOnTeamUpBattleReceived(s_tuAccumFromStation, nullptr, 0);
                 }
             }
+            break;
+        }
+
+        case 4: { // CAPSULE (partner ball-capsule / seal data, one per battle-party slot)
+            if (s_tuAccumFromStation < 0 || s_tuAccumFromStation != fromStation) break;
+            uint8_t pokeIndex = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &pokeIndex);
+            uint8_t has = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &has);
+            int32_t capId = 0, capRnd = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &capId);
+            il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &capRnd);
+            uint8_t is3d = 0, istpl = 0, sealCount = 0;
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &is3d);
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &istpl);
+            il2cpp_vcall_read_out(pr, PR_READ_BYTE_OUT, &sealCount);
+            // The sender clamps to TEAMUP_MAX_SEALS and writes exactly sealCount
+            // entries; clamp the untrusted byte the same way so the reads match.
+            if (sealCount > TEAMUP_MAX_SEALS) sealCount = TEAMUP_MAX_SEALS;
+
+            TeamUpState::NetCapsule* dst =
+                (pokeIndex < TEAMUP_PARTY_LIMIT) ? &tu.partnerCapsules[pokeIndex] : nullptr;
+            if (dst != nullptr) {
+                memset(dst, 0, sizeof(*dst));
+                dst->valid = (has != 0);
+                dst->attachPokemonId = (uint32_t)capId;
+                dst->attachPersonalRnd = (uint32_t)capRnd;
+                dst->is3DEditMode = is3d;
+                dst->isAppliedTemplate = istpl;
+                dst->sealCount = sealCount;
+            }
+            for (int k = 0; k < sealCount; k++) {
+                int32_t sid = 0, sx = 0, sy = 0, sz = 0;
+                il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &sid);
+                il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &sx);
+                il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &sy);
+                il2cpp_vcall_read_out(pr, PR_READ_S32_OUT, &sz);
+                if (dst != nullptr) {
+                    dst->seals[k].sealId = (uint16_t)sid;
+                    dst->seals[k].x = (int16_t)sx;
+                    dst->seals[k].y = (int16_t)sy;
+                    dst->seals[k].z = (int16_t)sz;
+                }
+            }
+            MP_LOG("[OverworldMP] TeamUp %s CAPSULE[%d] has=%d seals=%d\n",
+                        s_tuAccumIsAck ? "ACK" : "BATTLE",
+                        (int)pokeIndex, (int)has, (int)sealCount);
             break;
         }
 

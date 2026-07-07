@@ -9,6 +9,7 @@
 #include "features/mp_tower.h"
 #include "features/overworld_multiplayer.h"
 
+#include "externals/Dpr/BallDeco/CapsuleData.h"
 #include "externals/Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 #include "externals/Dpr/Battle/Logic/TRAINER_DATA.h"
 #include "romdata/data/ColorSet.h"
@@ -952,6 +953,83 @@ void overworldMPTeamUpAutoDisband() {
 }
 
 // ---------------------------------------------------------------------------
+// Ball-capsule (seal) support.
+//
+// Seals live in each console's SAVE (SaveBallDecoData), bound to a mon by
+// AttachPokemonId + AttachPersonalRnd — the 344-byte serialized mon does NOT
+// carry them. The battle view resolves seals via MainModule::GetBallDeco:
+// BSP.ballDecoDesc[clientId][startMemberIndex] must BOTH sit at the mon's
+// member index AND match its ID+PersonalRnd, else no seals render. Vanilla
+// comm battles pass per-player CapsuleData[] into SetupBattleComm; team-up
+// previously passed a zeroed placeholder, so no seals ever showed in MP.
+// ---------------------------------------------------------------------------
+
+// Build my CapsuleData[6] for SetupBattleComm from the local save.
+// party = the (trimmed) battle party — slot order must match the battle party.
+static Dpr::BallDeco::CapsuleData::Array* buildMyCapsuleArray(
+        Pml::PokeParty::Object* party, int32_t count) {
+    auto* arr = Dpr::BallDeco::CapsuleData::newArray(6);
+    if (arr == nullptr) return nullptr;
+    for (int i = 0; i < 6; i++) {
+        auto* e = &arr->m_Items[i];
+        e->Clear();  // zero + fresh AffixSealData[20] (CopyFrom needs both allocated)
+        if (party != nullptr && i < count) {
+            e->SetupFromPlayerWork(party, i);  // local save lookup by ID+PersonalRnd
+        }
+    }
+    return arr;
+}
+
+// Build the partner's CapsuleData[6] for SetupBattleComm from the
+// network-received TEAMUP_SUB_CAPSULE data.
+static Dpr::BallDeco::CapsuleData::Array* buildPartnerCapsuleArray(TeamUpState& tu) {
+    auto* arr = Dpr::BallDeco::CapsuleData::newArray(6);
+    if (arr == nullptr) return nullptr;
+    for (int i = 0; i < 6; i++) {
+        auto* e = &arr->m_Items[i];
+        e->Clear();
+        if (i >= TEAMUP_PARTY_LIMIT || !tu.partnerCapsules[i].valid) continue;
+        auto& pc = tu.partnerCapsules[i];
+        e->fields.AttachPokemonId   = pc.attachPokemonId;
+        e->fields.AttachPersonalRnd = pc.attachPersonalRnd;
+        e->fields.Is3DEditMode      = pc.is3DEditMode != 0;
+        e->fields.IsAppliedTemplate = pc.isAppliedTemplate != 0;
+        uint8_t n = pc.sealCount;
+        if (n > TEAMUP_MAX_SEALS) n = TEAMUP_MAX_SEALS;
+        e->fields.AffixSealCount = n;
+        auto* seals = e->fields.AffixSealDatas;
+        for (int k = 0; k < n && seals != nullptr && (uint64_t)k < seals->max_length; k++) {
+            seals->m_Items[k].fields.SealId    = pc.seals[k].sealId;
+            seals->m_Items[k].fields.PositionX = pc.seals[k].x;
+            seals->m_Items[k].fields.PositionY = pc.seals[k].y;
+            seals->m_Items[k].fields.PositionZ = pc.seals[k].z;
+        }
+        MP_LOG("[TeamUp] Partner capsule[%d]: id=%08x seals=%d\n",
+                    i, pc.attachPokemonId, (int)n);
+    }
+    return arr;
+}
+
+// The slot 1<->2 PP_AA rearrange must move ballDecoDesc rows along with
+// party/playerStatus/stations — capsules are resolved per BSP player index.
+static void swapBallDecoRows(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
+                             int32_t a, int32_t b) {
+    // CapsuleData[][] — jagged managed array of CapsuleData[] rows
+    struct CapsuleDataJagged {
+        Il2CppObject obj;
+        Il2CppArrayBounds* bounds;
+        uint64_t max_length;
+        Dpr::BallDeco::CapsuleData::Array* m_Items[1];
+    };
+    auto* jag = (CapsuleDataJagged*)bsp->instance()->fields.ballDecoDesc;
+    if (jag == nullptr || (uint64_t)a >= jag->max_length || (uint64_t)b >= jag->max_length)
+        return;
+    auto* tmp = jag->m_Items[a];
+    jag->m_Items[a] = jag->m_Items[b];
+    jag->m_Items[b] = tmp;
+}
+
+// ---------------------------------------------------------------------------
 // Send party data using chunked protocol (reuses 0xC6 pattern)
 // dataId = OWMP_DATA_ID_TEAMUP_BATTLE or OWMP_DATA_ID_TEAMUP_BATTLE_ACK
 // ---------------------------------------------------------------------------
@@ -1077,6 +1155,52 @@ static void sendTeamUpPartyChunked(int32_t targetStation, uint8_t dataId,
     MP_LOG("[TeamUp] Sent %s HEADER: target=%d members=%d trainerMembers=%d battle=%d\n",
                 dataId == OWMP_DATA_ID_TEAMUP_BATTLE ? "BATTLE" : "ACK",
                 targetStation, memberCount, (int)trainerMemberCount, (int)battleType);
+
+    // --- Ball-capsule (seal) sub-packets ---
+    // Sent BEFORE the POKE packets on purpose: the receiver fires its completion
+    // callback on the last POKE/TRAINER packet, and PIA reliable delivery is
+    // ordered per sender — so every capsule is guaranteed accumulated by the time
+    // the battle setup runs.
+    for (int32_t i = 0; i < memberCount; i++) {
+        Dpr::BallDeco::CapsuleData::Object cap = {};
+        cap.SetupFromPlayerWork(party, i);  // Clear() + local save lookup (ID+PersonalRnd)
+        bool has = (cap.fields.AttachPokemonId != 0 || cap.fields.AttachPersonalRnd != 0);
+        uint8_t sealCount = cap.fields.AffixSealCount;
+        if (sealCount > TEAMUP_MAX_SEALS) sealCount = TEAMUP_MAX_SEALS;
+        if (!has) sealCount = 0;
+
+        il2cpp_vcall_void(pw, PW_RESET);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, dataId);
+        il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, TEAMUP_SUB_CAPSULE);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)i);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, has ? 1 : 0);
+        il2cpp_vcall_write_s32(pw, PW_WRITE_S32, (int32_t)cap.fields.AttachPokemonId);
+        il2cpp_vcall_write_s32(pw, PW_WRITE_S32, (int32_t)cap.fields.AttachPersonalRnd);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, cap.fields.Is3DEditMode ? 1 : 0);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, cap.fields.IsAppliedTemplate ? 1 : 0);
+        il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, sealCount);
+        auto* seals = cap.fields.AffixSealDatas;
+        for (int k = 0; k < sealCount; k++) {
+            int32_t sid = 0, sx = 0, sy = 0, sz = 0;
+            if (seals != nullptr && (uint64_t)k < seals->max_length) {
+                sid = seals->m_Items[k].fields.SealId;
+                sx  = seals->m_Items[k].fields.PositionX;
+                sy  = seals->m_Items[k].fields.PositionY;
+                sz  = seals->m_Items[k].fields.PositionZ;
+            }
+            il2cpp_vcall_write_s32(pw, PW_WRITE_S32, sid);
+            il2cpp_vcall_write_s32(pw, PW_WRITE_S32, sx);
+            il2cpp_vcall_write_s32(pw, PW_WRITE_S32, sy);
+            il2cpp_vcall_write_s32(pw, PW_WRITE_S32, sz);
+        }
+        Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
+        if (has) {
+            MP_LOG("[TeamUp] Sent %s CAPSULE[%d]: id=%08x seals=%d\n",
+                        dataId == OWMP_DATA_ID_TEAMUP_BATTLE ? "BATTLE" : "ACK",
+                        i, cap.fields.AttachPokemonId, (int)sealCount);
+        }
+    }
 
     // --- Per-Pokemon sub-packets ---
     for (int32_t i = 0; i < memberCount; i++) {
@@ -1647,8 +1771,12 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         tu.partnerMystatusBuf, tu.partnerMystatusLen, mystOff);
 
     uint8_t regulation[4] = { 1, 6, 2, 0x07 };
-    static uint8_t s_emptyCapsuleArrayB[32] = {};
-    void* emptyCapsule = (void*)s_emptyCapsuleArrayB;
+
+    // Real ball-capsule (seal) arrays — the old zeroed placeholder is why seals
+    // never rendered in team-up battles. Partner's come from TEAMUP_SUB_CAPSULE;
+    // ours from the local save (slot order matches the trimmed battle party).
+    auto* partnerCaps = buildPartnerCapsuleArray(tu);
+    auto* myCapsB = buildMyCapsuleArray(myTrimmedParty, myCount);
 
     // Save local animation setting
     auto* myConfig = PlayerWork::get_config();
@@ -1687,8 +1815,8 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
 
     // SetupBattleComm: partner=slot0, us=slot1 (temp — rearranged below)
     Dpr::EncountTools::SetupBattleComm(bsp, 0, 1/*double*/, 1/*commPos*/, regulation,
-        tu.partnerStation, partnerParty, &partnerStatus, emptyCapsule,
-        myStation, myTrimmedParty, &myStatus, emptyCapsule,
+        tu.partnerStation, partnerParty, &partnerStatus, partnerCaps,
+        myStation, myTrimmedParty, &myStatus, myCapsB,
         -1, nullptr, nullptr, nullptr,
         -1, nullptr, nullptr, nullptr,
         nullptr, nullptr, 0, 0);
@@ -1717,6 +1845,8 @@ void overworldMPOnTeamUpBattleReceived(int32_t fromStation, uint8_t* data, int32
         bspFields->playerStatus->m_Items[1] = bspFields->playerStatus->m_Items[2];
         bspFields->playerStatus->m_Items[2] = tmp;
     }
+    // Capsule rows must follow the party rearrange (seals resolve per BSP slot)
+    swapBallDecoRows(bsp, 1, 2);
     if (bspFields->stations != nullptr && bspFields->stations->max_length > 2) {
         auto tmp = bspFields->stations->m_Items[1];
         bspFields->stations->m_Items[1] = bspFields->stations->m_Items[2];
@@ -1967,8 +2097,10 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         tu.partnerMystatusBuf, tu.partnerMystatusLen, mystOff);
 
     uint8_t regulation[4] = { 1, 6, 2, 0x07 };
-    static uint8_t s_emptyCapsuleArray2[32] = {};
-    void* emptyCapsule = (void*)s_emptyCapsuleArray2;
+
+    // Real ball-capsule (seal) arrays — see Player B's handler for rationale.
+    auto* partnerCapsA = buildPartnerCapsuleArray(tu);
+    auto* myCapsA = buildMyCapsuleArray(myTrimmedParty, myCount);
 
     int32_t myStation = mpThisStationIndex();
 
@@ -1989,8 +2121,8 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
     // Call SetupBattleComm to allocate stations/playerStatus arrays.
     // This replaces the trainer BSP with a comm-battle BSP.
     Dpr::EncountTools::SetupBattleComm(bsp, 0, 1/*double*/, 0/*commPos*/, regulation,
-        myStation, myTrimmedParty, &myStatus, emptyCapsule,             // slot 0: us
-        tu.partnerStation, partnerParty, &partnerStatus, emptyCapsule,  // slot 1: partner
+        myStation, myTrimmedParty, &myStatus, myCapsA,                   // slot 0: us
+        tu.partnerStation, partnerParty, &partnerStatus, partnerCapsA,   // slot 1: partner
         -1, nullptr, nullptr, nullptr,                                   // slot 2: empty
         -1, nullptr, nullptr, nullptr,                                   // slot 3: empty
         nullptr, nullptr, 0, 0);
@@ -2026,6 +2158,8 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
         fields->stations->m_Items[1] = fields->stations->m_Items[2];
         fields->stations->m_Items[2] = tmp;
     }
+    // Capsule rows must follow the party rearrange (seals resolve per BSP slot)
+    swapBallDecoRows(bsp, 1, 2);
 
     fields->multiMode = (tu.battleMultiMode == TEAMUP_MULTIMODE_SINGLE)
                         ? TEAMUP_MULTIMODE_SINGLE : TEAMUP_MULTIMODE_PP_AA;
