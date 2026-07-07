@@ -144,6 +144,15 @@ HOOK_DEFINE_REPLACE(PoketchWindow_OnUpdate) {
 
                 __this->fields._buttonR->OnUpdate(deltaTime);
                 __this->fields._buttonSR->OnUpdate(deltaTime);
+
+                // L3 (Left Stick Click) goes backward
+                GameController::getClass()->initIfNeeded();
+                if ((GameController::getClass()->static_fields->push & GameController::ButtonMask::StickL) != 0) {
+                    if (!__this->fields._isSizeChanging) {
+                        __this->SelectApp(false);
+                    }
+                }
+
                 bool isPrevTouch = __this->fields._isTouch;
                 UnityEngine::Vector2::Object touchVec2 = UnityEngine::Vector2::get_zero();
                 if (UnityEngine::Input::get_touchCount() > 0)

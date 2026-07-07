@@ -11,6 +11,7 @@ extern void* (*system_array_new_raw)(Il2CppClass* type, long length);
 extern void* (*il2cpp_object_new_raw)(Il2CppClass* klass);
 extern void (*il2cpp_runtime_class_init_raw)(Il2CppClass* klass);
 extern void (*system_array_init)(void* ptr, void* obj);
+extern void* (*resolve_unity_method)(const char* signature);
 
 template <typename T>
 inline T::Array* system_array_new(typename T::Class* type, long length) { return reinterpret_cast<T::Array*(*)(Il2CppClass*, long)>(system_array_new_raw)(type, length); }
@@ -307,6 +308,13 @@ struct name##_array {                                                           
     }                                                                                               \
 };
 
+#define PRIMITIVE(type, name, typeInfo)                                                          \
+typedef type name;                                                                               \
+struct name##_klass {                                                                            \
+    inline static Il2CppClass* getClass() {                                                      \
+        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(typeInfo));  \
+    }                                                                                            \
+};
 
 
 template <typename... Args>

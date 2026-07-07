@@ -20,7 +20,7 @@ void EvCmdAddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager, int32
 
 bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    Logger::log("_ADD_POKEMON_UI_EXTRA\n");
+    //Logger::log("_ADD_POKEMON_UI_EXTRA\n");
     system_load_typeinfo(0x43bd);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
