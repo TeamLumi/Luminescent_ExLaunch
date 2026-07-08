@@ -120,6 +120,17 @@ struct TeamUpState {
     int32_t battleResult;           // cached BSP.result: 0=loss, 1=win, -1=not set
     int32_t battleGetMoney;         // cached BSP.getMoney
 
+    // Authoritative result sync (initiator -> joiner, OWMP_DATA_ID_TEAMUP_RESULT).
+    // The joiner's engine never computes a real per-side result: vanilla comm
+    // storeBattleResult maps its unset judge (judge=8/result=COMM_ERROR) to WIN
+    // unconditionally, so on a team LOSS the joiner skipped the whiteout and even
+    // pocketed win money. The initiator (client 0, real judge) broadcasts the true
+    // result; the joiner corrects itself when the packet lands (~1.5s after its own
+    // storeBattleResult, comfortably before the exit sequence's gameover check).
+    int32_t hostResult;             // -1 = not received; else BtlResult (0=loss, 1=win)
+    bool hostResultAbnormal;        // initiator flagged the battle abnormal
+    int32_t creditedWinMoney;       // joiner: NPC-parity money credited at store time (undo on loss)
+
     void Clear() {
         memset(this, 0, sizeof(*this));
         partnerStation = -1;
@@ -130,6 +141,7 @@ struct TeamUpState {
         battleEffectID = -1;
         battleArenaID = -1;
         syncEffectID = -1;
+        hostResult = -1;
         syncRandomTeamMode = -1;
         syncZoneID = -1;
         partnerRandomTeamMode = -1;
@@ -192,6 +204,11 @@ void overworldMPOnTeamUpBattleAckReceived(int32_t fromStation, uint8_t* data, in
 void overworldMPOnTeamUpDisbandReceived(int32_t fromStation);
 
 // Modify BSP for team-up double battle (PP_AA mode)
+// OWMP_DATA_ID_TEAMUP_RESULT receive (joiner side): apply the initiator's
+// authoritative result — on a loss, rewrite the live BSP so the NPC exit
+// sequence runs the natural whiteout, and undo the win-money credit.
+void overworldMPOnTeamUpResultReceived(int32_t fromStation, int32_t result, bool abnormal);
+
 void overworldMPModifyBSPForTeamUp(Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* bsp,
                                     TeamUpState& tu, bool isInitiator);
 

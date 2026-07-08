@@ -631,6 +631,72 @@ static void sendTeamUpDisband(int32_t targetStation) {
     MP_LOG("[TeamUp] Sent DISBAND to station %d\n", targetStation);
 }
 
+// Initiator -> joiner: authoritative battle result (OWMP_DATA_ID_TEAMUP_RESULT).
+// The joiner's engine cannot judge the battle itself (vanilla maps its unset
+// comm judge to WIN unconditionally) — see TeamUpState::hostResult.
+static void sendTeamUpResult(int32_t targetStation, int32_t result, bool abnormal) {
+    if (!isOverworldMPActive()) return;
+    auto* pw = Dpr::NetworkUtils::NetworkManager::get_PacketWriterRe();
+    if (pw == nullptr) return;
+
+    il2cpp_vcall_void(pw, PW_RESET);
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, OWMP_DATA_ID_TEAMUP_RESULT);
+    il2cpp_vcall_write_s32(pw, PW_WRITE_S32, targetStation);
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, (uint8_t)(result & 0xFF));
+    il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, abnormal ? 1 : 0);
+
+    Dpr::NetworkUtils::NetworkManager::SendReliablePacketToAll(pw, 0);
+    MP_LOG("[TeamUp] Sent RESULT %d (abnormal=%d) to station %d\n",
+                result, (int)abnormal, targetStation);
+}
+
+void overworldMPOnTeamUpResultReceived(int32_t fromStation, int32_t result, bool abnormal) {
+    auto& tu = s_teamUpState;
+    if (!tu.isTeamedUp || tu.partnerStation != fromStation) {
+        MP_LOG("[TeamUp] RESULT from non-partner station %d — ignored\n", fromStation);
+        return;
+    }
+    if (tu.isInitiator) return;   // only the joiner consumes this
+
+    tu.hostResult = result;
+    tu.hostResultAbnormal = abnormal;
+    MP_LOG("[TeamUp] RESULT received: %d (abnormal=%d), local result was %d\n",
+                result, (int)abnormal, tu.battleResult);
+
+    // Team won (or abnormal end) — local state already matches closely enough.
+    if (result != 0 || abnormal) return;
+
+    // Team LOST but our engine stored a WIN. Rewrite the live battle state so the
+    // NPC exit sequence (we always remap comm-exit -> NPC-exit) runs the natural
+    // gameover/whiteout, exactly like the initiator's loss path does at store time.
+    // This lands ~1.5s after our storeBattleResult — the exit sequence's gameover
+    // check happens seconds later (result screen + trainer monologue), so in time.
+    if (tu.battleType == 1 && s_teamUpBSP != nullptr) {
+        auto* fields = &s_teamUpBSP->instance()->fields;
+        fields->result = 0;
+        fields->getMoney = 0;
+        if (!mpTowerIsActive()) {
+            fields->competitor = (Dpr::Battle::Logic::BtlCompetitor)1; // TRAINER exit -> whiteout
+        }
+        MP_LOG("[TeamUp] Joiner LOSS correction: BSP result->0, competitor->TRAINER\n");
+    } else {
+        MP_LOG("[TeamUp] Joiner LOSS correction: battle already torn down (type=%d bsp=%p) — "
+                    "no whiteout possible this late\n", (int)tu.battleType, (void*)s_teamUpBSP);
+    }
+    tu.battleResult = 0;   // post-battle handler: no all-fainted win-revive
+
+    // Undo the NPC-parity win-money credit our storeBattleResult already applied.
+    if (tu.creditedWinMoney > 0) {
+        int32_t cur = PlayerWork::GetMoney();
+        int32_t corrected = cur - tu.creditedWinMoney;
+        if (corrected < 0) corrected = 0;
+        PlayerWork::SetMoney(corrected);
+        MP_LOG("[TeamUp] Joiner LOSS correction: revoked %d win money (wallet %d -> %d)\n",
+                    tu.creditedWinMoney, cur, corrected);
+        tu.creditedWinMoney = 0;
+    }
+}
+
 void overworldMPTeamUpDisband() {
     if (!s_teamUpState.isTeamedUp) return;
 
@@ -944,6 +1010,7 @@ void overworldMPTeamUpAutoDisband() {
         if (s_battlePendingTimer <= 0.0f) {
             MP_LOG("[TeamUp] battlePending timeout (non-deferred) — clearing\n");
             s_teamUpState.battlePending = false;
+            s_teamUpState.battleType = 0;   // battle never happened - do not leak team-up gates
             s_teamUpBSP = nullptr;
             s_battlePendingTimer = -1.0f;
         }
@@ -2585,6 +2652,15 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         MP_LOG("[TeamUp] POST-storeBattleResult: judgeResult(+0x8c)=%u BSP.result=%d BSP.getMoney=%d\n",
                     postJudgeResult, fields->result, fields->getMoney);
 
+        // Joiner: if the initiator's authoritative result already arrived and says
+        // LOSS, adopt it before the standard handling below (vanilla stored a bogus
+        // WIN — the joiner's comm judge is never populated; see tu.hostResult).
+        if (!tu.isInitiator && tu.hostResult == 0 && !tu.hostResultAbnormal && fields->result != 0) {
+            MP_LOG("[TeamUp] Adopting host LOSS result (packet arrived before store)\n");
+            fields->result = 0;
+            fields->getMoney = 0;
+        }
+
         // Check escape count via EscapeInfo (MainModule+0x110 → +0x98)
         int32_t escapeCount = 0;
         void* ctx = *(void**)((uintptr_t)mainModule + 0x110);
@@ -2613,6 +2689,12 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         tu.battleResult = fields->result;
         tu.battleGetMoney = fields->getMoney;
 
+        // Initiator (client 0, the real judge): broadcast the authoritative result.
+        // The joiner cannot compute it locally and otherwise always stores WIN.
+        if (tu.isInitiator) {
+            sendTeamUpResult(tu.partnerStation, fields->result, abnormal);
+        }
+
         // Feed the Multi Tower round state machine (self-guards on tower state).
         mpTowerOnBattleResult(fields->result, abnormal);
 
@@ -2633,6 +2715,8 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpStoreBattleResult) {
         // path — so add it once here. GetBonusMoney @0x202DB50 is the value CalcWinMoney
         // (which we ungate for team-up) produced and the exit screen shows.
         if (!abnormal && fields->result != 0 && s_teamUpWinMoney > 0 && !mpTowerIsActive()) {
+            // Joiner: remember the credit — revoked if the host later reports a LOSS.
+            if (!tu.isInitiator) tu.creditedWinMoney = s_teamUpWinMoney;
             int32_t cur = PlayerWork::GetMoney();
             PlayerWork::SetMoney(cur + s_teamUpWinMoney);
             MP_LOG("[TeamUp] NPC-parity: credited %d win money (wallet %d -> %d)\n",
@@ -2891,6 +2975,66 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpRegisterZukanSeeFlag) {
         if (comp) { saved = *comp; *comp = 1; }
         Orig(mm, bpp, mi);
         if (comp) *comp = saved;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// Early authoritative-result broadcast
+// ---------------------------------------------------------------------------
+// MainModule::NotifyBattleResult @ 0x2036DD0 — the battle server records the
+// verdict here (writes judgeResult at MainModule+0x8c), several seconds BEFORE
+// either console's storeBattleResult runs. Broadcasting at this moment makes
+// the joiner's "adopt at store time" path the NORMAL case (packet arrives
+// before its store), eliminating the exit-sequence race entirely; the
+// store-time send below remains as redundancy and carries the abnormal flag.
+// Only the initiator's server ever fires this (the joiner's judge stays unset).
+HOOK_DEFINE_TRAMPOLINE(TeamUpNotifyBattleResult) {
+    static void Callback(void* mm, int32_t result, int32_t resultCause,
+                         bool isForceSetEnable, MethodInfo* mi) {
+        Orig(mm, result, resultCause, isForceSetEnable, mi);
+        if (teamUpTrainerBattle()) {
+            auto& tu = overworldMPGetTeamUpState();
+            if (tu.isInitiator) {
+                MP_LOG("[TeamUp] NotifyBattleResult: early result %d -> partner\n", result);
+                sendTeamUpResult(tu.partnerStation, result, false);
+            }
+        }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// Mid-battle trainer dialogue — momentary competitor flip
+// ---------------------------------------------------------------------------
+// Both mid-fight dialogue triggers gate on MainModule::IsCompetitorScenarioMode,
+// which is false for COMM(3) — so team-up battles never played the trainer's
+// first-damage / last-poke / half-HP lines. Present TRAINER for the duration of
+// the decision functions only (client+0x10 = MainModule, same BSP flip as the
+// other parity hooks).
+//
+// BTL_CLIENT::DecideTrainerMessage_OnSelectAction @ 0x1F519F0
+HOOK_DEFINE_TRAMPOLINE(TeamUpDecideTrainerMsgSelect) {
+    static uint64_t Callback(void* client, uint8_t* outClient, uint8_t* outType, MethodInfo* mi) {
+        void* mm = (client != nullptr) ? *(void**)((uintptr_t)client + 0x10) : nullptr;
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        uint64_t r = Orig(client, outClient, outType, mi);
+        if (comp) *comp = saved;
+        return r;
+    }
+};
+
+// BTL_CLIENT::scProc_ACT_MemberIn @ 0x1F5E440 — the "last Pokémon" line fires
+// from its step-0 IsCompetitorScenarioMode check on member send-in.
+HOOK_DEFINE_TRAMPOLINE(TeamUpMemberInTrainerMsg) {
+    static uint64_t Callback(void* client, uint8_t* step, void* args, MethodInfo* mi) {
+        void* mm = (client != nullptr) ? *(void**)((uintptr_t)client + 0x10) : nullptr;
+        int32_t* comp = teamUpTrainerBattle() ? mmCompetitorPtr(mm) : nullptr;
+        int32_t saved = 0;
+        if (comp) { saved = *comp; *comp = 1; }
+        uint64_t r = Orig(client, step, args, mi);
+        if (comp) *comp = saved;
+        return r;
     }
 };
 
@@ -3421,6 +3565,21 @@ static void releaseDeferredEncount(bool isTeamUp) {
 
     auto& tu = s_teamUpState;
     tu.bypassTrainerFlag = false; // no longer needed after sync resolves
+
+    // SOLO release: the upcoming battle is a fully vanilla one — drop the team-up
+    // battle markers set at SetupBattleTrainer trigger time. A stale battleType=1
+    // otherwise leaks team-up behavior into every later solo battle while paired:
+    // GetEscapeMode returns NG (can't run from wilds) and the post-battle handler
+    // runs the team-up party restore/heal machinery on solo battles.
+    if (!isTeamUp) {
+        if (tu.battleType != 0) {
+            MP_LOG("[TeamUp] Solo release: clearing stale team-up battle markers (type=%d)\n",
+                        (int)tu.battleType);
+        }
+        tu.battleType = 0;
+        tu.battleResult = -1;
+        s_teamUpBSP = nullptr;
+    }
 
     if (s_deferredFM != nullptr) {
         // Reset _updateType so EncountStart can set it properly.
@@ -3970,6 +4129,9 @@ void exl_team_up_main() {
     TeamUpCalcWinMoney::InstallAtOffset(0x1F76980);
     TeamUpOnPostBattle::InstallAtOffset(0x2C3C0B0);
     TeamUpNotifyPokemonLevelup::InstallAtOffset(0x2037C70);
+    TeamUpDecideTrainerMsgSelect::InstallAtOffset(0x1F519F0);
+    TeamUpNotifyBattleResult::InstallAtOffset(0x2036DD0);
+    TeamUpMemberInTrainerMsg::InstallAtOffset(0x1F5E440);
     TeamUpReflectNatsukiDead::InstallAtOffset(0x20370F0);
     TeamUpIsFriendshipActive::InstallAtOffset(0x20378D0);
     TeamUpRegisterZukanSeeFlag::InstallAtOffset(0x20352C0);

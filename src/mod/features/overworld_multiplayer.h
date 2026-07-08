@@ -55,6 +55,7 @@ static constexpr uint8_t OWMP_DATA_ID_POFFIN_RESULT       = 0xD7; // Group Poffi
 static constexpr uint8_t OWMP_DATA_ID_CONTEST_RESULT      = 0xD8; // Contest section/result score exchange (targeted)
 static constexpr uint8_t OWMP_DATA_ID_CONTEST_ENTRY       = 0xD9; // Contest entry data: partner's Pokémon + name (targeted)
 static constexpr uint8_t OWMP_DATA_ID_COUNTER_CHECKIN     = 0xDA; // Receptionist counter check-in on/off (targeted)
+static constexpr uint8_t OWMP_DATA_ID_TEAMUP_RESULT       = 0xDB; // Initiator authoritative team-up battle result (targeted)
 
 // 0xC6 sub-packet types — battle party is chunked because a full party (2100+ bytes)
 // exceeds the PIA PacketWriter buffer limit (~340 bytes user data, 1024 total).
