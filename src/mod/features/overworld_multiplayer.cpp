@@ -44,7 +44,6 @@
 #include "externals/System/String.h"
 #include "externals/System/Type.h"
 #include "externals/UnityEngine/_Object.h"
-#include "externals/UnityEngine/Collider.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/Time.h"
 #include "externals/UnityEngine/Transform.h"
@@ -98,25 +97,6 @@ static OverworldMPContext s_mpContext;
 // Flag: when true, ColorVariation_OnEnable applies the remote player's color
 // preset instead of the local custom save-data override.
 bool g_owmpSkipCustomColorOverride = false;
-// Disable every Unity collider on a remote-driven object. Remote entities are
-// moved by SetPositionDirect (no physics), but the player/pokemon prefabs ship
-// capsule colliders that physically shove the LOCAL player's follower Pokemon
-// and NPCs around. IsIgnorePlayerCollision only exempts the local player, so
-// kill the colliders outright — nothing targets remotes through physics (our
-// interaction system is proximity-based).
-static void owmpDisableColliders(UnityEngine::GameObject::Object* go, const char* what) {
-    if (go == nullptr) return;
-    auto* cols = go->GetComponentsInternal<UnityEngine::Collider>(UnityEngine::Collider::getClass(), true);
-    int32_t n = 0;
-    if (cols != nullptr) {
-        for (uint64_t i = 0; i < cols->max_length; i++) {
-            auto* c = cols->m_Items[i];
-            if (c != nullptr) { c->set_enabled(false); n++; }
-        }
-    }
-    MP_LOG("[OverworldMP] Disabled %d collider(s) on %s\n", n, what);
-}
-
 // Remote player's color preset index — set before Instantiate so the OnEnable
 // hook can apply it immediately. -1 = not set.
 int32_t g_owmpRemoteColorId = -1;
@@ -2593,7 +2573,6 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
         // Network characters should not block local player movement
         MP_LOG("[OverworldMP] Step 4a: setting collision ignore\n");
         entity->fields.IsIgnorePlayerCollision = true;
-        owmpDisableColliders(go, "remote player model");
 
         // NOTE: Do NOT null out EventParams — UpdateSubductionDepth and
         // UpdateSwim dereference it (offset +0xa4 for attribute checks).
@@ -3011,7 +2990,6 @@ static void onPokemonAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*method
     if (entity != nullptr) {
         // Ignore collision with local player
         entity->fields.IsIgnorePlayerCollision = true;
-        owmpDisableColliders(go, "remote follow pokemon");
 
         // Set BaseEntity.worldPosition directly so interpolation loop starts
         // from the correct position (avoids "drag" from origin)
