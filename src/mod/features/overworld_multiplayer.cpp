@@ -20,7 +20,6 @@
 
 #include "externals/AnimationPlayer.h"
 #include "externals/BaseEntity.h"
-#include "externals/BtlTowerWork.h"
 #include "externals/ColorVariation.h"
 #include "externals/EntityManager.h"
 #include "externals/FieldCharacterEntity.h"
@@ -4052,42 +4051,6 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
                 overworldMPStart();
             }
         }
-
-        // --- TEMPORARY DIAGNOSTIC (local test build only — do NOT commit) ---
-        // TAG-slot save round-trip test: log class_data[1]/[3] (NORMAL_TAG /
-        // MASTER_TAG) on load. If the sentinels are present, a prior run's
-        // write survived save+reload → TAG slots are safe for mod persistence.
-        // Otherwise write sentinels; the tester then SAVES in-game, restarts,
-        // and rechecks this log.
-        {
-            static float s_tagDiagTimer = 0.0f;
-            static bool  s_tagDiagDone = false;
-            if (!s_tagDiagDone) {
-                s_tagDiagTimer += UnityEngine::Time::get_deltaTime();
-                if (s_tagDiagTimer >= 5.0f) {
-                    s_tagDiagDone = true;
-                    int32_t  r1 = BtlTowerWork::GetRank(1);
-                    uint32_t n1 = BtlTowerWork::GetRenshou(1);
-                    int32_t  r3 = BtlTowerWork::GetRank(3);
-                    uint32_t n3 = BtlTowerWork::GetRenshou(3);
-                    MP_LOG("[TagDiag] TAG slots on load: rank[1]=%d renshou[1]=%u rank[3]=%d renshou[3]=%u (BP=%d)\n",
-                                r1, n1, r3, n3, BtlTowerWork::GetBP());
-                    if (r1 == 7 && n1 == 42 && r3 == 5 && n3 == 23) {
-                        MP_LOG("[TagDiag] *** SENTINELS PERSISTED — TAG slots round-trip the save. SAFE for mod persistence. ***\n");
-                    } else {
-                        BtlTowerWork::SetRank(1, 7);
-                        BtlTowerWork::UpdateRenshou(1, 42);
-                        BtlTowerWork::SetRank(3, 5);
-                        BtlTowerWork::UpdateRenshou(3, 23);
-                        MP_LOG("[TagDiag] Sentinels written (rank[1]=7 renshou[1]=42 rank[3]=5 renshou[3]=23). SAVE in-game, restart, recheck this log.\n");
-                        MP_LOG("[TagDiag] Read-back now: rank[1]=%d renshou[1]=%u rank[3]=%d renshou[3]=%u\n",
-                                    BtlTowerWork::GetRank(1), BtlTowerWork::GetRenshou(1),
-                                    BtlTowerWork::GetRank(3), BtlTowerWork::GetRenshou(3));
-                    }
-                }
-            }
-        }
-        // --- END TEMPORARY DIAGNOSTIC ---
 
         // Native-session coexistence: resume once the native session has ended.
         // The resume is deferred to here (FM.Update, field context) rather than
