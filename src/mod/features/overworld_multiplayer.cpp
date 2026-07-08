@@ -303,6 +303,8 @@ static void* s_nmStartedInstance = nullptr;
 // two sessions on one PIA stack is assumed fatal (PIA aborts on unexpected
 // state, see the enable_internet_access socket-abort incident).
 static bool  s_nativeSessionActive = false;    // set at SessionManager.StartSession
+static bool  s_ugSuspended = false;            // MP suspended while in the Grand Underground
+static constexpr int32_t OWMP_UG_AREA_ID = 493; // the Underground's areaID
 static bool  s_nativeResumePending = false;    // set when the native session ends
 static float s_nativeStateIdleTime = 0.0f;     // fallback timer: flag set but SessionState idle/error
 
@@ -4037,11 +4039,36 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
             }
         }
 
+        // Underground suspend/resume: the UG-exit sequence tears down LDN and
+        // WAITS for completion — with our persistent session alive that wait never
+        // resolves (white-screen hang on surfacing). A solo UG visit never starts a
+        // native GU comm session, so the s_nativeSessionActive coexistence can't
+        // cover it. Suspend through the same proven path the settings toggle uses
+        // the moment we're underground, and resume once back on the surface.
+        {
+            int32_t nowArea = __this->get_areaID();
+            bool inUg = (nowArea == OWMP_UG_AREA_ID);
+            if (inUg && !s_ugSuspended) {
+                s_ugSuspended = true;
+                if (s_mpContext.state != OverworldMPState::Disabled) {
+                    MP_LOG("[OverworldMP] Underground entered — suspending session\n");
+                    overworldMPStop();
+                }
+            } else if (!inUg && s_ugSuspended) {
+                s_ugSuspended = false;
+                if (enabled && !s_nativeSessionActive
+                        && s_mpContext.state == OverworldMPState::Disabled) {
+                    MP_LOG("[OverworldMP] Surfaced from Underground — resuming session\n");
+                    overworldMPStart();
+                }
+            }
+        }
+
         // Periodic self-heal: if the setting is on but the session is Disabled
         // (e.g. after a dead session, failed restart, or edge case), restart it.
         // Check every ~10 seconds to avoid spamming. Suppressed while a native
         // comm session (GU/Union Room/Coliseum) is active.
-        if (enabled && !s_nativeSessionActive
+        if (enabled && !s_nativeSessionActive && !s_ugSuspended
                 && s_mpContext.state == OverworldMPState::Disabled) {
             static float s_selfHealAccumulator = 0.0f;
             s_selfHealAccumulator += UnityEngine::Time::get_deltaTime();
@@ -4057,7 +4084,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
         // running inside the OnFinishedSession callback.
         if (s_nativeResumePending && !s_nativeSessionActive) {
             s_nativeResumePending = false;
-            if (enabled && s_mpContext.state == OverworldMPState::Disabled) {
+            if (enabled && !s_ugSuspended && s_mpContext.state == OverworldMPState::Disabled) {
                 MP_LOG("[OverworldMP] Native session over — resuming overworld MP\n");
                 overworldMPStart();
             }
