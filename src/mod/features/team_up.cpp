@@ -2793,6 +2793,54 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpClientSetSubProc) {
         // Multi Tower keeps the bare comm exit (no defeat demo, no "got money").
         if (stateId == 0x19 && overworldMPIsTeamedUp() &&
             overworldMPGetTeamUpState().battleType == 1 && !mpTowerIsActive()) {
+
+            // Joiner result recovery. The remap below sends the joiner to the NPC
+            // exit for the defeat-demo / money, but that path skips
+            // BTL_CLIENT::SubProc_ExitCommTrainer — the ONLY place a comm CLIENT
+            // learns the battle result. On the server (initiator) the judge is
+            // already set by BTL_SERVER, but on the joiner it stays unset (8), and
+            // MainModule::checkWinner then defaults an unset judge to WIN — so a
+            // team LOSS registered as a win + phantom money on the joiner.
+            //
+            // The server's exit-comm broadcast (winner client id + result + cause)
+            // is what triggers this setSubProc(0x19), and because we remap past
+            // ExitCommTrainer nothing consumes it. Replicate ExitCommTrainer case 0
+            // here: read that broadcast, resolve win/lose relative to MY comm
+            // position via IsFriendClientID, and set the judge — exactly what
+            // vanilla would have. Delivered over the battle's own comm channel, so
+            // it's immune to the overworld-MP battle-scene packet suppression that
+            // dropped our TEAMUP_RESULT packet.
+            void* mm = *(void**)((uintptr_t)client + 0x10);
+            if (mm != nullptr) {
+                int32_t* judge = (int32_t*)((uintptr_t)mm + 0x8c);
+                if (*judge == 8) {  // unset => joiner (server side is already set)
+                    void* adapter = *(void**)((uintptr_t)client + 0x70);
+                    void* recv = nullptr;
+                    uint32_t sz = (adapter != nullptr)
+                        ? _ILExternal::external<uint32_t>(0x1ABE590, adapter, &recv) // Adapter.GetRecvData
+                        : 0;
+                    if (sz != 0 && recv != nullptr) {
+                        uint16_t winnerId = *(uint16_t*)((uintptr_t)recv + 0);
+                        int16_t  rflag    = *(int16_t*)((uintptr_t)recv + 2);
+                        int32_t  cause    = *(int32_t*)((uintptr_t)recv + 4);
+                        uint8_t  thisPos  = *(uint8_t*)((uintptr_t)client + 0x118);
+                        // IsFriendClientID(this=mm, winner, me): winner on my team?
+                        bool friendly = _ILExternal::external<bool>(
+                            0x2039BA0, mm, (uint8_t)winnerId, thisPos);
+                        int32_t result = rflag;
+                        if (rflag == 1 && !friendly) result = 0;
+                        else if (rflag == 0 && !friendly) result = 1;
+                        *judge = result;                                  // NotifyBattleResult
+                        *(int32_t*)((uintptr_t)mm + 0x90) = cause;        // (both fields, judge==8 gate satisfied)
+                        MP_LOG("[TeamUp] Joiner result recovery: winner=%u rflag=%d friendly=%d -> judge=%d (cause=%d)\n",
+                                    (unsigned)winnerId, (int)rflag, (int)friendly, result, cause);
+                    } else {
+                        MP_LOG("[TeamUp] Joiner result recovery: no recv data at setSubProc(0x19) (sz=%u) — "
+                                    "judge stays unset\n", sz);
+                    }
+                }
+            }
+
             MP_LOG("[TeamUp] NPC-parity: remap comm-exit (0x19) -> NPC-exit (0x1a)\n");
             stateId = 0x1a;
         }

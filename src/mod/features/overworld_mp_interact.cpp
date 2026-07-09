@@ -2529,7 +2529,9 @@ static Pml::PokeParty::Object* deserializeBattleParty(uint8_t* buf, int32_t size
         // Shared validation (monsNo/seikaku/level range) — see mp_poke_validate.h.
         // Stop at the first invalid member; the party must be contiguous.
         if (!mpValidatePokemonParam((Pml::PokePara::CoreParam*)valPoke)) {
-            MP_LOG("[OverworldMP] REJECT[%d]: failed validation — excluded from party\n", i);
+            auto* vc = (Pml::PokePara::CoreParam*)valPoke;
+            MP_LOG("[OverworldMP] REJECT[%d]: failed validation (monsNo=%d seikaku=%d level=%u; maxMons=%d) — excluded\n",
+                   i, vc->GetMonsNo(), vc->GetSeikaku(), vc->GetLevel(), mpMaxMonsNo());
             break;
         }
         validCount++;
