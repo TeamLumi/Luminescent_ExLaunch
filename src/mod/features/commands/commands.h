@@ -512,3 +512,8 @@ bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] maxValue: Maximum value that the player can input.
 //   [String] headerLabel: Message Label containing text to be displayed in the header.
 bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gets the current Boss Team Randomization setting from the extra settings save data.
+// Arguments:
+//   [Work] result: The work in which to put the result. 0 = Random Always, 1 = Random Once, 2 = Fixed Team 1.
+bool GetTeamRandomization(Dpr::EvScript::EvDataManager::Object* manager);
