@@ -87,6 +87,10 @@ namespace Dpr::Battle::Logic {
             return external<Pml::PokeParty::Object*>(0x020325a0, this, clientID, fForServer);
         }
 
+        inline void SetMoneyDblUp(uint32_t clientID) {
+            external<void>(0x02036fd0, this, clientID);
+        }
+
         inline bool IsFriendPokeID(uint8_t pokeID1, uint8_t pokeID2) {
             return external<bool>(0x02037470, this, pokeID1, pokeID2);
         }
