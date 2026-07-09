@@ -2819,7 +2819,9 @@ HOOK_DEFINE_TRAMPOLINE(TeamUpClientSetSubProc) {
                     uint32_t sz = (adapter != nullptr)
                         ? _ILExternal::external<uint32_t>(0x1ABE590, adapter, &recv) // Adapter.GetRecvData
                         : 0;
-                    if (sz != 0 && recv != nullptr) {
+                    // Need the full 8-byte exit-comm payload (winnerId u16 @0,
+                    // rflag i16 @2, cause i32 @4); a short packet would over-read.
+                    if (sz >= 8 && recv != nullptr) {
                         uint16_t winnerId = *(uint16_t*)((uintptr_t)recv + 0);
                         int16_t  rflag    = *(int16_t*)((uintptr_t)recv + 2);
                         int32_t  cause    = *(int32_t*)((uintptr_t)recv + 4);
