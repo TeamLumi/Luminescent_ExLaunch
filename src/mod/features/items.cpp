@@ -33,6 +33,8 @@ HOOK_DEFINE_INLINE(Infinite_Items) {
 void exl_items_changes_main() {
     if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Ability Patch")))
         exl_items_ability_patch_main();
+    if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Amulet Coin")))
+        exl_items_amulet_coin_main();
     if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Everlasting Candies")))
         exl_items_everlasting_candies_main();
     if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Exp. Share")))

@@ -84,6 +84,7 @@ constexpr int DEBUG_FEATURE_COUNT = sizeof(DEBUG_FEATURES) / sizeof(DEBUG_FEATUR
 
 static constexpr const char* ITEM_FEATURES[] = {
     "Ability Patch",
+    "Amulet Coin",
     "Everlasting Candies",
     "Exp. Share",
     "Infinite TMs",
