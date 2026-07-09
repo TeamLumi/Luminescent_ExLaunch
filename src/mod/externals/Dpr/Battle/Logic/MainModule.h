@@ -8,6 +8,7 @@
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/BtlEscapeMode.h"
 #include "externals/Dpr/Battle/Logic/BtlRule.h"
+#include "externals/Dpr/Battle/Logic/MoneyDblUpCause.h"
 #include "externals/Dpr/Battle/Logic/MyStatus.h"
 #include "externals/Pml/PokeParty.h"
 #include "externals/System/Collections/IEnumerator.h"
@@ -87,8 +88,8 @@ namespace Dpr::Battle::Logic {
             return external<Pml::PokeParty::Object*>(0x020325a0, this, clientID, fForServer);
         }
 
-        inline void SetMoneyDblUp(uint32_t clientID) {
-            external<void>(0x02036fd0, this, clientID);
+        inline void SetMoneyDblUp(Dpr::Battle::Logic::MoneyDblUpCause cause) {
+            external<void>(0x02036fd0, this, cause);
         }
 
         inline bool IsFriendPokeID(uint8_t pokeID1, uint8_t pokeID2) {
