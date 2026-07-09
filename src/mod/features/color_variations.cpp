@@ -217,6 +217,17 @@ HOOK_DEFINE_INLINE(SetColorID_TrainerParam_StoreCore) {
     }
 };
 
+// The TrainerTable ColorID column is a uint8, so it can't hold the -1 sentinel that makes
+// a trainer use the player's color variation (like the player's mom). Treat 255 as -1 at
+// the point where BSP_TRAINER_DATA$$SetupTrainerData widens the byte into the int32
+// core_data color_id (W9 holds the zero-extended byte right before the str).
+HOOK_DEFINE_INLINE(SetupTrainerData_ColorID255) {
+    static void Callback(exl::hook::nx64::InlineCtx* ctx) {
+        if (ctx->W[9] == 0xFF)
+            ctx->W[9] = (uint32_t)-1;
+    }
+};
+
 HOOK_DEFINE_INLINE(CardModelViewController_LoadModels) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         auto trainerParam = (Dpr::Battle::View::TrainerSimpleParam::Object*)ctx->X[1];
@@ -319,4 +330,8 @@ void exl_color_variations_main() {
     exl::patch::CodePatcher p(0x020388ac);
     p.WriteInst(Nop());
     SetColorID_TrainerParam_StoreCore::InstallAtOffset(0x020387c4);
+
+    // TrainerTable ColorID 255 -> player's color variation (both SetupTrainerData overloads)
+    SetupTrainerData_ColorID255::InstallAtOffset(0x01ac48d8);
+    SetupTrainerData_ColorID255::InstallAtOffset(0x01ac4944);
 }
