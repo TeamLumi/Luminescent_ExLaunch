@@ -7,13 +7,15 @@
 namespace Dpr::Battle::Logic {
     struct MainModule;
 
-    struct POKECON : ILClass<POKECON> {
+    struct POKECON : ILClass<POKECON, 0x04c5aba8> {
         struct Fields {
             MainModule* m_mainModule;
             BTL_PARTY::Array* m_party;
             BTL_POKEPARAM::Array* m_activePokeParam;
             BTL_POKEPARAM::Array* m_storedPokeParam;
         };
+
+        // No singleton static; the only static is a scratch PokeParty.
 
         inline BTL_PARTY::Object* GetPartyData(uint32_t clientID) {
             return external<BTL_PARTY::Object*>(0x02038600, this, clientID);
