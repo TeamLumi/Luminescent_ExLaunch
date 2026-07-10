@@ -21,6 +21,7 @@ static constexpr const char *SETTINGS[] = {
     "Visible Shiny Eggs",
     "Trainer Sets",
     "Team Randomization",
+    "Frame Rate",
 };
 
 static constexpr const char *SETTING_DESCRIPTION_LABELS[] = {
@@ -44,10 +45,10 @@ static constexpr const char *SETTING_DESCRIPTION_LABELS[] = {
     "SS_option_ShinyEgg_Desc",
     "SS_option_GameMode_Desc",
     "SS_option_TeamRandom_Desc",
+    "SS_option_TargetFPS_Desc",
 };
 
 const int SETTING_COUNT = sizeof(SETTINGS) / sizeof(SETTINGS[0]);
 constexpr int SETTING_DESCRIPTION_LABEL_COUNT = sizeof(SETTING_DESCRIPTION_LABELS) / sizeof(SETTING_DESCRIPTION_LABELS[0]);
 
 static_assert(SETTING_COUNT == SETTING_DESCRIPTION_LABEL_COUNT);
-
