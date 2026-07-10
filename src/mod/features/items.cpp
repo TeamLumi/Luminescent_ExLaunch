@@ -43,6 +43,8 @@ void exl_items_changes_main() {
         exl_items_leek_main();
     if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Infinite Repel")))
         exl_items_repel_main();
+    if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Looker's Hat")))
+        exl_items_lookers_hat_main();
 
     Infinite_Items::InstallAtOffset(0x0185eb8c);
 };

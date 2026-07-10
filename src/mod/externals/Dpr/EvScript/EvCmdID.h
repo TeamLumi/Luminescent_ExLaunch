@@ -1302,6 +1302,10 @@ namespace Dpr::EvScript {
             _SET_EFFORT_VALUE = 1292,
             _SET_INDIVIDUAL_VALUE = 1293,
             _CUSTOM_NUMBER_INPUT = 1294,
+            _SAVE_PARTY_TEMP = 1295,
+            _RESTORE_PARTY_TEMP = 1296,
+            _GET_BTL_RESULT = 1297,
+            _ADD_POKEMON_SILENT = 1298,
 
             CUSTOM_CMD_END = 1500,
         };

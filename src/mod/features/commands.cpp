@@ -176,6 +176,14 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetIndividualValue(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
                     return HandleCmdStepper(CustomNumberInput(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SAVE_PARTY_TEMP:
+                    return HandleCmdStepper(SavePartyTemp(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_RESTORE_PARTY_TEMP:
+                    return HandleCmdStepper(RestorePartyTemp(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_BTL_RESULT:
+                    return HandleCmdStepper(GetBtlResult(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_SILENT:
+                    return HandleCmdStepper(AddPokemonSilent(__this));
                 default:
                     break;
             }
@@ -274,6 +282,10 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SAVE_PARTY_TEMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RESTORE_PARTY_TEMP);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_BTL_RESULT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_SILENT);
 
     exl_commands_hooks_main();
 }

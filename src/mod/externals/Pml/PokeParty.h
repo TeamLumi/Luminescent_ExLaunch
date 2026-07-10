@@ -4,7 +4,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace Pml {
-    struct PokeParty : ILClass<PokeParty> {
+    struct PokeParty : ILClass<PokeParty, 0x04C59E80> {
         struct Fields {
             Pml::PokePara::PokemonParam::Array* m_member;
             uint32_t m_memberCount;
@@ -29,6 +29,15 @@ namespace Pml {
 
         void RemoveMember(uint32_t idx) {
             external<void>(0x02056390, this, idx);
+        }
+
+        inline void ctor() {
+            external<void>(0x02055d10, this);
+        }
+
+        // Deep copies all 6 members + member count from src via Serialize/Deserialize
+        inline void CopyFrom(Pml::PokeParty::Object* src) {
+            external<void>(0x02056ec0, this, src);
         }
     };
 }
