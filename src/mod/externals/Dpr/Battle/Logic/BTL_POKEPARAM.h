@@ -202,6 +202,15 @@ namespace Dpr::Battle::Logic {
             return external<uint8_t>(0x01fd8a50, this);
         }
 
+        inline bool IsFakeEnable() {
+            return external<bool>(0x01fe3220, this);
+        }
+
+        // Valid only while IsFakeEnable().
+        inline uint8_t GetFakeTargetPokeID() {
+            return external<uint8_t>(0x01fe3230, this);
+        }
+
         inline bool CONFRONT_REC_IsMatch(int32_t pokeID) {
             return external<bool>(0x01fe39f0, this, pokeID);
         }

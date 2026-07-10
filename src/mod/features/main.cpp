@@ -131,6 +131,10 @@ void CallFeatureHooks()
         exl_ug_shinies_main();
     if (IsActivatedFeature(array_index(FEATURES, "More Time Flags")))
         exl_time_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Illusion Fixes"))) {
+        exl_illusion_break_fix_main();
+        exl_illusion_target_selector_fix_main();
+    }
 
     exl_debug_features_main();
     exl_items_changes_main();
