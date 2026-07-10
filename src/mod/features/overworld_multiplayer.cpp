@@ -302,9 +302,21 @@ static void* s_nmStartedInstance = nullptr;
 // While a native session is (or may be) live, overworld MP must stay down:
 // two sessions on one PIA stack is assumed fatal (PIA aborts on unexpected
 // state, see the enable_internet_access socket-abort incident).
-static bool  s_nativeSessionActive = false;    // set at SessionManager.StartSession
-static bool  s_ugSuspended = false;            // MP suspended while in the Grand Underground
-static constexpr int32_t OWMP_UG_AREA_ID = 493; // the Underground's areaID
+static bool  s_nativeSessionActive = false;    // set when a native comm session launches
+// True only while WE are driving our own NM.DoStartSession call. The Grand
+// Underground reaches the same DoStartSession through StartSessionRandomJoin, so
+// the hook uses this flag to tell our start apart from a native one and only
+// yield for the latter.
+static bool  s_owmpStartingOwnSession = false;
+// True while overworldMPStop is running — its own LeaveSession/FinishSession
+// calls must not re-trigger the game-teardown handover hooks.
+static bool  s_owmpTearingDown = false;
+// Grace window after yielding/handing over to a native comm flow: our session's
+// PIA teardown completes asynchronously a few frames later and fires
+// NM.OnSessionError — with MP already Disabled the normal suppression is off,
+// so the native flow's UI shows "connection was interrupted" for an error that
+// belongs to our dying session. Suppress session errors while this runs down.
+static float s_postYieldErrorGrace = 0.0f;
 static bool  s_nativeResumePending = false;    // set when the native session ends
 static float s_nativeStateIdleTime = 0.0f;     // fallback timer: flag set but SessionState idle/error
 
@@ -340,6 +352,20 @@ static Dpr::NetworkUtils::NetworkManager::Object* getNMInstance() {
     if (parentKlass != nullptr && parentKlass->static_fields != nullptr)
         return (Dpr::NetworkUtils::NetworkManager::Object*)(*(void**)parentKlass->static_fields);
     return nullptr;
+}
+
+// Raw session-state read: NM singleton → SessionConnector (+0x30) → state
+// (+0x50) — the exact fields the public NM.get_SessionState getter returns.
+// Our own code must use this instead of the getter: the getters are spoofed
+// (hooked below) to hide our session from vanilla logic, which otherwise takes
+// comm-mode branches during normal play (the Grand Underground's play-alone
+// exit polls them and white-screens waiting for a session that isn't its own).
+int32_t owmpRawSessionState() {
+    auto* nm = getNMInstance();
+    if (nm == nullptr) return 0;  // IlcaNetSessionState.None
+    auto* sc = (uint8_t*)nm->fields.sessionConnector;
+    if (sc == nullptr) return 0;
+    return *(int32_t*)(sc + 0x50);
 }
 
 // ---------------------------------------------------------------------------
@@ -474,6 +500,13 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
 
         int32_t oldArea = remote.areaID;
         remote.areaID = areaID;
+        // DIAG (UG peer visibility): log every peer area transition alongside
+        // ours, so a "same hideaway but no spawn" case shows the exact mismatch.
+        if (oldArea != areaID) {
+            MP_LOG("[OverworldMP] Peer %d area %d -> %d (mine=%d, spawned=%d)\n",
+                        fromStation, oldArea, areaID, s_mpContext.myAreaID,
+                        (int)remote.isSpawned);
+        }
 
         // Detect avatar, bike, or color change — need to respawn with different model/color
         if (remote.isSpawned && areaID == s_mpContext.myAreaID &&
@@ -516,17 +549,6 @@ static void onOverworldMPReceivePacket(void* pr, void* /*method*/) {
                 }
             }
 
-            // Unconditional periodic self-heal: every 10th position packet,
-            // re-apply the show path even when activeSelf looks fine. Covers
-            // the rarer invisibility modes (renderers or child objects left
-            // disabled by an interrupted scene) that the activeSelf check
-            // above can't see. Cheap: SetActive(true) on an active object is
-            // a no-op inside Unity.
-            static uint16_t s_posPacketCount[OW_MP_MAX_PLAYERS] = {};
-            if (++s_posPacketCount[fromStation] >= 10) {
-                s_posPacketCount[fromStation] = 0;
-                overworldMPSetEntityVisible(fromStation, true);
-            }
         }
         break;
     }
@@ -1661,6 +1683,7 @@ void overworldMPStop() {
 
     MP_LOG("[OverworldMP] Stopping session\n");
 
+    s_owmpTearingDown = true;
     s_mpContext.state = OverworldMPState::Disconnecting;
 
     // Clear grace period if stopping during one
@@ -1706,6 +1729,7 @@ void overworldMPStop() {
     s_nmStartedInstance = nullptr;
 
     s_mpContext.state = OverworldMPState::Disabled;
+    s_owmpTearingDown = false;
     MP_LOG("[OverworldMP] Session stopped\n");
 }
 
@@ -1761,7 +1785,11 @@ void overworldMPUpdate(float deltaTime) {
             // PIA state machine (SettingSet → dispatch → NexPiaInitialize →
             // PlatformInitialize) runs naturally via the Sequencer on subsequent
             // frames — no synchronous PIA hacks needed.
+            // Flag the call so our DoStartSession hook knows this is our own
+            // session start and doesn't mistake it for a native one to yield to.
+            s_owmpStartingOwnSession = true;
             _ILExternal::external<void>(0x1DE69B0, nm, (void*)nullptr);
+            s_owmpStartingOwnSession = false;
             MP_LOG("[OverworldMP] DoStartSession returned, bRunningSession=%d\n",
                         (int)sc->fields.bRunningSession);
 
@@ -1827,7 +1855,7 @@ void overworldMPUpdate(float deltaTime) {
 
         // Log every ~0.25s during grace to track countdown + session health
         if ((int)(prevTime * 4) != (int)(s_zoneChangeGraceTime * 4) || s_zoneChangeGraceTime <= 0.0f) {
-            int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
+            int32_t sessionState = owmpRawSessionState();
             MP_LOG("[OverworldMP] Grace countdown: %.2fs left, sessionState=%d, area=%d\n",
                         s_zoneChangeGraceTime > 0.0f ? s_zoneChangeGraceTime : 0.0f,
                         sessionState, s_mpContext.myAreaID);
@@ -1838,7 +1866,7 @@ void overworldMPUpdate(float deltaTime) {
             MP_LOG("[OverworldMP] Grace period expired\n");
 
             // Check session health immediately after reactivation
-            int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
+            int32_t sessionState = owmpRawSessionState();
             MP_LOG("[OverworldMP] Post-grace session state: %d (4/5=gaming OK, 7=error, 9=crash)\n",
                         sessionState);
 
@@ -1881,7 +1909,7 @@ void overworldMPUpdate(float deltaTime) {
         //   4=Gaming(Internet, gamingStartMode!=0),
         //   5=Gaming(LAN/local, gamingStartMode==0),
         //   7=GamingError, 9=Crash
-        int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
+        int32_t sessionState = owmpRawSessionState();
         // Log first 5 frames, then every 60 frames (~2s), to track state progression
         if (s_searchingFrameCount <= 5 || s_searchingFrameCount % 60 == 0) {
             MP_LOG("[NetDiag] Searching frame %d — sessionState=%d, recvCallbacks=%d\n",
@@ -1903,7 +1931,7 @@ void overworldMPUpdate(float deltaTime) {
     //   leave events and return to Gaming state after processing disconnects.
     //   Give it time via the grace counter.
     if (s_mpContext.state == OverworldMPState::Connected) {
-        int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
+        int32_t sessionState = owmpRawSessionState();
 
         if (sessionState == 9) {
             // Crash — irrecoverable. PIA is completely dead.
@@ -2019,6 +2047,14 @@ void overworldMPUpdate(float deltaTime) {
         }
     }
 
+    // Global spacing for the periodic color heal below: at most one peer's
+    // material re-push per 0.5s regardless of peer count, so a full 15-peer
+    // lobby caps at 2 rebuilds/sec instead of stacking 15 × (1 per 3s) = 5/sec
+    // (the same cost class as the old per-packet churn). Each peer still heals,
+    // just staggered — worst case ~7.5s apart with a full lobby.
+    static float s_colorHealGlobalGap = 0.0f;
+    if (s_colorHealGlobalGap > 0.0f) s_colorHealGlobalGap -= deltaTime;
+
     // Update remote player entity positions (interpolation)
     for (int i = 0; i < OW_MP_MAX_PLAYERS; i++) {
         auto& remote = s_mpContext.remotePlayers[i];
@@ -2116,6 +2152,23 @@ void overworldMPUpdate(float deltaTime) {
                 } else {
                     MP_LOG("[OverworldMP] Deferred refresh: no captured CV pointer for station %d\n", i);
                 }
+            }
+        }
+
+        // Slow periodic self-heal: every 3s (real time via deltaTime, so frame
+        // rate doesn't matter) re-push the peer's colors through the deferred-
+        // refresh path. Repairs the rare bad states a one-shot apply can miss —
+        // a peer left invisible with a broken material state (interactable but
+        // not rendering) or colors that ended up wrong — without the per-packet
+        // re-apply that used to rebuild materials ~2.5x/sec and drain FPS.
+        // Rate-capped across peers via s_colorHealGlobalGap (see loop head).
+        static float s_colorHealAccum[OW_MP_MAX_PLAYERS] = {};
+        if (remote.colorRefreshTimer <= 0.0f) {
+            s_colorHealAccum[i] += deltaTime;
+            if (s_colorHealAccum[i] >= 3.0f && s_colorHealGlobalGap <= 0.0f) {
+                s_colorHealAccum[i] = 0.0f;
+                s_colorHealGlobalGap = 0.5f;
+                remote.colorRefreshTimer = 0.05f;
             }
         }
 
@@ -2235,8 +2288,12 @@ void overworldMPUpdate(float deltaTime) {
     // a battle scene or transition owns the field (wild battles included).
     bool fieldIdleForSpawns = false;
     {
+        // Field(0) and UnderGround(1) are both interactive states — the guard
+        // exists for battle scenes/transitions. Without UnderGround here,
+        // queued peer spawns never processed in the Grand Underground.
         auto* fmIdle = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-        fieldIdleForSpawns = (fmIdle != nullptr && fmIdle->fields._updateType == 0);
+        fieldIdleForSpawns = (fmIdle != nullptr &&
+                              (fmIdle->fields._updateType == 0 || fmIdle->fields._updateType == 1));
     }
 
     // Retry pump: spawns queued while the field was busy start once it's idle
@@ -2512,7 +2569,8 @@ static void onCharacterAssetLoaded(Il2CppObject* loadedAsset, MethodInfo* /*meth
     // destroyed with that scene's teardown, leaving dangling pointers (this
     // exact sequence caused a post-wild-battle Transform abort). Re-queue and
     // let the tick pump retry once the field is back.
-    if (fmInst == nullptr || fmInst->fields._updateType != 0) {
+    if (fmInst == nullptr ||
+        (fmInst->fields._updateType != 0 && fmInst->fields._updateType != 1)) {
         MP_LOG("[OverworldMP] Field busy after load (battle/transition) — requeueing spawn for station %d\n",
                     stationIndex);
         remote.isSpawned = false;
@@ -2662,8 +2720,9 @@ static void spawnQueueProcessNext() {
     {
         FieldManager::getClass()->initIfNeeded();
         auto* fmIdle = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-        if (fmIdle == nullptr || fmIdle->fields._updateType != 0) {
-            return;
+        if (fmIdle == nullptr ||
+            (fmIdle->fields._updateType != 0 && fmIdle->fields._updateType != 1)) {
+            return;  // battle scene / transition — UnderGround(1) is fine
         }
     }
 
@@ -2830,16 +2889,29 @@ void overworldMPSetEntityVisible(int32_t stationIndex, bool visible) {
     if (stationIndex < 0 || stationIndex >= OW_MP_MAX_PLAYERS) return;
     auto& remote = s_mpContext.remotePlayers[stationIndex];
 
+    // Track whether this call actually flips the entity's active state. The
+    // periodic self-heal calls this every 10th position packet on an already-
+    // visible peer — re-arming the color refresh there rebuilt the peer's
+    // materials ~2.5x/sec forever (constant FPS drain, worst in heavy towns).
+    bool transitioned = false;
     auto* entity = (FieldObjectEntity::Object*)s_mpContext.spawnedEntities[stationIndex];
     if (remote.isSpawned && entity != nullptr) {
         auto* go = entity->cast<UnityEngine::Component>()->get_gameObject();
-        if (go != nullptr) go->SetActive(visible);
+        if (go != nullptr) {
+            if (go->get_activeSelf() != visible) transitioned = true;
+            go->SetActive(visible);
+        }
     }
     auto* poke = (FieldObjectEntity::Object*)remote.followPokeEntity;
     if (remote.followPokeSpawned && poke != nullptr) {
         auto* go = poke->cast<UnityEngine::Component>()->get_gameObject();
-        if (go != nullptr) go->SetActive(visible);
+        if (go != nullptr) {
+            if (go->get_activeSelf() != visible) transitioned = true;
+            go->SetActive(visible);
+        }
     }
+    if (!transitioned) return;
+
     // Re-showing the entity runs ColorVariation.OnEnable, which resets to the
     // default (colorId) preset — re-apply the peer's custom colors on the next
     // frame so hide-and-seek doesn't strip them.
@@ -3657,6 +3729,11 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnSessionError) {
             MP_LOG("[OverworldMP] NM.OnSessionError SUPPRESSED (errorType=%d)\n", errorType);
             return;  // Don't call Orig — prevents ErrorApplet
         }
+        if (s_postYieldErrorGrace > 0.0f) {
+            MP_LOG("[OverworldMP] NM.OnSessionError SUPPRESSED post-yield (errorType=%d, grace=%.1fs)\n",
+                        errorType, s_postYieldErrorGrace);
+            return;  // Our dying session's error — not the native flow's problem
+        }
         Orig(__this, errorType);
     }
 };
@@ -3667,7 +3744,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$OnSessionError) {
 // never want to show error dialogs — we handle disconnects silently.
 HOOK_DEFINE_TRAMPOLINE(NetworkManager$$IsShowApplicationErrorDialog) {
     static bool Callback() {
-        if (isOverworldMPActive()) {
+        if (isOverworldMPActive() || s_postYieldErrorGrace > 0.0f) {
             return false;
         }
         return Orig();
@@ -3827,6 +3904,23 @@ HOOK_DEFINE_TRAMPOLINE(IlcaNetBase$$PlatformInitialize) {
 // Signature: void DoStartSession(NM* this, Action<StartSessionResult> onComplete)
 HOOK_DEFINE_TRAMPOLINE(NetworkManager$$DoStartSession) {
     static void Callback(void* __this, void* onComplete) {
+        // Any DoStartSession that isn't ours is a native comm feature launching
+        // a session on the shared NetworkManager — the Grand Underground reaches
+        // here via StartSessionRandomJoin. Yield first (disband team-up, stop our
+        // session) so it starts on a clean PIA stack, exactly as the
+        // SessionManager.StartSession path does for Union Room / Colosseum. The
+        // existing resume machinery brings overworld MP back once it ends.
+        if (!s_owmpStartingOwnSession
+                && s_mpContext.state != OverworldMPState::Disabled) {
+            MP_LOG("[OverworldMP] Native NM session launching (DoStartSession) — yielding\n");
+            s_nativeSessionActive = true;
+            s_nativeResumePending = false;
+            s_nativeStateIdleTime = 0.0f;
+            s_postYieldErrorGrace = 5.0f;
+            overworldMPTeamUpDisband();
+            overworldMPStop();
+        }
+
         // Read NetworkParam from NM+0x38
         void* np = *(void**)((uintptr_t)__this + 0x38);
         if (np != nullptr) {
@@ -4028,6 +4122,11 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
 
         Orig(__this);
 
+        // Tick down the post-yield session-error grace window
+        if (s_postYieldErrorGrace > 0.0f) {
+            s_postYieldErrorGrace -= UnityEngine::Time::get_deltaTime();
+        }
+
         // Poll the overworld MP setting for toggle detection
         bool enabled = getCustomSaveData()->settings.overworldMultiplayer;
         if (enabled != s_prevSettingEnabled) {
@@ -4039,36 +4138,22 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
             }
         }
 
-        // Underground suspend/resume: the UG-exit sequence tears down LDN and
-        // WAITS for completion — with our persistent session alive that wait never
-        // resolves (white-screen hang on surfacing). A solo UG visit never starts a
-        // native GU comm session, so the s_nativeSessionActive coexistence can't
-        // cover it. Suspend through the same proven path the settings toggle uses
-        // the moment we're underground, and resume once back on the surface.
-        {
-            int32_t nowArea = __this->get_areaID();
-            bool inUg = (nowArea == OWMP_UG_AREA_ID);
-            if (inUg && !s_ugSuspended) {
-                s_ugSuspended = true;
-                if (s_mpContext.state != OverworldMPState::Disabled) {
-                    MP_LOG("[OverworldMP] Underground entered — suspending session\n");
-                    overworldMPStop();
-                }
-            } else if (!inUg && s_ugSuspended) {
-                s_ugSuspended = false;
-                if (enabled && !s_nativeSessionActive
-                        && s_mpContext.state == OverworldMPState::Disabled) {
-                    MP_LOG("[OverworldMP] Surfaced from Underground — resuming session\n");
-                    overworldMPStart();
-                }
-            }
-        }
+        // Native comm features are handled event-driven, no per-area
+        // enumeration: session launches yield via the DoStartSession /
+        // SessionManager.StartSession hooks (Union Room, Colosseum, online
+        // UG), and game-initiated stack teardowns hand over via the
+        // LeaveSession/FinishSession hooks (UG exit sequence, online UG
+        // bring-up). Play-alone underground deliberately keeps MP running.
+        // While underground with a handover/yield active, the restart/resume
+        // paths below are held off — resuming mid-UG would re-create the very
+        // conflict the handover resolved; resume happens on the surface.
+        bool underground = (__this->fields._updateType == 1);  // FieldManager.UpdateType.UnderGround
 
         // Periodic self-heal: if the setting is on but the session is Disabled
         // (e.g. after a dead session, failed restart, or edge case), restart it.
         // Check every ~10 seconds to avoid spamming. Suppressed while a native
         // comm session (GU/Union Room/Coliseum) is active.
-        if (enabled && !s_nativeSessionActive && !s_ugSuspended
+        if (enabled && !s_nativeSessionActive && !underground
                 && s_mpContext.state == OverworldMPState::Disabled) {
             static float s_selfHealAccumulator = 0.0f;
             s_selfHealAccumulator += UnityEngine::Time::get_deltaTime();
@@ -4082,9 +4167,9 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
         // Native-session coexistence: resume once the native session has ended.
         // The resume is deferred to here (FM.Update, field context) rather than
         // running inside the OnFinishedSession callback.
-        if (s_nativeResumePending && !s_nativeSessionActive) {
+        if (s_nativeResumePending && !s_nativeSessionActive && !underground) {
             s_nativeResumePending = false;
-            if (enabled && !s_ugSuspended && s_mpContext.state == OverworldMPState::Disabled) {
+            if (enabled && s_mpContext.state == OverworldMPState::Disabled) {
                 MP_LOG("[OverworldMP] Native session over — resuming overworld MP\n");
                 overworldMPStart();
             }
@@ -4093,11 +4178,13 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
         // Fallback for missed end/failure signals: if the native flag is set but
         // the session state has sat idle (None) or in error for 5s — cancelled
         // matchmaking, start failure with no callback, etc. — clear the flag so
-        // the resume path (or self-heal) can bring overworld MP back.
-        if (s_nativeSessionActive) {
+        // the resume path (or self-heal) can bring overworld MP back. Held off
+        // underground: after an exit handover the state is idle while the exit
+        // sequence runs, but MP must not come back until the surface.
+        if (s_nativeSessionActive && !underground) {
             auto* nmInstance = getNMInstance();
             int32_t st = (nmInstance != nullptr)
-                    ? Dpr::NetworkUtils::NetworkManager::get_SessionState()
+                    ? owmpRawSessionState()
                     : 0;
             // IlcaNetSessionState: 0=None, 7=GamingError, 9=Crash
             if (st == 0 || st == 7 || st == 9) {
@@ -4125,7 +4212,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldManager$$Update) {
                             s_mpContext.myAreaID, currentArea);
 
                 // Log session state at the moment of zone change
-                int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
+                int32_t sessionState = owmpRawSessionState();
                 MP_LOG("[OverworldMP] Session state at zone change: %d\n", sessionState);
                 // NM singleton is no longer hidden — no GO deactivation needed.
                 // The crash was caused by hiding the NM singleton: game code
@@ -4293,7 +4380,7 @@ HOOK_DEFINE_TRAMPOLINE(NetworkManager$$SendReliablePacketToAll) {
             static int32_t s_sendLogCount = 0;
             s_sendLogCount++;
             if (s_sendLogCount <= 20 || s_sendLogCount % 200 == 0) {
-                int32_t sessionState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
+                int32_t sessionState = owmpRawSessionState();
                 MP_LOG("[BtlNet] SendReliablePacketToAll: pw=%p sendType=%d result=%d sessState=%d (call #%d)\n",
                             pw, sendType, result, sessionState, s_sendLogCount);
             }
@@ -5079,10 +5166,72 @@ HOOK_DEFINE_TRAMPOLINE(SessionManager$$StartSession) {
         s_nativeResumePending = false;
         s_nativeStateIdleTime = 0.0f;
         if (s_mpContext.state != OverworldMPState::Disabled) {
+            s_postYieldErrorGrace = 5.0f;
             overworldMPTeamUpDisband();
             overworldMPStop();
         }
         Orig(__this, matchingParam);
+    }
+};
+
+// NM.LeaveSession @ 0x1DE9150 + NM.FinishSession @ 0x1DE9240 (statics on the
+// shared NetworkManager). The game finalizes the network stack directly in
+// flows that never pass a session-launch chokepoint — most importantly the
+// Grand Underground: its exit sequence tears the stack down and waits on
+// completion that never comes while our session is live (white screen on
+// surfacing), and its online bring-up finalizes existing state before starting
+// its own session (heap corruption/crash against our live session). When a
+// call that isn't our own teardown arrives while our session runs, hand over:
+// stop ours cleanly first (entities, callbacks, bookkeeping), then let the
+// game's teardown run against an already-clean stack. Resume is driven by the
+// FM.Update machinery once the player is back on the surface.
+static void owmpHandoverToGameTeardown(const char* who) {
+    if (s_owmpTearingDown || s_mpContext.state == OverworldMPState::Disabled) {
+        return;
+    }
+    MP_LOG("[OverworldMP] Game called %s — handing over session\n", who);
+    s_nativeSessionActive = true;
+    s_nativeResumePending = false;
+    s_nativeStateIdleTime = 0.0f;
+    s_postYieldErrorGrace = 5.0f;
+    overworldMPTeamUpDisband();
+    overworldMPStop();
+}
+
+HOOK_DEFINE_TRAMPOLINE(NetworkManager$$LeaveSession) {
+    static bool Callback(void* mi) {
+        owmpHandoverToGameTeardown("LeaveSession");
+        return Orig(mi);
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(NetworkManager$$FinishSession) {
+    static bool Callback(void* mi) {
+        owmpHandoverToGameTeardown("FinishSession");
+        return Orig(mi);
+    }
+};
+
+// NM.get_IsConnect @ 0x1DE78F0 + NM.get_SessionState @ 0x1DE7A50 (statics).
+// Vanilla logic all over the game polls these to decide comm-mode branches —
+// UgOpcManager/UgFieldManager underground, Union/Coliseum flows, EvScript.
+// While our overworld session is the one running, answer "offline": vanilla
+// then behaves exactly as it would without us (play-alone UG exits cleanly
+// instead of white-screening on a session it thinks is its own). Once a native
+// feature takes over (our session yields → state Disabled), the spoof drops
+// away and the game sees its own session's real state. Our code reads raw
+// state via owmpRawSessionState() and is unaffected.
+HOOK_DEFINE_TRAMPOLINE(NetworkManager$$get_IsConnect) {
+    static bool Callback(void* mi) {
+        if (s_mpContext.state != OverworldMPState::Disabled) return false;
+        return Orig(mi);
+    }
+};
+
+HOOK_DEFINE_TRAMPOLINE(NetworkManager$$get_SessionState) {
+    static int32_t Callback(void* mi) {
+        if (s_mpContext.state != OverworldMPState::Disabled) return 0;  // None
+        return Orig(mi);
     }
 };
 
@@ -5235,6 +5384,15 @@ void exl_overworld_multiplayer_main() {
     SessionManager$$StartSession::InstallAtOffset(0x19A9A80);
     SessionManager$$OnFinishedSession::InstallAtOffset(0x19A9920);
     SessionManager$$StartSessionComplete::InstallAtOffset(0x19A9CB0);
+
+    // Game-teardown handover hooks (cover the Grand Underground exit + online
+    // bring-up, which finalize the shared network stack outside session-launch).
+    NetworkManager$$LeaveSession::InstallAtOffset(0x1DE9150);
+    NetworkManager$$FinishSession::InstallAtOffset(0x1DE9240);
+
+    // Hide our session from vanilla comm-mode checks (see hook comments).
+    NetworkManager$$get_IsConnect::InstallAtOffset(0x1DE78F0);
+    NetworkManager$$get_SessionState::InstallAtOffset(0x1DE7A50);
     MP_LOG("[OverworldMP] Native-session coexistence hooks installed\n");
 
     // Town Map player icons + meet-up pins

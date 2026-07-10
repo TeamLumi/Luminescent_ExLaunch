@@ -1333,9 +1333,10 @@ void overworldMPShowIncomingRequestDialog(int32_t fromStation, InteractionType t
         return;
     }
 
-    // If in any battle (wild, trainer, etc.), decline — can't show UI during battle
+    // If in any battle (wild, trainer, etc.), decline — can't show UI during
+    // battle. UnderGround(1) is a normal interactive field state.
     auto* fmReq = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-    if (fmReq != nullptr && fmReq->fields._updateType != 0) {
+    if (fmReq != nullptr && fmReq->fields._updateType != 0 && fmReq->fields._updateType != 1) {
         MP_LOG("[OverworldMP] Declining incoming request — in battle (updateType=%d)\n",
                     fmReq->fields._updateType);
         overworldMPSendInteractionResponse(fromStation, false);
@@ -3022,8 +3023,9 @@ void overworldMPSetupAndStartBattle() {
 
     // Log PIA session state — type-2 transports need Gaming state (4 or 5)
     {
-        int32_t sessState = Dpr::NetworkUtils::NetworkManager::get_SessionState();
-        bool isConnect = Dpr::NetworkUtils::NetworkManager::get_IsConnect();
+        extern int32_t owmpRawSessionState();  // raw read — the public getters are spoofed
+        int32_t sessState = owmpRawSessionState();
+        bool isConnect = (sessState == 4 || sessState == 5);  // Gaming states
         int32_t myStationCheck = mpThisStationIndex(); // ThisStationIndex
         MP_LOG("[OverworldMP] Session state=%d isConnect=%d thisStation=%d\n",
                     sessState, (int)isConnect, myStationCheck);
@@ -3181,7 +3183,9 @@ void overworldMPCheckInteraction() {
     // during a regular wild battle, causing black screen or crashes.
     {
         auto* fmCheck = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-        if (fmCheck != nullptr && fmCheck->fields._updateType != 0 && !overworldMPIsInBattleScene()) {
+        if (fmCheck != nullptr &&
+            (fmCheck->fields._updateType != 0 && fmCheck->fields._updateType != 1) &&
+            !overworldMPIsInBattleScene()) {
             return; // In a non-MP battle — skip all interaction processing
         }
     }
@@ -3193,7 +3197,11 @@ void overworldMPCheckInteraction() {
     // non-zero through the transition animation and the entire battle scene.
     if (overworldMPIsInBattleScene()) {
         auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-        if (fm != nullptr && fm->fields._updateType == 0) {
+        // Back on the field when updateType returns to Field(0) — or
+        // UnderGround(1) after a battle fought down there, which otherwise
+        // left the battle-scene flag stuck forever.
+        if (fm != nullptr &&
+            (fm->fields._updateType == 0 || fm->fields._updateType == 1)) {
             overworldMPSetInBattleScene(false);
 
             // Clear MP battle color override
