@@ -24,6 +24,9 @@ bool CanUseRegisteredCustomItem(uint16_t itemno)
         case array_index(ITEMS, "Infinite Repel"): {
             return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"));
         }
+        case array_index(ITEMS, "Silph Scope Mk.II"): {
+            return IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Silph Scope Mk.II"));
+        }
         default: {
             return false;
         }
@@ -49,6 +52,13 @@ bool CustomItemBehavior(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displ
         case array_index(ITEMS, "Infinite Repel"): {
             if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Infinite Repel"))) {
                 UseInfiniteRepel(itemId, fromBag, bagDisplayClass);
+                return true;
+            }
+            return false;
+        }
+        case array_index(ITEMS, "Silph Scope Mk.II"): {
+            if (IsActivatedKeyItemFeature(array_index(KEY_ITEM_FEATURES, "Silph Scope Mk.II"))) {
+                UseSilphScopeMkII(itemId, fromBag, bagDisplayClass);
                 return true;
             }
             return false;

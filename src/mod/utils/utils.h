@@ -32,3 +32,28 @@ System::String::Object* Convert_AreaID(void* typeinfo, int32_t* areaId);
 
 // Convert a zone ID to its arrive flag.
 int32_t ConvertZoneIDToArriveFlag(int32_t zoneId);
+
+
+// Encounter slot helpers (encounter_slots.cpp).
+
+#include "externals/Dpr/Field/EncountResult.h"
+#include "externals/MonsLv.h"
+#include "externals/UnityEngine/Vector2Int.h"
+#include "externals/XLSXContent/FieldEncountTable.h"
+
+XLSXContent::FieldEncountTable::Sheettable::Object* GetFieldEncountersOfCurrentZoneID();
+
+bool DoesTileGiveEncounters(UnityEngine::Vector2Int::Object tile);
+
+bool IsTileAWaterTile(UnityEngine::Vector2Int::Object tile);
+
+bool DoesCurrentZoneIDHaveEncounters();
+
+void SetBaseGroundSlots(Dpr::Field::EncountResult::Object** encounterHolder, MonsLv::Array* slots);
+bool BuildGroundEncounterSlots(Dpr::Field::EncountResult::Object** encounterHolder, MonsLv::Array* slots);
+void SetWaterSlots(Dpr::Field::EncountResult::Object** encounterHolder, MonsLv::Array* slots);
+void SetTimeOfDaySlots(MonsLv::Array* slots);
+void SetSwarmSlots(MonsLv::Array* slots);
+void SetTrophyGardenSlots(MonsLv::Array* slots);
+void SetGBASlots(MonsLv::Array* slots);
+void SetWaterGBASlots(MonsLv::Array* slots);

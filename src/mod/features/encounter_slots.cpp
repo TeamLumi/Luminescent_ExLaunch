@@ -26,6 +26,7 @@
 #include "externals/ZukanWork.h"
 
 #include "logger/logger.h"
+#include "features/features.h"
 
 // Slots
 const int32_t SLOT_SWARM_1 = 0;
@@ -262,6 +263,32 @@ void SetWaterGBASlots(MonsLv::Array *slots)
     {
         if (gbaDualSlot->max_length > 2) ReplaceSlot(slots, SLOT_DUALSLOT_WATER_1, gbaDualSlot->m_Items[2]);
     }
+}
+
+// Builds the full ground slot table (base, time of day, swarm, Trophy Garden, dual-slot).
+bool BuildGroundEncounterSlots(Dpr::Field::EncountResult::Object **encounterHolder, MonsLv::Array *slots)
+{
+    XLSXContent::FieldEncountTable::Sheettable::Object * fieldEnc = GetFieldEncountersOfCurrentZoneID();
+    if (fieldEnc == nullptr || fieldEnc->fields.ground_mons == nullptr || fieldEnc->fields.ground_mons->max_length == 0)
+    {
+        return false;
+    }
+
+    SetBaseGroundSlots(encounterHolder, slots);
+    if (fieldEnc->fields.day != nullptr && fieldEnc->fields.night != nullptr)
+    {
+        SetTimeOfDaySlots(slots);
+    }
+    if (EncountDataWork::IsTairyouHassei() && fieldEnc->fields.tairyo != nullptr)
+    {
+        SetSwarmSlots(slots);
+    }
+    if (ZoneWork::IsHillBackZone(PlayerWork::get_zoneID()) && ZukanWork::GetZenkokuFlag())
+    {
+        SetTrophyGardenSlots(slots);
+    }
+    SetGBASlots(slots);
+    return true;
 }
 
 // Sets the safari slots.
@@ -568,12 +595,9 @@ Dpr::Field::EncountResult::Object * ReturnRoamingPokemonEncounter(Dpr::Field::En
     return *encounterHolder;
 }
 
-// Prepares the water encounter slots and triggers a water encounter.
-Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spaStruct, MonsLv::Array *slots, bool resetWalkEncountCount)
+// Sets up the water encounter slots and BattleBG.
+void SetWaterSlots(Dpr::Field::EncountResult::Object **encounterHolder, MonsLv::Array *slots)
 {
-    Pml::PokeParty::Object *party = PlayerWork::get_playerParty();
-    auto firstPokemon = (Pml::PokePara::CoreParam::Object *)party->GetMemberPointer(0);
-
     XLSXContent::FieldEncountTable::Sheettable::Object * fieldEnc = GetFieldEncountersOfCurrentZoneID();
 
     int32_t zoneId = PlayerWork::get_zoneID();
@@ -590,6 +614,15 @@ Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResu
     }
 
     SetWaterGBASlots(slots);
+}
+
+// Prepares the water encounter slots and triggers a water encounter.
+Dpr::Field::EncountResult::Object * ReturnWaterEncounter(Dpr::Field::EncountResult::Object **encounterHolder, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spaStruct, MonsLv::Array *slots, bool resetWalkEncountCount)
+{
+    Pml::PokeParty::Object *party = PlayerWork::get_playerParty();
+    auto firstPokemon = (Pml::PokePara::CoreParam::Object *)party->GetMemberPointer(0);
+
+    SetWaterSlots(encounterHolder, slots);
     bool randomWildEncounter = Dpr::Field::FieldEncount::SetEncountData((Pml::PokePara::PokemonParam::Object*)firstPokemon, 0, *spaStruct, slots, 1, 1, encounterHolder);
     return ReturnEncounterSlots(randomWildEncounter, encounterHolder, spaStruct, slots, false, resetWalkEncountCount);
 }
@@ -662,9 +695,12 @@ HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
         encounterRate = ApplyAbilityToEncounterRate(&spaStruct, encounterRate);
         encounterRate = ApplyLeadItemToEncounterRate(encounterRate);
 
-        // Roll for a grass encounter / Check if radar patch entered
+        // Symbols suppress only the random roll; the Poke Radar sway-grass
+        // check below must keep running.
         XLSXContent::MapAttributeTable::SheetData::Object * attribute = GetAttributeOfTile(entity->get_gridPosition());
-        bool rolledGrassEncounter = Dpr::Field::FieldEncount::MapEncountCheck(encounterRate, (attribute->fields).Code, inGridmove);
+        bool rolledGrassEncounter = g_symbolEncountersActive
+            ? false
+            : Dpr::Field::FieldEncount::MapEncountCheck(encounterRate, (attribute->fields).Code, inGridmove);
         Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object swayInfo{}; // local_f0 = 0x0, Total size 0x8
         bool radarEncounter = Dpr::Field::SwayGrass::SwayGrass_CheckSpEncount(&swayInfo, &entity->fields.worldPosition, 0.48);
         if (!radarEncounter)
@@ -695,21 +731,10 @@ HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
         }
 
         // Set slots
-        SetBaseGroundSlots(&encounterHolder, slots);
-        SetTimeOfDaySlots(slots);
-        bool isSwarm = EncountDataWork::IsTairyouHassei();
-        if (isSwarm)
+        if (!BuildGroundEncounterSlots(&encounterHolder, slots))
         {
-            SetSwarmSlots(slots);
+            return nullptr;
         }
-        int32_t zoneId = PlayerWork::get_zoneID();
-        bool isTrophyGardenZoneId = ZoneWork::IsHillBackZone(zoneId);
-        bool zukanFlag = ZukanWork::GetZenkokuFlag();
-        if (isTrophyGardenZoneId && zukanFlag)
-        {
-            SetTrophyGardenSlots(slots);
-        }
-        SetGBASlots(slots);
 
         if (PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR))
         {
@@ -886,21 +911,10 @@ HOOK_DEFINE_REPLACE(SetSweetEncountEncounterSlots) {
         }
 
         // Set slots
-        SetBaseGroundSlots(&encounterHolder, slots);
-        SetTimeOfDaySlots(slots);
-        bool isSwarm = EncountDataWork::IsTairyouHassei();
-        if (isSwarm)
+        if (!BuildGroundEncounterSlots(&encounterHolder, slots))
         {
-            SetSwarmSlots(slots);
+            return nullptr;
         }
-        int32_t zoneId = PlayerWork::get_zoneID();
-        bool isTrophyGardenZoneId = ZoneWork::IsHillBackZone(zoneId);
-        bool zukanFlag = ZukanWork::GetZenkokuFlag();
-        if (isTrophyGardenZoneId && zukanFlag)
-        {
-            SetTrophyGardenSlots(slots);
-        }
-        SetGBASlots(slots);
 
         if (PlayerWork::GetSystemFlag((int32_t)FlagWork_SysFlag::SYS_FLAG_PAIR))
         {

@@ -127,6 +127,8 @@ void CallFeatureHooks()
         exl_fake_stopdata_main();
     if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
         exl_surf_end_check_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Symbol Encounters")))
+        exl_symbol_encounters_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

@@ -100,8 +100,33 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         external<void>(0x0179f330, this, type, trainerid1, trainerid2);
     }
 
+    // CallEffect(EffectFieldID index, Transform parent, Action<EffectInstance> load,
+    //            UnityAction<EffectInstance> onFinished) @ 0x178A200 — plays a field
+    // effect (e.g. EF_F_GRASS_SPARKLE=14) parented to a transform; handles async load.
+    // Callbacks are optional (the PlayEffect coroutine null-checks before invoking).
+    inline void CallEffect(int32_t effectId, UnityEngine::Transform::Object* parent,
+                           void* loadCallback, void* onFinished) {
+        external<void>(0x178A200, this, effectId, parent, loadCallback, onFinished);
+    }
+
     inline int32_t get_areaID() {
         return external<int32_t>(0x01797f90, this);
+    }
+
+    inline void add_OnZoneChangeEvent(System::Action::Object* value) {
+        external<void>(0x01797b40, this, value);
+    }
+
+    inline void remove_OnZoneChangeEvent(System::Action::Object* value) {
+        external<void>(0x01797bf0, this, value);
+    }
+
+    inline void add_OnSceneInitEvent(System::Action::Object* value) {
+        external<void>(0x01797ca0, this, value);
+    }
+
+    inline void remove_OnSceneInitEvent(System::Action::Object* value) {
+        external<void>(0x01797d50, this, value);
     }
 
     inline int32_t GetBatleWeather() {
