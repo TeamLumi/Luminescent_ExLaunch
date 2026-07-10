@@ -1,0 +1,48 @@
+#pragma once
+
+#include "externals/il2cpp-api.h"
+
+#include "externals/AnimationPlayer.h"
+#include "externals/FieldObjectEntity.h"
+#include "externals/OnlinePlayerCharacter.h"
+#include "externals/OpcManager.h"
+#include "externals/UnityEngine/Vector2.h"
+
+struct OpcController : ILClass<OpcController> {
+    struct Fields : OnlinePlayerCharacter::Fields {
+        FieldObjectEntity::Object* _Entity;
+        void* _PosList;                             // List<Vector2>
+        void* _RotList;                             // List<float>
+        void* _CharacterMove;                       // OpcCharacterMove
+        AnimationPlayer::Object* _AnimationPlayer;
+        float _RotY;
+        bool _IsAnimStop;
+        OpcManager::CharaData::Object _CharaData;    // OpcManager.CharaData (value type)
+        bool isUseDashAnimation;
+        bool _isInitialized;
+        float _moveThreshold;
+        System::String::Object* _TalkLabel;
+        UnityEngine::Vector2::Fields _ContactSize;
+        float _Speed;
+        float _RotSpeed;
+        float _TargetDistance;
+        float _MinSpeed;
+        float _MaxSpeed;
+        float _AddSpeedRate;
+        float _CurrentSpeed;
+        float _CurrentDistance;
+        float _IdleTransutuonTime;
+    };
+
+    inline void AddNextPosition(UnityEngine::Vector2::Fields pos, float rotY) {
+        external<void>(0x01e0fb80, this, pos, rotY);
+    }
+
+    inline void SetRotationY(float rotY) {
+        external<void>(0x01e0fc10, this, rotY);
+    }
+
+    inline void ClearPos() {
+        external<void>(0x01e0fc20, this);
+    }
+};

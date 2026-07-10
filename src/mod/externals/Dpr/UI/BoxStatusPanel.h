@@ -4,6 +4,7 @@
 
 #include "externals/Dpr/UI/UIText.h"
 #include "externals/Pml/PokePara/CoreParam.h"
+#include "externals/Pml/PokePara/PokemonParam.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/MonoBehaviour.h"
 #include "externals/UnityEngine/UI/Image.h"
@@ -36,6 +37,14 @@ namespace Dpr::UI {
             float _openPosX;
             float _closePosX;
         };
+
+        inline bool SetUp(int32_t mode, Pml::PokePara::PokemonParam::Object* pokemonParam) {
+            return external<bool>(0x1CB0980, this, mode, pokemonParam);
+        }
+
+        inline void Open(int32_t mode, Pml::PokePara::PokemonParam::Object* pokemonParam) {
+            external<void>(0x1CB0930, this, mode, pokemonParam);
+        }
 
         struct DisplayClass35_0 : ILClass <DisplayClass35_0> {
             struct Fields {

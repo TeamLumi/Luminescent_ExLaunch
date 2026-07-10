@@ -61,6 +61,7 @@ static constexpr const char* FEATURES[] = {
     "Underground Statue Names",
     "Underground Visible Shinies",
     "More Time Flags",
+    "Overworld Multiplayer",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

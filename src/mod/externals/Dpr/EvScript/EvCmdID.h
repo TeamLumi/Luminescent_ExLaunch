@@ -1302,6 +1302,11 @@ namespace Dpr::EvScript {
             _SET_EFFORT_VALUE = 1292,
             _SET_INDIVIDUAL_VALUE = 1293,
             _CUSTOM_NUMBER_INPUT = 1294,
+            // 1295-1298 reserved (Looker Case Files, ExLaunch PR #226)
+            // 1299 reserved (_GET_GAME_MODE, ExLaunch PR #246)
+            _MP_COUNTER_STATUS = 1300,
+            _MP_COUNTER_CHECKIN = 1301,
+            _MP_COUNTER_CANCEL = 1302,
 
             CUSTOM_CMD_END = 1500,
         };

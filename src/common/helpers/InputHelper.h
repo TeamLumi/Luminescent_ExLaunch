@@ -7,6 +7,29 @@ class InputHelper {
 public:
     static void updatePadState();
 
+    // Read the current pad state directly from HID for the given port, resolving
+    // the active NpadStyle. Unlike the isHold*/isPress* API, this does NOT depend
+    // on updatePadState()/selectedPort (which are only driven by the debug ImGui
+    // loop), so it works in release builds. Handheld mode reads the dedicated
+    // handheld port (0x20). No press-edge tracking — callers keep their own
+    // previous-state flag if they need press detection.
+    static nn::hid::NpadBaseState readNpadStateDirect(ulong port = 0) {
+        nn::hid::NpadBaseState state = {};
+        nn::hid::NpadStyleSet styleSet = nn::hid::GetNpadStyleSet(port);
+        if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleFullKey)) {
+            nn::hid::GetNpadState((nn::hid::NpadFullKeyState*)&state, port);
+        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyDual)) {
+            nn::hid::GetNpadState((nn::hid::NpadJoyDualState*)&state, port);
+        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyLeft)) {
+            nn::hid::GetNpadState((nn::hid::NpadJoyLeftState*)&state, port);
+        } else if (styleSet.isBitSet(nn::hid::NpadStyleTag::NpadStyleJoyRight)) {
+            nn::hid::GetNpadState((nn::hid::NpadJoyRightState*)&state, port);
+        } else {
+            nn::hid::GetNpadState((nn::hid::NpadHandheldState*)&state, 0x20);
+        }
+        return state;
+    }
+
     static void setPort(ulong port) { selectedPort = port; }
 
     static void initKBM();

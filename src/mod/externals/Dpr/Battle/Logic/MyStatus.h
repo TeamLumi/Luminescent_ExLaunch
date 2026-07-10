@@ -20,5 +20,9 @@ namespace Dpr::Battle::Logic {
         inline bool IsMyPokemon(Pml::PokePara::CoreParam* poke) {
             return external<bool>(0x0203d330, this, poke);
         }
+
+        inline int32_t GetColorID() {
+            return external<int32_t>(0x0203d3f0, this);
+        }
     };
 }

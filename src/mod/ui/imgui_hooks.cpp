@@ -29,10 +29,72 @@ nvn::CommandBufferSetSamplerPoolFunc tempCommandSetSamplerPoolFunc;
 
 bool hasInitImGui = false;
 
+// Overlay system — volatile because procDraw runs on NVN render thread,
+// while ui_showOverlay/ui_hideOverlay are called from game logic thread.
+static volatile bool s_overlayActive = false;
+static char s_overlayText[128] = {};
+
+void ui_showOverlay(const char* text) {
+    strncpy(s_overlayText, text, sizeof(s_overlayText) - 1);
+    s_overlayText[sizeof(s_overlayText) - 1] = '\0';
+    __sync_synchronize(); // memory barrier: ensure text is written before flag
+    s_overlayActive = true;
+    Logger::log("[Overlay] showOverlay: text='%s'\n", s_overlayText);
+}
+
+void ui_hideOverlay() {
+    s_overlayActive = false;
+    __sync_synchronize();
+}
+
 static ui::Root root = ui::Root::single([](ui::Root& it){});
 
 void procDraw() {
+    // Heartbeat: log every ~5 seconds at 60fps to confirm procDraw is running
+    static int s_procDrawCount = 0;
+    s_procDrawCount++;
+    if (s_procDrawCount % 300 == 1) {
+        Logger::log("[Overlay] procDraw heartbeat #%d active=%d text[0]=%d\n",
+                    s_procDrawCount / 300, (int)s_overlayActive, (int)(uint8_t)s_overlayText[0]);
+    }
+
     root.render();
+
+    // Render overlay in its own standalone ImGui frame, after root finishes.
+    // This runs on the NVN render thread, so we use volatile + barrier above.
+    if (s_overlayActive && s_overlayText[0]) {
+        ImguiNvnBackend::newFrame();
+        ImGui::NewFrame();
+
+        ImGuiIO& io = ImGui::GetIO();
+        float windowWidth = 420.0f;
+        ImGui::SetNextWindowPos(
+            ImVec2((io.DisplaySize.x - windowWidth) * 0.5f, io.DisplaySize.y - 120.0f));
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 10.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(16, 12));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.78f));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+        ImGui::Begin("##Overlay", nullptr,
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoFocusOnAppearing);
+
+        float textWidth = ImGui::CalcTextSize(s_overlayText).x;
+        float availWidth = ImGui::GetContentRegionAvail().x;
+        if (textWidth < availWidth) {
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (availWidth - textWidth) * 0.5f);
+        }
+        ImGui::TextWrapped("%s", s_overlayText);
+
+        ImGui::End();
+        ImGui::PopStyleColor(2);
+        ImGui::PopStyleVar(2);
+
+        ImGui::Render();
+        ImguiNvnBackend::renderDrawData(ImGui::GetDrawData());
+    }
 }
 
 ui::Root* getRootElement() {

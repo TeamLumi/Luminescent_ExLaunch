@@ -6,6 +6,10 @@
 #include "externals/FieldPlayerEntity.h"
 
 struct EntityManager : ILClass<EntityManager, 0x04c59d10> {
+    static inline void Remove(BaseEntity::Object* entity) {
+        external<void>(0x01f0beb0, entity);
+    }
+
     struct StaticFields {
         void* _baseEntities;
         void* _activeBattlePlayer_k__BackingField;

@@ -7,6 +7,8 @@
 #include "externals/Dpr/Battle/Logic/Section_UseItem_Core.h"
 #include "externals/FlagWork.h"
 
+#include "features/team_up.h"
+
 using namespace Dpr::Battle::Logic;
 
 bool GetCantEscapeFlag()
@@ -106,6 +108,10 @@ HOOK_DEFINE_REPLACE(MainModule_IsEscapeEnableBattle) {
 
 HOOK_DEFINE_REPLACE(MainModule_GetEscapeMode) {
     static BtlEscapeMode Callback(MainModule::Object* __this) {
+        // Team-up: can't forfeit cooperative PvE battles
+        if (overworldMPIsTeamedUp() && overworldMPGetTeamUpState().battleType == 1) {
+            return BtlEscapeMode::BTL_ESCAPE_MODE_NG;
+        }
         return GetBattleEscapeMode(__this->fields.m_rule, __this->fields.m_setupParam->fields.competitor);
     }
 };

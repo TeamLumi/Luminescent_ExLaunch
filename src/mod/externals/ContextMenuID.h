@@ -132,4 +132,10 @@ enum class ContextMenuID : int32_t {
 	PRO_VITAMIN_SPATK = 124,
 	PRO_VITAMIN_SPDEF = 125,
 	PRO_VITAMIN_AGI = 126,
+
+    // Overworld Multiplayer
+    OWMP_BATTLE = 127,
+    OWMP_TRADE = 128,
+    OWMP_EMOTE = 129,
+    OWMP_CANCEL = 130,
 };

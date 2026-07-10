@@ -166,6 +166,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(PartyBoxShiny(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
                     return HandleCmdStepper(SetPartnerPokemon(__this));
+                // Team-up trainer flag bypass moved to proper hooks in trainer_flag_bypass.cpp
+
                 case Dpr::EvScript::EvCmdID::NAME::_GET_TABLE_POKE:
                     return HandleCmdStepper(GetTablePoke(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EV_IV:
@@ -176,6 +178,12 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetIndividualValue(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
                     return HandleCmdStepper(CustomNumberInput(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_MP_COUNTER_STATUS:
+                    return HandleCmdStepper(MpCounterStatusCmd(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_MP_COUNTER_CHECKIN:
+                    return HandleCmdStepper(MpCounterCheckinCmd(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_MP_COUNTER_CANCEL:
+                    return HandleCmdStepper(MpCounterCancelCmd(__this));
                 default:
                     break;
             }
@@ -274,6 +282,13 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MP_COUNTER_STATUS);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MP_COUNTER_CHECKIN);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_MP_COUNTER_CANCEL);
+
+    // Note: the team-up trainer-flag bypass for _IF_TR_FLAGON_JUMP/_CALL is handled
+    // by trampoline hooks in commands/trainer_flag_bypass.cpp, not custom command
+    // dispatch, so those commands are intentionally not registered here.
 
     exl_commands_hooks_main();
 }
