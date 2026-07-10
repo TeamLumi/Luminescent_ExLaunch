@@ -273,6 +273,10 @@ static int32_t s_preBattleLevelCount = 0;
 // FinalizeCoroutine completes (which otherwise overwrites our storeBattleResult restore).
 static uint8_t s_battleModPartyBuf[TEAMUP_PARTY_LIMIT * POKE_FULL_DATA_SIZE];
 static int32_t s_battleModPartyCount = 0;
+// Species captured alongside the buffer, so the deferred restore can tell when a
+// slot evolved during vanilla finalization (post-battle evo demo runs AFTER the
+// buffer is taken) and sync the evolved form in instead of reverting it.
+static int32_t s_battleModMonsNo[TEAMUP_PARTY_LIMIT] = {};
 static bool s_battleAbnormal = false;
 // True when the (non-abnormal) team-up battle was a LOSS — the deferred restore
 // then heals the ENTIRE party to full (the pokémon-center restore) while keeping
@@ -504,6 +508,7 @@ static void saveBattleModifiedParty(void* mainModule, uint8_t myClientId, bool i
         if (poke != nullptr && poke->fields.m_accessor != nullptr) {
             poke->fields.m_accessor->Serialize_FullData(
                 &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
+            s_battleModMonsNo[i] = poke->cast<Pml::PokePara::CoreParam>()->GetMonsNo();
             s_battleModPartyCount++;
 
             // Immediate write into the real party so evolution (which reads
@@ -579,6 +584,19 @@ void applyDeferredPartyRestore() {
         for (int i = 0; i < s_battleModPartyCount; i++) {
             auto* poke = party->GetMemberPointer(i);
             if (poke != nullptr && poke->fields.m_accessor != nullptr) {
+                // If this slot evolved during finalization (its species no longer
+                // matches what we captured), the post-battle evo demo already
+                // wrote the evolved mon into the party — re-capture it into the
+                // buffer so we preserve the evolution instead of reverting it
+                // (this also keeps the 0.5s second-pass restore correct).
+                int32_t liveMonsNo = poke->cast<Pml::PokePara::CoreParam>()->GetMonsNo();
+                if (liveMonsNo != 0 && liveMonsNo != s_battleModMonsNo[i]) {
+                    poke->fields.m_accessor->Serialize_FullData(
+                        &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
+                    s_battleModMonsNo[i] = liveMonsNo;
+                    MP_LOG("[TeamUp] slot %d evolved during finalization (mons %d) — kept\n",
+                                i, liveMonsNo);
+                }
                 poke->fields.m_accessor->Deserialize_FullData(
                     &s_battleModPartyBuf[i * POKE_FULL_DATA_SIZE]);
                 written++;

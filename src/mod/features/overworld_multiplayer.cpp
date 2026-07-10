@@ -3189,7 +3189,12 @@ void overworldMPSendPosition() {
     auto* pokeParamRaw = (fwMng != nullptr)
         ? fwMng->fields._PartnerPokeParam_k__BackingField : nullptr;
     auto* corePoke = (Pml::PokePara::CoreParam::Object*)pokeParamRaw;
-    bool hasFollowPoke = (corePoke != nullptr && !corePoke->IsNull());
+    // Only broadcast a follower when one is actually WALKING — the party param
+    // stays assigned inside buildings/caves where the follower is despawned, so
+    // gate on the live Controller (FieldWalkingManager nulls it on delete).
+    // Without this, peers show a follower in no-follower areas.
+    bool followerActive = (fwMng != nullptr && fwMng->fields.Controller != nullptr);
+    bool hasFollowPoke = followerActive && (corePoke != nullptr && !corePoke->IsNull());
     il2cpp_vcall_write_byte(pw, PW_WRITE_BYTE, hasFollowPoke ? 1 : 0);
     if (hasFollowPoke) {
         il2cpp_vcall_write_s32(pw, PW_WRITE_S32, corePoke->GetMonsNo());
