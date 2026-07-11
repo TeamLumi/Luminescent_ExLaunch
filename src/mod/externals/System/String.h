@@ -37,6 +37,14 @@ namespace System {
             return external<String::Object*>(0x026ef430, str0, str1);
         }
 
+        static inline String::Object* Concat(String::Object* str0, String::Object* str1, String::Object* str2) {
+            return external<String::Object*>(0x026ee6a0, str0, str1, str2);
+        }
+
+        static inline String::Object* Concat(String::Object* str0, String::Object* str1, String::Object* str2, String::Object* str3) {
+            return external<String::Object*>(0x026f94b0, str0, str1, str2, str3);
+        }
+
         static inline String::Object* Format(String::Object* format, Il2CppObject* arg0) {
             return external<String::Object*>(0x026f8970, format, arg0);
         }
