@@ -1303,6 +1303,7 @@ namespace Dpr::EvScript {
             _SET_INDIVIDUAL_VALUE = 1293,
             _CUSTOM_NUMBER_INPUT = 1294,
             _ADD_TAMAGO_EXTRA = 1295,
+            _ADD_POKEMON_EXTRA = 1296,
 
             CUSTOM_CMD_END = 1500,
         };

@@ -1,12 +1,13 @@
-#include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/PlayerWork.h"
-
 #include "features/commands/utils/cmd_utils.h"
-#include "logger/logger.h"
-#include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
+
+#include "externals/Dpr/EvScript/EvDataManager.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/Dpr/UI/UIZukanRegister.h"
+#include "externals/PlayerWork.h"
 #include "externals/poketool/poke_memo/poketool_poke_memo.h"
+#include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
+
+#include "logger/logger.h"
 
 void EvCmdAddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager, int32_t addMemberResult) {
     EvData::Aregment::Array* args = manager->fields._evArg;
@@ -40,7 +41,7 @@ bool AddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager)
             auto formNo = GetWorkOrIntValue(args->m_Items[2]);
             auto receivedFrom = -1; // Defaults to ZoneID in case arg not given
             auto maxIVs = -1; // Defaults to regular IVs calculation in case arg not given
-            auto ball = 4; // Defaults to regular Poke Ball in case arg not given
+            auto ball = -1; // Defaults to regular Poke Ball in case arg not given
             auto shiny = -1; // Defaults to regular shiny calculation in case arg not given
             auto gender = -1; // Defaults to regular gender calculation in case arg not given
             auto formArg = -1; // Defaults to no variant in case arg not given
@@ -80,7 +81,12 @@ bool AddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager)
             if (nature >= 0) initialSpec->fields.seikaku = nature;
             if (ability >= 0) initialSpec->fields.tokuseiIndex = ability;
             auto coreParam = Pml::PokePara::PokemonParam::newInstance(initialSpec)->cast<Pml::PokePara::CoreParam>();
+
+            if (ball == -1) {
+                ball = 4;
+            }
             coreParam->SetGetBall(ball);
+
             if (shiny == 0) coreParam->SetRareType(Pml::PokePara::RareType::NOT_RARE); // Never shiny
             if (shiny == 1) coreParam->SetRareType(Pml::PokePara::RareType::CAPTURED); // Shiny
             if (shiny == 2) coreParam->SetRareType(Pml::PokePara::RareType::DISTRIBUTED); // Square shiny
