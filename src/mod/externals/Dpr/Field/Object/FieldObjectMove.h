@@ -5,6 +5,7 @@
 #include "externals/Dpr/Field/FieldFloatMove.h"
 #include "externals/UnityEngine/Vector3.h"
 
+struct FieldObjectEntity;
 namespace Dpr::Field::Object
 {
     struct FieldObjectMove : ILClass<FieldObjectMove, 0x04c5ec48> {
@@ -30,7 +31,7 @@ namespace Dpr::Field::Object
             external<void>(0x01a77e00, this, proxy, moveTime);
         }
 
-        inline void SetObjectEntity(void* entity) { // FieldObjectEntity::Object*
+        inline void SetObjectEntity(FieldObjectEntity* entity) {
             external<void>(0x01a779e0, this, entity);
         }
 

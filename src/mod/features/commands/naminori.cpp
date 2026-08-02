@@ -75,7 +75,8 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
         playerEntity->PlayNaminoriStart();
         playerEntity->fields.isLanding = false;
 
-        move->SetObjectEntity(playerEntity);
+        auto* objectEntity = reinterpret_cast<FieldObjectEntity::Object*>(playerEntity);
+        move->SetObjectEntity(objectEntity);
         auto swimTarget = playerEntity->CalcSwimTargetPosition();
 
         AnimationPlayer::Object* anim = playerEntity->cast<BaseEntity::Object>()->virtual_GetAnimationPlayer();
@@ -95,8 +96,11 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
         auto parent = playerEntity->fields._BiidaruTransform_k__BackingField;
 
-        UnityEngine::Vector3::Object ofs;
-        ofs.ctor(0.0f, 0.5f, 0.0f); // Offset for the splash effect from the parent's position
+        UnityEngine::Vector3::Object ofs = {
+            .fields = {
+                .x = 0.0f, .y = 0.5f, .z = 0.0f,
+              }
+        };  // Offset for the splash effect from the parent's position
 
         fieldManager->CallEffect(249, parent, ofs, nullptr, nullptr);
 
