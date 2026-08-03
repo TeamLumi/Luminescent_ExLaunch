@@ -131,6 +131,8 @@ void CallFeatureHooks()
         exl_ug_shinies_main();
     if (IsActivatedFeature(array_index(FEATURES, "More Time Flags")))
         exl_time_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Zone Frames")))
+        exl_zone_frames_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

@@ -27,6 +27,11 @@ ExtraFieldEffectWeatherHandlers* getExtraFieldEffectWeatherHandlers() {
     return &extraFieldEffectWeatherHandlers;
 }
 
+void AddSituationDetailWeatherFieldEffectLabels(System::Collections::Generic::Dictionary$$BtlWeather$$String::Object* weatherIDs) {
+    if (ACTIVATED_FIELD_WEATHER_HANDLERS[array_index(BATTLE_WEATHERS, "Snow")])
+        weatherIDs->Add(array_index(BATTLE_WEATHERS, "Snow"), System::String::Create("Snow"));
+}
+
 using namespace Dpr::Battle::Logic;
 
 // Types that are more/less effective under specific weather, keep at 1x.

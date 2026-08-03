@@ -102,5 +102,9 @@ namespace Dpr::Battle::Logic {
         inline System::Collections::IEnumerator::Object* LeavenOnErrorCoroutine() {
             return external<System::Collections::IEnumerator::Object*>(0x0202e6b0, this);
         }
+
+        inline int32_t PokeIDtoSide(uint8_t pokeID) {
+            return external<int32_t>(0x020374e0, this, pokeID);
+        }
     };
 }
