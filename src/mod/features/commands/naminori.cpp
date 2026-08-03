@@ -39,10 +39,10 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
     if (surfState == 2) { // Ending command sequence. Waits for animations to finish and properly changes player state to swimming.
 
-        AnimationPlayer::Object* anim = reinterpret_cast<BaseEntity::Object*>(playerEntity)->virtual_GetAnimationPlayer();
+        AnimationPlayer::Object* anim = playerEntity->virtual_GetAnimationPlayer();
         bool ended = anim->get_IsPlayingEnd();
         if (!ended) {
-            return false;
+            return manager->fields._hidenSequence < 0;
         }
 
         playerEntity->ChangeSwim(true);
@@ -55,7 +55,7 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
     else if (surfState == 1) { // During command sequence. Waits for the movement to finish and starts swim effect.
 
         if (move->get_IsBusy()) {
-            return false;
+            return manager->fields._hidenSequence < 0;
         }
 
         playerEntity->fields.ForcePlayNaminoriEffect = true;
@@ -66,7 +66,7 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
     else { // Beginning command sequence. Begins the movement and starts effects and music.
 
         if (manager->fields._hidenSequence != 0) {
-            return false;
+            return manager->fields._hidenSequence < 0;
         }
 
         FieldManager::Object* fieldManager = FieldManager::getClass()->static_fields->_Instance_k__BackingField->instance();
@@ -79,12 +79,12 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
         move->SetObjectEntity(objectEntity);
         auto swimTarget = playerEntity->CalcSwimTargetPosition();
 
-        AnimationPlayer::Object* anim = playerEntity->cast<BaseEntity::Object>()->virtual_GetAnimationPlayer();
+        AnimationPlayer::Object* anim = playerEntity->virtual_GetAnimationPlayer();
         float remainingTime = anim->get_currentRemaingTime() + -0.5666667;
 
-        auto worldPos = playerEntity->fields.worldPosition;
-
         move->MoveTime(swimTarget, remainingTime);
+
+        auto worldPos = playerEntity->fields.worldPosition;
 
         auto magnitude = UnityEngine::Vector3::op_Subtraction(swimTarget, worldPos).get_magnitude();
 
