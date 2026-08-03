@@ -512,3 +512,12 @@ bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] maxValue: Maximum value that the player can input.
 //   [String] headerLabel: Message Label containing text to be displayed in the header.
 bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
+
+// This starts a trainer battle, it determines the battle type from filled trainer slots
+// Although if SYS_FLAG_PAIR is active it'll override 0 for paired ally
+// Arguments:
+//   [Work, Number] enemyA: The first enemy trainer ID.
+//   [Work, Number] ally: The partner trainer ID, or 0 for none. (Default 0)
+//   [Work, Number] enemyB: The second enemy trainer ID, or 0 for none. (Default 0)
+//   [Work, Number] rule: BtlRule override, 0 = Single, 1 = Double.
+bool TrainerBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager);

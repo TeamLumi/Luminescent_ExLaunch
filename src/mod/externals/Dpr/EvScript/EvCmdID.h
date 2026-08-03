@@ -1302,6 +1302,7 @@ namespace Dpr::EvScript {
             _SET_EFFORT_VALUE = 1292,
             _SET_INDIVIDUAL_VALUE = 1293,
             _CUSTOM_NUMBER_INPUT = 1294,
+            _TRAINER_BTL_SET_EXTRA = 1300,
 
             CUSTOM_CMD_END = 1500,
         };

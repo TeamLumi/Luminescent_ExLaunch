@@ -511,6 +511,10 @@ namespace Dpr::EvScript {
             external<void>(0x02c45c90, this);
         }
 
+        inline void BattleTrainer(int32_t enemyID0, int32_t enemyID1, int32_t partnerID) {
+            external<void>(0x02c4fc10, this, enemyID0, enemyID1, partnerID);
+        }
+
         inline bool CallWazaUICommon(int32_t bootType, Pml::PokePara::PokemonParam::Object* pokemonParam, System::Action::Object* resultCallback, int32_t oshieWazaNo) {
             return external<bool>(0x02c92530, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
         }
