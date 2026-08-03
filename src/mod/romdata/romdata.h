@@ -12,7 +12,10 @@
 #include "romdata/data/SmeargleColor.h"
 #include "romdata/data/Starter.h"
 #include "romdata/data/TMLearnset.h"
+#include "romdata/data/EncounterTableData.h"
 #include "romdata/data/UnbreakablePokeItem.h"
+#include "romdata/data/FossilData.h"
+#include "romdata/data/Zone.h"
 #include "romdata/data/ZoneRates.h"
 
 // Returns the max level based on the given level cap index.
@@ -38,6 +41,12 @@ RomData::UnbreakablePokeItem GetAlwaysUnbreakableItems();
 
 // Returns the honey tree Pokémon at the given zoneID and slot.
 RomData::HoneyTreeSlot GetHoneyTreeSlot(int32_t zoneID, int32_t slot);
+
+// Returns a random encounter slot from the given table ID.
+RomData::EncounterSlot GetEncounterTableSlot(int32_t tableID);
+
+// Returns the number of slots in the given encounter table.
+int32_t GetEncounterTableCount(int32_t tableID);
 
 // Returns a predefined color set for color variations.
 RomData::ColorSet GetColorSet(int32_t index);
@@ -72,6 +81,9 @@ RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId);
 // Returns the form rates of the given Pokémon at the given zoneID.
 nn::vector<uint32_t> GetFormRates(int32_t monsno, int32_t zoneID);
 
+// Returns if there are defined form rates for the given Pokémon at the given zoneID.
+bool ExistFormRates(int32_t monsno, int32_t zoneID);
+
 // Rolls for a form based on the form rates for the given Pokémon at the given zoneID.
 int32_t RollForForm(int32_t monsno, int32_t zoneID);
 
@@ -101,5 +113,20 @@ RomData::BoxOpenParam GetExtraBoxOpenParamData(int32_t paramId);
 
 // Returns Outfit Availability data for the given dressID.
 RomData::OutfitData GetOutfitData(int32_t dressID);
+
+// Returns the fossil entry for the given item number, loading from {itemNo}.json on demand.
+RomData::FossilEntry GetFossilEntry(int32_t itemNo);
+
+// Returns the MonsNo for the given fossil item number, or 0 if not found.
+int32_t GetMonsNoFromItemNo(int32_t itemNo);
+
+// Returns the FormNo for the given fossil item number, or 0 if not found.
+int32_t GetFossilFormNoFromItemNo(int32_t itemNo);
+
+// Loads the list of fossil item numbers from fossil_items.json.
+RomData::FossilItemList LoadFossilItemList();
+
+// Returns the extra Zone data.
+RomData::Zone GetZoneData(int32_t zoneID);
 
 void LoadFeaturesFromJSON(nn::json j);

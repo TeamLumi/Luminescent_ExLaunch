@@ -17,6 +17,10 @@ namespace UnityEngine {
             external<void>(0x0299e340, this, parent, worldPositionStays);
         }
 
+        inline void SetParent(UnityEngine::Transform* p) {
+            external<void>(0x0299e2e0, this, p);
+        }
+
         inline void SetSiblingIndex(int32_t index) {
             external<void>(0x0299f400, this, index);
         }

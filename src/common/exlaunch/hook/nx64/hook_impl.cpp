@@ -77,7 +77,7 @@ namespace exl::hook::nx64 {
         constexpr size_t InlineHookPoolSize = InlineHookSize * InlineHookMax;
 
         typedef uint32_t* __restrict* __restrict instruction;
-        typedef struct {
+        typedef struct ContextInfo {
             struct fix_info {
                 uint32_t* bprx;
                 uint32_t* bprw;

@@ -11,8 +11,6 @@
 
 void CallFeatureHooks()
 {
-    if (IsActivatedFeature(array_index(FEATURES, "Ability Changes")))
-        exl_ability_changes_main();
     if (IsActivatedFeature(array_index(FEATURES, "Alt Starters")))
         exl_alt_starters_main();
     if (IsActivatedFeature(array_index(FEATURES, "Area/Zone Codes")))
@@ -125,6 +123,16 @@ void CallFeatureHooks()
         exl_select_poffin_case_main();
     if (IsActivatedFeature(array_index(FEATURES, "Fake StopData")))
         exl_fake_stopdata_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Surf End Check")))
+        exl_surf_end_check_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Underground Statue Names")))
+        exl_ug_statue_names_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Underground Visible Shinies")))
+        exl_ug_shinies_main();
+    if (IsActivatedFeature(array_index(FEATURES, "More Time Flags")))
+        exl_time_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Zone Frames")))
+        exl_zone_frames_main();
 
     exl_debug_features_main();
     exl_items_changes_main();
@@ -132,6 +140,7 @@ void CallFeatureHooks()
     exl_save_data_expansion_main();
     exl_patches_main();
     exl_battle_features_main();
+    exl_bike_music_main();
 }
 
 void MountRomAndReadJSON() {

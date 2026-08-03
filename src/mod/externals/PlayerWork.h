@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Dpr/Battle/Logic/BATTLE_SETUP_PARAM.h"
 #include "externals/il2cpp-api.h"
 
 #include "externals/AzukariyaData.h"
@@ -350,5 +351,17 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
         return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
+    }
+
+    static inline int32_t get_transitionZoneID() {
+        return external<int32_t>(0x02cef090);
+    }
+
+    static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
+        return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*>(0x02ce2a00);
+    }
+
+    static inline uint8_t get_bicycleColor() {
+        return external<uint8_t>(0x02cf06f0);
     }
 };

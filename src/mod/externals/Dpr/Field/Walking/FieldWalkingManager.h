@@ -26,5 +26,13 @@ namespace Dpr::Field::Walking {
             void* deleteTween; // DG_Tweening_Tween_o*
             void* ChangePos; // DG_Tweening_Tweener_o*
         };
+
+        void SetPartnerPoke(Pml::PokePara::PokemonParam::Object* poke) {
+            return external<void>(0x01cd62e0, this, poke);
+        }
+
+        void CheckPartnerPokeChange(Pml::PokePara::PokemonParam::Object* param, bool isDelete) {
+            return external<void>(0x01cd6dc0, this, param, isDelete);
+        }
     };
 }

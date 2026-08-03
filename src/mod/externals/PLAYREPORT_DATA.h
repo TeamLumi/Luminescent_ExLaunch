@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "externals/il2cpp-api.h"
 
 struct PLAYREPORT_DATA : ILStruct<PLAYREPORT_DATA> {
     struct Fields {

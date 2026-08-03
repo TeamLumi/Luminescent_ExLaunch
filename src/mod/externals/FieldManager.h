@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Dpr/Field/Walking/FieldWalkingManager.h"
 #include "externals/il2cpp-api.h"
 
 #include "externals/Effect/EffectInstance.h"
 #include "externals/FieldObjectEntity.h"
+#include "externals/Pml/PokeParty.h"
 #include "externals/System/Action.h"
 #include "externals/UnityEngine/GameObject.h"
 #include "externals/UnityEngine/Material.h"
@@ -71,7 +73,7 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     struct StaticFields {
         FieldManager::Object* _Instance_k__BackingField;
-        void* fwMng; // Dpr_Field_Walking_FieldWalkingManager_o*
+        Dpr::Field::Walking::FieldWalkingManager::Object* fwMng; // Dpr_Field_Walking_FieldWalkingManager_o*
         void* abUnloader; // Dpr_SubContents_Utils_AssetUnloader_o*
         bool _IsResume_k__BackingField;
         bool SealPrevFlag;
@@ -79,16 +81,41 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     static_assert(offsetof(Fields, _akLisnerTransform) == 0x158);
 
+    inline void CallEffect(int32_t index, UnityEngine::Transform::Object* parent, UnityEngine::Vector3::Object ofs, void* loadcallback, void* eff_onFinished) { // System_Action_EffectInstance__o *loadcallback, UnityEngine_Events_UnityAction_EffectInstance__o *eff_onFinished
+        UnityEngine::Vector3::Fields ofsProxy = { .x = ofs.fields.x, .y = ofs.fields.y, .z = ofs.fields.z };
+        external<void>(0x017a0450, this, index, parent, ofsProxy, loadcallback, eff_onFinished);
+    }
+
     inline uint16_t GetFormNo(int32_t mons, int32_t karana, int32_t anno) {
         return external<uint16_t>(0x0179f560, this, mons, karana, anno);
+    }
+
+    inline void GetLegendPokeEncountInfo(Pml::PokePara::PokemonParam::Object* param, System::String::Object** encSec, int32_t* arenaID, System::String::Object** bgm, int32_t* setupEffect) {
+        external<void>(0x0179efe0, this, param, encSec, arenaID, bgm, setupEffect);
     }
 
     inline void EventWildBattle(int32_t mons, int32_t level, bool isCaptureDemo, bool isSymbol, bool isMitu, uint8_t talentVNum, bool isCantUseBall, int32_t formNo, bool tokusei3rd) {
         external<void>(0x0179f720, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
     }
 
+    inline void EventWildBattle(Pml::PokeParty::Object* pokeParty, bool isCaptureDemo, bool isSymbol, bool isMitu, bool isCantUseBall) {
+        external<void>(0x0179f940, this, pokeParty, isCaptureDemo, isSymbol, isMitu, isCantUseBall);
+    }
+
+    inline void EncountStart(int32_t type, int32_t trainerid1, int32_t trainerid2) {
+        external<void>(0x0179f330, this, type, trainerid1, trainerid2);
+    }
+
     inline int32_t get_areaID() {
         return external<int32_t>(0x01797f90, this);
+    }
+
+    inline int32_t GetBatleWeather() {
+        return external<int32_t>(0x0179f1a0, this);
+    }
+
+    inline void PreLoadEncEffect(System::String::Object* assetname) {
+        external<void>(0x0179e6a0, this, assetname);
     }
 
     inline void RequestAttributeEffect(FieldObjectEntity::Object* entity, int32_t attri) {
@@ -97,5 +124,13 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     inline void RequestAttributeSE(FieldObjectEntity::Object* entity, int32_t attri) {
         external<void>(0x017a0130, this, entity, attri);
+    }
+
+    inline void SetBgmEvent(uint32_t eventid) {
+        external<void>(0x0179ca70, this, eventid);
+    }
+
+    inline bool StopSwayGrass_NextArea() {
+        return external<bool>(0x0179c590, this);
     }
 };

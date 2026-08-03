@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/BattleViewBase.h"
+#include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/View/UI/BUIActionList.h"
 #include "externals/Dpr/Battle/View/UI/BUIPokeBallList.h"
 #include "externals/Dpr/Battle/View/UI/BUITargetSelect.h"
@@ -117,6 +118,10 @@ namespace Dpr::Battle::View::Systems {
 
         inline bool IsOpenedStatus() {
             return external<bool>(0x01e76340, this);
+        }
+
+        inline System::String::Object* GetAffinityText(Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, int32_t wazaNo, System::Collections::Generic::List$$BTL_POKEPARAM::Object* targets) {
+            return external<System::String::Object*>(0x01e7c240, this, bpp, wazaNo, targets);
         }
     };
 }

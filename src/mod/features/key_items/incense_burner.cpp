@@ -8,8 +8,6 @@
 #include "data/utils.h"
 #include "externals/ContextMenuID.h"
 #include "externals/Dpr/EvScript/EvDataManager.h"
-#include "externals/Dpr/UI/ShopBoutique.h"
-#include "externals/Dpr/UI/ShopBoutiqueChange.h"
 #include "externals/Dpr/UI/UIBag.h"
 #include "externals/Dpr/UI/UIManager.h"
 #include "externals/FlagWork.h"
@@ -20,6 +18,13 @@
 #include "logger/logger.h"
 
 static Dpr::UI::UIBag::__c__DisplayClass127_0::Object* sDisplayClassLocals = nullptr;
+
+void OnCloseWindowIncenseBurner(Dpr::UI::UIBag::__c__DisplayClass127_0::Object* __this)
+{
+    system_load_typeinfo(0x95b3);
+    __this->fields.__4__this->fields.bagItemPanel->ReloadItemList(false, 0);
+    __this->fields.__4__this->fields.bagItemPanel->SetActive(true);
+}
 
 void OnSelectedIncenseBurner(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * __this, int32_t selectContextMenuId)
 {
@@ -66,7 +71,9 @@ void OnSelectedIncenseBurner(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * __
     }
 
     system_load_typeinfo(0x955c);
-    System::Action::Object* action = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(sDisplayClassLocals, *Dpr::UI::UIBag::__c__DisplayClass127_0::Method$$ShowItemContextMenu_EndUseAction);
+
+    MethodInfo* miOnCloseWindow = Dpr::UI::UIBag::__c__DisplayClass127_0::getMethod$$OnCloseWindowIncenseBurner((Il2CppMethodPointer)&OnCloseWindowIncenseBurner);
+    System::Action::Object* action = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(sDisplayClassLocals, miOnCloseWindow);
 
     uiBag->fields.msgWindowController->OpenMsgWindow(0, labelName, true, false, nullptr, action);
 }
@@ -127,6 +134,7 @@ void UseIncenseBurner(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Display
         
         uiBag->OpenContextMenu(contextMenuIDArray, onSelected, pivot, pos, nullptr, false, false);
         System::String::Object* SS_bag_368 = System::String::Create("SS_bag_368");
+
         uiBag->fields.msgWindowController->OpenMsgWindow(0, SS_bag_368, false, true, nullptr, nullptr);
     }
     else

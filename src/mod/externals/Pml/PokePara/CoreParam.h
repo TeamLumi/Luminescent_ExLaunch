@@ -191,6 +191,10 @@ namespace Pml::PokePara {
             external<void>(0x02044da0, this, powerId, value);
         }
 
+        inline void ChangeTalentPower(Pml::PokePara::PowerID powerId, uint32_t value) {
+            external<void>(0x020446e0, this, powerId, value);
+        }
+
         inline void SetParentName(System::String::Object* name) {
             external<void>(0x0204ac00, this, name);
         }
@@ -245,6 +249,10 @@ namespace Pml::PokePara {
 
         inline void ChangeEgg() {
             external<void>(0x02049450, this);
+        }
+
+        inline bool IsRare() {
+            return external<bool>(0x0204a500, this);
         }
     };
 }

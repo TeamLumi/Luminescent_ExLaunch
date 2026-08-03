@@ -19,13 +19,6 @@ namespace ui {
                     };
                 });
 
-                _.Button([](Button &_) {
-                    _.label = "Play last area name";
-                    _.onClick = []() {
-                        showAreaName();
-                    };
-                });
-
                 _.Checkbox([](Checkbox &_) {
                     _.label = "Fly anywhere";
                     _.enabled = false;
