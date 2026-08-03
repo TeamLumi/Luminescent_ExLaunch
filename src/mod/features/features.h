@@ -213,3 +213,6 @@ void exl_wild_held_items_main();
 
 // Allows the use of different sprites for the zone name window when entering a new zone.
 void exl_zone_frames_main();
+
+// Adds support for disabling bike music in the player settings.
+void exl_bike_music_main();

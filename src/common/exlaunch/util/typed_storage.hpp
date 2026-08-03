@@ -22,9 +22,9 @@
 
 namespace exl::util {
 
-    template<typename T, size_t Size = sizeof(T), size_t Align = alignof(T)>
+    template<typename T>
     struct TypedStorage {
-        typename std::aligned_storage<Size, Align>::type _storage;
+        alignas(T) std::byte _storage[sizeof(T)];
     };
 
     template<typename T>

@@ -43,6 +43,13 @@ namespace Dpr::UI {
             }
 
             static inline StaticILMethod<0x04c80068> Method$$ShowItemContextMenu_EndUseAction {};
+
+            static inline MethodInfo* Method$$OnCloseWindowIncenseBurner = nullptr;
+            static MethodInfo* getMethod$$OnCloseWindowIncenseBurner(Il2CppMethodPointer method) {
+                if (Method$$OnCloseWindowIncenseBurner == nullptr)
+                    Method$$OnCloseWindowIncenseBurner = (*Method$$ShowItemContextMenu_EndUseAction)->copyWith(method);
+                return Method$$OnCloseWindowIncenseBurner;
+            };
         };
 
         struct __c__DisplayClass127_1 : ILClass<__c__DisplayClass127_1> {

@@ -140,6 +140,7 @@ void CallFeatureHooks()
     exl_save_data_expansion_main();
     exl_patches_main();
     exl_battle_features_main();
+    exl_bike_music_main();
 }
 
 void MountRomAndReadJSON() {

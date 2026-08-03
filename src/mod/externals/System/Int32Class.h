@@ -12,5 +12,10 @@ namespace System {
         static inline bool TryParse(System::String::Object* s, int32_t* result) {
             return external<bool>(0x022a7e80, s, result);
         }
+
+        // Not technically a static method but it's easier to deal with it like this
+        static inline System::String::Object* ToString(int32_t* __this, System::String::Object* format) {
+            return external<System::String::Object*>(0x022a7c10, __this, format);
+        }
     };
 }
