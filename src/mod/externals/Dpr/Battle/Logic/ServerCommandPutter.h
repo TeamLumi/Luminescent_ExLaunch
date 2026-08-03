@@ -4,6 +4,7 @@
 
 #include "externals/Dpr/Battle/Logic/BTL_POKEPARAM.h"
 #include "externals/Dpr/Battle/Logic/ContFlag.h"
+#include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
     struct BattleEnv;
@@ -51,6 +52,10 @@ namespace Dpr::Battle::Logic {
 
         inline bool Message(StrParam::Object** strParam) {
             return external<bool>(0x01f27ec0, this, strParam);
+        }
+
+        inline void Act_ChangeForm(uint8_t pokeID) {
+            external<void>(0x01f2bdc0, this, pokeID);
         }
     };
 }
