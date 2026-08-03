@@ -36,6 +36,9 @@ RomData::FormHeldItemMon GetFormHeldItemMon(int32_t monsNo);
 // Returns the list of held item that a can't be separated from a specific Pokémon.
 RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo);
 
+// Returns the list of items that can't be separated from any Pokémon
+RomData::UnbreakablePokeItem GetAlwaysUnbreakableItems();
+
 // Returns the honey tree Pokémon at the given zoneID and slot.
 RomData::HoneyTreeSlot GetHoneyTreeSlot(int32_t zoneID, int32_t slot);
 
