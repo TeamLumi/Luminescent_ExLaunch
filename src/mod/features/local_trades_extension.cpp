@@ -71,6 +71,7 @@ Pml::PokePara::PokemonParam::Object* CreateTradePokeParam(int32_t npcindex, Dpr:
     coreParam->SetItem(data->fields.itemno);
     coreParam->SetLangId((uint32_t)GetUniformLanguage((Dpr::Message::MessageEnumData::MsgLangId)data->fields.language));
     coreParam->SetGetBall(extraData.ballId == array_index(BALLS, "--BALL ZERO--") ? array_index(BALLS, "Poké Ball") : extraData.ballId);
+    coreParam->SetMultiPurposeWork(extraData.formArg);
     coreParam->UpdateOwnerInfo(Pml::PokePara::OwnerInfo::newInstance(PlayerWork::get_playerStatus()));
 
     if (!extraData.evs.empty())
@@ -82,10 +83,10 @@ Pml::PokePara::PokemonParam::Object* CreateTradePokeParam(int32_t npcindex, Dpr:
     if (!extraData.contestStats.empty())
     {
         for (int32_t i=0; i<5; i++)
-            coreParam->SetCondition((Pml::PokePara::Condition)i, extraData.evs[i]);
+            coreParam->SetCondition((Pml::PokePara::Condition)i, extraData.contestStats[i]);
 
         if (extraData.contestStats.size() >= 6)
-            coreParam->SetCondition(Pml::PokePara::Condition::FUR, extraData.evs[5]);
+            coreParam->SetCondition(Pml::PokePara::Condition::FUR, extraData.contestStats[5]);
     }
 
     for (uint64_t i=0; i<data->fields.waza->max_length && i<4; i++)
