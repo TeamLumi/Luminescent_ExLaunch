@@ -93,6 +93,11 @@ bool ObjPosChangeWorld(Dpr::EvScript::EvDataManager::Object* manager);
 //   [String] bundle: The asset bundle to unload. Defaults to "field/animeobj/chapter111".
 bool ReleaseUmaAnime(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Adds a Pokémon, built from a json.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+bool AddUniquePokemonUI(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Returns the form id of the Pokémon at the given index in the party.
 // Arguments:
 //   [Work, Number] index: The index that points to the given Pokémon.

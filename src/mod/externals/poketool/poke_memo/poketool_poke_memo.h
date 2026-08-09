@@ -16,6 +16,10 @@ namespace poketool::poke_memo {
             external<void>(0x02bacb10, pParam, pMystatus, placeNo);
         }
 
+        static inline void SetFromDistribution(Pml::PokePara::CoreParam::Object* pParam, uint32_t placeNo, uint32_t year, uint32_t month, uint32_t day) {
+            external<void>(0x02bad410, pParam, placeNo, year, month, day);
+        }
+
         static inline void SetFromEggTaken(Pml::PokePara::CoreParam::Object* pParam, DPData::MYSTATUS::Object* pMystatus, uint32_t placeNo) {
             external<void>(0x02bad060, pParam, pMystatus, placeNo);
         }

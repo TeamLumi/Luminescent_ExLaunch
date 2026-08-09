@@ -441,6 +441,13 @@ namespace Dpr::EvScript {
             return Method$$EvCmdAddPokemonUIExtra;
         };
 
+        static inline MethodInfo* Method$$EvCmdAddUniquePokemonUI = nullptr;
+        static MethodInfo* getMethod$$EvCmdAddUniquePokemonUI(Il2CppMethodPointer method) {
+            if (Method$$EvCmdAddUniquePokemonUI == nullptr)
+                Method$$EvCmdAddUniquePokemonUI = (*Method$$EvDataManager_EvCmdAddPokemonUI)->copyWith(method);
+            return Method$$EvCmdAddUniquePokemonUI;
+        };
+
         static inline MethodInfo* Method$$EvCmdAddTamagoExtra = nullptr;
         static MethodInfo* getMethod$$EvCmdAddTamagoExtra(Il2CppMethodPointer method) {
             if (Method$$EvCmdAddTamagoExtra == nullptr)

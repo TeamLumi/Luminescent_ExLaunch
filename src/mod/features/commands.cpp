@@ -60,6 +60,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(ObjPosChangeWorld(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME:
                     return HandleCmdStepper(ReleaseUmaAnime(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_UNIQUE_POKEMON_UI:
+                    return HandleCmdStepper(AddUniquePokemonUI(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO:
                     return HandleCmdStepper(PartyFormNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_FORMNO:
@@ -220,6 +222,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_POS_CHANGE_WORLD);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_UNIQUE_POKEMON_UI);
 
     // Activate new commands
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO);

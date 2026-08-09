@@ -203,6 +203,18 @@ namespace Pml::PokePara {
             external<void>(0x02049650, this, langId);
         }
 
+        inline void SetRibbon(uint32_t ribbonNo) {
+            external<void>(0x0204bbd0, this, ribbonNo);
+        }
+
+        inline void SetPokerus(uint32_t pokerus) {
+            external<void>(0x0204bee0, this, pokerus);
+        }
+
+        inline void SetEventPokeFlag(bool flag) {
+            external<void>(0x0204bef0, this, flag);
+        }
+
         inline void SetCondition(Pml::PokePara::Condition cond, uint8_t value) {
             external<void>(0x0204b040, this, cond, value);
         }
