@@ -18,6 +18,10 @@ namespace Dpr::Box {
             external<void>(0x01d30d60, pp, tray, pos);
         }
 
+        static inline void PutPokemonEmptyTrayAll(Pml::PokePara::PokemonParam::Object* pp, int32_t* tray, int32_t* pos) {
+            external<void>(0x01d30620, pp, tray, pos);
+        }
+
         static inline Pml::PokePara::PokemonParam::Object* GetPokemon(int32_t tray, int32_t pos) {
             return external<Pml::PokePara::PokemonParam::Object*>(0x01d2fe20, tray, pos);
         }

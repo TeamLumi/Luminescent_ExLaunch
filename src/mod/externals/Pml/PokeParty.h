@@ -27,6 +27,10 @@ namespace Pml {
             return external<bool>(0x02053170, this, monsno);
         }
 
+        inline bool IsFull() {
+            return external<bool>(0x02056eb0, this);
+        }
+
         void RemoveMember(uint32_t idx) {
             external<void>(0x02056390, this, idx);
         }

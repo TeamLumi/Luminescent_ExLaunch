@@ -38,4 +38,8 @@ struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
     static inline DPData::GET_STATUS GetStatus(uint32_t monsno) {
         return external<DPData::GET_STATUS>(0x017dcbd0, monsno);
     }
+
+    static inline bool IsGet(int32_t monsno) {
+        return external<bool>(0x017dc990, monsno);
+    }
 };

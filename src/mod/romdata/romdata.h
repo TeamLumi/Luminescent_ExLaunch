@@ -18,6 +18,7 @@
 #include "romdata/data/Zone.h"
 #include "romdata/data/ZoneRates.h"
 #include "romdata/data/UniquePokemon.h"
+#include "romdata/data/MysteryGiftPokemon.h"
 
 // Returns the max level based on the given level cap index.
 uint32_t GetLevelCapLevel(uint32_t index);
@@ -132,5 +133,8 @@ RomData::Zone GetZoneData(int32_t zoneID);
 
 // Returns the extra UniquePokemon data.
 RomData::UniquePokemon GetUniquePokemon(int32_t index);
+
+// Returns the extra MysteryGiftPokemon data.
+RomData::MysteryGiftPokemon GetMysteryGiftPokemon(int32_t index);
 
 void LoadFeaturesFromJSON(nn::json j);

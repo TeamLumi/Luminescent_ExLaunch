@@ -6,19 +6,26 @@
 
 namespace RomData
 {
-    struct UniquePokemon
+    struct MysteryGiftPokemon
     {
         uint16_t monsNo;
         uint16_t formNo;
         uint8_t level;
+        uint8_t originalLevel;
+        bool isEgg;
+        bool wasEgg;
         uint8_t gender;
         uint16_t nature;
         int ability;
         int32_t rand;
         uint8_t maxIvs;
         nn::vector<uint8_t> ivs;
+        int32_t trainerId;
+        nn::string trainerLabel;
+        nn::string nicknameLabel;
         uint8_t formArg;
         uint16_t item;
+        uint8_t langId;
         uint8_t ballId;
         nn::vector<uint8_t> evs;
         nn::vector<uint8_t> contestStats;
@@ -29,22 +36,36 @@ namespace RomData
         uint8_t friendship;
         uint8_t pokerus;
         bool fateful;
+        uint8_t metYear;
+        uint8_t metMonth;
+        uint8_t metDay;
+        uint8_t eggYear;
+        uint8_t eggMonth;
+        uint8_t eggDay;
+        uint16_t eggPlaceNo;
     };
 
     JSON_TEMPLATE
-    void to_json(GENERIC_JSON& j, const UniquePokemon& t) {
+    void to_json(GENERIC_JSON& j, const MysteryGiftPokemon& t) {
         j = nn::json {
             {"monsNo", t.monsNo},
             {"formNo", t.formNo},
             {"level", t.level},
+            {"originalLevel", t.originalLevel},
+            {"isEgg", t.isEgg},
+            {"wasEgg", t.wasEgg},
             {"gender", t.gender},
             {"nature", t.nature},
             {"ability", t.ability},
             {"rand", t.rand},
             {"maxIvs", t.maxIvs},
             {"ivs", t.ivs},
+            {"trainerId", t.trainerId},
+            {"trainerLabel", t.trainerLabel},
+            {"nicknameLabel", t.nicknameLabel},
             {"formArg", t.formArg},
             {"item", t.item},
+            {"langId", t.langId},
             {"ballId", t.ballId},
             {"evs", t.evs},
             {"contestStats", t.contestStats},
@@ -55,22 +76,35 @@ namespace RomData
             {"friendship", t.friendship},
             {"pokerus", t.pokerus},
             {"fateful", t.fateful},
+            {"metYear", t.metYear},
+            {"metMonth", t.metMonth},
+            {"metDay", t.metDay},
+            {"eggYear", t.eggYear},
+            {"eggMonth", t.eggMonth},
+            {"eggPlaceNo", t.eggPlaceNo},
         };
     }
 
     JSON_TEMPLATE
-    void from_json(const GENERIC_JSON& j, UniquePokemon& t) {
+    void from_json(const GENERIC_JSON& j, MysteryGiftPokemon& t) {
         j.at("monsNo").get_to(t.monsNo);
         j.at("formNo").get_to(t.formNo);
         j.at("level").get_to(t.level);
+        j.at("originalLevel").get_to(t.originalLevel);
+        j.at("isEgg").get_to(t.isEgg);
+        j.at("wasEgg").get_to(t.wasEgg);
         j.at("gender").get_to(t.gender);
         j.at("nature").get_to(t.nature);
         j.at("ability").get_to(t.ability);
         j.at("rand").get_to(t.rand);
         j.at("maxIvs").get_to(t.maxIvs);
         j.at("ivs").get_to(t.ivs);
+        j.at("trainerId").get_to(t.trainerId);
+        j.at("trainerLabel").get_to(t.trainerLabel);
+        j.at("nicknameLabel").get_to(t.nicknameLabel);
         j.at("formArg").get_to(t.formArg);
         j.at("item").get_to(t.item);
+        j.at("langId").get_to(t.langId);
         j.at("ballId").get_to(t.ballId);
         j.at("evs").get_to(t.evs);
         j.at("contestStats").get_to(t.contestStats);
@@ -81,5 +115,12 @@ namespace RomData
         j.at("friendship").get_to(t.friendship);
         j.at("pokerus").get_to(t.pokerus);
         j.at("fateful").get_to(t.fateful);
+        j.at("metYear").get_to(t.metYear);
+        j.at("metMonth").get_to(t.metMonth);
+        j.at("metDay").get_to(t.metDay);
+        j.at("eggYear").get_to(t.eggYear);
+        j.at("eggMonth").get_to(t.eggMonth);
+        j.at("eggDay").get_to(t.eggDay);
+        j.at("eggPlaceNo").get_to(t.eggPlaceNo);
     }
 }

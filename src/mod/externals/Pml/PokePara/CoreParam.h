@@ -247,6 +247,10 @@ namespace Pml::PokePara {
             return external<uint32_t>(0x0204ac30, this, memoriesKind);
         }
 
+        inline void SetMemories(int32_t memoriesKind, uint32_t value) {
+            external<void>(0x0204ade0, this, memoriesKind, value);
+        }
+
         inline uint32_t GetGetBall() {
             return external<uint32_t>(0x0204b830, this);
         }

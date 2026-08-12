@@ -65,6 +65,10 @@ struct GameManager : ILClass<GameManager, 0x04c59b50> {
         return external<PeriodOfDay>(0x02cd0c60);
     }
 
+    static inline System::DateTime::Object get_nowTime() {
+        return external<System::DateTime::Object>(0x02cd06d0);
+    }
+
     static inline int32_t GetUrayamaMonsNo(int32_t index) {
         return external<int32_t>(0x02cd1590, index);
     }

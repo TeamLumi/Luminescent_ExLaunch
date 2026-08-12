@@ -184,6 +184,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(AddTamagoExtra(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_EXTRA:
                     return HandleCmdStepper(AddPokemonExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_MYSTERY_GIFT_POKEMON:
+                    return HandleCmdStepper(AddMysteryGiftPokemon(__this));
                 default:
                     break;
             }
@@ -286,6 +288,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_MYSTERY_GIFT_POKEMON);
 
     exl_commands_hooks_main();
 }

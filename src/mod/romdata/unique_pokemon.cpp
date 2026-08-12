@@ -1,12 +1,13 @@
 #include "exlaunch.hpp"
 
 #include "helpers.h"
+
+#include "logger/logger.h"
+
 #include "memory/json.h"
 #include "memory/string.h"
 
 #include "romdata/data/UniquePokemon.h"
-
-#include "logger/logger.h"
 
 const char* uniquePokemonFolderPath = "rom:/Data/ExtraData/MonData/UniquePokemon/";
 
@@ -37,18 +38,15 @@ RomData::UniquePokemon GetUniquePokemon(int32_t index)
     return {
         .monsNo = 1,
         .formNo = 0,
-        .level = 5,
+        .level = 1,
         .gender = 255,
         .nature = 65535,
         .ability = -1,
+        .rand = 0,
         .maxIvs = 0,
         .ivs = {},
-        .trainerId = -1,
-        .trainerLabel = "",
-        .nicknameLabel = "",
         .formArg = 0,
         .item = 0,
-        .langId = 0,
         .ballId = 0,
         .evs = {},
         .contestStats = {},

@@ -551,3 +551,8 @@ bool AddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have. -1 = Random
 //   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
 bool AddPokemonExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gifts a Mystery Gift Pokémon to the Player.
+// Arguments:
+//   [Work, Number] index: Index of the json to build the Pokémon from.
+bool AddMysteryGiftPokemon(Dpr::EvScript::EvDataManager::Object* manager);
