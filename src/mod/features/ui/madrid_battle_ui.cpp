@@ -255,6 +255,26 @@ UnityEngine::UI::Slider::Object* GetBagSliderObject(Dpr::Battle::View::UI::BUIAc
     return (UnityEngine::UI::Slider::Object*)bagCmpList->m_Items[3];
 }
 
+UnityEngine::UI::Slider::Object* GetRunSliderObject(Dpr::Battle::View::UI::BUIActionList::Object* actionList) {
+    auto bagTF = ((UnityEngine::Component::Object*)actionList)->get_transform()
+            ->Find(System::String::Create("ActionButtons"))
+            ->Find(System::String::Create("Escape"))
+            ->Find(System::String::Create("Button"));
+    auto bagGO = ((UnityEngine::Component::Object*)bagTF)->get_gameObject();
+    auto bagCmpList = (UnityEngine::Component::Array*)bagGO->GetAllComponents();
+    return (UnityEngine::UI::Slider::Object*)bagCmpList->m_Items[3];
+}
+
+UnityEngine::UI::Slider::Object* GetSafariRunSliderObject(Dpr::Battle::View::UI::BUIActionList::Object* actionList) {
+    auto bagTF = ((UnityEngine::Component::Object*)actionList)->get_transform()
+            ->Find(System::String::Create("ActionButtons"))
+            ->Find(System::String::Create("SafariEscape"))
+            ->Find(System::String::Create("Button"));
+    auto bagGO = ((UnityEngine::Component::Object*)bagTF)->get_gameObject();
+    auto bagCmpList = (UnityEngine::Component::Array*)bagGO->GetAllComponents();
+    return (UnityEngine::UI::Slider::Object*)bagCmpList->m_Items[3];
+}
+
 void SetMoveDescDamageType(Dpr::Battle::View::UI::BUIWazaDescription::Object* wazaDesc, int32_t wazaNo) {
     Logger::log("[SetMoveDescDamageType] we're in\n");
     auto type = Pml::WazaData::WazaDataSystem::GetDamageType(wazaNo);
@@ -378,11 +398,11 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
             if (Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::Plus | GameController::ButtonMask::Minus, true)) {
                 wazaList->OnSubmitWazaDescription();
             }
-            else if (IsButtonHeldFor(GameController::ButtonMask::X, &battleHeldXTime, deltatime, 1.0f, GetBagSliderObject(__this))) {
+            else if (__this->fields._isBallEnable && IsButtonHeldFor(GameController::ButtonMask::X, &battleHeldXTime, deltatime, 1.0f, GetBagSliderObject(__this))) {
                 Logger::log("[BUIActionList$$OnUpdate] Ball\n");
                 __this->OnSubmitPokeBall();
             }
-            else if (IsButtonHeldFor(GameController::ButtonMask::B, &battleHeldBTime, deltatime, 0.5f, nullptr)) {
+            else if (IsButtonHeldFor(GameController::ButtonMask::B, &battleHeldBTime, deltatime, 0.5f, GetRunSliderObject(__this))) {
                 Logger::log("[BUIActionList$$OnUpdate] Run\n");
                 SubmitActionButton(__this, 3);
             }
@@ -423,7 +443,8 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
                 Logger::log("[BUIActionList$$OnUpdate] Pokémon\n");
                 SubmitActionButton(__this, 1);
             }
-            else if (Dpr::Battle::View::BtlvInput::GetRelease(GameController::ButtonMask::X)) {
+            else if ((!__this->fields._isBallEnable && Dpr::Battle::View::BtlvInput::GetPush(GameController::ButtonMask::X, true)) ||
+                     (__this->fields._isBallEnable && Dpr::Battle::View::BtlvInput::GetRelease(GameController::ButtonMask::X))) {
                 Logger::log("[BUIActionList$$OnUpdate] Bag\n");
                 SubmitActionButton(__this, 2);
             }
@@ -477,7 +498,7 @@ HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
         }
         else
         {
-            if (IsButtonHeldFor(GameController::ButtonMask::B, &battleHeldBTime, deltatime, 0.5f, nullptr)) {
+            if (IsButtonHeldFor(GameController::ButtonMask::B, &battleHeldBTime, deltatime, 0.5f, GetSafariRunSliderObject(__this))) {
                 Logger::log("[BUIActionList$$OnUpdate] Holding for Run... %f\n", battleHeldBTime);
                 SubmitActionButton(__this, 8);
             }
