@@ -1,3 +1,4 @@
+#include "data/abilities.h"
 #include "data/balls.h"
 #include "data/utils.h"
 
@@ -8,6 +9,7 @@
 #include "externals/FlagWork.h"
 #include "externals/PlayerWork.h"
 #include "externals/poketool/poke_memo/poketool_poke_memo.h"
+#include "externals/RandomGroupWork.h"
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 
 #include "features/commands/utils/cmd_utils.h"
@@ -63,6 +65,32 @@ bool AddUniquePokemonUI(Dpr::EvScript::EvDataManager::Object* manager)
             if (!extraData.ivs.empty()) {
                 for (uint64_t i=0; i<initialSpec->fields.talentPower->max_length; i++)
                     initialSpec->fields.talentPower->m_Items[i] = extraData.ivs[i];
+            }
+
+            // Cute Charm and Synchronize
+            PlayerWork::getClass()->initIfNeeded();
+            auto playerparty = PlayerWork::get_playerParty();
+            auto lead = playerparty->GetMemberPointer(0);
+            auto leadCore = lead->cast<Pml::PokePara::CoreParam>();
+
+            if (!leadCore->IsEgg(Pml::PokePara::EggCheckType::BOTH_EGG)) {
+                switch (leadCore->GetTokuseiNo()) {
+                case array_index(ABILITIES, "Synchronize"): {
+                        initialSpec->fields.seikaku = leadCore->GetSeikaku();
+                        break;
+                }
+                case array_index(ABILITIES, "Cute Charm"): {
+                        auto rndSex = RandomGroupWork::RandomValue(3);
+                        if (rndSex < 1)
+                            break;
+                        auto paramSex = leadCore->GetSex();
+                        if (paramSex == Pml::Sex::MALE)
+                            initialSpec->fields.sex = 1;
+                        else if (paramSex == Pml::Sex::FEMALE)
+                            initialSpec->fields.sex = 0;
+                        break;
+                    }
+                }
             }
 
             auto coreParam = Pml::PokePara::PokemonParam::newInstance(initialSpec)->cast<Pml::PokePara::CoreParam>();
