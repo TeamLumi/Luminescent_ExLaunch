@@ -356,6 +356,7 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Makes the player ledge jump with the given parameters.
 // Arguments:
+//   [String] entity (optional): The name of the entity to jump. If omitted or the player's name, the player jumps.
 //   [Work, Number] moveDistance: The amount of tiles to jump. (Default 2.0)
 //   [Work, Number] relativeHeight: Unknown. (Default is 0.75)
 //   [Work, Number] relativeLower: Unknown. (Default is -0.5)

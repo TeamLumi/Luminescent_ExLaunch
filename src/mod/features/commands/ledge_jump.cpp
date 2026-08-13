@@ -8,13 +8,12 @@
 #include "features/commands/utils/cmd_utils.h"
 #include "logger/logger.h"
 
-// Animation clip indices for jump (shared across player/NPC character controllers)
 static constexpr int32_t ANIM_JUMP_START = 20;
 static constexpr int32_t ANIM_JUMP_LOOP  = 21;
 static constexpr int32_t ANIM_JUMP_END   = 22;
 
 static bool initializedJump = false;
-static FieldObjectEntity::Object* jumpTarget = nullptr; // null = player, non-null = NPC
+static FieldObjectEntity::Object* jumpTarget = nullptr;
 static bool jumpTargetIsPlayer = true;
 
 bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
@@ -31,7 +30,6 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
         return true;
 
     if (initializedJump) {
-        // --- Per-frame update: advance the jump arc ---
         bool done = false;
         auto targetTransform = jumpTargetIsPlayer
             ? player->cast<BaseEntity>()->get_transform()
@@ -41,16 +39,15 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
         auto newPos = player->fields._path->Process(manager->fields._deltatime, &done);
         targetTransform->set_position(newPos);
 
-        // Play loop animation when descending
         if (jumpTargetIsPlayer) {
             if (player->fields._animationPlayer->get_currentIndex() == ANIM_JUMP_START && newPos.fields.y < oldPos.fields.y)
                 player->PlayJumpLoop();
         } else {
-            auto* fce = (FieldCharacterEntity::Object*)jumpTarget;
-            if (fce->fields._animationPlayer != nullptr &&
-                fce->fields._animationPlayer->get_currentIndex() == ANIM_JUMP_START &&
+            auto* animPlayer = jumpTarget->cast<BaseEntity>()->GetAnimationPlayer();
+            if (animPlayer != nullptr &&
+                animPlayer->get_currentIndex() == ANIM_JUMP_START &&
                 newPos.fields.y < oldPos.fields.y) {
-                fce->fields._animationPlayer->Play(ANIM_JUMP_LOOP);
+                animPlayer->Play(ANIM_JUMP_LOOP, 0.2f);
             }
         }
 
@@ -68,9 +65,9 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
                 player->fields.isLanding = true;
             } else {
                 fm->RequestAttributeEffect(jumpTarget, 1);
-                auto* fce = (FieldCharacterEntity::Object*)jumpTarget;
-                if (fce->fields._animationPlayer != nullptr)
-                    fce->fields._animationPlayer->Play(ANIM_JUMP_END);
+                auto* animPlayer = jumpTarget->cast<BaseEntity>()->GetAnimationPlayer();
+                if (animPlayer != nullptr)
+                    animPlayer->Play(ANIM_JUMP_END, 0.2f);
                 jumpTarget->fields.isLanding = true;
             }
 
@@ -82,25 +79,20 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
 
         return false;
     } else {
-        // --- First frame: parse args and start the jump ---
-        // Detect if first arg is an entity reference (NPC mode) or a number (player mode).
-        // String arg = entity name, otherwise player jump with numeric params.
+        // Only accept string here bc a number first arg would register as moveDistance and not entity index
         int paramOffset = 1;
         jumpTargetIsPlayer = true;
         jumpTarget = nullptr;
 
-        if (args->max_length > 1) {
-            auto firstArg = args->m_Items[1];
-            auto* entity = FindEntity(manager, firstArg);
-            if (entity != nullptr) {
-                // First arg is an entity reference — shift params
-                paramOffset = 2;
-                if (entity != player->cast<FieldObjectEntity>()) {
-                    // Non-player entity — NPC mode
-                    jumpTarget = entity;
-                    jumpTargetIsPlayer = false;
-                }
-                // If entity == player, stay in player mode with shifted params
+        if (args->max_length > 1 &&
+            (EvData::ArgType)args->m_Items[1].fields.argType == EvData::ArgType::String) {
+            auto* entity = FindEntity(manager, args->m_Items[1]);
+            if (entity == nullptr)
+                return true;
+            paramOffset = 2;
+            if (entity != player->cast<FieldObjectEntity>()) {
+                jumpTarget = entity;
+                jumpTargetIsPlayer = false;
             }
         }
 
@@ -120,9 +112,9 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
             player->PlayJumpStart();
         } else {
             jumpTarget->fields.isLanding = false;
-            auto* fce = (FieldCharacterEntity::Object*)jumpTarget;
-            if (fce->fields._animationPlayer != nullptr)
-                fce->fields._animationPlayer->Play(ANIM_JUMP_START);
+            auto* animPlayer = jumpTarget->cast<BaseEntity>()->GetAnimationPlayer();
+            if (animPlayer != nullptr)
+                animPlayer->Play(ANIM_JUMP_START, 0.2f, 0.13333334f);
         }
 
         player->fields._path->Startup(targetTransform, moveDistance, relativeHeight, relativeLower, duration);
