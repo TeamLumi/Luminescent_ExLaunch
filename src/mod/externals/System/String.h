@@ -37,6 +37,14 @@ namespace System {
             return external<String::Object*>(0x026ef430, str0, str1);
         }
 
+        static inline String::Object* Concat(String::Object* str0, String::Object* str1, String::Object* str2) {
+            return external<String::Object*>(0x026ee6a0, str0, str1, str2);
+        }
+
+        static inline String::Object* Concat(String::Object* str0, String::Object* str1, String::Object* str2, String::Object* str3) {
+            return external<String::Object*>(0x026f94b0, str0, str1, str2, str3);
+        }
+
         static inline String::Object* Format(String::Object* format, Il2CppObject* arg0) {
             return external<String::Object*>(0x026f8970, format, arg0);
         }
@@ -67,6 +75,10 @@ namespace System {
 
         inline bool StartsWith(String::Object* value) {
             return external<bool>(0x026f78d0, this, value);
+        }
+
+        inline String::Array* Split(System::Char_array* separator) {
+            return external<String::Array*>(0x026f3a60, this, separator);
         }
 
         // Only tested to work on int
@@ -131,20 +143,59 @@ namespace System::Collections::Generic {
         static inline StaticILMethod<0x04c8a538> Method$$Clear {};
     };
 
-    struct List$$ValueTuple3$$String$$String$$String : List<List$$ValueTuple3$$String$$String$$String, ValueTuple3$$String$$String$$String> {
+    struct List$$ValueTuple3$$String$$String$$String : ILClass<List$$ValueTuple3$$String$$String$$String> {
+        static inline StaticILMethod<0x04c8a850> Method$$Add{};
         static inline StaticILMethod<0x04c8a858> Method$$Clear{};
+
+        struct Fields {
+            ValueTuple3$$String$$String$$String::Array* _items;
+            int32_t _size;
+            int32_t _version;
+            Il2CppObject* _syncRoot;
+        };
+
+        inline void Add(ValueTuple3$$String$$String$$String::Object* item) {
+            external<void>(0x02b096a0, this, item, *Method$$Add);
+        }
+
+        inline void Clear() {
+            external<void>(0x02b09ae0, this, *Method$$Clear);
+        }
     };
 
     struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {
-        static inline StaticILMethod<0x04c87350> Method$$ctor {};
-        static inline StaticILMethod<0x04c87358> Method$$Add {};
+        static inline StaticILMethod<0x04c879e8> Method$$ctor {};
+        static inline StaticILMethod<0x04c879f8> Method$$Add {};
         static inline StaticILMethod<0x04c87a08> Method$$set_Item {};
-        static inline StaticILMethod<0x04c70d98> Method$$get_Values {};
+        static inline StaticILMethod<0x04c70d98> Method$$get_Values {}; // NOTE: not for that specific dictionary but it's probably fine
     };
 
-    struct Dictionary$$uint8_t$$String : Dictionary$$uint8_t<Dictionary$$uint8_t$$String, System::String> {
+    struct Dictionary$$EffectType$$String : Dictionary$$int32_t<Dictionary$$EffectType$$String, System::String> {
+        static inline StaticILMethod<0x04c87350> Method$$ctor {};
+        static inline StaticILMethod<0x04c87358> Method$$Add {};
+        static inline StaticILMethod<0x04c6e8a0> Method$$ContainsKey {};
+        static inline StaticILMethod<0x04c68a90> Method$$get_Item {};
+    };
+
+    struct Dictionary$$BtlSideEffect$$String : Dictionary$$int32_t<Dictionary$$BtlSideEffect$$String, System::String> {
+        static inline StaticILMethod<0x04c87308> Method$$ctor {};
+        static inline StaticILMethod<0x04c87310> Method$$Add {};
+        static inline StaticILMethod<0x04c6e8a0> Method$$ContainsKey {}; // NOTE: not for that specific dictionary and it'S NOT FINE
+        static inline StaticILMethod<0x04c68a90> Method$$get_Item {}; // NOTE: not for that specific dictionary but it's probably fine
+    };
+
+    struct Dictionary$$BtlWeather$$String : Dictionary$$uint8_t<Dictionary$$BtlWeather$$String, System::String> {
         static inline StaticILMethod<0x04c87318> Method$$ctor {};
         static inline StaticILMethod<0x04c87320> Method$$Add {};
+        static inline StaticILMethod<0x04c6e890> Method$$ContainsKey {};
+        static inline StaticILMethod<0x04c68a80> Method$$get_Item {};
+    };
+
+    struct Dictionary$$BtlGround$$String : Dictionary$$uint8_t<Dictionary$$BtlGround$$String, System::String> {
+        static inline StaticILMethod<0x04c872f8> Method$$ctor {};
+        static inline StaticILMethod<0x04c87300> Method$$Add {};
+        static inline StaticILMethod<0x04c6e888> Method$$ContainsKey {};
+        static inline StaticILMethod<0x04c68a78> Method$$get_Item {};
     };
 
     struct IEnumerable$$String : IEnumerable<IEnumerable$$String, System::String> {

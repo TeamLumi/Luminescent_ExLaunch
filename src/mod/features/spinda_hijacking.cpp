@@ -40,6 +40,8 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                     renderer = (UnityEngine::Renderer::Object*)renderers->m_Items[i];
                     if (((UnityEngine::_Object::Object*)renderer)->GetName()->asCString().find("Patcheel") != nn::string::npos)
                         break;
+                    else
+                        renderer = nullptr;
                 }
             }
 
@@ -80,6 +82,8 @@ HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
                             renderer = (UnityEngine::Renderer::Object*)renderers->m_Items[i];
                             if (((UnityEngine::_Object::Object*)renderer)->GetName()->asCString().find("Patcheel") != nn::string::npos)
                                 break;
+                            else
+                                renderer = nullptr;
                         }
                     }
 

@@ -81,6 +81,11 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     static_assert(offsetof(Fields, _akLisnerTransform) == 0x158);
 
+    inline void CallEffect(int32_t index, UnityEngine::Transform::Object* parent, UnityEngine::Vector3::Object ofs, void* loadcallback, void* eff_onFinished) { // System_Action_EffectInstance__o *loadcallback, UnityEngine_Events_UnityAction_EffectInstance__o *eff_onFinished
+        UnityEngine::Vector3::Fields ofsProxy = { .x = ofs.fields.x, .y = ofs.fields.y, .z = ofs.fields.z };
+        external<void>(0x017a0450, this, index, parent, ofsProxy, loadcallback, eff_onFinished);
+    }
+
     inline uint16_t GetFormNo(int32_t mons, int32_t karana, int32_t anno) {
         return external<uint16_t>(0x0179f560, this, mons, karana, anno);
     }
@@ -119,5 +124,13 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     inline void RequestAttributeSE(FieldObjectEntity::Object* entity, int32_t attri) {
         external<void>(0x017a0130, this, entity, attri);
+    }
+
+    inline void SetBgmEvent(uint32_t eventid) {
+        external<void>(0x0179ca70, this, eventid);
+    }
+
+    inline bool StopSwayGrass_NextArea() {
+        return external<bool>(0x0179c590, this);
     }
 };

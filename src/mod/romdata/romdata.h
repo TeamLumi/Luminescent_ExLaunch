@@ -15,6 +15,7 @@
 #include "romdata/data/EncounterTableData.h"
 #include "romdata/data/UnbreakablePokeItem.h"
 #include "romdata/data/FossilData.h"
+#include "romdata/data/Zone.h"
 #include "romdata/data/ZoneRates.h"
 
 // Returns the max level based on the given level cap index.
@@ -34,6 +35,9 @@ RomData::FormHeldItemMon GetFormHeldItemMon(int32_t monsNo);
 
 // Returns the list of held item that a can't be separated from a specific Pokémon.
 RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo);
+
+// Returns the list of items that can't be separated from any Pokémon
+RomData::UnbreakablePokeItem GetAlwaysUnbreakableItems();
 
 // Returns the honey tree Pokémon at the given zoneID and slot.
 RomData::HoneyTreeSlot GetHoneyTreeSlot(int32_t zoneID, int32_t slot);
@@ -121,5 +125,8 @@ int32_t GetFossilFormNoFromItemNo(int32_t itemNo);
 
 // Loads the list of fossil item numbers from fossil_items.json.
 RomData::FossilItemList LoadFossilItemList();
+
+// Returns the extra Zone data.
+RomData::Zone GetZoneData(int32_t zoneID);
 
 void LoadFeaturesFromJSON(nn::json j);

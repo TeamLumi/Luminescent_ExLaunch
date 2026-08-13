@@ -714,7 +714,7 @@ static constexpr const char* ITEMS[] = {
     "Jaw Fossil",
     "Sail Fossil",
     "Looker Ticket",
-    "Bike",
+    "Bike (XY Yellow)",
     "Holo Caster",
     "Fairy Gem",
     "Mega Charm",

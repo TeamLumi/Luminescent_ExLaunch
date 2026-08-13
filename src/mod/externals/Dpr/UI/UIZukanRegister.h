@@ -43,5 +43,9 @@ namespace Dpr::UI {
         inline void Open(Pml::PokePara::PokemonParam::Object* pokemonParam, bool isSkipAddMemberProc, int32_t prevWindowId) {
             external<void>(0x01a3cd30, this, pokemonParam, isSkipAddMemberProc, prevWindowId);
         }
+
+        inline void OpenAddMemberOnly(Pml::PokePara::PokemonParam::Object* pokemonParam, bool isNotAddMember, int32_t prevWindowId) {
+            external<void>(0x01a3cfd0, this, pokemonParam, isNotAddMember, prevWindowId);
+        }
     };
 }

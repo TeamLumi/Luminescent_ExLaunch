@@ -29,6 +29,11 @@ bool SetWeather(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work] result: The work in which to put the result of attempting to add the starter to the party.
 bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager);
 
+// Starts surfing.
+// Arguments:
+//   [Work, Number] disableBgm: (optional) Determines if the surfing music plays. 0 = Use user settings, 1 = Always disabled.
+bool Naminori(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Returns the player's starter selection. Possible values are 0, 1, and 2.
 // Arguments:
 //   [Work] result: The work in which to put the result in.
@@ -512,3 +517,32 @@ bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] maxValue: Maximum value that the player can input.
 //   [String] headerLabel: Message Label containing text to be displayed in the header.
 bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives a Pokémon Egg to the Player.
+// Arguments:
+//   [Work, Number] monsno: ID of the species to give.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] receivedFrom: (optional) Where the egg was recieved from. Will be current zone if no argument is given. -1 = No Argument
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have. -1 = No Argument
+//   [Work, Number] ball: (optional) ID of the ball the Pokémon will reside in. 4 = Default Poke Ball
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+//   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be. -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
+//   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
+//   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have. -1 = Random
+//   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
+bool AddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives a Pokémon to the Player.
+// Arguments:
+//   [Work, Number] monsno: ID of the species to give.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] level: Level of the Pokémon to give.
+//   [Work, Number] item: (optional) ID of the item the Pokémon is to hold.
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have.
+//   [Work, Number] ball: (optional) ID of the ball the Pokémon will reside in.
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+//   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be. -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
+//   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
+//   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have. -1 = Random
+//   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
+bool AddPokemonExtra(Dpr::EvScript::EvDataManager::Object* manager);

@@ -360,4 +360,8 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
         return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*>(0x02ce2a00);
     }
+
+    static inline uint8_t get_bicycleColor() {
+        return external<uint8_t>(0x02cf06f0);
+    }
 };

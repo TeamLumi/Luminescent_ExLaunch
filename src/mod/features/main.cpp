@@ -131,6 +131,8 @@ void CallFeatureHooks()
         exl_ug_shinies_main();
     if (IsActivatedFeature(array_index(FEATURES, "More Time Flags")))
         exl_time_flags_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Zone Frames")))
+        exl_zone_frames_main();
     if (IsActivatedFeature(array_index(FEATURES, "Illusion Fixes"))) {
         exl_illusion_break_fix_main();
         exl_illusion_target_selector_fix_main();
@@ -142,6 +144,7 @@ void CallFeatureHooks()
     exl_save_data_expansion_main();
     exl_patches_main();
     exl_battle_features_main();
+    exl_bike_music_main();
 }
 
 void MountRomAndReadJSON() {
