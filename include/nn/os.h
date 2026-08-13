@@ -23,7 +23,7 @@ struct InternalConditionVariable {
 }  // namespace detail
 
 struct LightEventType {
-    std::aligned_storage_t<0xc, 4> storage;
+    alignas(4) std::byte storage[0xc];
 };
 
 // https://github.com/misson20000/nn-types/blob/master/nn_os.h
@@ -88,7 +88,7 @@ struct MessageQueueType {
 struct ConditionVariableType {};
 
 struct SemaphoreType {
-    std::aligned_storage_t<0x28, 8> storage;
+    alignas(8) std::byte storage[0x28];
 };
 
 struct SystemEvent;

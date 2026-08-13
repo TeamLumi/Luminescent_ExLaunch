@@ -43,7 +43,7 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
             if (player->fields._animationPlayer->get_currentIndex() == ANIM_JUMP_START && newPos.fields.y < oldPos.fields.y)
                 player->PlayJumpLoop();
         } else {
-            auto* animPlayer = jumpTarget->cast<BaseEntity>()->GetAnimationPlayer();
+            auto* animPlayer = jumpTarget->cast<BaseEntity>()->virtual_GetAnimationPlayer();
             if (animPlayer != nullptr &&
                 animPlayer->get_currentIndex() == ANIM_JUMP_START &&
                 newPos.fields.y < oldPos.fields.y) {
@@ -65,7 +65,7 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
                 player->fields.isLanding = true;
             } else {
                 fm->RequestAttributeEffect(jumpTarget, 1);
-                auto* animPlayer = jumpTarget->cast<BaseEntity>()->GetAnimationPlayer();
+                auto* animPlayer = jumpTarget->cast<BaseEntity>()->virtual_GetAnimationPlayer();
                 if (animPlayer != nullptr)
                     animPlayer->Play(ANIM_JUMP_END, 0.2f);
                 jumpTarget->fields.isLanding = true;
@@ -112,7 +112,7 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
             player->PlayJumpStart();
         } else {
             jumpTarget->fields.isLanding = false;
-            auto* animPlayer = jumpTarget->cast<BaseEntity>()->GetAnimationPlayer();
+            auto* animPlayer = jumpTarget->cast<BaseEntity>()->virtual_GetAnimationPlayer();
             if (animPlayer != nullptr)
                 animPlayer->Play(ANIM_JUMP_START, 0.2f, 0.13333334f);
         }

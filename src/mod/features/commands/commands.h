@@ -11,6 +11,14 @@
 void Hooks_LoadUmaAnime();
 
 
+// Gets the x, y and z position of an entity.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work] x: The work in which to put the result x position.
+//   [Work] y: The work in which to put the result y position.
+//   [Work] z: The work in which to put the result z position.
+bool ObjPosGet(Dpr::EvScript::EvDataManager::Object* manager);
+
 // Sets the weather.
 // Arguments:
 //   [Work, Number] weather: The ID of the weather to change to.
@@ -20,6 +28,11 @@ bool SetWeather(Dpr::EvScript::EvDataManager::Object* manager);
 // Arguments:
 //   [Work] result: The work in which to put the result of attempting to add the starter to the party.
 bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Starts surfing.
+// Arguments:
+//   [Work, Number] disableBgm: (optional) Determines if the surfing music plays. 0 = Use user settings, 1 = Always disabled.
+bool Naminori(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Returns the player's starter selection. Possible values are 0, 1, and 2.
 // Arguments:
@@ -63,6 +76,17 @@ bool KasekiItemNo(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] isForce: Unknown use.
 //   [Work, Number] fadeTime: The time in seconds it takes for the effect to fade.
 bool StopEffect(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Moves an entity to the specified coordinates (supports floats), adding the option to use the current values for each axis.
+// Arguments:
+//   [String, Work, Number] entity: The entity ID or index to check for.
+//   [Work, Number] xPos: The value to set the x coordinate to.
+//   [Work, Number] yPos: The value to set the y coordinate to.
+//   [Work, Number] zPos: The value to set the z coordinate to.
+//   [Work, Number] useCurrentX: (optional) If value is not 0, the xPos argument will be ignored and the player will not be moved on the x axis.
+//   [Work, Number] useCurrentY: (optional) If value is not 0, the yPos argument will be ignored and the player will not be moved on the y axis.
+//   [Work, Number] useCurrentZ: (optional) If value is not 0, the zPos argument will be ignored and the player will not be moved on the z axis.
+bool ObjPosChangeWorld(Dpr::EvScript::EvDataManager::Object* manager);
 
 // Unloads an asset bundle holding animation data.
 // Arguments:
@@ -354,7 +378,7 @@ bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Makes the player ledge jump with the given parameters.
+// Makes the player ledge jump with the given parameters. When the first argument is an entity reference, that entity jumps instead of the player.
 // Arguments:
 //   [String] entity (optional): The name of the entity to jump. If omitted or the player's name, the player jumps.
 //   [Work, Number] moveDistance: The amount of tiles to jump. (Default 2.0)
@@ -456,7 +480,70 @@ bool PartyBoxShiny(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] index: The index of the party Pokémon to be set as the follower.
 bool SetPartnerPokemon(Dpr::EvScript::EvDataManager::Object* manager);
 
-// _LEDGE_JUMP also supports NPC entities:
-//   _LEDGE_JUMP(moveDistance, relativeHeight, relativeLower, duration) — player jump
-//   _LEDGE_JUMP('NPC_NAME', moveDistance, relativeHeight, relativeLower, duration) — NPC jump
-// When the first argument is an entity reference, that entity jumps instead of the player.
+// Gets a random Pokémon MonsNo and FormNo from an encounter table based on input table ID.
+// Arguments:
+//   [Work, Number] tableID: The table ID to look up (e.g. type ID: 0=Normal, 1=Fighting, 2=Flying, etc.)
+//   [Work] monsNo: The work in which to put the MonsNo result.
+//   [Work] formNo: The work in which to put the FormNo result.
+bool GetTablePoke(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Returns the specified EV and IV of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to get the EV and IV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work] evResult: The work in which to put the Effort Value result.
+//   [Work] ivResult: The work in which to put the Individual Value result.
+bool PartyBoxEVIV(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the specified effort value of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to set the EV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work, Number] newValue: The value to set the EV to.
+bool SetEffortValue(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Sets the specified individual value of the Pokémon at the given index and tray index.
+// Arguments:
+//   [Work, Number] index: The index that points to the given Pokémon.
+//   [Work, Number] trayIndex: The tray index in which to look for the given Pokémon.
+//   [Work, Number] stat: Statistic to set the IV value of. 0 HP, 1 = Attack, 2 = Defense, 3 = Sp.Atk, 4 = Sp.Def, 5 = Speed.
+//   [Work, Number] newValue: The value to set the IV to.
+bool SetIndividualValue(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Keyboard numpad input with a specified maximum value and header label.
+// Arguments:
+//   [Work] resultNumber: The number that was input.
+//   [Work, Number] maxValue: Maximum value that the player can input.
+//   [String] headerLabel: Message Label containing text to be displayed in the header.
+bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives a Pokémon Egg to the Player.
+// Arguments:
+//   [Work, Number] monsno: ID of the species to give.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] receivedFrom: (optional) Where the egg was recieved from. Will be current zone if no argument is given. -1 = No Argument
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have. -1 = No Argument
+//   [Work, Number] ball: (optional) ID of the ball the Pokémon will reside in. 4 = Default Poke Ball
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+//   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be. -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
+//   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
+//   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have. -1 = Random
+//   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
+bool AddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager);
+
+// Gives a Pokémon to the Player.
+// Arguments:
+//   [Work, Number] monsno: ID of the species to give.
+//   [Work, Number] formno: ID of the form the species is in.
+//   [Work, Number] level: Level of the Pokémon to give.
+//   [Work, Number] item: (optional) ID of the item the Pokémon is to hold.
+//   [Work, Number] maxIVs: (optional) Number of max IVs the Pokémon will have.
+//   [Work, Number] ball: (optional) ID of the ball the Pokémon will reside in.
+//   [Work, Number] shiny: (optional) Determines if the Pokémon is forced to be shiny. -1 = Random, 0 = Never Shiny, 1 = Shiny, 2 = Square Shiny
+//   [Work, Number] gender: (optional) Gender that the Pokémon will be forced to be. -1 = Random, 0 = Male, 1 = Female, 2 = Genderless
+//   [Work, Number] formArg: (optional) The Variant that the Pokémon will be forced to be. -1 = No argument/Default
+//   [Work, Number] nature: (optional) The Nature that the Pokémon will be forced to have. -1 = Random
+//   [Work, Number] ability: (optional) The Ability that the Pokémon will be forced to have. -1 = Random, 0 = A1, 1 = A2, 2 = HA
+bool AddPokemonExtra(Dpr::EvScript::EvDataManager::Object* manager);

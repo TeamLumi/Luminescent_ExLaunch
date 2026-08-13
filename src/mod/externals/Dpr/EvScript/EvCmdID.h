@@ -1297,7 +1297,13 @@ namespace Dpr::EvScript {
             _TEMOTI_BOX_GENDER = 1287,
             _TEMOTI_BOX_SHINY = 1288,
             _SET_TUREARUKI = 1289,
-            _NPC_JUMP = 1290,
+            _GET_TABLE_POKE = 1290,
+            _TEMOTI_BOX_EV_IV = 1291,
+            _SET_EFFORT_VALUE = 1292,
+            _SET_INDIVIDUAL_VALUE = 1293,
+            _CUSTOM_NUMBER_INPUT = 1294,
+            _ADD_TAMAGO_EXTRA = 1295,
+            _ADD_POKEMON_EXTRA = 1296,
 
             CUSTOM_CMD_END = 1500,
         };

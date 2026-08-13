@@ -17,7 +17,6 @@ void ui_inspect(UnityEngine::Transform* transform);
 int GeneratePoffinName(int spicy, int dry, int sweet, int bitter, int sour, int level);
 
 void setArenaSettings(bool enabled, int id);
-void showAreaName();
 void setFlyOverride(bool enabled);
 void setFullDex(int getStatus);
 

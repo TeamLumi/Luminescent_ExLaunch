@@ -114,12 +114,63 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         bool isSwampLoopEffect;
     };
 
+    struct VirtualInvokeData_get_entityType {
+        typedef System::String::Object*(*Il2CppMethodPointer)(FieldPlayerEntity::Object*, const MethodInfo*);
+        Il2CppMethodPointer methodPtr;
+        const MethodInfo* method;
+    };
+    
+    struct VirtualInvokeData_virtual_GetAnimationPlayer {
+        typedef AnimationPlayer::Object*(*Il2CppMethodPointer)(FieldPlayerEntity::Object*, const MethodInfo*);
+        Il2CppMethodPointer methodPtr;
+        const MethodInfo* method;
+    };
+
+
+    struct VTable {
+        VirtualInvokeData _0_Equals;
+        VirtualInvokeData _1_Finalize;
+        VirtualInvokeData _2_GetHashCode;
+        VirtualInvokeData _3_ToString;
+        VirtualInvokeData_get_entityType _4_get_entityType;
+        VirtualInvokeData_virtual_GetAnimationPlayer _5_GetAnimationPlayer;
+        VirtualInvokeData _6_Awake;
+        VirtualInvokeData _7_OnEnable;
+        VirtualInvokeData _8_OnDisable;
+        VirtualInvokeData _9_OnDestroy;
+        VirtualInvokeData _10_OnUpdate;
+        VirtualInvokeData _11_OnLateUpdate;
+        VirtualInvokeData _12_SwitchToNext;
+        VirtualInvokeData _13_ProcessSequence;
+        VirtualInvokeData _14_OnFootSE;
+        VirtualInvokeData _15_OnFootEffect;
+        VirtualInvokeData _16_GetIdleAnimationIndex;
+    };
+
     static inline void set_colorID(int32_t value) {
         external<void>(0x02cef870, value);
     }
 
+    inline void AppearSwimBiidaru(float ofs, float time) {
+        external<void>(0x01db4000, this, ofs, time);
+    }
+
+    inline UnityEngine::Vector3::Object CalcSwimTargetPosition() {
+        return {
+            .fields = external<UnityEngine::Vector3::Fields>(0x01db29c0, this)
+        };
+    }
+
+    inline void ChangeSwim(bool swim) {
+        external<void>(0x01db2640, this, swim);
+    }
+
     inline void GetInputVector(UnityEngine::Vector2::Object* stickL, float* stickPowerSq, float deltatime, bool* analogstick) {
         external<void>(0x01dabb10, this, stickL, stickPowerSq, deltatime, analogstick);
+    }
+
+    inline void PlayIdle() {
+        external<void>(0x01daf050, this);
     }
 
     inline void PlayJumpStart() {
@@ -134,6 +185,14 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
         external<void>(0x01da9fc0, this);
     }
 
+    inline void PlayNaminoriStart() {
+        external<void>(0x01dafe20, this);
+    }
+
+    inline void PlaySwimEffect() {
+        external<void>(0x01db46d0, this);
+    }
+
     inline bool IsRideBicycle() {
         return external<bool>(0x01da7c70, this);
     }
@@ -141,6 +200,19 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
     inline void StopCrossInputAndBicycle() {
         external<void>(0x01da4ed0, this);
     }
+
+    inline void StopSwimEffect() {
+        external<void>(0x01db4a40, this);
+    }
+
+    inline AnimationPlayer::Object* virtual_GetAnimationPlayer() {
+        return (*(this->instance()->klass->vtable)._5_GetAnimationPlayer.methodPtr)
+               (this->instance(), this->instance()->klass->vtable._5_GetAnimationPlayer.method);
+    }
+
+    static_assert(sizeof(VTable) == 0x110);
+    static_assert(offsetof(VTable, _4_get_entityType) == 0x40);
+    static_assert(offsetof(VTable, _5_GetAnimationPlayer) == 0x50);
 
     static_assert(offsetof(Fields, _hatRenderers) == 0x198);
     static_assert(offsetof(Fields, _path) == 0x1F8);

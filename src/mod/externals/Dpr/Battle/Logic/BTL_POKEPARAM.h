@@ -12,6 +12,51 @@
 
 namespace Dpr::Battle::Logic {
     struct BTL_POKEPARAM : ILClass<BTL_POKEPARAM, 0x04c5a9d0> {
+        struct CORE_PARAM : ILClass<CORE_PARAM> {
+            struct Fields {
+                Pml::PokePara::PokemonParam::Object* ppSrc;
+                uint32_t personalRand;
+                uint32_t exp;
+                uint16_t monsno;
+                uint16_t formno;
+                uint16_t hpMax;
+                uint16_t hp;
+                uint16_t item;
+                uint16_t usedItem;
+                uint16_t defaultTokusei;
+                uint8_t level;
+                uint8_t myID;
+                uint8_t mons_pow;
+                uint8_t mons_agility;
+                uint8_t seikaku;
+                uint8_t native_talent_hp;
+                uint8_t native_talent_atk;
+                uint8_t native_talent_def;
+                uint8_t native_talent_spatk;
+                uint8_t native_talent_spdef;
+                uint8_t native_talent_agi;
+                uint16_t defaultFormNo;
+                bool fHensin;
+                bool fFakeEnable;
+                bool fBtlIn;
+                bool fDontResetFormByByOut;
+                bool fForceGEnable;
+                void* sickCont; // Dpr_Battle_Logic_BTL_SICKCONT_array*
+                System::Byte_array* wazaSickCounter;
+                uint8_t confrontRecCount;
+                System::Byte_array* confrontRec;
+                uint16_t totalTurnCount;
+                uint8_t fakeViewTargetPokeId;
+                void* defaultPowerUpDesc; // Dpr_Battle_Logic_DefaultPowerUpDesc_o*
+                uint8_t deadCause;
+                uint8_t deadCausePokeID;
+                uint8_t killCount;
+                bool isRaidBoss;
+                void* raidBossParam; // Dpr_Battle_Logic_RaidBossParam_o*
+                void* gParam; // Dpr_Battle_Logic_BTL_POKEPARAM_GModeParam_o*
+            };
+        };
+
         enum class NemuriCheckMode : int32_t {
             NEMURI_CHECK_ONLY_SICK = 0,
             NEMURI_CHECK_INCLUDE_ZETTAINEMURI = 1,
@@ -97,7 +142,7 @@ namespace Dpr::Battle::Logic {
         };
 
         struct Fields {
-            void* m_coreParam;
+            CORE_PARAM::Object* m_coreParam;
             void* m_baseParam;
             void* m_varyParam;
             void* m_doryokuParam;
@@ -243,6 +288,10 @@ namespace Dpr::Battle::Logic {
 
         inline uint8_t GetFormNo() {
             return external<uint8_t>(0x01fda170, this);
+        }
+
+        inline bool HENSIN_Check() {
+            return external<bool>(0x01fdd470, this);
         }
     };
 }
