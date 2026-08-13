@@ -42,14 +42,20 @@ namespace Dpr::Battle::View::UI {
             System::Collections::Generic::List$$UnityEngine_UI_Image::Object* _icons;
             System::ValueTuple2$$String$$int32::Array* _paramIDs;
             System::Collections::Generic::List$$ValueTuple3$$String$$String$$String::Object* _statusTexts;
-            System::Collections::Generic::Dictionary$$int32_t$$String::Object* _fieldIDs;
-            System::Collections::Generic::Dictionary$$uint8_t$$String::Object* _weatherIDs;
-            System::Collections::Generic::Dictionary$$uint8_t$$String::Object* _groundIDs;
-            System::Collections::Generic::Dictionary$$int32_t$$String::Object* _sideIDs;
+            System::Collections::Generic::Dictionary$$EffectType$$String::Object* _fieldIDs;
+            System::Collections::Generic::Dictionary$$BtlWeather$$String::Object* _weatherIDs;
+            System::Collections::Generic::Dictionary$$BtlGround$$String::Object* _groundIDs;
+            System::Collections::Generic::Dictionary$$BtlSideEffect$$String::Object* _sideIDs;
         };
 
         struct VirtualInvokeData_OnUpdate {
             typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::UI::BUISituationDetail::Object* __this, float deltaTime, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_PreparaNext {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::UI::BUISituationDetail::Object* __this, bool isForward, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
             const MethodInfo* method;
         };
@@ -64,7 +70,7 @@ namespace Dpr::Battle::View::UI {
             VirtualInvokeData _6_Reset;
             VirtualInvokeData _7_UnInitialize;
             VirtualInvokeData_OnUpdate _8_OnUpdate;
-            VirtualInvokeData _9_PreparaNext;
+            VirtualInvokeData_PreparaNext _9_PreparaNext;
             VirtualInvokeData _10_ForceHide;
             VirtualInvokeData _11_OnShow;
             VirtualInvokeData _12_OnHide;
@@ -75,6 +81,11 @@ namespace Dpr::Battle::View::UI {
         inline void virtual_OnUpdate(float deltaTime) {
             (*(this->instance()->klass->vtable)._8_OnUpdate.methodPtr)
                     (this->instance(), deltaTime, this->instance()->klass->vtable._8_OnUpdate.method);
+        }
+
+        inline void virtual_PreparaNext(bool isForward) {
+            (*(this->instance()->klass->vtable)._9_PreparaNext.methodPtr)
+                    (this->instance(), isForward, this->instance()->klass->vtable._9_PreparaNext.method);
         }
 
         inline void Initialize(System::Collections::Generic::List$$BTL_POKEPARAM::Object* pokeList,
@@ -93,6 +104,14 @@ namespace Dpr::Battle::View::UI {
 
         inline int32_t SetFieldStatus() {
             return external<int32_t>(0x01d24f70, this);
+        }
+
+        inline void OnChangePoke(bool isForward) {
+            external<void>(0x01d25fe0, this, isForward);
+        }
+
+        inline void OnCancel() {
+            external<void>(0x01d26080, this);
         }
     };
 }

@@ -50,6 +50,10 @@ void SetSideEffectFunctionTable(Handler::Side::GET_FUNC_TABLE_ELEM::Array* getFu
     elem->ctor(sideEffect, func);
 }
 
+void AddSituationDetailSideEffectLabels(System::Collections::Generic::Dictionary$$BtlSideEffect$$String::Object* sideIDs) {
+    // No extra ones currently
+}
+
 HOOK_DEFINE_INLINE(Side_system_array_new) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
         uint64_t size = ctx->X[1];
@@ -77,16 +81,16 @@ void exl_side_handlers_main() {
     using namespace exl::armv8::reg;
     exl::patch::CodePatcher p(0);
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01f70db0, Movz(W1, 22 + getExtraSideEffectHandlers()->count) },
-        { 0x01f70f10, CmpImmediate(X27, 22 + getExtraSideEffectHandlers()->count) },
-        { 0x01f70fd0, CmpImmediate(X28, (22 + getExtraSideEffectHandlers()->count + 4) * 8) },
-        { 0x01f710f0, CmpImmediate(X20, 22 + getExtraSideEffectHandlers()->count) },
-        { 0x01f71138, CmpImmediate(X21, (22 + getExtraSideEffectHandlers()->count + 4) * 8) },
-        { 0x01f711c0, CmpImmediate(X8, 22 + getExtraSideEffectHandlers()->count + 4) },
-        { 0x01f71248, CmpImmediate(X8, 22 + getExtraSideEffectHandlers()->count + 4) },
-        { 0x01f712dc, CmpImmediate(W20, 22 + getExtraSideEffectHandlers()->count) },
-        { 0x01f71330, CmpImmediate(W20, 22 + getExtraSideEffectHandlers()->count) },
-        { 0x01f716a4, CmpImmediate(W19, 22 + getExtraSideEffectHandlers()->count - 1) },
+        { 0x01f70db0, Movz(W1, SIDE_EFFECT_COUNT) },
+        { 0x01f70f10, CmpImmediate(X27, SIDE_EFFECT_COUNT) },
+        { 0x01f70fd0, CmpImmediate(X28, (SIDE_EFFECT_COUNT + 4) * 8) },
+        { 0x01f710f0, CmpImmediate(X20, SIDE_EFFECT_COUNT) },
+        { 0x01f71138, CmpImmediate(X21, (SIDE_EFFECT_COUNT + 4) * 8) },
+        { 0x01f711c0, CmpImmediate(X8, SIDE_EFFECT_COUNT + 4) },
+        { 0x01f71248, CmpImmediate(X8, SIDE_EFFECT_COUNT + 4) },
+        { 0x01f712dc, CmpImmediate(W20, SIDE_EFFECT_COUNT) },
+        { 0x01f71330, CmpImmediate(W20, SIDE_EFFECT_COUNT) },
+        { 0x01f716a4, CmpImmediate(W19, SIDE_EFFECT_COUNT - 1) },
     };
     p.WriteInst(inst);
 

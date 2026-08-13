@@ -1302,7 +1302,9 @@ namespace Dpr::EvScript {
             _SET_EFFORT_VALUE = 1292,
             _SET_INDIVIDUAL_VALUE = 1293,
             _CUSTOM_NUMBER_INPUT = 1294,
-            _TRAINER_BTL_SET_EXTRA = 1300,
+            _ADD_TAMAGO_EXTRA = 1295,
+            _ADD_POKEMON_EXTRA = 1296,
+            _TRAINER_BTL_SET_EXTRA = 1297,
 
             CUSTOM_CMD_END = 1500,
         };

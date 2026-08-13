@@ -21,6 +21,10 @@ EventFactor::EventHandlerTable::Object* CreateFieldEffectEventHandler(EventID ev
 void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t fieldEffect, Il2CppMethodPointer methodPointer);
 void SetFieldEffectFunctionTable(Handler::Field::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t fieldEffect, MethodInfo* method);
 
+// For Battle Situation UI
+void AddSituationDetailWeatherFieldEffectLabels(System::Collections::Generic::Dictionary$$BtlWeather$$String::Object* weatherIDs);
+void AddSituationDetailFieldEffectLabels(System::Collections::Generic::Dictionary$$EffectType$$String::Object* fieldIds);
+
 
 /// WEATHER FIELD HANDLERS
 

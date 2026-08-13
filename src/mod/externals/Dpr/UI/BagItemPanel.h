@@ -31,5 +31,13 @@ namespace Dpr::UI {
             struct Dpr::UI::BagItemButton::Object* _SelectedItemButton_k__BackingField;
             void * OnChangeSelectItem; //System_Action_BagItemButton__o*
         };
+
+        inline void ReloadItemList(bool isFocusSelectedItem, int32_t selectedItemId) {
+            external<void>(0x01aa3a60, this, isFocusSelectedItem, selectedItemId);
+        }
+
+        inline void SetActive(bool isActive) {
+            external<void>(0x01aa3210, this, isActive);
+        }
     };
 }

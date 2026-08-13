@@ -19,8 +19,4 @@ namespace System {
             I3 Item3;
         };
     };
-
-    static Il2CppClass* ValueTuple2$$String$$int32_array_TypeInfo() {
-        return *reinterpret_cast<Il2CppClass**>(exl::util::modules::GetTargetOffset(0x04c5dce0));
-    }
 }

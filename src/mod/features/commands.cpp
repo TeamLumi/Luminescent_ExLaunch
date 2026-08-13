@@ -38,6 +38,8 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetWeather(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC:
                     return HandleCmdStepper(FirstPokeSelectProc(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_NAMINORI:
+                    return HandleCmdStepper(Naminori(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET:
                     return HandleCmdStepper(FirstPokeNoGet(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET:
@@ -176,6 +178,10 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetIndividualValue(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
                     return HandleCmdStepper(CustomNumberInput(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA:
+                    return HandleCmdStepper(AddTamagoExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_EXTRA:
+                    return HandleCmdStepper(AddPokemonExtra(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TRAINER_BTL_SET_EXTRA:
                     return HandleCmdStepper(TrainerBtlSetExtra(__this));
                 default:
@@ -204,6 +210,7 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_POS_GET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_NAMINORI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE);
@@ -276,6 +283,8 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_EXTRA);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TRAINER_BTL_SET_EXTRA);
 
     exl_commands_hooks_main();

@@ -48,22 +48,6 @@ HOOK_DEFINE_TRAMPOLINE(CollissionOverride2) {
     }
 };
 
-static System::String* lastString = nullptr;
-
-HOOK_DEFINE_TRAMPOLINE(LastAreaName) {
-    static void* Callback(System::String* string) {
-        lastString = string;
-        return Orig(string);
-    }
-};
-
-void showAreaName() {
-    if (lastString != nullptr) {
-        FieldCanvas::ResetAreaNameWindow();
-        FieldCanvas::OpenAreaNameWindow(lastString);
-    }
-}
-
 static bool flyOverride = false;
 
 void setFlyOverride(bool b) {
@@ -119,7 +103,6 @@ void exl_debug_menu_main() {
     ArenaHook::InstallAtOffset(0x02c3abc0);
     CollissionOverride::InstallAtOffset(0x01a763a0);
     CollissionOverride2::InstallAtOffset(0x02c1dd80);
-    LastAreaName::InstallAtOffset(0x01786970);
     FlyOverride::InstallAtOffset(0x0184e780);
     FlyOverride2::InstallAtOffset(0x01850250);
 }
