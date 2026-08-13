@@ -87,7 +87,7 @@ bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
             initialSpec->fields.monsno = monsNo;
             initialSpec->fields.formno = formNo;
             initialSpec->fields.level = level;
-            initialSpec->fields.talentVNum = maxIVs;
+            if (maxIVs >= 0) initialSpec->fields.talentVNum = maxIVs;
             if (gender >= 0) initialSpec->fields.sex = gender;
             if (nature >= 0) initialSpec->fields.seikaku = nature;
             if (ability >= 0) initialSpec->fields.tokuseiIndex = ability;
