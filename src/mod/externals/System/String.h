@@ -77,6 +77,10 @@ namespace System {
             return external<bool>(0x026f78d0, this, value);
         }
 
+        inline String::Array* Split(System::Char_array* separator) {
+            return external<String::Array*>(0x026f3a60, this, separator);
+        }
+
         // Only tested to work on int
         static Il2CppObject* ConvertToStringObject(Il2CppClass* klass, void* ptr) {
             return external<Il2CppObject*>(0x00252fd8, klass, ptr);
