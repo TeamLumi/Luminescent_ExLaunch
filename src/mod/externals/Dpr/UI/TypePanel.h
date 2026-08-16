@@ -14,5 +14,9 @@ namespace Dpr::UI {
         inline void Deactive() {
             external<void>(0x01857860, this);
         }
+
+        inline void Set(int32_t typeNo) {
+            external<void>(0x01857680, this, typeNo);
+        }
     };
 }

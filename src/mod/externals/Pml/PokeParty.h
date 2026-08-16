@@ -26,5 +26,9 @@ namespace Pml {
         inline bool CheckPokeExist(int32_t monsno) {
             return external<bool>(0x02053170, this, monsno);
         }
+
+        void RemoveMember(uint32_t idx) {
+            external<void>(0x02056390, this, idx);
+        }
     };
 }

@@ -22,7 +22,7 @@ void HandlerFieldEffectWaterSportFieldWazaPower(EventFactor::EventHandlerArgs::O
     Common::MulEventVar(args, EventVar::Label::WAZA_POWER_RATIO, FX32::CONST_0_333);
 }
 
-EventFactor::EventHandlerTable::Array* ADD_FieldEffect_WaterSport() {
+EventFactor::EventHandlerTable::Array* ADD_FieldEffect_WaterSport(uint8_t sub_param) {
     EventFactor::EventHandlerTable::Array* table = getExtraFieldEffectHandlers()->HandlerTable_WaterSport;
     if (table == nullptr) {
         table = CreateFieldEffectEventHandlerTable(1);

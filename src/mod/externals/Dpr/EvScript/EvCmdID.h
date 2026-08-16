@@ -1294,6 +1294,16 @@ namespace Dpr::EvScript {
             _GAMEOBJECT_ROTATE_PIVOT = 1284,
             _SET_CAMERA_OFFSET_ANGLE = 1285,
             _SP_WILD_BTL_SET_EXTRA = 1286,
+            _TEMOTI_BOX_GENDER = 1287,
+            _TEMOTI_BOX_SHINY = 1288,
+            _SET_TUREARUKI = 1289,
+            _GET_TABLE_POKE = 1290,
+            _TEMOTI_BOX_EV_IV = 1291,
+            _SET_EFFORT_VALUE = 1292,
+            _SET_INDIVIDUAL_VALUE = 1293,
+            _CUSTOM_NUMBER_INPUT = 1294,
+            _ADD_TAMAGO_EXTRA = 1295,
+            _ADD_POKEMON_EXTRA = 1296,
 
             CUSTOM_CMD_END = 1500,
         };

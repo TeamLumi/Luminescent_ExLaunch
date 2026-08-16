@@ -214,5 +214,10 @@ namespace Dpr::Battle::Logic {
         static inline bool RemoveFieldEffect(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_FieldEffect_Remove::Description::Object** desc) {
             return external<bool>(0x01d0b7c0, args, desc);
         }
+
+        static inline bool GuardWazaSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, Pml::WazaData::WazaSick guardSick) {
+            return external<bool>(0x01d0e600, args, pokeID, guardSick);
+
+        }
     };
 }

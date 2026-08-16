@@ -32,10 +32,14 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
         {
             switch ((Dpr::EvScript::EvCmdID::NAME)index)
             {
+                case Dpr::EvScript::EvCmdID::NAME::_OBJ_POS_GET:
+                    return HandleCmdStepper(ObjPosGet(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER:
                     return HandleCmdStepper(SetWeather(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC:
                     return HandleCmdStepper(FirstPokeSelectProc(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_NAMINORI:
+                    return HandleCmdStepper(Naminori(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET:
                     return HandleCmdStepper(FirstPokeNoGet(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET:
@@ -44,8 +48,16 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(ObjDirChange(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE:
                     return HandleCmdStepper(ObjDirChange(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_KASEKI_COUNT:
+                    return HandleCmdStepper(KasekiCount(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ITEMNO_TO_MONSNO:
+                    return HandleCmdStepper(ItemNoToMonsNo(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_KASEKI_ITEMNO:
+                    return HandleCmdStepper(KasekiItemNo(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT:
                     return HandleCmdStepper(StopEffect(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_OBJ_POS_CHANGE_WORLD:
+                    return HandleCmdStepper(ObjPosChangeWorld(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME:
                     return HandleCmdStepper(ReleaseUmaAnime(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_FORMNO:
@@ -150,6 +162,26 @@ HOOK_DEFINE_TRAMPOLINE(RunEvCmdCustom) {
                     return HandleCmdStepper(SetCameraOffsetAngle(__this));
                 case Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA:
                     return HandleCmdStepper(SpWildBtlSetExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER:
+                    return HandleCmdStepper(PartyBoxGender(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY:
+                    return HandleCmdStepper(PartyBoxShiny(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI:
+                    return HandleCmdStepper(SetPartnerPokemon(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_GET_TABLE_POKE:
+                    return HandleCmdStepper(GetTablePoke(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EV_IV:
+                    return HandleCmdStepper(PartyBoxEVIV(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE:
+                    return HandleCmdStepper(SetEffortValue(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE:
+                    return HandleCmdStepper(SetIndividualValue(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT:
+                    return HandleCmdStepper(CustomNumberInput(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA:
+                    return HandleCmdStepper(AddTamagoExtra(__this));
+                case Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_EXTRA:
+                    return HandleCmdStepper(AddPokemonExtra(__this));
                 default:
                     break;
             }
@@ -173,13 +205,19 @@ void exl_commands_main() {
         i = false;
 
     // Activate command overrides
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_POS_GET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_WEATHER);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_SELECT_PROC);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_NAMINORI);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_FIRST_POKE_NO_GET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_HONEY_TREE_BTL_SET);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SXY_DIR_CHANGE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_DIR_CHANGE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_KASEKI_COUNT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ITEMNO_TO_MONSNO);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_KASEKI_ITEMNO);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_STOP_EFFECT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_OBJ_POS_CHANGE_WORLD);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_LOAD_UMA_ANIME);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_RELEASE_UMA_ANIME);
 
@@ -235,6 +273,16 @@ void exl_commands_main() {
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GAMEOBJECT_ROTATE_PIVOT);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_CAMERA_OFFSET_ANGLE);
     SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SP_WILD_BTL_SET_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_GENDER);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_SHINY);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_TUREARUKI);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_GET_TABLE_POKE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_TEMOTI_BOX_EV_IV);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_EFFORT_VALUE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_SET_INDIVIDUAL_VALUE);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_CUSTOM_NUMBER_INPUT);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_TAMAGO_EXTRA);
+    SetActivatedCommand(Dpr::EvScript::EvCmdID::NAME::_ADD_POKEMON_EXTRA);
 
     exl_commands_hooks_main();
 }

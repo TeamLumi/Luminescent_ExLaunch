@@ -11,6 +11,7 @@
 
 const char* formHeldItemFolderPath = "rom:/Data/ExtraData/MonData/FormHeldItem/";
 const char* unbreakablePokeItemFolderPath = "rom:/Data/ExtraData/MonData/UnbreakablePokeItem/";
+const char* alwaysUnbreakablePath = "rom:/Data/ExtraData/MonData/UnbreakablePokeItem/always.json";
 
 void LogFormHeldItemMonData(const RomData::FormHeldItemMon& m)
 {
@@ -66,6 +67,20 @@ RomData::UnbreakablePokeItem GetUnbreakablePokeItems(int32_t monsNo)
         unbreakablePokeItem = j.get<RomData::UnbreakablePokeItem>();
 
         return unbreakablePokeItem;
+    }
+
+    // Default
+    return {
+        .items = {},
+    };
+}
+
+RomData::UnbreakablePokeItem GetAlwaysUnbreakableItems()
+{
+    nn::json j = FsHelper::loadJsonFileFromPath(alwaysUnbreakablePath);
+    if (j != nullptr && !j.is_discarded())
+    {
+        return j.get<RomData::UnbreakablePokeItem>();
     }
 
     // Default
