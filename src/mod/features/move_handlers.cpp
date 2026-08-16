@@ -109,6 +109,7 @@ HOOK_DEFINE_INLINE(Handler_Waza_newGetFunc) {
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Splintered Stormshards")]) Handlers_Move_SplinteredStormshards(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Pika Papow")]) Handlers_Move_PikaPapow(array);
         if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Glitzy Glow")]) Handlers_Move_GlitzyGlow(array);
+        if (ACTIVATED_MOVE_HANDLERS[array_index(MOVES, "Baddy Bad")]) Handlers_Move_BaddyBad(array);
 
         ctx->X[0] = (uint64_t)array;
     }

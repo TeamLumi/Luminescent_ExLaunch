@@ -212,3 +212,7 @@ void Handlers_Move_PikaPapow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncT
 // Adds move handlers for Glitzy Glow.
 EventFactor::EventHandlerTable::Array* ADD_GlitzyGlow();
 void Handlers_Move_GlitzyGlow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Baddy Bad.
+EventFactor::EventHandlerTable::Array* ADD_BaddyBad();
+void Handlers_Move_BaddyBad(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
