@@ -17,7 +17,7 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Handler_Side_handler_SpotLight_TemptTarget)
         if (Common::PokeIDtoSide(args, &pokeID) != mySide)
             return;
 
-        BTL_SICKCONT::Object cont = (*args)->fields.pBattleEnv->GetSideEffectStatus(mySide, Common::GetSubID(args))->GetContParam();
+        BTL_SICKCONT::Object cont = (*args)->fields.pBattleEnv->GetSideEffectStatus(mySide, Common::GetSubID(args))->fields.m_data->fields.contParam;
         Common::RewriteEventVar(args, EventVar::Label::POKEID_DEF, SICKCONT::GetPokeID(&cont));
         Common::RewriteEventVar(args, EventVar::Label::TEMPT_TARGET_PRIORITY, (int32_t)TemptTargetPriority::WAZA_2);
         Common::RewriteEventVar(args, EventVar::Label::TEMPT_TARGET_CAUSE, (int32_t)TemptTargetCause::OTHER);
