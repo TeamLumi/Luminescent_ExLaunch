@@ -137,25 +137,6 @@ bool HandlerDamage(EventFactor::EventHandlerArgs::Object** args, uint8_t causePo
     return Common::Damage(args, &damageDesc);
 }
 
-<<<<<<< HEAD:src/mod/features/move_handlers/utils/utils.cpp
-void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t nextForm, bool persistOnSwitch, bool displayAbility, bool animationEnabled)
-{
-    system_load_typeinfo(0x88fe);
-    BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
-
-    if (bpp->fields.m_formNo == nextForm)
-        return;
-
-    auto formChangeDesc = Section_FromEvent_FormChange::Description::newInstance();
-    formChangeDesc->fields.pokeID = pokeID;
-    formChangeDesc->fields.formNo = nextForm;
-    formChangeDesc->fields.isDontResetFormByOut = persistOnSwitch;
-    formChangeDesc->fields.isDisplayTokuseiWindow = displayAbility;
-    formChangeDesc->fields.isDisplayChangeEffect = animationEnabled;
-    formChangeDesc->fields.successMessage->Setup(BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::ChangeForm);
-    formChangeDesc->fields.successMessage->AddArg(pokeID);
-    Common::FormChange(args, &formChangeDesc);
-=======
 void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t nextForm, bool persistOnSwitch, bool displayAbility, bool animationEnabled, BtlStrType strType, uint16_t strID)
 {
     system_load_typeinfo(0x88fe);
@@ -174,7 +155,6 @@ void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pok
     desc->fields.successMessage->Setup(strType, strID);
     desc->fields.successMessage->AddArg(pokeID);
     Common::FormChange(args, &desc);
->>>>>>> b6a41ee2c80994869d49b5813ac72661219b5924:src/mod/utils/handler_utils.cpp
 }
 
 void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType)
