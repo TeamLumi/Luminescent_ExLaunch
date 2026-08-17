@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/BattleViewBase.h"
+#include "externals/Dpr/Battle/Logic/SideEffectStatus.h"
 #include "externals/Dpr/Battle/View/BtlvBallInfo.h"
 #include "externals/Dpr/Battle/View/Systems/BTLV_WAZA_EFF_PARAM.h"
 #include "externals/Dpr/Battle/View/Systems/BattleCameraSystem.h"
@@ -18,6 +19,10 @@
 #include "externals/System/String.h"
 #include "externals/System/Nullable.h"
 #include "externals/UnityEngine/UI/Image.h"
+
+namespace Dpr::Battle::Logic {
+    struct MainModule;
+}
 
 namespace Dpr::Battle::View::Systems {
     struct BattleViewSystem : ILClass<BattleViewSystem> {
@@ -94,6 +99,12 @@ namespace Dpr::Battle::View::Systems {
 
         static_assert(offsetof(Fields, m_effectBallInfo) == 0xE0);
 
+        struct VirtualInvokeData_GetMainModule {
+            typedef Dpr::Battle::Logic::MainModule*(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VirtualInvokeData_GetBattlePokeParam_forUI {
             typedef bool(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, Dpr::Battle::Logic::BTL_POKEPARAM::Object* pDest, int32_t vpos, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
@@ -106,8 +117,26 @@ namespace Dpr::Battle::View::Systems {
             const MethodInfo* method;
         };
 
+        struct VirtualInvokeData_GetFieldStatus {
+            typedef Dpr::Battle::Logic::FieldStatus::Object*(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetSideEffectStatus {
+            typedef Dpr::Battle::Logic::SideEffectStatus::Object*(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, int32_t side, int32_t effect, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VirtualInvokeData_IsClientTrainerExist {
             typedef bool(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint8_t clientID, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetClientID {
+            typedef uint8_t(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
             const MethodInfo* method;
         };
@@ -118,12 +147,60 @@ namespace Dpr::Battle::View::Systems {
             const MethodInfo* method;
         };
 
+        struct VirtualInvokeData_GetUiDisplay_Turn_Weather {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_Turn_Ground {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_Turn_Hikarinokabe {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, int32_t side, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_Turn_Reflector {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, int32_t side, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_Turn_AuroraVeil {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, int32_t side, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_Turn_SideEffect {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, int32_t side, int32_t sideEffect, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_Turn {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint32_t* numerator, uint32_t* denominator, uint8_t myClientID, uint8_t causePokeID, uint32_t totalTurn, uint32_t upTurn, uint32_t remainTurn, uint32_t passedTurn, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
+        struct VirtualInvokeData_GetUiDisplay_PokeType {
+            typedef void(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, uint8_t* type1, uint8_t* type2, Dpr::Battle::Logic::BTL_POKEPARAM::Object** poke, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VTable {
             VirtualInvokeData _0_Equals;
             VirtualInvokeData _1_Finalize;
             VirtualInvokeData _2_GetHashCode;
             VirtualInvokeData _3_ToString;
-            VirtualInvokeData _4_GetMainModule;
+            VirtualInvokeData_GetMainModule _4_GetMainModule;
             VirtualInvokeData _5_GetBattleEnv;
             VirtualInvokeData _6_GetBattleContainer;
             VirtualInvokeData _7_GetBattlePokeParam;
@@ -134,8 +211,8 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _12_GetBattleParty_Enemy;
             VirtualInvokeData_GetBattleParty _13_GetBattleParty;
             VirtualInvokeData _14_GetClient;
-            VirtualInvokeData _15_GetFieldStatus;
-            VirtualInvokeData _16_GetSideEffectStatus;
+            VirtualInvokeData_GetFieldStatus _15_GetFieldStatus;
+            VirtualInvokeData_GetSideEffectStatus _16_GetSideEffectStatus;
             VirtualInvokeData _17_GetPosEffectStatus;
             VirtualInvokeData _18_GetBattleCompetitor;
             VirtualInvokeData _19_GetBattleRule;
@@ -147,7 +224,7 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _25_IsFriendExist;
             VirtualInvokeData_IsClientTrainerExist _26_IsClientTrainerExist;
             VirtualInvokeData _27_IsWatchMode;
-            VirtualInvokeData _28_GetClientID;
+            VirtualInvokeData_GetClientID _28_GetClientID;
             VirtualInvokeData _29_GetFriendCleintID;
             VirtualInvokeData _30_GetEnemyClientID;
             VirtualInvokeData _31_GetEnemyClientNum;
@@ -194,14 +271,14 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _72_GetGameTime;
             VirtualInvokeData _73_GetCommandTime;
             VirtualInvokeData _74_GetClientTime;
-            VirtualInvokeData _75_GetUiDisplay_Turn_Weather;
-            VirtualInvokeData _76_GetUiDisplay_Turn_Ground;
-            VirtualInvokeData _77_GetUiDisplay_Turn_Hikarinokabe;
-            VirtualInvokeData _78_GetUiDisplay_Turn_Reflector;
-            VirtualInvokeData _79_GetUiDisplay_Turn_AuroraVeil;
-            VirtualInvokeData _80_GetUiDisplay_Turn_SideEffect;
-            VirtualInvokeData _81_GetUiDisplay_Turn;
-            VirtualInvokeData _82_GetUiDisplay_PokeType;
+            VirtualInvokeData_GetUiDisplay_Turn_Weather _75_GetUiDisplay_Turn_Weather;
+            VirtualInvokeData_GetUiDisplay_Turn_Ground _76_GetUiDisplay_Turn_Ground;
+            VirtualInvokeData_GetUiDisplay_Turn_Hikarinokabe _77_GetUiDisplay_Turn_Hikarinokabe;
+            VirtualInvokeData_GetUiDisplay_Turn_Reflector _78_GetUiDisplay_Turn_Reflector;
+            VirtualInvokeData_GetUiDisplay_Turn_AuroraVeil _79_GetUiDisplay_Turn_AuroraVeil;
+            VirtualInvokeData_GetUiDisplay_Turn_SideEffect _80_GetUiDisplay_Turn_SideEffect;
+            VirtualInvokeData_GetUiDisplay_Turn _81_GetUiDisplay_Turn;
+            VirtualInvokeData_GetUiDisplay_PokeType _82_GetUiDisplay_PokeType;
             VirtualInvokeData _83_GetUiDisplay_WazaType;
             VirtualInvokeData _84_GetUiDisplay_WazaPower;
             VirtualInvokeData _85_GetUiDisplay_WazaHitPer;
@@ -459,6 +536,11 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _337_SetIsSoundPlayingFinishCheckInvalid;
         };
 
+        inline Dpr::Battle::Logic::MainModule* virtual_GetMainModule() {
+            return (*(this->instance()->klass->vtable)._4_GetMainModule.methodPtr)
+                    (this->instance(), this->instance()->klass->vtable._4_GetMainModule.method);
+        }
+
         inline bool virtual_GetBattlePokeParam_forUI(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pDest, int32_t vpos) {
             return (*(this->instance()->klass->vtable)._8_GetBattlePokeParam_forUI.methodPtr)
                     (this->instance(), pDest, vpos, this->instance()->klass->vtable._8_GetBattlePokeParam_forUI.method);
@@ -469,14 +551,69 @@ namespace Dpr::Battle::View::Systems {
                     (this->instance(), clientID, this->instance()->klass->vtable._13_GetBattleParty.method);
         }
 
+        inline Dpr::Battle::Logic::FieldStatus::Object* virtual_GetFieldStatus() {
+            return (*(this->instance()->klass->vtable)._15_GetFieldStatus.methodPtr)
+                    (this->instance(), this->instance()->klass->vtable._15_GetFieldStatus.method);
+        }
+
+        inline Dpr::Battle::Logic::SideEffectStatus::Object* virtual_GetSideEffectStatus(int32_t side, int32_t effect) {
+            return (*(this->instance()->klass->vtable)._16_GetSideEffectStatus.methodPtr)
+                    (this->instance(), side, effect, this->instance()->klass->vtable._16_GetSideEffectStatus.method);
+        }
+
         inline bool virtual_IsClientTrainerExist(uint8_t clientID) {
             return (*(this->instance()->klass->vtable)._26_IsClientTrainerExist.methodPtr)
                     (this->instance(), clientID, this->instance()->klass->vtable._26_IsClientTrainerExist.method);
         }
 
+        inline uint8_t virtual_GetClientID() {
+            return (*(this->instance()->klass->vtable)._28_GetClientID.methodPtr)
+                    (this->instance(), this->instance()->klass->vtable._28_GetClientID.method);
+        }
+
         inline uint8_t virtual_GetBtlvPosToClientId(int32_t vpos) {
             return (*(this->instance()->klass->vtable)._34_GetBtlvPosToClientId.methodPtr)
                     (this->instance(), vpos, this->instance()->klass->vtable._34_GetBtlvPosToClientId.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn_Weather(uint32_t* numerator, uint32_t* denominator) {
+            return (*(this->instance()->klass->vtable)._75_GetUiDisplay_Turn_Weather.methodPtr)
+                    (this->instance(), numerator, denominator, this->instance()->klass->vtable._75_GetUiDisplay_Turn_Weather.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn_Ground(uint32_t* numerator, uint32_t* denominator) {
+            return (*(this->instance()->klass->vtable)._76_GetUiDisplay_Turn_Ground.methodPtr)
+                    (this->instance(), numerator, denominator, this->instance()->klass->vtable._76_GetUiDisplay_Turn_Ground.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn_Hikarinokabe(uint32_t* numerator, uint32_t* denominator, int32_t side) {
+            return (*(this->instance()->klass->vtable)._77_GetUiDisplay_Turn_Hikarinokabe.methodPtr)
+                    (this->instance(), numerator, denominator, side, this->instance()->klass->vtable._77_GetUiDisplay_Turn_Hikarinokabe.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn_Reflector(uint32_t* numerator, uint32_t* denominator, int32_t side) {
+            return (*(this->instance()->klass->vtable)._78_GetUiDisplay_Turn_Reflector.methodPtr)
+                    (this->instance(), numerator, denominator, side, this->instance()->klass->vtable._78_GetUiDisplay_Turn_Reflector.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn_AuroraVeil(uint32_t* numerator, uint32_t* denominator, int32_t side) {
+            return (*(this->instance()->klass->vtable)._79_GetUiDisplay_Turn_AuroraVeil.methodPtr)
+                    (this->instance(), numerator, denominator, side, this->instance()->klass->vtable._79_GetUiDisplay_Turn_AuroraVeil.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn_SideEffect(uint32_t* numerator, uint32_t* denominator, int32_t side, int32_t sideEffect) {
+            return (*(this->instance()->klass->vtable)._80_GetUiDisplay_Turn_SideEffect.methodPtr)
+                    (this->instance(), numerator, denominator, side, sideEffect, this->instance()->klass->vtable._80_GetUiDisplay_Turn_SideEffect.method);
+        }
+
+        inline void virtual_GetUiDisplay_Turn(uint32_t* numerator, uint32_t* denominator, uint8_t myClientID, uint8_t causePokeID, uint32_t totalTurn, uint32_t upTurn, uint32_t remainTurn, uint32_t passedTurn) {
+            return (*(this->instance()->klass->vtable)._81_GetUiDisplay_Turn.methodPtr)
+                    (this->instance(), numerator, denominator, myClientID, causePokeID, totalTurn, upTurn, remainTurn, passedTurn, this->instance()->klass->vtable._81_GetUiDisplay_Turn.method);
+        }
+
+        inline void virtual_GetUiDisplay_PokeType(uint8_t* type1, uint8_t* type2, Dpr::Battle::Logic::BTL_POKEPARAM::Object** poke) {
+            return (*(this->instance()->klass->vtable)._82_GetUiDisplay_PokeType.methodPtr)
+                    (this->instance(), type1, type2, poke, this->instance()->klass->vtable._82_GetUiDisplay_PokeType.method);
         }
 
         inline void SetSexIcon(Pml::Sex sex, UnityEngine::UI::Image::Object* target) {

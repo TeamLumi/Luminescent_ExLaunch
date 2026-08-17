@@ -146,7 +146,7 @@ function(create_releases_main module)
     function(create_release target with_ftp path)
         add_custom_target(${module}_release_${target} DEPENDS ${module}_release_variants)
         add_custom_command(
-                TARGET ${module}_release_${target}
+                TARGET ${module}_release_${target} POST_BUILD
                 COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/${module}_releases/${target}/"
                 COMMAND sh -c 'cp -r ${CMAKE_CURRENT_BINARY_DIR}/${module}_*_releases/${target}/* ${CMAKE_CURRENT_BINARY_DIR}/${module}_releases/${target}/'
         )
@@ -155,7 +155,7 @@ function(create_releases_main module)
 
         add_custom_target(${module}_zip_${target} DEPENDS ${module}_release_${target})
         add_custom_command(
-                TARGET ${module}_zip_${target}
+                TARGET ${module}_zip_${target} POST_BUILD
                 COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/zips/
                 COMMAND zip -r "${CMAKE_CURRENT_BINARY_DIR}/zips/${module}_${target}.zip" *
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${module}_releases/${target}/"
@@ -192,7 +192,7 @@ function(create_releases module game_name variant title_id)
     function(create_release target folder)
         add_custom_target(${variant}_release_${target} DEPENDS ${variant}_all)
         add_custom_command(
-                TARGET ${variant}_release_${target}
+                TARGET ${variant}_release_${target} POST_BUILD
                 COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/${variant}_releases/${target}/${folder}
                 COMMAND sh -c \"cp -r ${CMAKE_CURRENT_BINARY_DIR}/${variant}_out/* ${CMAKE_CURRENT_BINARY_DIR}/${variant}_releases/${target}/${folder}\"
         )

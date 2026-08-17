@@ -16,6 +16,10 @@ namespace poketool::poke_memo {
             external<void>(0x02bacb10, pParam, pMystatus, placeNo);
         }
 
+        static inline void SetFromEggTaken(Pml::PokePara::CoreParam::Object* pParam, DPData::MYSTATUS::Object* pMystatus, uint32_t placeNo) {
+            external<void>(0x02bad060, pParam, pMystatus, placeNo);
+        }
+
         static inline void ClearPlaceTime(Pml::PokePara::CoreParam::Object* pParam, poketool::poke_memo::DataType type) {
             external<void>(0x02bacca0, pParam, type);
         }

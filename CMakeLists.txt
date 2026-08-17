@@ -9,6 +9,11 @@ if (NOT SWITCH)
     message(FATAL_ERROR "Not targeting switch, make sure to specify -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake")
 endif ()
 
+# Remove useless warnings
+add_compile_options(
+    -Wno-invalid-offsetof
+)
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules.cmake)
 
 # Apply user config

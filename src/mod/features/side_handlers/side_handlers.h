@@ -16,5 +16,9 @@ EventFactor::EventHandlerTable::Object* CreateSideEffectEventHandler(EventID eve
 void SetSideEffectFunctionTable(Handler::Side::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t sideEffect, Il2CppMethodPointer methodPointer);
 void SetSideEffectFunctionTable(Handler::Side::GET_FUNC_TABLE_ELEM::Array* getFuncTable, uint64_t index, int32_t sideEffect, MethodInfo* method);
 
+// For Battle Situation UI
+void AddSituationDetailSideEffectLabels(System::Collections::Generic::Dictionary$$BtlSideEffect$$String::Object* sideIDs);
+
+
 // Installs hooks for Lucky Chant.
 void InstallHooks_SideEffect_LuckyChant();

@@ -3,15 +3,28 @@
 #include "externals/il2cpp-api.h"
 #include "externals/System/String.h"
 
+namespace Dpr::Battle::View::UI {
+    struct BUISituationDescriptionButton;
+}
+
 namespace UnityEngine {
+    struct Transform;
+
     struct _Object : ILClass<_Object, 0x04c571f8> {
         struct Fields {
             intptr_t m_CachedPtr;
         };
 
+        static inline StaticILMethod<0x04c671e8, Dpr::Battle::View::UI::BUISituationDescriptionButton> Method$$BUISituationDescriptionButton$$Instantiate_2 {};
+
+        /*template <typename T>
+        static inline typename T::Object* Instantiate(T* original, ILMethod<T>& method) {
+            return external<typename T::Object*>(0x0268aa90, original, *method);
+        }*/
+
         template <typename T>
-        static inline T::Object* Instantiate(T* original) {
-            return external<typename T::Object*>(0x0268aa90, original);
+        static inline T* Instantiate(T::Object* original, Transform* parent, ILMethod<T>& method) {
+            return external<typename T::Object*>(0x01f48e40, original, parent, *method);
         }
 
         System::String::Object* GetName() {

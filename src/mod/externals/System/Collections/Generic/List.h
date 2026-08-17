@@ -6,8 +6,8 @@
 #include "externals/System/Primitives.h"
 
 namespace System::Collections::Generic {
-    template <typename T, typename E>
-    struct List : ILClass<T> {
+    template <typename T, typename E, long TypeInfo = 0>
+    struct List : ILClass<T, TypeInfo> {
         struct Fields {
             E::Array* _items;
             int32_t _size;
