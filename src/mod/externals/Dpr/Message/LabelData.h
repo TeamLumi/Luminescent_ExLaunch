@@ -8,7 +8,7 @@ namespace Dpr::Message {
             struct Fields {
                 int32_t labelIndex;
                 int32_t arrayIndex;
-                System::String::Object** labelName;
+                System::String::Object* labelName;
                 void* styleInfo;
                 System::Int32_array* attributeValueArray;
                 void* tagDataArray;
