@@ -29,7 +29,7 @@ void LogLocalTradeData(const RomData::LocalTrade& t)
         Logger::log("%d ", t.contestStats[i]);
     Logger::log("\n");
 
-    Logger::log("Ball ID: %d\nForced Shiny: %d\n", t.ballId, t.forceShiny);
+    Logger::log("Ball ID: %d\nForm Arg: %d\nForced Shiny: %d\n", t.ballId, t.formArg, t.forceShiny);
 }
 
 RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId)
@@ -51,12 +51,13 @@ RomData::LocalTrade GetExtraLocalTradeData(int32_t tradeId)
         Logger::log("Error when parsing Local Trade data!\n");
     }
 
-    // Default: Random IVs, 0 EVs, 0 Contest Stats, Poké Ball, Not Forced Shiny
+    // Default: Random IVs, 0 EVs, 0 Contest Stats, Poké Ball, Variant 0, Not Forced Shiny
     return {
         .ivs = {},
         .evs = {},
         .contestStats = {},
         .ballId = 0,
+        .formArg = 0,
         .forceShiny = false,
     };
 }

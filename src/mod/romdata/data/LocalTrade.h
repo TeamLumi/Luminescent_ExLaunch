@@ -12,6 +12,7 @@ namespace RomData
         nn::vector<uint32_t> evs;
         nn::vector<uint8_t> contestStats;
         uint32_t ballId;
+        uint32_t formArg;
         bool forceShiny;
     };
 
@@ -22,6 +23,7 @@ namespace RomData
             {"evs", t.evs},
             {"contestStats", t.contestStats},
             {"ballId", t.ballId},
+            {"formArg", t.formArg},
             {"forceShiny", t.forceShiny},
         };
     }
@@ -32,6 +34,7 @@ namespace RomData
         j.at("evs").get_to(t.evs);
         j.at("contestStats").get_to(t.contestStats);
         j.at("ballId").get_to(t.ballId);
+        j.at("formArg").get_to(t.formArg);
         j.at("forceShiny").get_to(t.forceShiny);
     }
 }
