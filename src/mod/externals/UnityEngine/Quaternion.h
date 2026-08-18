@@ -9,5 +9,11 @@ namespace UnityEngine {
             float z;
             float w;
         };
+
+        static inline Quaternion::Object get_identity() {
+            return {
+                .fields = external<Quaternion::Fields>(0x02692cf0)
+            };
+        }
     };
 }

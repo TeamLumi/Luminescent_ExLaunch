@@ -16,6 +16,7 @@ namespace UnityEngine::Events {
         static const inline long SettingMenuItem_TypeInfo = 0x04c62420;
         static const inline long UIWindow_TypeInfo = 0x04c59e60;
         static const inline long PokemonPartyItem__int_TypeInfo = 0x04c61ee0;
+        static const inline long AudioInstance_TypeInfo = 0x04c59bf8;
 
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {

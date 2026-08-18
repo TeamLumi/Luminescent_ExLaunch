@@ -67,5 +67,21 @@ namespace Dpr::Field {
         static inline bool WildEncDouble(Pml::PokePara::PokemonParam::Object *poke_param, Dpr::Field::EncountResult::Object **param, MonsLv::Array *enc_data, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object* inFldSpa) {
             return external<bool>(0x019b4e80, poke_param, param, enc_data, inFldSpa);
         }
+
+        static inline bool CheckFixTypeEcnt(ENC_FLD_SPA::Object* inFldSpa, MonsLv::Array* inData, int32_t inListNum, uint8_t type, int32_t tokusei, int32_t* outNo) {
+            return external<bool>(0x019b7c40, inFldSpa, inData, inListNum, type, tokusei, outNo);
+        }
+
+        static inline int32_t SetEncountPokeLv(MonsLv::Object inData, ENC_FLD_SPA::Object* inFldSpa) {
+            return external<int32_t>(0x019b7cb0, inData, inFldSpa);
+        }
+
+        static inline int32_t GetMaxLvMonsTblNo(MonsLv::Array* inEncCommonData, ENC_FLD_SPA::Object* inFldSpa, int32_t inTblNo) {
+            return external<int32_t>(0x019b6630, inEncCommonData, inFldSpa, inTblNo);
+        }
+
+        static inline bool SetEncountDataDecideMons(int32_t inMonsNo, uint32_t inLv, int32_t inTarget, bool inRare, ENC_FLD_SPA::Object* inFldSpa, Pml::PokePara::PokemonParam::Object* param, EncountResult::Object** outBattleParam) {
+            return external<bool>(0x019b7d60, inMonsNo, inLv, inTarget, inRare, inFldSpa, param, outBattleParam);
+        }
     };
 }

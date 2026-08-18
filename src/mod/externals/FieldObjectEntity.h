@@ -46,7 +46,9 @@ struct FieldObjectEntity : ILClass<FieldObjectEntity> {
     }
 
     static inline UnityEngine::Vector2::Object GridToPosition(UnityEngine::Vector2Int::Object grid) {
-        return external<UnityEngine::Vector2::Object>(0x01d54a80, grid);
+        return {
+            .fields = external<UnityEngine::Vector2::Fields>(0x01d54a80, grid)
+        };
     }
 };
 

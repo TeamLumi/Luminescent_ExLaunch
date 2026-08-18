@@ -42,6 +42,8 @@ namespace Dpr::Field {
             bool _callStopSwayBGM;
         };
 
+        static inline StaticILMethod<0x04c7d300, Audio::AudioInstance> Method$$Play$$OnAudioInstanceFinished {};
+
         static inline void StopSE() {
             external<void>(0x019b4fa0);
         }
