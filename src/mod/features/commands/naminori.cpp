@@ -7,6 +7,10 @@
 
 #include "features/commands/utils/cmd_utils.h"
 
+#include "data/features.h"
+#include "data/utils.h"
+#include "features/activated_features.h"
+
 #include "logger/logger.h"
 #include "save/save.h"
 
@@ -71,7 +75,12 @@ bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
         FieldManager::Object* fieldManager = FieldManager::getClass()->static_fields->_Instance_k__BackingField->instance();
 
-        fieldManager->StopSwayGrass_NextArea();
+        // If we don't have the Encounter Slots feature active, then water radar is disabled.
+        // In that case, we stop radar on entering water.
+        if (!IsActivatedFeature(array_index(FEATURES, "Encounter Slots"))){
+            fieldManager->StopSwayGrass_NextArea();
+        }
+
         playerEntity->PlayNaminoriStart();
         playerEntity->fields.isLanding = false;
 

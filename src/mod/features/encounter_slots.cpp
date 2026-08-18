@@ -1480,4 +1480,8 @@ void exl_encounter_slots_main() {
     SwayGrass$$LotSwayGrass::InstallAtOffset(0x019bb540);
     SwayGrass$$PlayEffect::InstallAtOffset(0x019bc950);
     FieldManager$$CheckAvailableFieldItem::InstallAtOffset(0x017a2aa0);
+
+    // Skips the radar reset from the surf commands
+    p.Seek(0x02c87bb8);
+    p.WriteInst(exl::armv8::inst::Nop());
 }
