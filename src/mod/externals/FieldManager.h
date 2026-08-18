@@ -126,6 +126,11 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
         external<void>(0x017a0130, this, entity, attri);
     }
 
+    inline void CallEffect(int32_t index, UnityEngine::Vector3::Object pos, void* loadCallback, void* eff_onFinished) {
+        UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
+        external<void>(0x017a0590, this, index, posProxy, loadCallback, eff_onFinished);
+    }
+
     inline void SetBgmEvent(uint32_t eventid) {
         external<void>(0x0179ca70, this, eventid);
     }

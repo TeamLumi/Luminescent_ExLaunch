@@ -44,6 +44,12 @@ struct FieldObjectEntity : ILClass<FieldObjectEntity> {
         UnityEngine::Vector3::Fields positionProxy = { .x = position.fields.x, .y = position.fields.y, .z = position.fields.z };
         return external<UnityEngine::Vector2Int::Object>(0x01d54ae0, positionProxy);
     }
+
+    static inline UnityEngine::Vector2::Object GridToPosition(UnityEngine::Vector2Int::Object grid) {
+        return {
+            .fields = external<UnityEngine::Vector2::Fields>(0x01d54a80, grid)
+        };
+    }
 };
 
 namespace System::Collections::Generic {

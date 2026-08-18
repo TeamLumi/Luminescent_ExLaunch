@@ -5,9 +5,12 @@
 #include "externals/SmartPoint/AssetAssistant/SingletonMonoBehaviour.h"
 #include "externals/System/String.h"
 #include "externals/UnityEngine/GameObject.h"
+#include "externals/UnityEngine/Quaternion.h"
 #include "externals/UnityEngine/Transform.h"
 
 namespace Audio {
+    struct AudioInstance;
+
     struct AudioManager : ILClass<AudioManager, 0x04c59b78> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             UnityEngine::GameObject::Object * _prefab;
@@ -36,6 +39,12 @@ namespace Audio {
 
         inline uint32_t PostEvent(uint32_t eventId, uint32_t callbackFlags, bool isThroughSameEvent) {
             return external<uint32_t>(0x021eb100, this, eventId, callbackFlags, isThroughSameEvent);
+        }
+
+        inline Audio::AudioInstance* CreateSe(uint32_t playEventId, uint32_t stopEventId, UnityEngine::Vector3::Object position, UnityEngine::Quaternion::Object rotation, UnityEngine::Transform::Object* attachedTransform) {
+            UnityEngine::Vector3::Fields positionProxy = { .x = position.fields.x, .y = position.fields.y, .z = position.fields.z };
+            UnityEngine::Quaternion::Fields rotationProxy = { .x = rotation.fields.x, .y = rotation.fields.y, .z = rotation.fields.z, .w = rotation.fields.w };
+            return external<Audio::AudioInstance*>(0x021eba50, this, playEventId, stopEventId, positionProxy, rotationProxy, attachedTransform);
         }
     };
 }

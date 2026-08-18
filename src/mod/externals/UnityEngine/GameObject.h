@@ -18,7 +18,7 @@ namespace UnityEngine {
 
     struct SkinnedMeshRenderer;
 
-    struct GameObject : ILClass<GameObject> {
+    struct GameObject : ILClass<GameObject, 0x04c57d90> {
         struct Fields : UnityEngine::_Object::Fields {
 
         };
@@ -29,6 +29,10 @@ namespace UnityEngine {
         static inline StaticILMethod<0x04c670c8, UnityEngine::UI::Image>   Method$$Image$$GetComponent {};
 
         static inline StaticILMethod<0x04c8e9c0, UnityEngine::Component> Method$$Component$$GetComponents {};
+
+        inline void ctor() {
+            external<void>(0x026b1cc0, this);
+        }
 
         inline UnityEngine::Transform::Object* get_transform() {
             return external<UnityEngine::Transform::Object*>(0x026b18d0, this);

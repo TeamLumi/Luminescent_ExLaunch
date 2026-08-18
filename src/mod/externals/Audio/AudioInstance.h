@@ -5,6 +5,7 @@
 #include "externals/UnityEngine/Quaternion.h"
 #include "externals/UnityEngine/Transform.h"
 #include "externals/UnityEngine/Vector3.h"
+#include "externals/UnityEngine/Events/UnityAction.h"
 
 namespace Audio {
     struct AudioInstance : ILClass<AudioInstance, 0x04c59b68> {
@@ -24,5 +25,13 @@ namespace Audio {
             bool _isManualRemoved;
             int32_t _stateBits;
         };
+
+        inline void Stop() {
+            external<void>(0x02127e30, this);
+        }
+
+        inline AudioInstance* Play(UnityEngine::Events::UnityAction::Object* onFinished, bool isManualRemoved) {
+            return external<AudioInstance*>(0x021273d0, this, onFinished, isManualRemoved);
+        }
     };
 }

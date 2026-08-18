@@ -27,12 +27,16 @@ namespace UnityEngine {
             return external<typename T::Object*>(0x01f48e40, original, parent, *method);
         }
 
-        System::String::Object* GetName() {
+        inline System::String::Object* GetName() {
             return external<System::String::Object*>(0x0268a940, this);
         }
 
-        System::String::Object* get_Name() {
+        inline System::String::Object* get_Name() {
             return external<System::String::Object*>(0x02685f80, this);
+        }
+
+        inline void set_Name(System::String::Object* value) {
+            external<void>(0x0268a990, this, value);
         }
 
         static inline bool op_Equality(UnityEngine::_Object::Object* x, UnityEngine::_Object::Object* y) {
