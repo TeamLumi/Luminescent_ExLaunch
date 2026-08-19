@@ -11,6 +11,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FormChange.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_RankReset.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_Shrink.h"
@@ -189,6 +190,20 @@ bool HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t cau
     rankEffectDesc->fields.isSpFailMessageDisplay = messageOnFail;
     rankEffectDesc->fields.byWazaEffect = byWazaEffect;
     return Common::RankEffect(args, &rankEffectDesc);
+}
+
+bool HandlerRankReset(EventFactor::EventHandlerArgs::Object** args, System::Byte_array* targetPokeIDs)
+{
+    system_load_typeinfo(0xa9b3);
+    Common::getClass()->initIfNeeded();
+
+    auto rankResetDesc = Section_FromEvent_RankReset::Description::newInstance();
+    rankResetDesc->fields.pokeCount = targetPokeIDs->max_length;
+
+    for (uint8_t i = 0; i < targetPokeIDs->max_length; i++) {
+        rankResetDesc->fields.pokeID->m_Items[i] = targetPokeIDs->m_Items[i];
+    }
+    return Common::RankReset(args, &rankResetDesc);
 }
 
 void HandlerSetEffectEnable(EventFactor::EventHandlerArgs::Object** args)

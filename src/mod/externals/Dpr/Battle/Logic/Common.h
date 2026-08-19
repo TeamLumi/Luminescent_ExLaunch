@@ -19,6 +19,7 @@
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_FreeFallStart.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_PlayWazaEffect.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_RankEffect.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_RankReset.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetItem.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectEnable.h"
 #include "externals/Dpr/Battle/Logic/Section_FromEvent_SetWazaEffectIndex.h"
@@ -57,6 +58,10 @@ namespace Dpr::Battle::Logic {
 
         static inline bool RankEffect(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_RankEffect::Description::Object** desc) {
             return external<bool>(0x01d0ac60, args, desc);
+        }
+
+        static inline bool RankReset(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_RankReset::Description::Object** desc) {
+            return external<bool>(0x01d0ad80, args, desc);
         }
 
         static inline bool AddSick(EventFactor::EventHandlerArgs::Object** args, Section_AddSick::Description::Object** desc) {
