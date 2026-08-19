@@ -3,6 +3,7 @@
 #include "externals/EntityManager.h"
 #include "externals/FieldCharacterEntity.h"
 #include "externals/FieldManager.h"
+#include "externals/UnityEngine/_Object.h"
 #include "externals/UnityEngine/GameObject.h"
 
 #include "features/commands/utils/cmd_utils.h"
@@ -13,11 +14,10 @@ static constexpr int32_t ANIM_JUMP_LOOP  = 21;
 static constexpr int32_t ANIM_JUMP_END   = 22;
 
 static bool initializedJump = false;
-static FieldObjectEntity::Object* jumpTarget = nullptr;
-static bool jumpTargetIsPlayer = true;
 
 bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
     system_load_typeinfo(0x4989);
+    system_load_typeinfo(0x45dc);
     system_load_typeinfo(0x4a68);
     system_load_typeinfo(0x4a72);
     system_load_typeinfo(0x6c0b);
@@ -26,105 +26,80 @@ bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
 
     EntityManager::getClass()->initIfNeeded();
     auto player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
-    if (player == nullptr)
+    auto entity = args->max_length > 1 ? FindEntity(manager, args->m_Items[1]) : nullptr;
+
+    if (UnityEngine::_Object::op_Equality(player->cast<UnityEngine::_Object>(), nullptr) ||
+        UnityEngine::_Object::op_Equality(entity->cast<UnityEngine::_Object>(), nullptr)) {
+        Logger::log("_LEDGE_JUMP could not find the entity to jump!\n");
+        initializedJump = false;
         return true;
+    }
+
+    bool targetIsPlayer = UnityEngine::_Object::op_Equality(entity->cast<UnityEngine::_Object>(),
+                                                           player->cast<UnityEngine::_Object>());
+
+    auto targetTransform = entity->cast<BaseEntity>()->get_transform();
+
+    AnimationPlayer::Object* animPlayer = nullptr;
+    if (targetIsPlayer)
+        animPlayer = player->virtual_GetAnimationPlayer();
+    else if (entity->klass->isOfClass((Il2CppClass*)FieldCharacterEntity::getClass()))
+        animPlayer = reinterpret_cast<FieldCharacterEntity::Object*>(entity)->virtual_GetAnimationPlayer();
 
     if (initializedJump) {
         bool done = false;
-        auto targetTransform = jumpTargetIsPlayer
-            ? player->cast<BaseEntity>()->get_transform()
-            : jumpTarget->cast<BaseEntity>()->get_transform();
 
         auto oldPos = targetTransform->get_position();
         auto newPos = player->fields._path->Process(manager->fields._deltatime, &done);
         targetTransform->set_position(newPos);
 
-        if (jumpTargetIsPlayer) {
-            if (player->fields._animationPlayer->get_currentIndex() == ANIM_JUMP_START && newPos.fields.y < oldPos.fields.y)
+        if (animPlayer != nullptr &&
+            animPlayer->get_currentIndex() == ANIM_JUMP_START &&
+            newPos.fields.y < oldPos.fields.y) {
+            if (targetIsPlayer)
                 player->PlayJumpLoop();
-        } else {
-            auto* animPlayer = jumpTarget->cast<BaseEntity>()->virtual_GetAnimationPlayer();
-            if (animPlayer != nullptr &&
-                animPlayer->get_currentIndex() == ANIM_JUMP_START &&
-                newPos.fields.y < oldPos.fields.y) {
+            else
                 animPlayer->Play(ANIM_JUMP_LOOP, 0.2f);
-            }
         }
 
         if (done) {
             FieldManager::getClass()->initIfNeeded();
-            auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
+            FieldManager::getClass()->static_fields->_Instance_k__BackingField->RequestAttributeEffect(entity, 1);
 
-            if (jumpTargetIsPlayer) {
-                fm->RequestAttributeEffect(player->cast<FieldObjectEntity>(), 1);
+            if (targetIsPlayer) {
                 if (player->IsRideBicycle()) {
                     Audio::AudioManager::getClass()->initIfNeeded();
                     Audio::AudioManager::get_Instance()->PlaySe(2667891493, nullptr);
                 }
                 player->PlayJumpEnd();
-                player->fields.isLanding = true;
-            } else {
-                fm->RequestAttributeEffect(jumpTarget, 1);
-                auto* animPlayer = jumpTarget->cast<BaseEntity>()->virtual_GetAnimationPlayer();
-                if (animPlayer != nullptr)
-                    animPlayer->Play(ANIM_JUMP_END, 0.2f);
-                jumpTarget->fields.isLanding = true;
+            } else if (animPlayer != nullptr) {
+                animPlayer->Play(ANIM_JUMP_END, 0.2f);
             }
 
-            jumpTarget = nullptr;
-            jumpTargetIsPlayer = true;
+            entity->fields.isLanding = true;
             initializedJump = false;
             return true;
         }
 
         return false;
     } else {
-        // Only accept string here bc a number first arg would register as moveDistance and not entity index
-        int paramOffset = 1;
-        jumpTargetIsPlayer = true;
-        jumpTarget = nullptr;
-
-        if (args->max_length > 1 &&
-            (EvData::ArgType)args->m_Items[1].fields.argType == EvData::ArgType::String) {
-            auto* entity = FindEntity(manager, args->m_Items[1]);
-            if (entity == nullptr)
-                return true;
-            paramOffset = 2;
-            if (entity != player->cast<FieldObjectEntity>()) {
-                jumpTarget = entity;
-                jumpTargetIsPlayer = false;
-            }
-        }
-
-        float moveDistance   = args->max_length > paramOffset     ? GetWorkOrFloatValue(args->m_Items[paramOffset])     : 2.0f;
-        float relativeHeight = args->max_length > paramOffset + 1 ? GetWorkOrFloatValue(args->m_Items[paramOffset + 1]) : 0.75f;
-        float relativeLower  = args->max_length > paramOffset + 2 ? GetWorkOrFloatValue(args->m_Items[paramOffset + 2]) : -0.5f;
-        float duration       = args->max_length > paramOffset + 3 ? GetWorkOrFloatValue(args->m_Items[paramOffset + 3]) : 0.5f;
+        float moveDistance   = args->max_length > 2 ? GetWorkOrFloatValue(args->m_Items[2]) : 2.0f;
+        float relativeHeight = args->max_length > 3 ? GetWorkOrFloatValue(args->m_Items[3]) : 0.75f;
+        float relativeLower  = args->max_length > 4 ? GetWorkOrFloatValue(args->m_Items[4]) : -0.5f;
+        float duration       = args->max_length > 5 ? GetWorkOrFloatValue(args->m_Items[5]) : 0.5f;
 
         initializedJump = true;
+        entity->fields.isLanding = false;
 
-        auto* targetTransform = jumpTargetIsPlayer
-            ? player->cast<BaseEntity>()->get_transform()
-            : jumpTarget->cast<BaseEntity>()->get_transform();
-
-        if (jumpTargetIsPlayer) {
-            player->fields.isLanding = false;
+        if (targetIsPlayer)
             player->PlayJumpStart();
-        } else {
-            jumpTarget->fields.isLanding = false;
-            auto* animPlayer = jumpTarget->cast<BaseEntity>()->virtual_GetAnimationPlayer();
-            if (animPlayer != nullptr)
-                animPlayer->Play(ANIM_JUMP_START, 0.2f, 0.13333334f);
-        }
+        else if (animPlayer != nullptr)
+            animPlayer->Play(ANIM_JUMP_START, 0.2f, 0.13333334f);
 
         player->fields._path->Startup(targetTransform, moveDistance, relativeHeight, relativeLower, duration);
 
         FieldManager::getClass()->initIfNeeded();
-        auto* fm = FieldManager::getClass()->static_fields->_Instance_k__BackingField;
-        if (jumpTargetIsPlayer)
-            fm->RequestAttributeSE(player->cast<FieldObjectEntity>(), 1);
-        else
-            fm->RequestAttributeSE(jumpTarget, 1);
+        FieldManager::getClass()->static_fields->_Instance_k__BackingField->RequestAttributeSE(entity, 1);
 
         return false;
     }

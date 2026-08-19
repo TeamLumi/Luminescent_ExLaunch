@@ -20,7 +20,6 @@ struct AnimationPlayer : ILClass<AnimationPlayer> {
     }
 
     // This play an animation by its index, the supplied duration is the blending between the previous animation and new one in seconds.
-    // From what I found the base game always blends at .2
     inline void Play(int32_t index, float duration = 0.0f, float startTime = 0.0f) {
         external<void>(0x0211e9b0, this, index, duration, startTime);
     }
