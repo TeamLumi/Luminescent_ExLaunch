@@ -378,8 +378,9 @@ bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager);
 //   [Work, Number] frames: Amount of frames to do the movement over. (30 fps)
 bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager);
 
-// Makes the player ledge jump with the given parameters.
+// Makes an entity ledge jump with the given parameters.
 // Arguments:
+//   [String, Work, Number] entity: The ID or index of the entity to jump. Use 'HERO' for the player.
 //   [Work, Number] moveDistance: The amount of tiles to jump. (Default 2.0)
 //   [Work, Number] relativeHeight: Unknown. (Default is 0.75)
 //   [Work, Number] relativeLower: Unknown. (Default is -0.5)

@@ -18,4 +18,9 @@ struct AnimationPlayer : ILClass<AnimationPlayer> {
     inline bool get_IsPlayingEnd() {
         return external<bool>(0x0211de80, this);
     }
+
+    // This play an animation by its index, the supplied duration is the blending between the previous animation and new one in seconds.
+    inline void Play(int32_t index, float duration = 0.0f, float startTime = 0.0f) {
+        external<void>(0x0211e9b0, this, index, duration, startTime);
+    }
 };
