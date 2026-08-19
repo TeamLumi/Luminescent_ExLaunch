@@ -29,6 +29,7 @@
 #include "externals/Dpr/Battle/Logic/WazaFailCause.h"
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 #include "externals/Pml/PokePara/Sick.h"
+#include "externals/Dpr/Battle/Logic/ExPokePos.h"
 
 namespace Dpr::Battle::Logic {
     struct Common : ILClass<Common, 0x04c5ad48> {
@@ -58,10 +59,6 @@ namespace Dpr::Battle::Logic {
 
         static inline bool RankEffect(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_RankEffect::Description::Object** desc) {
             return external<bool>(0x01d0ac60, args, desc);
-        }
-
-        static inline bool RankReset(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_RankReset::Description::Object** desc) {
-            return external<bool>(0x01d0ad80, args, desc);
         }
 
         static inline bool AddSick(EventFactor::EventHandlerArgs::Object** args, Section_AddSick::Description::Object** desc) {
@@ -223,6 +220,14 @@ namespace Dpr::Battle::Logic {
         static inline bool GuardWazaSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, Pml::WazaData::WazaSick guardSick) {
             return external<bool>(0x01d0e600, args, pokeID, guardSick);
 
+        }
+
+        static inline bool RankReset(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_RankReset::Description::Object** desc) {
+            return external<bool>(0x01d0ad80, args, desc);
+        }
+
+        static inline uint8_t ExpandExistPokeID(EventFactor::EventHandlerArgs::Object** args, ExPokePos::Object** exPos, System::Byte_array* pokeIds) {
+            return external<uint8_t>(0x01d0f510, args, exPos, pokeIds);
         }
     };
 }
