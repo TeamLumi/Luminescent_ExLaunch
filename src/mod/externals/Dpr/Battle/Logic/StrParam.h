@@ -41,5 +41,9 @@ namespace Dpr::Battle::Logic {
         inline void Clear() {
             external<void>(0x01f71e70, this);
         }
+
+        inline bool IsEnable() {
+            return external<bool>(0x01f720d0, this);
+        }
     };
 }

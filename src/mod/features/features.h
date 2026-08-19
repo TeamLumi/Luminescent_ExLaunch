@@ -179,8 +179,7 @@ void exl_text_color_main();
 void exl_time_flags_main();
 
 // Zorua/Zoroark Illusion visual fixes (break reveal, target picker portrait).
-void exl_illusion_break_fix_main();
-void exl_illusion_target_selector_fix_main();
+void exl_illusion_fixes_main();
 
 // Allows double battles on trainers.
 void exl_trainer_double_battles_main();

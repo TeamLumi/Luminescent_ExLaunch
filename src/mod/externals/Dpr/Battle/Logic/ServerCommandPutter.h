@@ -57,5 +57,21 @@ namespace Dpr::Battle::Logic {
         inline void Act_ChangeForm(uint8_t pokeID) {
             external<void>(0x01f2bdc0, this, pokeID);
         }
+
+        inline void FakeDisable(uint8_t pokeID) {
+            external<void>(0x01f2df50, this, pokeID);
+        }
+
+        inline void Act_FakeDisable(uint8_t pokeID) {
+            external<void>(0x01f2e000, this, pokeID);
+        }
+
+        inline void PublishClientInformation_AppeardPokemon(BTL_POKEPARAM::Object** appeardPoke) {
+            external<void>(0x01f2ca30, this, appeardPoke);
+        }
+
+        inline void Message_Set(uint16_t strID, int32_t arg1) {
+            external<void>(0x01f28d80, this, strID, arg1);
+        }
     };
 }
