@@ -192,20 +192,6 @@ bool HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t cau
     return Common::RankEffect(args, &rankEffectDesc);
 }
 
-bool HandlerRankReset(EventFactor::EventHandlerArgs::Object** args, System::Byte_array* targetPokeIDs)
-{
-    system_load_typeinfo(0xa9b3);
-    Common::getClass()->initIfNeeded();
-
-    auto rankResetDesc = Section_FromEvent_RankReset::Description::newInstance();
-    rankResetDesc->fields.pokeCount = targetPokeIDs->max_length;
-
-    for (uint8_t i = 0; i < targetPokeIDs->max_length; i++) {
-        rankResetDesc->fields.pokeID->m_Items[i] = targetPokeIDs->m_Items[i];
-    }
-    return Common::RankReset(args, &rankResetDesc);
-}
-
 void HandlerSetEffectEnable(EventFactor::EventHandlerArgs::Object** args)
 {
     system_load_typeinfo(0xaa0c);
@@ -263,4 +249,18 @@ uint8_t GetAllOtherOutPokeID(EventFactor::EventHandlerArgs::Object** args, uint8
 uint8_t HighestMultiple(uint8_t max, uint8_t factor) {
     uint8_t factor2 = max / factor;
     return factor * factor2;
+}
+
+bool HandlerRankReset(EventFactor::EventHandlerArgs::Object** args, System::Byte_array* targetPokeIDs, uint8_t pokeCount)
+{
+    system_load_typeinfo(0xa9b3);
+    Common::getClass()->initIfNeeded();
+
+    auto rankResetDesc = Section_FromEvent_RankReset::Description::newInstance();
+    rankResetDesc->fields.pokeCount = pokeCount;
+
+    for (uint8_t i = 0; i < pokeCount; i++) {
+        rankResetDesc->fields.pokeIDs->m_Items[i] = targetPokeIDs->m_Items[i];
+    }
+    return Common::RankReset(args, &rankResetDesc);
 }

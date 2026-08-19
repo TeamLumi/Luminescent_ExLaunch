@@ -216,3 +216,7 @@ void Handlers_Move_GlitzyGlow(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFunc
 // Adds move handlers for Baddy Bad.
 EventFactor::EventHandlerTable::Array* ADD_BaddyBad();
 void Handlers_Move_BaddyBad(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Freezy Frost.
+EventFactor::EventHandlerTable::Array* ADD_FreezyFrost();
+void Handlers_Move_FreezyFrost(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);

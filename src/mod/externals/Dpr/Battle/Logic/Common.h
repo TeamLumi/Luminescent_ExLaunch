@@ -30,6 +30,7 @@
 #include "externals/Dpr/Battle/Logic/WorkValue.h"
 #include "externals/Pml/PokePara/Sick.h"
 #include "externals/Dpr/Battle/Logic/ExPokePos.h"
+#include "externals/Dpr/Battle/Logic/Section_FromEvent_Message.h"
 
 namespace Dpr::Battle::Logic {
     struct Common : ILClass<Common, 0x04c5ad48> {
@@ -228,6 +229,10 @@ namespace Dpr::Battle::Logic {
 
         static inline uint8_t ExpandExistPokeID(EventFactor::EventHandlerArgs::Object** args, ExPokePos::Object** exPos, System::Byte_array* pokeIds) {
             return external<uint8_t>(0x01d0f510, args, exPos, pokeIds);
+        }
+
+        static inline void Message(EventFactor::EventHandlerArgs::Object** args, Section_FromEvent_Message::Description::Object** desc) {
+            external<void>(0x01d0b170, args, desc);
         }
     };
 }
