@@ -62,6 +62,7 @@ static constexpr const char* FEATURES[] = {
     "Underground Visible Shinies",
     "More Time Flags",
     "Zone Frames",
+    "Illusion Fixes",
 };
 
 constexpr int FEATURE_COUNT = sizeof(FEATURES) / sizeof(FEATURES[0]);

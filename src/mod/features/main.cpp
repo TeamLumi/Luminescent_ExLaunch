@@ -133,6 +133,8 @@ void CallFeatureHooks()
         exl_time_flags_main();
     if (IsActivatedFeature(array_index(FEATURES, "Zone Frames")))
         exl_zone_frames_main();
+    if (IsActivatedFeature(array_index(FEATURES, "Illusion Fixes")))
+        exl_illusion_fixes_main();
 
     exl_debug_features_main();
     exl_items_changes_main();

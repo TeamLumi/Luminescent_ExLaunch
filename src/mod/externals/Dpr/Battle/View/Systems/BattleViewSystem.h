@@ -3,6 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 #include "externals/Dpr/Battle/Logic/BattleViewBase.h"
+#include "externals/Dpr/Battle/Logic/POKECON.h"
 #include "externals/Dpr/Battle/Logic/SideEffectStatus.h"
 #include "externals/Dpr/Battle/View/BtlvBallInfo.h"
 #include "externals/Dpr/Battle/View/Systems/BTLV_WAZA_EFF_PARAM.h"
@@ -105,6 +106,12 @@ namespace Dpr::Battle::View::Systems {
             const MethodInfo* method;
         };
 
+        struct VirtualInvokeData_GetBattleContainer {
+            typedef Dpr::Battle::Logic::POKECON::Object*(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, const MethodInfo*);
+            Il2CppMethodPointer methodPtr;
+            const MethodInfo* method;
+        };
+
         struct VirtualInvokeData_GetBattlePokeParam_forUI {
             typedef bool(*Il2CppMethodPointer)(Dpr::Battle::View::Systems::BattleViewSystem::Object* __this, Dpr::Battle::Logic::BTL_POKEPARAM::Object* pDest, int32_t vpos, const MethodInfo*);
             Il2CppMethodPointer methodPtr;
@@ -202,7 +209,7 @@ namespace Dpr::Battle::View::Systems {
             VirtualInvokeData _3_ToString;
             VirtualInvokeData_GetMainModule _4_GetMainModule;
             VirtualInvokeData _5_GetBattleEnv;
-            VirtualInvokeData _6_GetBattleContainer;
+            VirtualInvokeData_GetBattleContainer _6_GetBattleContainer;
             VirtualInvokeData _7_GetBattlePokeParam;
             VirtualInvokeData_GetBattlePokeParam_forUI _8_GetBattlePokeParam_forUI;
             VirtualInvokeData _9_GetViewSrcData;
@@ -539,6 +546,11 @@ namespace Dpr::Battle::View::Systems {
         inline Dpr::Battle::Logic::MainModule* virtual_GetMainModule() {
             return (*(this->instance()->klass->vtable)._4_GetMainModule.methodPtr)
                     (this->instance(), this->instance()->klass->vtable._4_GetMainModule.method);
+        }
+
+        inline Dpr::Battle::Logic::POKECON::Object* virtual_GetBattleContainer() {
+            return (*(this->instance()->klass->vtable)._6_GetBattleContainer.methodPtr)
+                    (this->instance(), this->instance()->klass->vtable._6_GetBattleContainer.method);
         }
 
         inline bool virtual_GetBattlePokeParam_forUI(Dpr::Battle::Logic::BTL_POKEPARAM::Object* pDest, int32_t vpos) {
