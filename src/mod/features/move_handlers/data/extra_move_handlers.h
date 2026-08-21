@@ -47,5 +47,6 @@ struct ExtraMoveHandlers {
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_GlitzyGlow = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_BaddyBad = nullptr;
     Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_FreezyFrost = nullptr;
+    Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_SparklySwirl = nullptr;
     // ...
 };
