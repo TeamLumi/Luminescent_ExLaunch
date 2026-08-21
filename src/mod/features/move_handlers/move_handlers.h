@@ -224,3 +224,7 @@ void Handlers_Move_FreezyFrost(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFun
 // Adds move handlers for Sparkly Swirl.
 EventFactor::EventHandlerTable::Array* ADD_SparklySwirl();
 void Handlers_Move_SparklySwirl(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
+
+// Adds move handlers for Veevee Volley.
+EventFactor::EventHandlerTable::Array* ADD_VeeveeVolley();
+void Handlers_Move_VeeveeVolley(Handler::Waza::GET_FUNC_TABLE_ELEM::Array* getFuncTable);
