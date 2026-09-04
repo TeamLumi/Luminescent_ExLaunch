@@ -15,9 +15,20 @@
 
 static CustomSaveData* gCustomSaveData = nullptr;
 
+constexpr uintptr_t cmd32_Offset = 0x1d264c;
+constexpr uintptr_t cmd51_Offset = 0x1d2780;
+constexpr uintptr_t cmd57_Offset = 0x1d296c;
+constexpr uintptr_t cmd61_Offset = 0x1d2a84;
+constexpr uintptr_t ISaveDataInfoReader_Read_Offset = 0x1d8028;
+constexpr uint8_t saveDataSpaceUser = 1;
+constexpr int64_t targetDataSize = 0x1000000; // 16 MiB
+constexpr int64_t targetJournalSize = 0x1000000; // 16 MiB
+
 CustomSaveData* getCustomSaveData() {
-    if (gCustomSaveData == nullptr)
-        gCustomSaveData = (CustomSaveData*)nn_malloc(sizeof(CustomSaveData));
+    if (gCustomSaveData == nullptr) {
+        void* allocation = nn_malloc(sizeof(CustomSaveData));
+        gCustomSaveData = new (allocation) CustomSaveData();
+    }
     return gCustomSaveData;
 }
 
@@ -214,8 +225,96 @@ HOOK_DEFINE_REPLACE(PlayerWork$$VerifySaveData) {
     }
 };
 
+void ReleaseObject(void* obj) {
+    if (obj != nullptr) {
+        auto vtable = *static_cast<uintptr_t**>(obj);
+        reinterpret_cast<void(*)(void*)>(vtable[1])(obj);
+    }
+}
+
+uint64_t GetSaveDataId(void* proxy) {
+    ReaderStorage reader{};
+    OutReader out{&reader};
+
+    Result res = reinterpret_cast<Result(*)(void*, OutReader*, uint8_t)
+    >(exl::util::modules::GetSDKOffset(cmd61_Offset))(proxy, &out, saveDataSpaceUser);
+
+    if (R_FAILED(res) || reader.object == nullptr)
+        return 0;
+
+    uint64_t saveDataId = 0;
+
+    SaveDataInfo info[16]{};
+    BufferDesc description{info, sizeof(info)};
+    int64_t count = 0;
+
+    res = reinterpret_cast<Result(*)(void*, int64_t*, BufferDesc*)>(
+        exl::util::modules::GetSDKOffset(ISaveDataInfoReader_Read_Offset)
+    )(reader.object, &count, &description);
+
+    if (R_SUCCEEDED(res)) {
+        count = std::min<int64_t>(count, std::size(info));
+
+        for (int64_t i = 0; i < count; i++) {
+            if (info[i].applicationId == DIAMOND) {
+                saveDataId = info[i].saveDataId;
+                break;
+            }
+        }
+    }
+
+    ReleaseObject(reader.object);
+    return saveDataId;
+}
+
+HOOK_DEFINE_TRAMPOLINE(IFileSystemProxy$$CMD_51) {
+    static Result Callback(void* proxy, void* outFileSystem, uint8_t spaceId, void* saveDataAttribute) {
+
+        SaveDataExtraData extraData{};
+
+        BufferDesc desc{
+            &extraData,
+            sizeof(extraData)
+        };
+        uint64_t saveDataId = GetSaveDataId(proxy);
+        if (saveDataId == 0) {
+            Logger::log("[IFileSystemProxy$$CMD_51] SaveDataId was not found.\n");
+            return Orig(proxy, outFileSystem, spaceId, saveDataAttribute);
+        }
+        Logger::log("[IFileSystemProxy$$CMD_51] Proxy=%p SaveID=0x%llx\n", proxy, saveDataId);
+
+        // Retrieve current SaveDataExtraData
+        Result res = reinterpret_cast<Result(*)(void*, BufferDesc*, uint8_t, uint64_t)
+        >(exl::util::modules::GetSDKOffset(cmd57_Offset))(proxy, &desc, saveDataSpaceUser, saveDataId);
+
+        if (R_FAILED(res)) {
+            Logger::log("[IFileSystemProxy$$CMD_51] Cmd_57 failed with Res: 0x%08x.\n", res);
+            return Orig(proxy, outFileSystem, spaceId, saveDataAttribute);
+        }
+
+        Logger::log("[IFileSystemProxy$$CMD_51] Current Sizes: 0x%llx, 0x%llx\n", extraData.dataSize, extraData.journalSize);
+
+        // Verify if extension is required
+        if (extraData.dataSize < targetDataSize || extraData.journalSize < targetJournalSize) {
+            res = reinterpret_cast<Result(*)(void*, uint8_t, uint64_t, int64_t, int64_t)
+            >(exl::util::modules::GetSDKOffset(cmd32_Offset)
+            )(proxy, saveDataSpaceUser, saveDataId, targetDataSize, targetJournalSize);
+        }
+
+        if (R_FAILED(res)) {
+            Logger::log("[IFileSystemProxy$$CMD_51] Cmd_32 (Extension) failed.\n");
+            return Orig(proxy, outFileSystem, spaceId, saveDataAttribute);
+        }
+
+        return Orig(proxy, outFileSystem, spaceId, saveDataAttribute);
+    }
+};
+
 void exl_save_main() {
     exl_migration_main();
+
+    // Hardware Save Size Patch
+    IFileSystemProxy$$CMD_51::InstallAtSDKOffset(cmd51_Offset);
 
     // Loading
     PlayerWork$$CustomLoadOperation::InstallAtOffset(0x02ceb850);

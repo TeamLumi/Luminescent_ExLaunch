@@ -41,3 +41,50 @@ constexpr ModVersion CURRENT_VERSION = ModVersion::Dev;
 #else
 constexpr ModVersion CURRENT_VERSION = ModVersion::Re_Lease;
 #endif
+
+struct SaveDataExtraData {
+    uint8_t attribute[0x40];
+    uint64_t ownerId;
+    uint64_t timestamp;
+    uint64_t flags;
+    int64_t dataSize;
+    int64_t journalSize;
+    uint64_t commitId;
+    uint8_t reserved[0x190];
+};
+
+static_assert(sizeof(SaveDataExtraData) == 0x200);
+static_assert(offsetof(SaveDataExtraData, dataSize) == 0x58);
+static_assert(offsetof(SaveDataExtraData, journalSize) == 0x60);
+
+struct BufferDesc {
+    void* data;
+    uint64_t size;
+};
+static_assert(sizeof(BufferDesc) == 0x10);
+
+struct ReaderStorage {
+    void* object;
+    void* control;
+};
+
+struct OutReader {
+    ReaderStorage* destination;
+};
+
+struct SaveDataInfo {
+    uint64_t saveDataId;        // 0x00
+    uint8_t spaceId;            // 0x08
+    uint8_t type;               // 0x09
+    uint8_t pad0A[6];
+    uint8_t userId[0x10];       // 0x10
+    uint64_t systemSaveDataId;  // 0x20
+    uint64_t applicationId;     // 0x28
+    int64_t saveDataSize;       // 0x30
+    uint16_t index;             // 0x38
+    uint8_t rank;               // 0x3A
+    uint8_t state;              // 0x3B
+    uint8_t reserved[0x24];
+};
+static_assert(sizeof(SaveDataInfo) == 0x60);
+
