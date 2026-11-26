@@ -38,19 +38,19 @@ namespace Dpr::UI {
         static_assert(sizeof(Fields) == 160);
 
         inline void OnPush() {
-            external<void>(0x01e622c0, this);
+            external<void>(game::Address::Dpr_UI_PoketchButton_OnPush, this);
         }
 
         inline void Initialize(UnityEngine::Events::UnityAction* callback, int32_t seEventId) {
-            external<void>(0x01e5e060, this, callback, seEventId);
+            external<void>(game::Address::Dpr_UI_PoketchButton_Initialize, this, callback, seEventId);
         }
 
         inline void SetRelease() {
-            external<void>(0x01e66280, this);
+            external<void>(game::Address::Dpr_UI_PoketchButton_SetRelease, this);
         }
 
         inline void SetTouch() {
-            external<void>(0x01e65f60, this);
+            external<void>(game::Address::Dpr_UI_PoketchButton_SetTouch, this);
         }
     };
 }

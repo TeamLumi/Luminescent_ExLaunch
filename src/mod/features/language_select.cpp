@@ -42,7 +42,7 @@ HOOK_DEFINE_INLINE(LanguageSelect_Add) {
 
 HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
     static void Callback(Dpr::UI::SelectLanguageWindow::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x79c0);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SelectLanguageWindow_UpdateSelect);
         using namespace Dpr::UI;
         UIManager::getClass()->initIfNeeded();
         UnityEngine::Mathf::getClass()->initIfNeeded();
@@ -129,14 +129,14 @@ HOOK_DEFINE_REPLACE(SelectLanguageWindow_UpdateSelect) {
 };
 
 void exl_language_select_main() {
-    LanguageSelect_Add::InstallAtOffset(0x01d3ce48);
-    SelectLanguageWindow_UpdateSelect::InstallAtOffset(0x01d3ba50);
+    LanguageSelect_Add::InstallAtOffset(game::Address::Dpr_UI_SelectLanguageWindow_OpOpen_d_12_MoveNext + 0xC8);
+    SelectLanguageWindow_UpdateSelect::InstallAtOffset(game::Address::Dpr_UI_SelectLanguageWindow_UpdateSelect);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01d3ce4c, Branch(0x54) },
+        { game::Address::Dpr_UI_SelectLanguageWindow_OpOpen_d_12_MoveNext + 0xCC, Branch(0x54) },
     };
     p.WriteInst(inst);
 }

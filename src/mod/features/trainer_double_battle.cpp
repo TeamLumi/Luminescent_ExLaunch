@@ -25,5 +25,5 @@ HOOK_DEFINE_TRAMPOLINE(SetupBattleTrainer) {
 };
 
 void exl_trainer_double_battles_main() {
-    SetupBattleTrainer::InstallAtOffset(0x02c3b800);
+    SetupBattleTrainer::InstallAtOffset(game::Address::Dpr_EncountTools_SetupBattleTrainer);
 }

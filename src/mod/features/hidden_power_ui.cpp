@@ -40,25 +40,25 @@ void exl_hidden_power_ui_main(){
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
 
-    exl::patch::CodePatcher p(0x01da02bc);
+    exl::patch::CodePatcher p(game::Address::Dpr_UI_PokemonStatusWazaItem_Setup + 0xCC);
     p.WriteInst(MovRegister(X1, X21));
 
-    p.Seek(0x01da02c4);
+    p.Seek(game::Address::Dpr_UI_PokemonStatusWazaItem_Setup + 0xD4);
     p.BranchLinkInst((void*)&WazaDataSystem_GetType);
 
-    p.Seek(0x01d2badc);
+    p.Seek(game::Address::Dpr_Battle_View_UI_BUIWazaList_Initialize + 0x2DC);
     p.WriteInst(MovRegister(X1, X19));
 
-    p.Seek(0x01d2bae4);
+    p.Seek(game::Address::Dpr_Battle_View_UI_BUIWazaList_Initialize + 0x2E4);
     p.BranchLinkInst((void*)&WAZADATA_GetType);
 
-    p.Seek(0x01888c78);
+    p.Seek(game::Address::Dpr_Battle_Logic_BattleViewBase_GetUiDisplay_WazaType + 0x8);
     p.WriteInst(MovRegister(X1, X2));
     p.BranchInst((void*)&WazaDataSystem_GetType);
 
-    p.Seek(0x1a41bd8);
+    p.Seek(game::Address::Dpr_UI_WazaManagePokemonStausPanel_Setup + 0x6B8);
     p.BranchLinkInst((void*)&WazaManagePokemonStausPanel_GetWazaNo);
 
-    p.Seek(0x01a41d54);
+    p.Seek(game::Address::Dpr_UI_WazaManageSubWazaPanel_Setup + 0xB4);
     p.BranchLinkInst((void*)&WazaManageSubWazaPanel_GetType);
 };

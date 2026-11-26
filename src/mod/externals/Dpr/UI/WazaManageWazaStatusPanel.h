@@ -13,19 +13,19 @@ namespace Dpr::UI {
         };
 
         inline void Initialize() {
-            external<void>(0x01a42550, this);
+            external<void>(game::Address::Dpr_UI_WazaManageWazaStatusPanel_Initialize, this);
         }
 
         inline void Setup(Pml::PokePara::PokemonParam::Object* pokemonParam, Pml::WazaNo_array* wazaNos, int32_t newWazaIndex) {
-            external<void>(0x01a42640, this, pokemonParam, wazaNos, newWazaIndex);
+            external<void>(game::Address::Dpr_UI_WazaManageWazaStatusPanel_Setup, this, pokemonParam, wazaNos, newWazaIndex);
         }
 
         inline void UpdateSelect(float deltaTime, bool isPlaySound) {
-            external<void>(0x01a426a0, this, deltaTime, isPlaySound);
+            external<void>(game::Address::Dpr_UI_WazaManageWazaStatusPanel_UpdateSelect, this, deltaTime, isPlaySound);
         }
 
         inline int32_t GetSelectedWazaNo() {
-            return external<int32_t>(0x01a432a0, this);
+            return external<int32_t>(game::Address::Dpr_UI_WazaManageWazaStatusPanel_GetSelectedWazaNo, this);
         }
     };
 }

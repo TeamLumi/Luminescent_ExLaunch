@@ -24,5 +24,5 @@ HOOK_DEFINE_REPLACE(OverrideAgbMode) {
 };
 
 void exl_sounds_main() {
-    OverrideAgbMode::InstallAtOffset(0x02cf2e30);
+    OverrideAgbMode::InstallAtOffset(game::Address::PlayerWork_get_DoubleSlot);
 }

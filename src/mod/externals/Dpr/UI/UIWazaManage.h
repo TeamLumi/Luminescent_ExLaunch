@@ -17,17 +17,17 @@
 
 namespace Dpr::UI {
     struct UIWazaManage : ILClass<UIWazaManage> {
-        struct __c__DisplayClass35_0 : ILClass<__c__DisplayClass35_0, 0x04c63240> {
+        struct __c__DisplayClass35_0 : ILClass<__c__DisplayClass35_0, game::Address::Dpr_UI_UIWazaManage_c_DisplayClass35_0_TypeInfo> {
             struct Fields {
                 Pml::PokePara::PokemonParam::Object* pokemonParam;
             };
 
             inline void ctor() {
-                external<void>(0x01a34470, this);
+                external<void>(game::Address::Dpr_UI_UIWazaManage_c_DisplayClass35_0_ctor, this);
             }
         };
 
-        struct __c__DisplayClass39_0 : ILClass<__c__DisplayClass39_0, 0x04c63258> {
+        struct __c__DisplayClass39_0 : ILClass<__c__DisplayClass39_0, game::Address::Dpr_UI_UIWazaManage_c_DisplayClass39_0_TypeInfo> {
             struct Fields {
                 int32_t selectWazaNo;
                 int32_t learnWazaNo;
@@ -38,7 +38,7 @@ namespace Dpr::UI {
             };
 
             inline void ctor() {
-                external<void>(0x01a34580, this);
+                external<void>(game::Address::Dpr_UI_UIWazaManage_c_DisplayClass39_0_ctor, this);
             }
         };
 
@@ -79,22 +79,22 @@ namespace Dpr::UI {
 
         static_assert(offsetof(Fields, param) == 0x100);
 
-        static inline StaticILMethod<0x04c80ca0> Method$$OnUpdate$$b__2 {};
-        static inline StaticILMethod<0x04c80cc8> Method$$OnUpdate$$b__39_0 {};
-        static inline StaticILMethod<0x04c80cd0> Method$$OnUpdate$$b__39_1 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIWazaManage_c_DisplayClass39_0_OnUpdate_b_2> Method$$OnUpdate$$b__2 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIWazaManage_OnUpdate_b_39_0> Method$$OnUpdate$$b__39_0 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIWazaManage_OnUpdate_b_39_1> Method$$OnUpdate$$b__39_1 {};
 
-        static inline StaticILMethod<0x04c90098, Dpr::UI::UIWazaManage> Method$$CreateUIWindow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIManager_CreateUIWindow_UIWazaManage, Dpr::UI::UIWazaManage> Method$$CreateUIWindow {};
 
         inline void Open(Dpr::UI::UIWazaManage::Param::Object param, MethodInfo* method) {
-            external<void>(0x01dd3d80, this, param, method);
+            external<void>(game::Address::Dpr_UI_UIWazaManage_Open, this, param, method);
         }
 
         inline void UpdateSelectTab(float deltaTime) {
-            external<void>(0x01dd5150, this, deltaTime);
+            external<void>(game::Address::Dpr_UI_UIWazaManage_UpdateSelectTab, this, deltaTime);
         }
 
         inline void Close(UnityEngine::Events::UnityAction::Object* onClosed_) {
-            external<void>(0x01dd4970, this, onClosed_);
+            external<void>(game::Address::Dpr_UI_UIWazaManage_Close, this, onClosed_);
         }
     };
 }

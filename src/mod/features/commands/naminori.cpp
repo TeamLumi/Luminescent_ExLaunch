@@ -20,9 +20,9 @@ const uint32_t SURF_BGM_ID = 0x1f4473ac;
 bool Naminori(Dpr::EvScript::EvDataManager::Object* manager) {
 
     //Logger::log("_NAMINORI\n");
-    system_load_typeinfo(0x446c);
-    system_load_typeinfo(0x3f7f);
-    system_load_typeinfo(0x497c);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdNaminori);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdTamagoDemo_b_1076_1);
+    system_load_typeinfo(game::TypeInfo::Dpr_EncountTools_OnPostBattle);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

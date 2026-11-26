@@ -22,7 +22,7 @@ HOOK_DEFINE_INLINE(RepelInventoryOverride){
 HOOK_DEFINE_REPLACE(EncDataSave_CanUseSpray){
     static bool Callback()
     {
-        system_load_typeinfo(0x3f33);
+        system_load_typeinfo(game::TypeInfo::EncountDataWork_EncDataSave_CanUseSpray);
 
         DPData::ENC_SV_DATA::Object encData = PlayerWork::get_Enc_SV_Data();
         bool repelRemaining = encData.fields.SprayCount > 0;
@@ -43,7 +43,7 @@ HOOK_DEFINE_TRAMPOLINE(IsUseSpray){
 
 
 void exl_items_repel_main(){
-    RepelInventoryOverride::InstallAtOffset(0x02c550b8);
-    EncDataSave_CanUseSpray::InstallAtOffset(0x01f08ac0);
-    IsUseSpray::InstallAtOffset(0x01aeb720);
+    RepelInventoryOverride::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_EndSpray + 0xB8);
+    EncDataSave_CanUseSpray::InstallAtOffset(game::Address::EncountDataWork_EncDataSave_CanUseSpray);
+    IsUseSpray::InstallAtOffset(game::Address::ItemWork_IsUseSpray);
 }

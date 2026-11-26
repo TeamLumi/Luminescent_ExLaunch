@@ -11,15 +11,15 @@
 
 namespace Dpr::UI {
     struct SettingMenuItem : ILClass<SettingMenuItem> {
-        struct __DisplayClass32_0 : ILClass<__DisplayClass32_0, 0x04c623f8> {
+        struct __DisplayClass32_0 : ILClass<__DisplayClass32_0, game::Address::Dpr_UI_SettingMenuItem_c_DisplayClass32_0_TypeInfo> {
             struct Fields {
                 int32_t selectIndex;
             };
 
-            static inline StaticILMethod<0x04c7fbd0> Method$$SetSelectIndex_b0 {};
+            static inline StaticILMethod<game::Address::Method_Dpr_UI_SettingMenuItem_c_DisplayClass32_0_SetSelectIndex_b_0> Method$$SetSelectIndex_b0 {};
 
             inline void ctor() {
-                external<void>(0x01d3fec0, this);
+                external<void>(game::Address::Dpr_UI_SettingMenuItem_c_DisplayClass32_0_ctor, this);
             }
         };
 
@@ -73,15 +73,15 @@ namespace Dpr::UI {
         };
 
         inline void ctor() {
-            external<void>(0x01d3fed0, this);
+            external<void>(game::Address::Dpr_UI_SettingMenuItem_ctor, this);
         }
 
         inline void Setup(int32_t configId, int32_t selectIndex, System::String* descMessageLabel, UnityEngine::Events::UnityAction::Object* onValueChanged) {
-            external<void>(0x01d3ee30, this, configId, selectIndex, descMessageLabel, onValueChanged);
+            external<void>(game::Address::Dpr_UI_SettingMenuItem_Setup, this, configId, selectIndex, descMessageLabel, onValueChanged);
         }
 
         inline bool SetSelectIndex(int32_t selectIndex, bool isEqualChecked, bool isCallbacked) {
-            return external<bool>(0x01d3f1a0, this, selectIndex, isEqualChecked, isCallbacked);
+            return external<bool>(game::Address::Dpr_UI_SettingMenuItem_SetSelectIndex, this, selectIndex, isEqualChecked, isCallbacked);
         }
     };
 }
@@ -89,8 +89,8 @@ namespace Dpr::UI {
 namespace System::Collections::Generic {
     struct List$$SettingMenuItem : List<List$$SettingMenuItem, Dpr::UI::SettingMenuItem> {
 
-        static inline StaticILMethod<0x04c89908> Method$$Add {};
-        static inline StaticILMethod<0x04c89910> Method$$Clear {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_SettingMenuItem_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_SettingMenuItem_Clear> Method$$Clear {};
 
         void insert(Dpr::UI::SettingMenuItem* elem, int32_t pos) {
             this->Add(elem);

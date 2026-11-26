@@ -14,11 +14,11 @@ namespace Dpr::Message {
         };
 
         inline MessageTextParseDataModel::Object* GetTextDataModel(System::String::Object* label) {
-            return external<MessageTextParseDataModel::Object*>(0x0210db00, this, label);
+            return external<MessageTextParseDataModel::Object*>(game::Address::Dpr_Message_MessageMsgFile_GetTextDataModel, this, label);
         }
 
         inline MessageGlossaryParseDataModel::Object* GetNameDataModel(System::String::Object* label) {
-            return external<MessageGlossaryParseDataModel::Object*>(0x0210d940, this, label);
+            return external<MessageGlossaryParseDataModel::Object*>(game::Address::Dpr_Message_MessageMsgFile_GetNameDataModel, this, label);
         }
     };
 }

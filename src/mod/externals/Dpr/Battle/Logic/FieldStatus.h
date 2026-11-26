@@ -30,35 +30,35 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void clearFactorWork(int32_t effect) {
-            external<void>(0x018fa380, this, effect);
+            external<void>(game::Address::Dpr_Battle_Logic_FieldStatus_clearFactorWork, this, effect);
         }
 
         inline BtlGround GetGround() {
-            return external<BtlGround>(0x018fb760, this);
+            return external<BtlGround>(game::Address::Dpr_Battle_Logic_FieldStatus_GetGround, this);
         }
 
         inline uint8_t GetWeather() {
-            return external<uint8_t>(0x018fa830, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_FieldStatus_GetWeather, this);
         }
 
         inline uint32_t GetWeatherRemainingTurn() {
-            return external<uint32_t>(0x018fa850, this);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_FieldStatus_GetWeatherRemainingTurn, this);
         }
 
         inline bool CheckStatus(int32_t effect) {
-            return external<bool>(0x018f54b0, this, effect);
+            return external<bool>(game::Address::Dpr_Battle_Logic_FieldStatus_CheckEffect_Int32, this, effect);
         }
 
         inline uint8_t GetDependPokeID(int32_t effect) {
-            return external<uint8_t>(0x018fb520, this, effect);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_FieldStatus_GetDependPokeID, this, effect);
         }
 
         inline uint32_t GetWholeTurn(int32_t effect) {
-            return external<uint32_t>(0x018fb460, this, effect);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_FieldStatus_GetWholeTurn, this, effect);
         }
 
         inline uint32_t GetPassedTurn(int32_t effect) {
-            return external<uint32_t>(0x018fb410, this, effect);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_FieldStatus_GetPassedTurn, this, effect);
         }
     };
 }

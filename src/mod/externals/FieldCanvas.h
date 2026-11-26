@@ -3,7 +3,7 @@
 #include "externals/Dpr/Demo/DemoBase.h"
 #include "externals/System/String.h"
 
-struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
+struct FieldCanvas : ILClass<FieldCanvas, game::Address::FieldCanvas_TypeInfo> {
     struct StaticFields {
         FieldCanvas::Object* _instance;
         bool useLateUpdate;
@@ -13,14 +13,14 @@ struct FieldCanvas : ILClass<FieldCanvas, 0x04c5ed38> {
     };
 
     static inline void OpenAreaNameWindow(System::String* labelName) {
-        external<void>(0x01786970, labelName);
+        external<void>(game::Address::FieldCanvas_OpenAreaNameWindow, labelName);
     }
 
     static inline void ResetAreaNameWindow() {
-        external<void>(0x01786b00);
+        external<void>(game::Address::FieldCanvas_ResetAreaNameWindow);
     }
 
     static inline void PlayDemoOrStock(Dpr::Demo::DemoBase::Object* demo) {
-        external<void>(0x0177f2c0, demo);
+        external<void>(game::Address::FieldCanvas_PlayDemoOrStock, demo);
     }
 };

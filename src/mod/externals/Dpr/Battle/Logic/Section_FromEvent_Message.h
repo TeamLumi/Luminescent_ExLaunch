@@ -6,8 +6,8 @@
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_Message : ILClass<Section_FromEvent_Message, 0x04c5b998> {
-        struct Description : ILClass<Description, 0x04c5afe8> {
+    struct Section_FromEvent_Message : ILClass<Section_FromEvent_Message, game::Address::Dpr_Battle_Logic_Section_FromEvent_Message_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_Message_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 bool isDisplayTokuseiWindow;
@@ -15,22 +15,22 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb6020, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Message_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5ae08> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_Message_Result_TypeInfo> {
             struct Fields {};
 
             inline void ctor() {
-                external<void>(0x01fb60a0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Message_Result_ctor, this);
             }
         };
 
         struct Fields : Section::Fields {};
 
         inline void Execute(Result::Object* result, Description::Object** description) {
-            external<void>(0x01fb5f40, this, result, description);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Message_Execute, this, result, description);
         }
     };
 }

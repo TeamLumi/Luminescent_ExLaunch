@@ -3,7 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace Dpr::Item {
-    struct SaveItem : ILStruct<SaveItem, 0x04c64d90> {
+    struct SaveItem : ILStruct<SaveItem, game::Address::Dpr_Item_SaveItem_Array_TypeInfo> {
         struct Fields {
             int32_t Count;
             bool VanishNew;

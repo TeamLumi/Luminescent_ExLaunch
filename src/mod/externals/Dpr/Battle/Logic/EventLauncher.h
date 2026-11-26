@@ -20,23 +20,23 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void Event_ActProcCanceled(PokeAction::Object* action) {
-            external<void>(0x01d17cc0, this, action);
+            external<void>(game::Address::Dpr_Battle_Logic_EventLauncher_Event_ActProcCanceled, this, action);
         }
 
         inline void Event_ActProcStart(PokeAction::Object* action) {
-            external<void>(0x01d17b80, this, action);
+            external<void>(game::Address::Dpr_Battle_Logic_EventLauncher_Event_ActProcStart, this, action);
         }
 
         inline void Event_ActProcEnd(BTL_POKEPARAM::Object* bpp, PokeActionCategory actionCmd) {
-            external<void>(0x01d17c30, this, bpp, actionCmd);
+            external<void>(game::Address::Dpr_Battle_Logic_EventLauncher_Event_ActProcEnd, this, bpp, actionCmd);
         }
 
         inline void Event_GetWazaParam(int32_t waza, int32_t orgWaza, int32_t gSrcWaza, int32_t wazaPri, BTL_POKEPARAM::Object* attacker, WazaParam::Object* param) {
-            external<void>(0x01d14030, this, waza, orgWaza, gSrcWaza, wazaPri, attacker, param);
+            external<void>(game::Address::Dpr_Battle_Logic_EventLauncher_Event_GetWazaParam, this, waza, orgWaza, gSrcWaza, wazaPri, attacker, param);
         }
 
         inline bool Event_Check_FreeFallStart_Guard(BTL_POKEPARAM::Object* attacker, BTL_POKEPARAM::Object* target, WazaParam::Object* wazaParam, StrParam::Object* strParam) {
-            return external<bool>(0x01d19890, this, attacker, target, wazaParam, strParam);
+            return external<bool>(game::Address::Dpr_Battle_Logic_EventLauncher_Event_Check_FreeFallStart_Guard, this, attacker, target, wazaParam, strParam);
         }
     };
 }

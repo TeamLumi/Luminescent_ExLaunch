@@ -34,6 +34,6 @@ namespace Dpr::Contest {
 
         static_assert(offsetof(Fields, pokeIconPath) == 0xA0);
 
-        static inline StaticILMethod<0x04c7c628, UnityEngine::Sprite::Object*> Method$$AppendLoadPokemonIcon_b_99 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Contest_ContestPlayerEntity_AppendLoadPokemonIcon_b_59_0, UnityEngine::Sprite::Object*> Method$$AppendLoadPokemonIcon_b_99 {};
     };
 }

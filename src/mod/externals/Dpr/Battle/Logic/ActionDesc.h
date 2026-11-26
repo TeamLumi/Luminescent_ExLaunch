@@ -5,7 +5,7 @@
 #include "externals/Dpr/Battle/Logic/InsertActionInfo.h"
 
 namespace Dpr::Battle::Logic {
-    struct ActionDesc : ILClass<ActionDesc, 0x04c5b3a8> {
+    struct ActionDesc : ILClass<ActionDesc, game::Address::Dpr_Battle_Logic_ActionDesc_TypeInfo> {
         struct Fields {
             uint32_t serialNo;
             bool isOiutiInterruptAction;

@@ -9,13 +9,13 @@
 
 namespace Dpr::UI {
     struct Keyguide : ILClass<Keyguide> {
-        struct Param : ILClass<Param, 0x04c59fd0> {
+        struct Param : ILClass<Param, game::Address::Dpr_UI_Keyguide_Param_TypeInfo> {
             struct Fields {
                 System::Collections::Generic::List$$KeyguideItem_Param* itemParams;
             };
 
             inline void ctor() {
-                external<void>(0x01c4ef80, this);
+                external<void>(game::Address::Dpr_UI_Keyguide_Param_ctor, this);
             }
         };
 
@@ -27,7 +27,7 @@ namespace Dpr::UI {
         };
 
         inline void Open(Param::Object* param) {
-            external<void>(0x01c4f000, this, param);
+            external<void>(game::Address::Dpr_UI_Keyguide_Open, this, param);
         }
     };
 }

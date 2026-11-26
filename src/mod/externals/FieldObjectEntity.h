@@ -29,25 +29,25 @@ struct FieldObjectEntity : ILClass<FieldObjectEntity> {
     };
 
     inline UnityEngine::Vector2Int::Object get_gridPosition() {
-        return external<UnityEngine::Vector2Int::Object>(0x01d50aa0, this);
+        return external<UnityEngine::Vector2Int::Object>(game::Address::FieldObjectEntity_get_gridPosition, this);
     }
 
     inline float get_Height() {
-        return external<float>(0x01d549e0, this);
+        return external<float>(game::Address::FieldObjectEntity_get_Height, this);
     }
 
     static inline DIR GetDir(float dir) {
-        return external<DIR>(0x01d55140, dir);
+        return external<DIR>(game::Address::FieldObjectEntity_GetDir, dir);
     }
 
     static inline UnityEngine::Vector2Int::Object PositionToGrid(UnityEngine::Vector3::Object position) {
         UnityEngine::Vector3::Fields positionProxy = { .x = position.fields.x, .y = position.fields.y, .z = position.fields.z };
-        return external<UnityEngine::Vector2Int::Object>(0x01d54ae0, positionProxy);
+        return external<UnityEngine::Vector2Int::Object>(game::Address::FieldObjectEntity_PositionToGrid, positionProxy);
     }
 
     static inline UnityEngine::Vector2::Object GridToPosition(UnityEngine::Vector2Int::Object grid) {
         return {
-            .fields = external<UnityEngine::Vector2::Fields>(0x01d54a80, grid)
+            .fields = external<UnityEngine::Vector2::Fields>(game::Address::FieldObjectEntity_GridToPosition, grid)
         };
     }
 };

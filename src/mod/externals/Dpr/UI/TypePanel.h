@@ -12,11 +12,11 @@ namespace Dpr::UI {
         };
 
         inline void Deactive() {
-            external<void>(0x01857860, this);
+            external<void>(game::Address::Dpr_UI_TypePanel_Deactive, this);
         }
 
         inline void Set(int32_t typeNo) {
-            external<void>(0x01857680, this, typeNo);
+            external<void>(game::Address::Dpr_UI_TypePanel_Set, this, typeNo);
         }
     };
 }

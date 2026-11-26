@@ -7,7 +7,7 @@
 
 namespace Dpr::Battle::Logic {
     struct Section_FromEvent_FormChange : ILClass<Section_FromEvent_FormChange> {
-        struct Description : ILClass<Description, 0x04c5b2b8> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_FormChange_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 uint8_t formNo;
@@ -19,22 +19,22 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb4570, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FormChange_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5af68> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_FormChange_Result_TypeInfo> {
             struct Fields {
                 bool isChanged;
             };
 
             inline void ctor() {
-                external<void>(0x01fb4600, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FormChange_Result_ctor, this);
             }
         };
 
         inline void Execute(Result::Object* result, Description::Object** description) {
-            external<void>(0x01fb43f0, this, result, description);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FormChange_Execute, this, result, description);
         }
     };
 }

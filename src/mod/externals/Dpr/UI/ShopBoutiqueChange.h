@@ -10,6 +10,6 @@ namespace Dpr::UI {
             // TODO
         };
 
-        static inline StaticILMethod<0x04c8ffe8, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIManager_CreateUIWindow_ShopBoutiqueChange, Dpr::UI::ShopBoutiqueChange> Method$$CreateUIWindow {};
     };
 }

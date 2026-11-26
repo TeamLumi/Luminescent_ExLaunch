@@ -21,5 +21,5 @@ HOOK_DEFINE_INLINE(EvDataManager$$LoadUMAAsset_d__1640$$MoveNext) {
 };
 
 void Hooks_LoadUmaAnime() {
-    EvDataManager$$LoadUMAAsset_d__1640$$MoveNext::InstallAtOffset(0x019af700);
+    EvDataManager$$LoadUMAAsset_d__1640$$MoveNext::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_LoadUMAAsset_d_1640_MoveNext + 0x80);
 }

@@ -14,8 +14,8 @@
 #include "externals/UnityEngine/UI/VerticalLayoutGroup.h"
 
 namespace Dpr::UI {
-    struct ContextMenuWindow : ILClass<ContextMenuWindow, 0x04c5dae0> {
-        struct Param : ILClass<Param, 0x04c5e778> {
+    struct ContextMenuWindow : ILClass<ContextMenuWindow, game::Address::Dpr_UI_ContextMenuWindow_TypeInfo> {
+        struct Param : ILClass<Param, game::Address::Dpr_UI_ContextMenuWindow_Param_TypeInfo> {
             struct Fields {
                 int32_t windowType;
                 ContextMenuItem::Param::Array* itemParams;
@@ -33,7 +33,7 @@ namespace Dpr::UI {
             };
 
             inline void ctor() {
-                external<void>(0x01ec23d0, this);
+                external<void>(game::Address::Dpr_UI_ContextMenuWindow_Param_ctor, this);
             }
         };
 
@@ -55,14 +55,14 @@ namespace Dpr::UI {
             UnityEngine::Vector3::Object _position;
         };
 
-        static inline StaticILMethod<0x04c8ff48, Dpr::UI::ContextMenuWindow> Method$$CreateUIWindow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIManager_CreateUIWindow_ContextMenuWindow, Dpr::UI::ContextMenuWindow> Method$$CreateUIWindow {};
 
         inline void ctor() {
-            external<void>(0x01ec1770, this);
+            external<void>(game::Address::Dpr_UI_ContextMenuWindow_ctor, this);
         }
 
         inline void Open(Param::Object* param) {
-            external<void>(0x01ec0bc0, this, param);
+            external<void>(game::Address::Dpr_UI_ContextMenuWindow_Open, this, param);
         }
     };
 }

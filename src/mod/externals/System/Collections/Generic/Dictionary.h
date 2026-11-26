@@ -55,28 +55,28 @@ namespace System::Collections::Generic {
         };
 
         inline void ctor() {
-            ILClass<T>::template external<void>(0x028e55b0, this, *T::Method$$ctor);
+            ILClass<T>::template external<void>(game::Address::System_Collections_Generic_Dictionary_BUIActionList_ActionButtonType_string_ctor, this, *T::Method$$ctor);
         }
 
         inline void set_Item(int32_t key, V::Object* value) {
-            ILClass<T>::template external<void>(0x028da060, this, key, value, *T::Method$$set_Item);
+            ILClass<T>::template external<void>(game::Address::System_Collections_Generic_Dictionary_int_AkCallbackManager_BankCallbackPackage_set_Item, this, key, value, *T::Method$$set_Item);
         }
 
         inline V* get_Item(int32_t key) {
-            return ILClass<T>::template external<V*>(0x028d9f90, this, key, *T::Method$$get_Item);
+            return ILClass<T>::template external<V*>(game::Address::System_Collections_Generic_Dictionary_int_AssetBundleUnloader_get_Item, this, key, *T::Method$$get_Item);
         }
 
         template <typename E>
         inline IEnumerable<E, T>* get_Values() {
-            return ILClass<T>::template external<IEnumerable<E, T>*>(0x028d9ef0, this, *T::Method$$get_Values);
+            return ILClass<T>::template external<IEnumerable<E, T>*>(game::Address::System_Collections_Generic_Dictionary_int_BTL_POKEPARAM_get_Values, this, *T::Method$$get_Values);
         }
 
         inline void Add(int32_t key, V::Object* value) {
-            ILClass<T>::template external<void>(0x028e5a70, this, key, value, *T::Method$$Add);
+            ILClass<T>::template external<void>(game::Address::System_Collections_Generic_Dictionary_BUIActionList_ActionButtonType_string_Add, this, key, value, *T::Method$$Add);
         }
 
         inline bool ContainsKey(int32_t key) {
-            return ILClass<T>::template external<bool>(0x028e5cd0, this, key, *T::Method$$ContainsKey);
+            return ILClass<T>::template external<bool>(game::Address::System_Collections_Generic_Dictionary_BUIActionList_ActionButtonType_string_ContainsKey, this, key, *T::Method$$ContainsKey);
         }
     };
 
@@ -105,19 +105,19 @@ namespace System::Collections::Generic {
         };
 
         inline void ctor() {
-            ILClass<T>::template external<void>(0x027c0280, this, *T::Method$$ctor);
+            ILClass<T>::template external<void>(game::Address::System_Collections_Generic_Dictionary_BallId_UIManager_MonsterBallParam_ctor, this, *T::Method$$ctor);
         }
 
         inline void Add(uint8_t key, V::Object* value) {
-            ILClass<T>::template external<void>(0x027c0740, this, key, value, *T::Method$$Add);
+            ILClass<T>::template external<void>(game::Address::System_Collections_Generic_Dictionary_BallId_UIManager_MonsterBallParam_Add, this, key, value, *T::Method$$Add);
         }
 
         inline bool ContainsKey(uint8_t key) {
-            return ILClass<T>::template external<bool>(0x027c09a0, this, key, *T::Method$$ContainsKey);
+            return ILClass<T>::template external<bool>(game::Address::System_Collections_Generic_Dictionary_BtlGround_string_ContainsKey, this, key, *T::Method$$ContainsKey);
         }
 
         inline V* get_Item(uint8_t key) {
-            return ILClass<T>::template external<V*>(0x027c0650, this, key, *T::Method$$get_Item);
+            return ILClass<T>::template external<V*>(game::Address::System_Collections_Generic_Dictionary_BtlGround_string_get_Item, this, key, *T::Method$$get_Item);
         }
     };
 }

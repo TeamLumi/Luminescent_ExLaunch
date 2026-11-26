@@ -11,7 +11,7 @@ static int32_t maxValue;
 
 System::ValueTuple2$$Bool$$String::Object CheckCustomNumberInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState) {
 
-    system_load_typeinfo(0x9896);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_c_DisplayClass831_0_EvCmdBirthDayInput_b_0);
 
     auto inputCheck = Dpr::UI::SoftwareKeyboard::InputCheck(resultText, errorState);
 
@@ -60,7 +60,7 @@ bool CustomNumberInput(Dpr::EvScript::EvDataManager::Object* manager) {
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     Logger::log("_CUSTOM_NUMBER_INPUT\n");
-    system_load_typeinfo(0x43e0);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdBirthDayInput);
 
     manager->fields._softwareKeyboardSubState = 1; // In progress
 

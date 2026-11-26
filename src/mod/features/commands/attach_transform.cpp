@@ -8,10 +8,10 @@
 bool AttachTransform(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("_ATTACH_TRANSFORM\n");
 
-    system_load_typeinfo(0x3f9a);
-    system_load_typeinfo(0x4af3);
-    system_load_typeinfo(0x5a55);
-    system_load_typeinfo(0x9412);
+    system_load_typeinfo(game::TypeInfo::EntityManager_get_activeFieldPlayer);
+    system_load_typeinfo(game::TypeInfo::FieldTvRedGyaradosEntity_GetTvRedGyarados);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_Keyguide_Awake);
+    system_load_typeinfo(game::TypeInfo::Dpr_Field_Walking_FieldWalkingManager_NPCToPartner_g_NpcSearch_29_0_d_MoveNext);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

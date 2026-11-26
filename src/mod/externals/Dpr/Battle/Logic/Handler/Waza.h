@@ -9,23 +9,23 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic::Handler {
-    struct Waza : ILClass<Waza, 0x04c5b348> {
-        struct HandlerGetFunc : ILClass<HandlerGetFunc, 0x04c5b448> {
+    struct Waza : ILClass<Waza, game::Address::Dpr_Battle_Logic_Handler_Waza_TypeInfo> {
+        struct HandlerGetFunc : ILClass<HandlerGetFunc, game::Address::Dpr_Battle_Logic_Handler_Waza_HandlerGetFunc_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
             inline void ctor(intptr_t m_target, MethodInfo* method) {
-                external<void>(0x0202bc70, this, m_target, method);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Waza_HandlerGetFunc_ctor, this, m_target, method);
             }
         };
 
-        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, 0x04c5b440> {
+        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, game::Address::Dpr_Battle_Logic_Handler_Waza_GET_FUNC_TABLE_ELEM_Array_TypeInfo> {
             struct Fields {
                 int32_t waza;
                 HandlerGetFunc::Object* func;
             };
 
             inline void ctor(int32_t waza, HandlerGetFunc::Object* func) {
-                external<void>(0x0202bc50, this, waza, func);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Waza_GET_FUNC_TABLE_ELEM_ctor, this, waza, func);
             }
         };
 
@@ -314,41 +314,41 @@ namespace Dpr::Battle::Logic::Handler {
             Dpr::Battle::Logic::EventFactor::EventHandlerTable::Array* HandlerTable_Newton;
         };
 
-        static inline StaticILMethod<0x04c6a1c0> PTR_Method$$ADD_Karagenki {};
-        static inline StaticILMethod<0x04c6a228> PTR_Method$$ADD_KumoNoSu {};
-        static inline StaticILMethod<0x04c6a218> PTR_Method$$ADD_Korogaru {};
-        static inline StaticILMethod<0x04c6a040> PTR_Method$$ADD_GensiNoTikara {};
-        static inline StaticILMethod<0x04c6a488> PTR_Method$$ADD_Siboritoru {};
-        static inline StaticILMethod<0x04c6a290> PTR_Method$$ADD_Meromero {};
-        static inline StaticILMethod<0x04c6a338> PTR_Method$$ADD_NasiKuzusi {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_Karagenki> PTR_Method$$ADD_Karagenki {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_KumoNoSu> PTR_Method$$ADD_KumoNoSu {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_Korogaru> PTR_Method$$ADD_Korogaru {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_GensiNoTikara> PTR_Method$$ADD_GensiNoTikara {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_Siboritoru> PTR_Method$$ADD_Siboritoru {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_Meromero> PTR_Method$$ADD_Meromero {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_ADD_NasiKuzusi> PTR_Method$$ADD_NasiKuzusi {};
 
-        static inline StaticILMethod<0x04c7a3b0, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Karagenki_WazaPow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_handler_Karagenki_WazaPow, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Karagenki_WazaPow {};
 
-        static inline StaticILMethod<0x04c7aa20, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tobigeri_NoEffect {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_handler_Tobigeri_NoEffect, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tobigeri_NoEffect {};
 
-        static inline StaticILMethod<0x04c7a320, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Jisin_damage {};
-        static inline StaticILMethod<0x04c7a318, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Jisin_checkHide {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_handler_Jisin_damage, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Jisin_damage {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_handler_Jisin_checkHide, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Jisin_checkHide {};
 
-        static inline StaticILMethod<0x04c7a978, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tatumaki_checkHide {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_handler_Tatumaki_checkHide, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tatumaki_checkHide {};
 
-        static inline StaticILMethod<0x04c7a930, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tagayasu_CheckHide {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Waza_handler_Tagayasu_CheckHide, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Tagayasu_CheckHide {};
 
         static_assert(sizeof(StaticFields) == 0x858);
 
         static inline void common_Korogaru_Unlock(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-            external<void>(0x01803ac0, args, pokeID);
+            external<void>(game::Address::Dpr_Battle_Logic_Handler_Waza_common_Korogaru_Unlock, args, pokeID);
         }
 
         static inline void removeHandlerForce(EventSystem::Object* pEventSystem, uint8_t pokeID, int32_t waza) {
-            external<void>(0x017f99a0, pEventSystem, pokeID, waza);
+            external<void>(game::Address::Dpr_Battle_Logic_Handler_Waza_removeHandlerForce, pEventSystem, pokeID, waza);
         }
 
         static inline bool common_SideEffectCore(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t side, BtlSideEffect effect, BTL_SICKCONT::Object* cont, int32_t strType, uint32_t strID, int32_t strArg, bool replaceStrArg0ByExpandSide) {
-            return external<bool>(0x018114a0, args, pokeID, side, effect, cont, strType, strID, strArg, replaceStrArg0ByExpandSide);
+            return external<bool>(game::Address::Dpr_Battle_Logic_Handler_Waza_common_SideEffectCore, args, pokeID, side, effect, cont, strType, strID, strArg, replaceStrArg0ByExpandSide);
         }
 
         static inline bool common_SideEffectStdMsg(EventFactor::EventHandlerArgs::Object** args, uint8_t* pokeID, int32_t side, BtlSideEffect effect, BTL_SICKCONT::Object* cont, uint16_t strID) {
-            return external<bool>(0x0180fe10, args, pokeID, side, effect, cont, strID);
+            return external<bool>(game::Address::Dpr_Battle_Logic_Handler_Waza_common_SideEffectStdMsg, args, pokeID, side, effect, cont, strID);
         }
     };
 }

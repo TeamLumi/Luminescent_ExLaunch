@@ -12,7 +12,7 @@ namespace Dpr::UI {
         };
 
         inline void Setup(Pml::PokePara::PokemonParam::Object* pokemonParam) {
-            external<void>(0x01a41350, this, pokemonParam);
+            external<void>(game::Address::Dpr_UI_WazaManageCondition_Setup, this, pokemonParam);
         }
     };
 }

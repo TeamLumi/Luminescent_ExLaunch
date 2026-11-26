@@ -18,7 +18,7 @@ namespace Dpr::UI {
         };
 
         inline bool SetSelectIndex(int32_t index, bool isInitialized) {
-            return external<bool>(0x01d3c220, this, index, isInitialized);
+            return external<bool>(game::Address::Dpr_UI_SelectLanguageWindow_SetSelectIndex, this, index, isInitialized);
         }
     };
 }

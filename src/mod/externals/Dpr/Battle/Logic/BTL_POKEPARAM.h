@@ -11,7 +11,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
-    struct BTL_POKEPARAM : ILClass<BTL_POKEPARAM, 0x04c5a9d0> {
+    struct BTL_POKEPARAM : ILClass<BTL_POKEPARAM, game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_TypeInfo> {
         struct CORE_PARAM : ILClass<CORE_PARAM> {
             struct Fields {
                 Pml::PokePara::PokemonParam::Object* ppSrc;
@@ -179,144 +179,144 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void ctor(FieldStatus::Object* fieldStatus) {
-            external<void>(0x01fda310, this, fieldStatus);
+            external<void>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_ctor, this, fieldStatus);
         }
 
         inline bool IsFightEnable() {
-            return external<bool>(0x01fd9750, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_IsFightEnable, this);
         }
 
         inline Pml::PokePara::PokemonParam* GetSrcDataConst() {
-            return external<Pml::PokePara::PokemonParam*>(0x01fdd5c0, this);
+            return external<Pml::PokePara::PokemonParam*>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetSrcDataConst, this);
         }
 
         inline uint16_t GetMonsNo() {
-            return external<uint16_t>(0x01fdcfb0, this);
+            return external<uint16_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetMonsNo, this);
         }
 
         inline int32_t GetValue(BTL_POKEPARAM::ValueID vid) {
-            return external<int32_t>(0x01fdd010, this, vid);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetValue, this, vid);
         }
 
         inline uint8_t GetID() {
-            return external<uint8_t>(0x01fd8a50, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetID, this);
         }
 
         inline bool IsFakeEnable() {
-            return external<bool>(0x01fe3220, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_IsFakeEnable, this);
         }
 
         // Valid only while IsFakeEnable().
         inline uint8_t GetFakeTargetPokeID() {
-            return external<uint8_t>(0x01fe3230, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetFakeTargetPokeID, this);
         }
 
         inline bool CONFRONT_REC_IsMatch(int32_t pokeID) {
-            return external<bool>(0x01fe39f0, this, pokeID);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_CONFRONT_REC_IsMatch, this, pokeID);
         }
 
         inline uint16_t GetItem() {
-            return external<uint16_t>(0x01fdfd50, this);
+            return external<uint16_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetItem, this);
         }
 
         inline void COUNTER_Inc(Counter cnt) {
-            external<void>(0x01fe2cd0, this, cnt);
+            external<void>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_COUNTER_Inc, this, cnt);
         }
 
         inline uint8_t COUNTER_Get(Counter cnt) {
-            return external<uint8_t>(0x01fe0140, this, cnt);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_COUNTER_Get, this, cnt);
         }
 
         inline Pml::PokePara::PokemonParam::Object* GetSrcData() {
-            return external<Pml::PokePara::PokemonParam::Object*>(0x01fdd5b0, this);
+            return external<Pml::PokePara::PokemonParam::Object*>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetSrcData, this);
         }
 
         inline bool CheckSick(Pml::WazaData::WazaSick sickType) {
-            return external<bool>(0x01fd8b30, this, sickType);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_CheckSick, this, sickType);
         }
 
         inline bool CheckNemuri(NemuriCheckMode checkMode) {
-            return external<bool>(0x01fd8ab0, this, checkMode);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_CheckNemuri, this, checkMode);
         }
 
         inline uint8_t GetFriendship() {
-            return external<uint8_t>(0x01fda180, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetFriendship, this);
         }
 
         inline bool IsDead() {
-            return external<bool>(0x01fd8a60, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_IsDead, this);
         }
 
         inline void TURNFLAG_Set(TurnFlag flagID) {
-            external<void>(0x01fe0d90, this, flagID);
+            external<void>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_TURNFLAG_Set, this, flagID);
         }
 
         inline int32_t WAZA_GetID(uint8_t idx) {
-            return external<int32_t>(0x01fdeb70, this, idx);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_WAZA_GetID, this, idx);
         }
 
         inline bool IsMatchType(uint8_t type) {
-            return external<bool>(0x01fdfad0, this, type);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_IsMatchType, this, type);
         }
 
         inline uint8_t WAZA_SearchIdx(int32_t waza) {
-            return external<uint8_t>(0x01fdf880, this, waza);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_WAZA_SearchIdx, this, waza);
         }
 
         inline uint16_t WAZA_GetPP(uint8_t wazaIdx) {
-            return external<uint16_t>(0x01fdf140, this, wazaIdx);
+            return external<uint16_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_WAZA_GetPP, this, wazaIdx);
         }
 
         inline bool TURNFLAG_Get(TurnFlag flagID) {
-            return external<bool>(0x01fdfe70, this, flagID);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_TURNFLAG_Get, this, flagID);
         }
 
         inline PokeTypePair::Object GetPokeType() {
-            return external<PokeTypePair::Object>(0x01fdfa80, this);
+            return external<PokeTypePair::Object>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetPokeType, this);
         }
 
         inline bool isGMode() {
-            return external<bool>(0x01fdb9a0, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_IsGMode, this);
         }
 
         inline uint8_t WAZA_GetCount() {
-            return external<int32_t>(0x01fde9c0, this);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_WAZA_GetCount, this);
         }
 
         inline bool MIGAWARI_IsExist() {
-            return external<bool>(0x01fe38a0, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_MIGAWARI_IsExist, this);
         }
 
         inline bool IsWazaHide() {
-            return external<bool>(0x01fe0060, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_IsWazaHide, this);
         }
 
         inline static uint8_t PokeIDtoFreeFallCounter(uint8_t pokeID) {
-            return external<uint8_t>(0x01fda190, pokeID);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_PokeIDtoFreeFallCounter, pokeID);
         }
 
         inline uint8_t GetFormNo() {
-            return external<uint8_t>(0x01fda170, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_GetFormNo, this);
         }
 
         inline bool HENSIN_Check() {
-            return external<bool>(0x01fdd470, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_BTL_POKEPARAM_HENSIN_Check, this);
         }
     };
 }
 
 namespace System::Collections::Generic {
     struct List$$BTL_POKEPARAM : List<List$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
-        static inline StaticILMethod<0x04c74028> Method$$IndexOf {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_BTL_POKEPARAM_IndexOf> Method$$IndexOf {};
     };
 
     struct Dictionary$$int32_t$$BTL_POKEPARAM : Dictionary$$int32_t<Dictionary$$int32_t$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
-        static inline StaticILMethod<0x04c875b0> Method$$set_Item {};
-        static inline StaticILMethod<0x04c68af8> Method$$get_Item {};
-        static inline StaticILMethod<0x04c70d90> Method$$get_Values {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_BTL_POKEPARAM_set_Item> Method$$set_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_BTL_POKEPARAM_get_Item> Method$$get_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_BTL_POKEPARAM_get_Values> Method$$get_Values {};
     };
 
     struct IEnumerable$$BTL_POKEPARAM : IEnumerable<IEnumerable$$BTL_POKEPARAM, Dpr::Battle::Logic::BTL_POKEPARAM> {
-        static inline StaticILMethod<0x04c716e0> Method$$ToList {};
+        static inline StaticILMethod<game::Address::Method_System_Linq_Enumerable_ToList_BTL_POKEPARAM> Method$$ToList {};
     };
 }

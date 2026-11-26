@@ -70,6 +70,6 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Section_FromEvent_BreakIllusion_Execute) {
 };
 
 void exl_illusion_fixes_main() {
-    IllusionTargetSelector_SetPokemon::InstallAtOffset(0x01d284f0);
-    Dpr_Battle_Logic_Section_FromEvent_BreakIllusion_Execute::InstallAtOffset(0x01fb0fe0);
+    IllusionTargetSelector_SetPokemon::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUITargetButton_SetPokemon);
+    Dpr_Battle_Logic_Section_FromEvent_BreakIllusion_Execute::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_FromEvent_BreakIllusion_Execute);
 }

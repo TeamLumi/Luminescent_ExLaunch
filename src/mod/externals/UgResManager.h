@@ -11,15 +11,15 @@ namespace System::Collections::Generic {
     struct List$$UgResManager_AppendData;
 }
 
-struct UgResManager : ILClass<UgResManager, 0x04c635c8> {
-    struct AppendData : ILClass<AppendData, 0x04c65768> {
+struct UgResManager : ILClass<UgResManager, game::Address::UgResManager_TypeInfo> {
+    struct AppendData : ILClass<AppendData, game::Address::UgResManager_AppendData_TypeInfo> {
         struct Fields {
             SmartPoint::AssetAssistant::AssetRequestOperation::Object* Operation;
             System::Action::Object* callback;
         };
 
         inline void ctor() {
-            external<void>(0x01b1b330, this);
+            external<void>(game::Address::UgResManager_AppendData_ctor, this);
         }
     };
 
@@ -58,8 +58,8 @@ struct UgResManager : ILClass<UgResManager, 0x04c635c8> {
 
 
 namespace System::Collections::Generic {
-    struct List$$UgResManager_AppendData : List<List$$UgResManager_AppendData, UgResManager::AppendData, 0x04c65760> {
-        static inline StaticILMethod<0x04c8aa78> Method$$ctor {};
-        static inline StaticILMethod<0x04c8aa80> Method$$Add {};
+    struct List$$UgResManager_AppendData : List<List$$UgResManager_AppendData, UgResManager::AppendData, game::Address::System_Collections_Generic_List_UgResManager_AppendData_TypeInfo> {
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_UgResManager_AppendData_ctor> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_UgResManager_AppendData_Add> Method$$Add {};
     };
 }

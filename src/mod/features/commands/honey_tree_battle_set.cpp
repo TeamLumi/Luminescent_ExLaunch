@@ -10,8 +10,8 @@
 bool HoneyTreeBattleSet(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_HONEY_TREE_BTL_SET\n");
-    system_load_typeinfo(0x4452);
-    system_load_typeinfo(0x497c);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdHoneyTreeBattleSet);
+    system_load_typeinfo(game::TypeInfo::Dpr_EncountTools_OnPostBattle);
 
     int32_t zoneID = PlayerWork::get_zoneID();
     int32_t slot = UnityEngine::Random::Range(0, 10);

@@ -10,13 +10,13 @@ namespace UnityEngine::Events {
 
         };
 
-        static const inline long bool_String_TypeInfo = 0x04c5ee10;
-        static const inline long void_TypeInfo = 0x04c57230;
-        static const inline long Sprite_TypeInfo = 0x04c5e1a0;
-        static const inline long SettingMenuItem_TypeInfo = 0x04c62420;
-        static const inline long UIWindow_TypeInfo = 0x04c59e60;
-        static const inline long PokemonPartyItem__int_TypeInfo = 0x04c61ee0;
-        static const inline long AudioInstance_TypeInfo = 0x04c59bf8;
+        static const inline game::Address bool_String_TypeInfo = game::Address::UnityEngine_Events_UnityAction_bool_string_TypeInfo;
+        static const inline game::Address void_TypeInfo = game::Address::UnityEngine_Events_UnityAction_TypeInfo;
+        static const inline game::Address Sprite_TypeInfo = game::Address::UnityEngine_Events_UnityAction_Sprite_TypeInfo;
+        static const inline game::Address SettingMenuItem_TypeInfo = game::Address::UnityEngine_Events_UnityAction_SettingMenuItem_TypeInfo;
+        static const inline game::Address UIWindow_TypeInfo = game::Address::UnityEngine_Events_UnityAction_UIWindow_TypeInfo;
+        static const inline game::Address PokemonPartyItem__int_TypeInfo = game::Address::UnityEngine_Events_UnityAction_PokemonPartyItem_int_TypeInfo;
+        static const inline game::Address AudioInstance_TypeInfo = game::Address::UnityEngine_Events_UnityAction_AudioInstance_TypeInfo;
 
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {
@@ -25,23 +25,23 @@ namespace UnityEngine::Events {
 
         // Owner will be the first param of the method it seems
         inline void ctor(void* owner, MethodInfo* mi) {
-            external<void>(0x026adeb0, this, owner, mi);
+            external<void>(game::Address::UnityEngine_Events_UnityAction_ctor, this, owner, mi);
         }
 
         inline void Invoke() {
-            external<void>(0x026a3140, this);
+            external<void>(game::Address::UnityEngine_Events_UnityAction_Invoke, this);
         }
 
         inline void Invoke(Il2CppObject* arg0) {
-            external<void>(0x0253ded0, this, arg0);
+            external<void>(game::Address::UnityEngine_Events_UnityAction_AudioData_Invoke, this, arg0);
         }
 
         inline void Invoke(int32_t arg0, int32_t arg1) {
-            external<void>(0x0253fe60, this, arg0, arg1);
+            external<void>(game::Address::UnityEngine_Events_UnityAction_ConfigID_int_Invoke, this, arg0, arg1);
         }
 
         inline void ctor() {
-            external<void>(0x026adeb0, this);
+            external<void>(game::Address::UnityEngine_Events_UnityAction_ctor, this);
         }
 
         // DEBUGGING PURPOSES ONLY

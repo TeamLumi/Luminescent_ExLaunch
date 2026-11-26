@@ -6,7 +6,7 @@
 #include "externals/TMPro/TextMeshProUGUI.h"
 
 namespace Dpr::Message {
-    struct FontManager : ILClass<FontManager, 0x04c59b38> {
+    struct FontManager : ILClass<FontManager, game::Address::SmartPoint_AssetAssistant_SingletonMonoBehaviour_FontManager_TypeInfo> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields{
             void* textFontData;
             void* fontMaterialData;
@@ -18,14 +18,14 @@ namespace Dpr::Message {
             int32_t useEFIGSCount;
         };
 
-        static inline StaticILMethod<0x04c676d8, FontManager> Method$$FontManager$$get_Instance {};
+        static inline StaticILMethod<game::Address::Method_SmartPoint_AssetAssistant_SingletonMonoBehaviour_FontManager_get_Instance, FontManager> Method$$FontManager$$get_Instance {};
 
         static inline FontManager::Object* get_Instance() {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(Method$$FontManager$$get_Instance);
         }
 
         inline void ChangeFontMaterial(TMPro::TextMeshProUGUI::Object* text, int32_t materialIndex) {
-            external<void>(0x01cab970, this, text, materialIndex);
+            external<void>(game::Address::Dpr_Message_FontManager_ChangeFontMaterial, this, text, materialIndex);
         }
     };
 }

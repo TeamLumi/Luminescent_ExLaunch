@@ -71,13 +71,13 @@ HOOK_DEFINE_INLINE(Prof_Demo_Hakase_Enter_b__15_1) {
 };
 
 void exl_intro_professor_pokemon_main() {
-    Mon_Demo_Hakase_PreloadAssetBundles::InstallAtOffset(0x01ad2138);
-    Mon_Demo_Hakase_ReleasePreloadedAssetBundles::InstallAtOffset(0x01ad2350);
-    Mon_Demo_Hakase_Enter_d__15_MoveNext::InstallAtOffset(0x01ad4108);
-    Mon_Demo_Hakase_Main_b__16_7::InstallAtOffset(0x01ad3308);
+    Mon_Demo_Hakase_PreloadAssetBundles::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_PreloadAssetBundles + 0x178);
+    Mon_Demo_Hakase_ReleasePreloadedAssetBundles::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_ReleasePreloadedAssetBundles + 0x140);
+    Mon_Demo_Hakase_Enter_d__15_MoveNext::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_Enter_d_15_MoveNext + 0x6F8);
+    Mon_Demo_Hakase_Main_b__16_7::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_c_Main_b_16_7 + 0x58);
 
-    Prof_Demo_Hakase_PreloadAssetBundles::InstallAtOffset(0x01ad2038);
-    Prof_Demo_Hakase_ReleasePreloadedAssetBundles::InstallAtOffset(0x01ad2280);
-    Prof_Demo_Hakase_Enter_d__15_MoveNext::InstallAtOffset(0x01ad3fb4);
-    Prof_Demo_Hakase_Enter_b__15_1::InstallAtOffset(0x01ad2d04);
+    Prof_Demo_Hakase_PreloadAssetBundles::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_PreloadAssetBundles + 0x78);
+    Prof_Demo_Hakase_ReleasePreloadedAssetBundles::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_ReleasePreloadedAssetBundles + 0x70);
+    Prof_Demo_Hakase_Enter_d__15_MoveNext::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_Enter_d_15_MoveNext + 0x5A4);
+    Prof_Demo_Hakase_Enter_b__15_1::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hakase_Enter_b_15_1 + 0x54);
 }

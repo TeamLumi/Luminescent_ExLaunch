@@ -49,23 +49,23 @@ namespace Dpr::Battle::View::UI {
         }
 
         inline void Initialize() {
-            external<void>(0x01d22cb0, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituation_Initialize, this);
         }
 
         inline void PreparaNextV(bool isForward) {
-            external<void>(0x01d235a0, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituation_PreparaNextV, this);
         }
 
         inline void PreparaNextH(bool isForward) {
-            external<void>(0x01d23730, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituation_PreparaNextH, this);
         }
 
         inline void OnSubmit() {
-            external<void>(0x01d23850, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituation_OnSubmit, this);
         }
 
         inline void OnCancel() {
-            external<void>(0x01d23980, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituation_OnCancel, this);
         }
     };
 }

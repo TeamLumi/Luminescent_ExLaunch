@@ -8,7 +8,7 @@ bool GetTileAttribute(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_GET_TILE_ATTRIBUTE\n");
 
-    system_load_typeinfo(0x4881);
+    system_load_typeinfo(game::TypeInfo::FieldCharacterEntity_CheckSubductionEnableAttribute);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     int32_t x = GetWorkOrIntValue(args->m_Items[1]);

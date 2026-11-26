@@ -9,7 +9,7 @@
 bool CaseCall(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_CASE_CALL\n");
-    system_load_typeinfo(0x45dc);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
     EvData::Aregment::Array* args = manager->fields._evArg;
     int32_t switchWorkIndex = FlagWork::GetWork(manager->fields._switch_work_index);
     int32_t workNoValue;

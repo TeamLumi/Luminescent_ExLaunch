@@ -7,7 +7,7 @@
 bool StopEffect(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_STOP_EFFECT\n");
-    system_load_typeinfo(0x45a2);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmd_STOP_EFFECT);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

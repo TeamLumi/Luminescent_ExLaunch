@@ -12,7 +12,7 @@ namespace Dpr::UI {
         };
 
         inline void Setup(Pml::PokePara::PokemonParam::Object* param, bool isWazaActive) {
-            external<void>(0x01a41520, this, param, isWazaActive);
+            external<void>(game::Address::Dpr_UI_WazaManagePokemonStausPanel_Setup, this, param, isWazaActive);
         }
     };
 }

@@ -8,97 +8,97 @@
 #include "externals/UnityEngine/Vector3.h"
 
 namespace UnityEngine {
-    struct Transform : ILClass<Transform, 0x4c57e80> {
+    struct Transform : ILClass<Transform, game::Address::UnityEngine_Transform_TypeInfo> {
         struct Fields : UnityEngine::Component::Fields {
 
         };
 
         inline void SetParent(UnityEngine::Transform* parent, bool worldPositionStays) {
-            external<void>(0x0299e340, this, parent, worldPositionStays);
+            external<void>(game::Address::UnityEngine_Transform_SetParent_Transform_Bool, this, parent, worldPositionStays);
         }
 
         inline void SetParent(UnityEngine::Transform* p) {
-            external<void>(0x0299e2e0, this, p);
+            external<void>(game::Address::UnityEngine_Transform_SetParent_Transform, this, p);
         }
 
         inline void SetSiblingIndex(int32_t index) {
-            external<void>(0x0299f400, this, index);
+            external<void>(game::Address::UnityEngine_Transform_SetSiblingIndex, this, index);
         }
 
         inline int32_t get_childCount() {
-            return external<int32_t>(0x0299f2c0, this);
+            return external<int32_t>(game::Address::UnityEngine_Transform_get_childCount, this);
         }
 
         inline UnityEngine::Transform::Object* GetParent() {
-            return external<UnityEngine::Transform::Object*>(0x0299e290, this);
+            return external<UnityEngine::Transform::Object*>(game::Address::UnityEngine_Transform_GetParent, this);
         }
 
         inline UnityEngine::Transform::Object* GetChild(int32_t index) {
-            return external<UnityEngine::Transform::Object*>(0x0299f7d0, this, index);
+            return external<UnityEngine::Transform::Object*>(game::Address::UnityEngine_Transform_GetChild, this, index);
         }
 
         inline UnityEngine::Transform::Object* Find(System::String* name) {
-            return external<UnityEngine::Transform::Object*>(0x0299f500, this, name);
+            return external<UnityEngine::Transform::Object*>(game::Address::UnityEngine_Transform_Find, this, name);
         }
         
         inline void Translate(UnityEngine::Vector3* translation) {
-            external<void>(0x0299e630, this, translation);
+            external<void>(game::Address::UnityEngine_Transform_Translate, this, translation);
         }
 
         inline UnityEngine::Vector3::Object get_position() {
             return {
-                .fields = external<UnityEngine::Vector3::Fields>(0x0299d1c0, this)
+                .fields = external<UnityEngine::Vector3::Fields>(game::Address::UnityEngine_Transform_get_position, this)
             };
         }
 
         inline void set_position(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
-            external<void>(0x0299d270, this, valueProxy);
+            external<void>(game::Address::UnityEngine_Transform_set_position, this, valueProxy);
         }
 
         inline UnityEngine::Vector3::Object get_localPosition() {
             return {
-                .fields = external<UnityEngine::Vector3::Fields>(0x0299d320, this)
+                .fields = external<UnityEngine::Vector3::Fields>(game::Address::UnityEngine_Transform_get_localPosition, this)
             };
         }
 
         inline void set_localPosition(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
-            external<void>(0x0299d3d0, this, valueProxy);
+            external<void>(game::Address::UnityEngine_Transform_set_localPosition, this, valueProxy);
         }
 
         inline UnityEngine::Vector3::Object get_localEulerAngles() {
             return {
-                .fields = external<UnityEngine::Vector3::Fields>(0x0299d690, this)
+                .fields = external<UnityEngine::Vector3::Fields>(game::Address::UnityEngine_Transform_get_localEulerAngles, this)
             };
         }
 
         inline void set_localEulerAngles(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
-            external<void>(0x0299d770, this, valueProxy);
+            external<void>(game::Address::UnityEngine_Transform_set_localEulerAngles, this, valueProxy);
         }
 
         inline UnityEngine::Vector3::Object get_localScale() {
             return {
-                .fields = external<UnityEngine::Vector3::Fields>(0x0299df50, this)
+                .fields = external<UnityEngine::Vector3::Fields>(game::Address::UnityEngine_Transform_get_localScale, this)
             };
         }
 
         inline void set_localScale(UnityEngine::Vector3::Object value) {
             UnityEngine::Vector3::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y, .z = value.fields.z };
-            external<void>(0x0299e000, this, valueProxy);
+            external<void>(game::Address::UnityEngine_Transform_set_localScale, this, valueProxy);
         }
 
         inline UnityEngine::Vector2::Object get_sizeDelta() {
             return {
-                .fields = external<UnityEngine::Vector2::Fields>(0x02696610, this)
+                .fields = external<UnityEngine::Vector2::Fields>(game::Address::UnityEngine_RectTransform_get_sizeDelta, this)
             };
         }
 
         inline void RotateAround(UnityEngine::Vector3::Object point, UnityEngine::Vector3::Object axis, float angle) {
             UnityEngine::Vector3::Fields pointProxy = { .x = point.fields.x, .y = point.fields.y, .z = point.fields.z };
             UnityEngine::Vector3::Fields axisProxy = { .x = axis.fields.x, .y = axis.fields.y, .z = axis.fields.z };
-            external<void>(0x0299ec40, this, pointProxy, axisProxy, angle);
+            external<void>(game::Address::UnityEngine_Transform_RotateAround, this, pointProxy, axisProxy, angle);
         }
 
         // utility functions

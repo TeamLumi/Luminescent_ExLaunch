@@ -11,7 +11,7 @@
 #include "externals/UnityEngine/Vector3.h"
 
 namespace Dpr::UI {
-    struct PokemonPartyItem : ILClass<PokemonPartyItem, 0x04c61f50> {
+    struct PokemonPartyItem : ILClass<PokemonPartyItem, game::Address::Dpr_UI_PokemonPartyItem_TypeInfo> {
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             UnityEngine::RectTransform::Object* _root;
             UnityEngine::RectTransform::Object* _infoRoot;

@@ -18,7 +18,7 @@
 
 bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, int32_t effect, uint8_t turns, BtlStrType strType, uint16_t strID)
 {
-    system_load_typeinfo(0xaa75);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_TrickRoom);
     Common::getClass()->initIfNeeded();
 
     auto fieldEffectAddDesc = Section_FieldEffect_Add::Description::newInstance();
@@ -32,7 +32,7 @@ bool HandlerAddFieldEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t
 
 bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t targetPokeID, Pml::WazaData::WazaSick sickID, int64_t sickCont)
 {
-    system_load_typeinfo(0xa9aa);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Korogaru_ExeFix);
     Common::getClass()->initIfNeeded();
 
     auto addSickDesc = Section_AddSick::Description::newInstance();
@@ -48,7 +48,7 @@ bool HandlerAddSick(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID
 
 bool HandlerChangeType(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, PokeTypePair::Object type, BTL_POKEPARAM::ExTypeCause exTypeCause, bool isStandardMessageDisable, bool isFailMessageEnable, bool isDisplayTokuseiWindow)
 {
-    system_load_typeinfo(0xaa5e);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Texture);
     Common::getClass()->initIfNeeded();
 
     auto changeTypeDesc = Section_FromEvent_ChangePokeType::Description::newInstance();
@@ -63,7 +63,7 @@ bool HandlerChangeType(EventFactor::EventHandlerArgs::Object** args, uint8_t pok
 
 void HandlerConsumeItem(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool isUseActionDisable, bool isKinomiCheckDisable)
 {
-    system_load_typeinfo(0xa9ee);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Nagetukeru_Done);
     Common::getClass()->initIfNeeded();
 
     auto consumeItemDesc = Section_FromEvent_ConsumeItem::Description::newInstance();
@@ -76,7 +76,7 @@ void HandlerConsumeItem(EventFactor::EventHandlerArgs::Object** args, uint8_t po
 
 bool HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, Pml::WazaData::WazaSick sickID, uint8_t targetPokeID)
 {
-    system_load_typeinfo(0x893f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_Dappi);
     Common::getClass()->initIfNeeded();
 
     auto cureSickDesc = Section_CureSick::Description::newInstance();
@@ -91,7 +91,7 @@ bool HandlerCureSick(EventFactor::EventHandlerArgs::Object** args, uint8_t cause
 
 bool HandlerDamage(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, uint16_t damage, bool disableDeadProcess, bool displayAbility, BtlStrType strType, uint16_t strID)
 {
-    system_load_typeinfo(0x8a36);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_Samehada);
     Common::getClass()->initIfNeeded();
 
 
@@ -110,7 +110,7 @@ bool HandlerDamage(EventFactor::EventHandlerArgs::Object** args, uint8_t causePo
 
 void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t nextForm, bool persistOnSwitch, bool displayAbility, bool animationEnabled, BtlStrType strType, uint16_t strID)
 {
-    system_load_typeinfo(0x88fe);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_FlowerGift_FormChange);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
@@ -130,7 +130,7 @@ void HandlerFormChange(EventFactor::EventHandlerArgs::Object** args, uint8_t pok
 
 void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t atkPos, uint8_t defPos, int32_t waza, uint8_t wazaType)
 {
-    system_load_typeinfo(0xa922);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Daibakuhatsu_ExeStart);
     Common::getClass()->initIfNeeded();
 
     auto playEffectDesc = Section_FromEvent_PlayWazaEffect::Description::newInstance();
@@ -145,7 +145,7 @@ void HandlerPlayWazaEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t
 
 bool HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t causePokeID, uint8_t targetPokeID, Pml::WazaData::WazaRankEffect rankType, int8_t rankVolume, bool displayAbility, bool ignoreSubstitute, bool messageOnFail, bool byWazaEffect)
 {
-    system_load_typeinfo(0x89b2);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_JisinKajou);
     Common::getClass()->initIfNeeded();
 
     auto rankEffectDesc = Section_FromEvent_RankEffect::Description::newInstance();
@@ -164,7 +164,7 @@ bool HandlerRankEffect(EventFactor::EventHandlerArgs::Object** args, uint8_t cau
 
 void HandlerSetEffectEnable(EventFactor::EventHandlerArgs::Object** args)
 {
-    system_load_typeinfo(0xaa0c);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Oiwai);
     Common::getClass()->initIfNeeded();
 
     auto setEffectEnableDesc = Section_FromEvent_SetWazaEffectEnable::Description::newInstance();
@@ -173,7 +173,7 @@ void HandlerSetEffectEnable(EventFactor::EventHandlerArgs::Object** args)
 
 void HandlerSetEffectIndex(EventFactor::EventHandlerArgs::Object** args, uint8_t effectIndex)
 {
-    system_load_typeinfo(0xa922);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Daibakuhatsu_ExeStart);
     Common::getClass()->initIfNeeded();
 
     auto setEffectIndexDesc = Section_FromEvent_SetWazaEffectIndex::Description::newInstance();
@@ -183,7 +183,7 @@ void HandlerSetEffectIndex(EventFactor::EventHandlerArgs::Object** args, uint8_t
 
 bool HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetPokeID, uint8_t percentage)
 {
-    system_load_typeinfo(0x58b8);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Item_handler_OujaNoSirusi_UseTmp);
     Common::getClass()->initIfNeeded();
 
     auto shrinkDesc = Section_FromEvent_Shrink::Description::newInstance();
@@ -195,7 +195,7 @@ bool HandlerShrink(EventFactor::EventHandlerArgs::Object** args, uint8_t targetP
 
 uint8_t GetAllOtherOutPokeID(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, System::Byte_array* result)
 {
-    system_load_typeinfo(0x2c5b);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Common_GetAllOpponentFrontPokeID);
 
     auto frontPokeAccessor = FrontPokeAccessor::newInstance((*args)->fields.pMainModule->instance(), (*args)->fields.pBattleEnv->instance());
     uint8_t count = 0;

@@ -88,8 +88,8 @@ void returnTouch(Dpr::UI::PoketchWindow::Object* __this, float deltaTime, Dpr::U
 
 HOOK_DEFINE_REPLACE(PoketchWindow_OnUpdate) {
     static void Callback(Dpr::UI::PoketchWindow::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x6f3e);
-        system_load_typeinfo(0x6f47);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_PoketchWindow_OnUpdate);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_PoketchWindow_ChangeApp);
 
         Dpr::UI::PoketchWindow::TouchState touchState;
         Dpr::UI::PoketchButton::Object * target;
@@ -597,31 +597,31 @@ HOOK_DEFINE_REPLACE(PoketchWindow_OnUpdate) {
 };
 
 void exl_poketch_main() {
-    ButtonInit::InstallAtOffset(0x01e66b5c);
-    PoketchWindow_OnUpdate::InstallAtOffset(0x01e67480);
+    ButtonInit::InstallAtOffset(game::Address::Dpr_UI_PoketchWindow_OnCreate + 0x2EC);
+    PoketchWindow_OnUpdate::InstallAtOffset(game::Address::Dpr_UI_PoketchWindow_OnUpdate);
 
     // Assembly Patches
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     // Remove grayscaling on Nursery app
-    p.Seek(0x01a067d4);
+    p.Seek(game::Address::Dpr_UI_PoketchAppEggChecker_OnInitialize + 0xC4);
     p.WriteInst(0x1e2703e0);
 
     // Remove grayscaling on Friendship checker app
-    p.Seek(0x01e5f928);
+    p.Seek(game::Address::Dpr_UI_PoketchAppNatsukiChecker_OnInitialize + 0xD8);
     p.WriteInst(0x1e2703e0);
 
     // Remove grayscaling on Encounter History app
-    p.Seek(0x01e62578);
+    p.Seek(game::Address::Dpr_UI_PoketchAppPokeHistory_OnInitialize + 0x108);
     p.WriteInst(0x1e2703e0);
 
     // Remove grayscaling on Party app
-    p.Seek(0x01e62b14);
+    p.Seek(game::Address::Dpr_UI_PoketchAppPokeList_OnInitialize + 0xC4);
     p.WriteInst(0x1e2703e0);
 
     // Remove grayscaling on Radar Chain app
-    p.Seek(0x01e63660);
+    p.Seek(game::Address::Dpr_UI_PoketchAppPoketoreCounter_OnInitialize + 0xD0);
     p.WriteInst(0x1e2703e0);
 }

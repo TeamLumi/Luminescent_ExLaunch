@@ -13,7 +13,7 @@ namespace Dpr::Field {
         };
 
         static inline bool PushEntity(FieldPlayerEntity::Object* player, DIR dir, FieldObjectEntity::Object* target, UnityEngine::Vector2Int::Object* outgrid, bool* hit) {
-            return external<bool>(0x019bd590, player, dir, target, outgrid, hit);
+            return external<bool>(game::Address::Dpr_Field_WA_Kairiki_PushEntity, player, dir, target, outgrid, hit);
         }
     };
 }

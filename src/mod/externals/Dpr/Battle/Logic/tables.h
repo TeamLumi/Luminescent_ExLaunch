@@ -5,9 +5,9 @@
 #include "externals/Dpr/Battle/Logic/BTL_FIELD_SITUATION.h"
 
 namespace Dpr::Battle::Logic {
-    struct tables : ILClass<tables, 0x04c5a8c0> {
+    struct tables : ILClass<tables, game::Address::Dpr_Battle_Logic_tables_TypeInfo> {
         static inline bool IsSakidoriFailWaza(int32_t waza) {
-            return external<bool>(0x01f78540, waza);
+            return external<bool>(game::Address::Dpr_Battle_Logic_tables_IsSakidoriFailWaza, waza);
         }
     };
 }

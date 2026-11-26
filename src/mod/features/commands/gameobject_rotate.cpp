@@ -15,11 +15,11 @@ bool GameObjectRotate(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_GAMEOBJECT_ROTATE\n");
 
-    system_load_typeinfo(0x3f9a);
-    system_load_typeinfo(0x438c);
-    system_load_typeinfo(0x45dc);
-    system_load_typeinfo(0x4af3);
-    system_load_typeinfo(0x5a55);
+    system_load_typeinfo(game::TypeInfo::EntityManager_get_activeFieldPlayer);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call1);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
+    system_load_typeinfo(game::TypeInfo::FieldTvRedGyaradosEntity_GetTvRedGyarados);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_Keyguide_Awake);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     auto objTF = FindTransform(GetStringText(manager, args->m_Items[1]));

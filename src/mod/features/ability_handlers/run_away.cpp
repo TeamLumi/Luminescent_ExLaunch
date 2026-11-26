@@ -22,5 +22,5 @@ HOOK_DEFINE_TRAMPOLINE(CheckForbidChangeEscapeCommon) {
 };
 
 void InstallHooks_Ability_RunAway() {
-    CheckForbidChangeEscapeCommon::InstallAtOffset(0x01f574e0);
+    CheckForbidChangeEscapeCommon::InstallAtOffset(game::Address::Dpr_Battle_Logic_BTL_CLIENT_checkForbidChangeEscapeCommon);
 }

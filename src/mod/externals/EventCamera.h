@@ -34,6 +34,6 @@ struct EventCamera : ILClass<EventCamera> {
     };
 
     inline void SetCameraData(EventCameraTable::Object* tbl, int32_t index) {
-        external<void>(0x01f144c0, this, tbl, index);
+        external<void>(game::Address::EventCamera_SetCameraData, this, tbl, index);
     }
 };

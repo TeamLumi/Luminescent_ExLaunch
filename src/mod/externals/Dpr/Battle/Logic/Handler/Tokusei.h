@@ -7,23 +7,23 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic::Handler {
-    struct Tokusei : ILClass<Tokusei, 0x04c5b2b0> {
-        struct HandlerGetFunc : ILClass<HandlerGetFunc, 0x04c5b330> {
+    struct Tokusei : ILClass<Tokusei, game::Address::Dpr_Battle_Logic_Handler_Tokusei_TypeInfo> {
+        struct HandlerGetFunc : ILClass<HandlerGetFunc, game::Address::Dpr_Battle_Logic_Handler_Tokusei_HandlerGetFunc_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
             inline void ctor(intptr_t m_target, MethodInfo* method) {
-                external<void>(0x017f9150, this, m_target, method);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_HandlerGetFunc_ctor, this, m_target, method);
             }
         };
 
-        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, 0x04c5b328> {
+        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, game::Address::Dpr_Battle_Logic_Handler_Tokusei_GET_FUNC_TABLE_ELEM_Array_TypeInfo> {
             struct Fields {
                 int32_t tokusei;
                 HandlerGetFunc::Object* func;
             };
 
             inline void ctor(int32_t tokusei, HandlerGetFunc::Object* func) {
-                external<void>(0x017f9140, this, tokusei, func);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_GET_FUNC_TABLE_ELEM_ctor, this, tokusei, func);
             }
         };
 
@@ -34,18 +34,18 @@ namespace Dpr::Battle::Logic::Handler {
             };
 
             inline void ctor() {
-                external<void>(0x017f94c0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_MAX_PRIORITY_PARAM_ctor, this);
             }
         };
 
-        struct ultraForce_GetEffectRankTypeTableElem : ILStruct<ultraForce_GetEffectRankTypeTableElem, 0x04c5b338> {
+        struct ultraForce_GetEffectRankTypeTableElem : ILStruct<ultraForce_GetEffectRankTypeTableElem, game::Address::Dpr_Battle_Logic_Handler_Tokusei_ultraForce_GetEffectRankTypeTableElem_Array_TypeInfo> {
             struct Fields {
                 int32_t rankType;
                 Dpr::Battle::Logic::BTL_POKEPARAM::ValueID pokeValueID;
             };
 
             inline void ctor(int32_t rankType, Dpr::Battle::Logic::BTL_POKEPARAM::ValueID pokeValueID) {
-                external<void>(0x017f94d0, this, rankType, pokeValueID);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_ultraForce_GetEffectRankTypeTableElem_ctor, this, rankType, pokeValueID);
             }
         };
 
@@ -280,22 +280,22 @@ namespace Dpr::Battle::Logic::Handler {
 
         static_assert(sizeof(StaticFields) == 0x710);
 
-        static inline StaticILMethod<0x04c69790, uint8_t*> PTR_Method$$ADD_AirLock {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Tokusei_ADD_AirLock, uint8_t*> PTR_Method$$ADD_AirLock {};
 
-        static inline StaticILMethod<0x04c792e0, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_AddSickFailCommon {};
-        static inline StaticILMethod<0x04c79538, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Fumin_InemuriCheck {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Tokusei_handler_AddSickFailCommon, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_AddSickFailCommon {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Tokusei_handler_Fumin_InemuriCheck, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Fumin_InemuriCheck {};
 
 
         static inline void handler_AddSickFailCommon(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-            external<void>(0x01946220, args, pokeID);
+            external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_handler_AddSickFailCommon, args, pokeID);
         }
 
         static inline void handler_Fumin_InemuriCheck(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-            external<void>(0x01945100, args, pokeID);
+            external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_handler_Fumin_InemuriCheck, args, pokeID);
         }
 
         static inline void common_weather_change(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, uint8_t weather, uint16_t boostItem, bool isPermanent) {
-            external<void>(0x01946cc0, args, pokeID, weather, boostItem, isPermanent);
+            external<void>(game::Address::Dpr_Battle_Logic_Handler_Tokusei_common_weather_change, args, pokeID, weather, boostItem, isPermanent);
         }
     };
 }

@@ -36,31 +36,31 @@ namespace Dpr::Battle::View::UI {
         static_assert(offsetof(Fields, _Result_k__BackingField) == 0x11C);
 
         inline void SetSelect(int32_t num) {
-            external<void>(0x01d2cd10, this, num);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_SetSelect, this, num);
         }
 
         inline void OnSubmit() {
-            external<void>(0x01d2c6e0, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_OnSubmit, this);
         }
 
         inline void OnCancel() {
-            external<void>(0x01d2c870, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_OnCancel, this);
         }
 
         inline void OnSubmitWazaDescription() {
-            external<void>(0x01d2c930, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_OnSubmitWazaDescription, this);
         }
 
         inline void OnUpdate(float deltaTime) {
-            external<void>(0x01d2c490, this, deltaTime);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_OnUpdate, this, deltaTime);
         }
 
         inline void Initialize(Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, uint8_t pokeIndex, Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
-            external<void>(0x01d2b800, this, bpp, pokeIndex, dest);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_Initialize, this, bpp, pokeIndex, dest);
         }
 
         inline void SetInvalid() {
-            external<void>(0x01d2d030, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIWazaList_SetInvalid, this);
         }
     };
 }

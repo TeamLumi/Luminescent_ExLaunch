@@ -8,8 +8,8 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_CureSick : ILClass<Section_CureSick, 0x04c5b8f0> {
-        struct Description : ILClass<Description, 0x04c5b1a8> {
+    struct Section_CureSick : ILClass<Section_CureSick, game::Address::Dpr_Battle_Logic_Section_CureSick_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_CureSick_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 WazaSickEx sick;
@@ -22,7 +22,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x021b48b0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_CureSick_Description_ctor, this);
             }
         };
 

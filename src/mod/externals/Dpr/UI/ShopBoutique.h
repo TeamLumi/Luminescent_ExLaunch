@@ -20,7 +20,7 @@ namespace Dpr::UI {
         };
 
         inline void Open() {
-            external<void>(0x01d43ef0, this);
+            external<void>(game::Address::Dpr_UI_ShopBoutique_Open, this);
         }
     };
 }

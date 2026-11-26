@@ -4,7 +4,7 @@
 #include "externals/System/Action.h"
 
 namespace Dpr::NX {
-    struct SaveSystem : ILClass<SaveSystem, 0x04c600b8> {
+    struct SaveSystem : ILClass<SaveSystem, game::Address::Dpr_NX_SaveSystem_TypeInfo> {
         struct Fields {
             bool _isMounted;
             bool _isBusy;
@@ -30,23 +30,23 @@ namespace Dpr::NX {
         static_assert(offsetof(Fields, _mainThread) == 0x38);
 
         inline void MountSaveData() {
-            external<void>(0x01ddf5a0, this);
+            external<void>(game::Address::Dpr_NX_SaveSystem_MountSaveData, this);
         }
 
         static inline bool SaveDataExists() {
-            return external<bool>(0x01ddfcf0);
+            return external<bool>(game::Address::Dpr_NX_SaveSystem_SaveDataExists);
         }
 
         static inline bool Save(System::Byte_array* data, bool writeMain, bool writeBackup) {
-            return external<bool>(0x01ddf3e0, data, writeMain, writeBackup);
+            return external<bool>(game::Address::Dpr_NX_SaveSystem_Save, data, writeMain, writeBackup);
         }
 
         static inline void SaveAsync(System::Byte_array* data, bool writeMain, bool writeBackup) {
-            external<void>(0x01ddf680, data, writeMain, writeBackup);
+            external<void>(game::Address::Dpr_NX_SaveSystem_SaveAsync, data, writeMain, writeBackup);
         }
 
         inline void StartThread() {
-            external<void>(0x01ddf830, this);
+            external<void>(game::Address::Dpr_NX_SaveSystem_StartThread, this);
         }
     };
 }

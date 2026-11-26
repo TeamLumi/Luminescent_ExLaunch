@@ -19,7 +19,7 @@ namespace Dpr::UI {
         static_assert(offsetof(Fields, _transBg) == 0x18);
 
         inline void OnDisable() {
-            external<void>(0x01c5cd70, this);
+            external<void>(game::Address::Dpr_UI_ModelViewBase_OnDisable, this);
         }
     };
 

@@ -11,11 +11,11 @@ namespace Dpr::MsgWindow {
         };
 
         static inline bool get_IsOpenWindow() {
-            return external<bool>(0x01dd9810);
+            return external<bool>(game::Address::Dpr_MsgWindow_MsgWindowManager_get_IsOpenWindow);
         }
 
         static inline bool get_IsOpen() {
-            return external<bool>(0x01dd9910);
+            return external<bool>(game::Address::Dpr_MsgWindow_MsgWindowManager_get_IsOpen);
         }
     };
 }

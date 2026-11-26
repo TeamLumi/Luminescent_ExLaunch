@@ -9,8 +9,8 @@
 bool ToggleCollisionBox(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_TOGGLE_COLLISION_BOX\n");
-    system_load_typeinfo(0x5b6);
-    system_load_typeinfo(0x802);
+    system_load_typeinfo(game::TypeInfo::AkEnvironmentPortal_GetAuxSendValueForPosition);
+    system_load_typeinfo(game::TypeInfo::AkRoomPortal_FindOverlappingRooms);
     EvData::Aregment::Array* args = manager->fields._evArg;
     Dpr::EvScript::EvScriptData::Object * evData = manager->fields._evData;
 

@@ -85,43 +85,43 @@ namespace Dpr::Battle::View::Systems {
         static_assert(offsetof(Fields, _uiCanvasGroup) == 0x148);
 
         inline void PlaySe(uint32_t eventId) {
-            external<void>(0x01e7c5f0, this, eventId);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_PlaySe, this, eventId);
         }
 
         inline bool IsOpenMessage() {
-            return external<bool>(0x01e77c40, this);
+            return external<bool>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_IsOpenMessage, this);
         }
 
         inline bool IsStatusWindowTarasit() {
-            return external<bool>(0x01e7b350, this);
+            return external<bool>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_IsStatusWindowTarasit, this);
         }
 
         inline void SetCurrentPokemonStatus() {
-            external<void>(0x01e7a6f0, this);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_SetCurrentPokemonStatus, this);
         }
 
         inline void Apply(int32_t interpFrame) {
-            external<void>(0x01e7a540, this, interpFrame);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_Apply, this, interpFrame);
         }
 
         inline void SwitchShowStatusWindowsCore(bool isShow, bool isForceBallHide) {
-            external<void>(0x01e79f50, this, isShow, isForceBallHide);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_SwitchShowStatusWindowsCore, this, isShow, isForceBallHide);
         }
 
         inline void SwitchShowDecoImage(bool isShow) {
-            external<void>(0x01e765e0, this, isShow);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_SwitchShowDecoImage, this, isShow);
         }
 
         inline void SwitchShowActionList(bool isShow, bool withStatusWindow, bool withDecoraton) {
-            external<void>(0x01e763f0, this, isShow, withStatusWindow, withDecoraton);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_SwitchShowActionList, this, isShow, withStatusWindow, withDecoraton);
         }
 
         inline bool IsOpenedStatus() {
-            return external<bool>(0x01e76340, this);
+            return external<bool>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_IsOpenedStatus, this);
         }
 
         inline System::String::Object* GetAffinityText(Dpr::Battle::Logic::BTL_POKEPARAM::Object* bpp, int32_t wazaNo, System::Collections::Generic::List$$BTL_POKEPARAM::Object* targets) {
-            return external<System::String::Object*>(0x01e7c240, this, bpp, wazaNo, targets);
+            return external<System::String::Object*>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_GetAffinityText_BTL_POKEPARAM_Int32_List_BTL_POKEPARAM, this, bpp, wazaNo, targets);
         }
     };
 }

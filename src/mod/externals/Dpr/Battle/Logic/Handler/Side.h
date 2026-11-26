@@ -6,23 +6,23 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic::Handler {
-    struct Side : ILClass<Side, 0x04c5b290> {
-        struct HandlerGetFunc : ILClass<HandlerGetFunc, 0x04c5b2a8> {
+    struct Side : ILClass<Side, game::Address::Dpr_Battle_Logic_Handler_Side_TypeInfo> {
+        struct HandlerGetFunc : ILClass<HandlerGetFunc, game::Address::Dpr_Battle_Logic_Handler_Side_HandlerGetFunc_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
             inline void ctor(intptr_t m_target, MethodInfo* method) {
-                external<void>(0x0193e6e0, this, m_target, method);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Side_HandlerGetFunc_ctor, this, m_target, method);
             }
         };
 
-        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, 0x04c5b2a0> {
+        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, game::Address::Dpr_Battle_Logic_Handler_Side_GET_FUNC_TABLE_ELEM_Array_TypeInfo> {
             struct Fields {
                 int32_t effect;
                 HandlerGetFunc::Object* func;
             };
 
             inline void ctor(int32_t effect, HandlerGetFunc::Object* func) {
-                external<void>(0x0193e700, this, effect, func);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Side_GET_FUNC_TABLE_ELEM_ctor, this, effect, func);
             }
         };
 
@@ -54,8 +54,8 @@ namespace Dpr::Battle::Logic::Handler {
 
         static_assert(sizeof(StaticFields) == 0xb8);
 
-        static inline StaticILMethod<0x04c696e0> PTR_Method$$ADD_SIDE_AuroraVeil {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Side_ADD_SIDE_AuroraVeil> PTR_Method$$ADD_SIDE_AuroraVeil {};
 
-        static inline StaticILMethod<0x04c791f8, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Rainbow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Side_handler_Rainbow, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_Rainbow {};
     };
 }

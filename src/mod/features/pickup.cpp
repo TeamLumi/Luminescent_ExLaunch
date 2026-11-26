@@ -13,7 +13,7 @@ HOOK_DEFINE_REPLACE(GetPickupItem) {
     static uint16_t Callback(uint32_t level)
     {
         Logger::log("[Pickup] Generating a Pickup Item at level %d\n", level);
-        system_load_typeinfo(0x3f4d);
+        system_load_typeinfo(game::TypeInfo::Dpr_EncountTools_GetMonohiroiItem);
 
         if (level > 100)
         {
@@ -52,15 +52,15 @@ HOOK_DEFINE_REPLACE(GetPickupItem) {
 };
 
 void exl_pickup_main() {
-    GetPickupItem::InstallAtOffset(0x02c3d790);
+    GetPickupItem::InstallAtOffset(game::Address::Dpr_EncountTools_GetMonohiroiItem);
 }
 
 void exl_pickup_debug_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction>{
-            {0x02c3d1f0, CmpImmediate(X0, 0x64)}, // 100% for Pickup to proc after Battle
+            {game::Address::Dpr_EncountTools_ReflectTokuseiMonohiroiMitsuatsume + 0xE0, CmpImmediate(X0, 0x64)}, // 100% for Pickup to proc after Battle
     };
     p.WriteInst(inst);
 }

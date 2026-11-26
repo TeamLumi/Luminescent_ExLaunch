@@ -8,11 +8,11 @@
 namespace UnityEngine {
     struct Input : ILClass<Input> {
         static inline int32_t get_touchCount() {
-            return external<int32_t>(0x02c2b130);
+            return external<int32_t>(game::Address::UnityEngine_Input_get_touchCount);
         }
 
         static inline void GetTouch(int32_t index, UnityEngine::Touch::Object* returnPtr) {
-            external<void>(0x02c2ac50, index, returnPtr);
+            external<void>(game::Address::UnityEngine_Input_GetTouch_Injected, index, returnPtr);
         }
     };
 }

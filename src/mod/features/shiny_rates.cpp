@@ -44,18 +44,18 @@ HOOK_DEFINE_INLINE(UgPokeLottery) {
 };
 
 void exl_shiny_rates_main() {
-    InitialSpec_ctor::InstallAtOffset(0x020521d0);
+    InitialSpec_ctor::InstallAtOffset(game::Address::Pml_PokePara_InitialSpec_ctor);
 
-    Shiny_Masuda::InstallAtOffset(0x02050874);
+    Shiny_Masuda::InstallAtOffset(game::Address::Pml_PokePara_EggGenerator_DecideEggParam_RareRnd + 0x74);
 
-    UgPokeLottery::InstallAtOffset(0x018c0064);
+    UgPokeLottery::InstallAtOffset(game::Address::Dpr_UnderGround_UgPokeLottery_CreatePokemonParam_by_Tokusei + 0x1C4);
 
     // Assembly Patches
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x02050880, AddImmediate(W9, W8, 0) },    // Remove shiny charm effect from egg-only methods
+        { game::Address::Pml_PokePara_EggGenerator_DecideEggParam_RareRnd + 0x80, AddImmediate(W9, W8, 0) },    // Remove shiny charm effect from egg-only methods
     };
     p.WriteInst(inst);
 }

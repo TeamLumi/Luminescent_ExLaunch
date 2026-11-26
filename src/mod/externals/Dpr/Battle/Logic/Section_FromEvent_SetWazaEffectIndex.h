@@ -7,20 +7,20 @@
 #include "externals/Dpr/Battle/Logic/Section_CommonParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_SetWazaEffectIndex : ILClass<Section_FromEvent_SetWazaEffectIndex, 0x04c5ba48> {
-        struct Description : ILClass<Description, 0x04c5b350> {
+    struct Section_FromEvent_SetWazaEffectIndex : ILClass<Section_FromEvent_SetWazaEffectIndex, game::Address::Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_Description_TypeInfo> {
             struct Fields {
                 uint8_t effectIndex;
             };
 
             inline void ctor() {
-                external<void>(0x01fb7f40, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5af70> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_Result_TypeInfo> {
             inline void ctor() {
-                external<void>(0x01fb7f70, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_SetWazaEffectIndex_Result_ctor, this);
             }
         };
 

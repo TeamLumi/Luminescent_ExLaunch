@@ -51,7 +51,7 @@ void HandlerSkyDropWazaExeStart(EventFactor::EventHandlerArgs::Object** args, ui
     if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
         return;
 
-    system_load_typeinfo(0x77f7);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Section_FromEvent_CheckJuryoku_freefallRelease);
 
     auto desc = Section_FreeFall_Release::Description::newInstance();
     desc->fields.attacker = Common::GetPokeParam(args, pokeID);
@@ -125,5 +125,5 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Execute) {
 };
 
 void InstallHooks_Move_SkyDrop() {
-    Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Execute::InstallAtOffset(0x01fb4620);
+    Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Execute::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Execute);
 }

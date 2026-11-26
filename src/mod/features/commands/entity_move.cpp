@@ -13,8 +13,8 @@ bool EntityMove(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_ENTITY_MOVE\n");
 
-    system_load_typeinfo(0x438c);
-    system_load_typeinfo(0x45dc);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call1);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     FieldObjectEntity::Object* entity = FindEntity(manager, args->m_Items[1]);

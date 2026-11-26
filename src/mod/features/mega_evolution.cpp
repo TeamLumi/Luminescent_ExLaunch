@@ -145,9 +145,9 @@ Dpr::Battle::Logic::PokeActionCategory CanShowGimmickUI(Dpr::Battle::View::UI::B
 }
 
 void UltraBurstFormHandler (Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
-    system_load_typeinfo(0x8910);
-    system_load_typeinfo(0x2c99);
-    system_load_typeinfo(0xa963);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_Tenkiya_Off);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Common_MagicCoat_Reaction);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_HappyTime);
     Dpr::Battle::Logic::Common::getClass()->initIfNeeded();
     Dpr::Battle::Logic::BTL_POKEPARAM::Object* param = pokeAction->fields.bpp;
     Logger::log("[UltraBurstFormHandler]\n");
@@ -176,7 +176,7 @@ void UltraBurstFormHandler (Dpr::Battle::Logic::SectionContainer::Object* __this
     description->fields.successMessage->Setup(Dpr::Battle::Logic::BtlStrType::BTL_STRTYPE_SET, BTL_STRID_SET::UltraBurst);
     description->fields.successMessage->AddArg(param->GetID());
 
-    system_load_typeinfo(0x2c56);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Common_FormChange);
     Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::Object* result =
             Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::newInstance();
 
@@ -187,9 +187,9 @@ void UltraBurstFormHandler (Dpr::Battle::Logic::SectionContainer::Object* __this
 }
 
 void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __this, Dpr::Battle::Logic::PokeAction::Object* pokeAction) {
-    system_load_typeinfo(0x8910);
-    system_load_typeinfo(0x2c99);
-    system_load_typeinfo(0xa963);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_Tenkiya_Off);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Common_MagicCoat_Reaction);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_HappyTime);
     Dpr::Battle::Logic::Common::getClass()->initIfNeeded();
     Dpr::Battle::Logic::BTL_POKEPARAM::Object* param = pokeAction->fields.bpp;
 
@@ -242,7 +242,7 @@ void MegaEvolutionFormHandler(Dpr::Battle::Logic::SectionContainer::Object* __th
     description->fields.successMessage->AddArg(param->GetID());
     description->fields.successMessage->AddArg(param->GetID());
 
-    system_load_typeinfo(0x2c56);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Common_FormChange);
     Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::Object* result =
             Dpr::Battle::Logic::Section_FromEvent_FormChange::Result::newInstance();
 
@@ -332,8 +332,8 @@ HOOK_DEFINE_TRAMPOLINE(createPokeAction_FromClientInstruction) {
     static void Callback(Dpr::Battle::Logic::Section_StoreActions::Object* __this,
                          Dpr::Battle::Logic::PokeActionContainer::Object* actionContainer,
                          Dpr::Battle::Logic::SVCL_ACTION::Object* instructions, uint8_t clientID) {
-        system_load_typeinfo(0x78dd);
-        system_load_typeinfo(0x78c7);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Section_StoreActions_createPokeAction_FromClientInstruction);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Section_Root_ProcessActions_storePokeActions);
         auto party = reinterpret_cast<Dpr::Battle::Logic::Section::Object*>(__this)->GetPokeParty(clientID);
         Dpr::Battle::Logic::BTL_ACTION::PARAM::Object firstInstruction{};
         firstInstruction.fields.raw = Dpr::Battle::Logic::SVCL_ACTION::Get(instructions, clientID, 0)->fields.raw;

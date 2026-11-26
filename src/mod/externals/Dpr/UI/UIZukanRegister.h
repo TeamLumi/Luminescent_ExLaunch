@@ -34,18 +34,18 @@ namespace Dpr::UI {
 
         static_assert(offsetof(Fields, OnComplete) == 0xa0);
 
-        static inline StaticILMethod<0x04c900a8, Dpr::UI::UIZukanRegister> Method$$CreateUIWindow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIManager_CreateUIWindow_UIZukanRegister, Dpr::UI::UIZukanRegister> Method$$CreateUIWindow {};
 
         inline void add_OnComplete(System::Action::Object* value) {
-            external<void>(0x01a3cb30, this, value);
+            external<void>(game::Address::Dpr_UI_UIZukanRegister_add_OnComplete, this, value);
         }
 
         inline void Open(Pml::PokePara::PokemonParam::Object* pokemonParam, bool isSkipAddMemberProc, int32_t prevWindowId) {
-            external<void>(0x01a3cd30, this, pokemonParam, isSkipAddMemberProc, prevWindowId);
+            external<void>(game::Address::Dpr_UI_UIZukanRegister_Open, this, pokemonParam, isSkipAddMemberProc, prevWindowId);
         }
 
         inline void OpenAddMemberOnly(Pml::PokePara::PokemonParam::Object* pokemonParam, bool isNotAddMember, int32_t prevWindowId) {
-            external<void>(0x01a3cfd0, this, pokemonParam, isNotAddMember, prevWindowId);
+            external<void>(game::Address::Dpr_UI_UIZukanRegister_OpenAddMemberOnly, this, pokemonParam, isNotAddMember, prevWindowId);
         }
     };
 }

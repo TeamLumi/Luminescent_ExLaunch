@@ -7,23 +7,23 @@
 #include "externals/Dpr/Battle/Logic/Section_CommonParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_StoreActions : ILClass<Section_StoreActions, 0x04c5bc70> {
+    struct Section_StoreActions : ILClass<Section_StoreActions, game::Address::Dpr_Battle_Logic_Section_StoreActions_TypeInfo> {
         struct Fields : Dpr::Battle::Logic::Section::Fields {
 
         };
         inline void ctor(Section_CommonParam::Object** commonParam) {
-            external<void>(0x021cd8b0, this, commonParam);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_StoreActions_ctor, this, commonParam);
         }
 
 
         inline BTL_POKEPARAM::Object* getActionPoke(BTL_ACTION_PARAM::Object* clientInstruction, uint8_t clientID) {
-            return external<BTL_POKEPARAM::Object*>(0x021cdea0, this, clientInstruction, clientID);
+            return external<BTL_POKEPARAM::Object*>(game::Address::Dpr_Battle_Logic_Section_StoreActions_getActionPoke, this, clientInstruction, clientID);
         }
 
         inline bool setupPokeAction_FromClientInstruction(Dpr::Battle::Logic::PokeAction::Object* pokeAction,
                                                           Dpr::Battle::Logic::BTL_ACTION_PARAM::Object* clientInstructions,
                                                           uint8_t clientID) {
-            return external<bool>(0x021cdbf0, this, pokeAction, clientInstructions, clientID);
+            return external<bool>(game::Address::Dpr_Battle_Logic_Section_StoreActions_setupPokeAction_FromClientInstruction, this, pokeAction, clientInstructions, clientID);
         }
     };
 }

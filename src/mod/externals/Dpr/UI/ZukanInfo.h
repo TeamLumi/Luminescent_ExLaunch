@@ -34,7 +34,7 @@ namespace Dpr::UI {
         };
 
         inline Pml::PokePara::PokemonParam::Object* GetCurrentPokemonParam() {
-            return external<Pml::PokePara::PokemonParam::Object*>(0x01bb04e0, this);
+            return external<Pml::PokePara::PokemonParam::Object*>(game::Address::Dpr_UI_ZukanInfo_GetCurrentPokemonParam, this);
         }
     };
 }

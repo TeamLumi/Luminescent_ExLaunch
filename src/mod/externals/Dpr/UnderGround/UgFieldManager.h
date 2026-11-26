@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/Vector3.h"
 
 namespace Dpr::UnderGround {
-    struct UgFieldManager : ILClass<UgFieldManager, 0x04c5ac70> {
+    struct UgFieldManager : ILClass<UgFieldManager, game::Address::Dpr_UnderGround_UgFieldManager_TypeInfo> {
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             // TODO
         };
@@ -28,7 +28,7 @@ namespace Dpr::UnderGround {
         };
 
         inline static bool get_isInstantiated() {
-            return external<bool>(0x018afb00);
+            return external<bool>(game::Address::Dpr_UnderGround_UgFieldManager_get_isInstantiated);
         }
     };
 }

@@ -37,7 +37,7 @@ HOOK_DEFINE_INLINE(BicycleReqSetBgmEvent) {
 };
 
 void exl_bike_music_main() {
-    RidBicyclePostEvent::InstallAtOffset(0x017a337c);
-    RidBicycleSetBgmEvent::InstallAtOffset(0x017a338c);
-    BicycleReqSetBgmEvent::InstallAtOffset(0x02c6c378);
+    RidBicyclePostEvent::InstallAtOffset(game::Address::FieldManager_RidBicycle + 0x32C);
+    RidBicycleSetBgmEvent::InstallAtOffset(game::Address::FieldManager_RidBicycle + 0x33C);
+    BicycleReqSetBgmEvent::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_EvCmdBicycleReq + 0x328);
 };

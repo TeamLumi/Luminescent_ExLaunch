@@ -32,7 +32,7 @@ HOOK_DEFINE_REPLACE(UgMainProc$$CheckFormNo) {
 
 
 void exl_ug_forms_main() {
-    Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei_FormFix::InstallAtOffset(0x018c0054);
-    GetUgPokeData::InstallAtOffset(0x01b1b540);
-    UgMainProc$$CheckFormNo::InstallAtOffset(0x018d4150);
+    Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei_FormFix::InstallAtOffset(game::Address::Dpr_UnderGround_UgPokeLottery_CreatePokemonParam_by_Tokusei + 0x1B4);
+    GetUgPokeData::InstallAtOffset(game::Address::UgResManager_GetUgPokeData);
+    UgMainProc$$CheckFormNo::InstallAtOffset(game::Address::UgMainProc_CheckFormNo);
 }

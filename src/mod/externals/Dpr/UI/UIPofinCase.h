@@ -28,11 +28,11 @@ namespace Dpr::UI {
             };
 
             inline UnityEngine::RectTransform::Object* GetRectTransform() {
-                return external<UnityEngine::RectTransform::Object*>(0x01a174e0, this);
+                return external<UnityEngine::RectTransform::Object*>(game::Address::Dpr_UI_UIPofinCase_ItemButton_GetRectTransform, this);
             }
         };
 
-        struct DisplayClass35_0 : ILClass<DisplayClass35_0, 0x04c62f88> {
+        struct DisplayClass35_0 : ILClass<DisplayClass35_0, game::Address::Dpr_UI_UIPofinCase_c_DisplayClass35_0_TypeInfo> {
             struct Fields {
                 UIPofinCase::Object* __4__this;
                 DPData::PoffinData::Object poffinData;
@@ -43,7 +43,7 @@ namespace Dpr::UI {
 
             static_assert(offsetof(Fields, __9__2) == 0x28);
 
-            static inline StaticILMethod<0x04c6bfa0, Dpr::UI::ContextMenuItem, bool> Method$$ShowItemContextMenu_b__1 {};
+            static inline StaticILMethod<game::Address::Method_Dpr_UI_UIPofinCase_c_DisplayClass35_0_ShowItemContextMenu_b_1, Dpr::UI::ContextMenuItem, bool> Method$$ShowItemContextMenu_b__1 {};
 
             static inline MethodInfo* Method$$SelectPoffinUIOnClicked = nullptr;
             static MethodInfo* getMethod$$SelectPoffinUIOnClicked(Il2CppMethodPointer method) {
@@ -53,11 +53,11 @@ namespace Dpr::UI {
             };
 
             inline void ctor() {
-                external<void>(0x01a174d0, this);
+                external<void>(game::Address::Dpr_UI_UIPofinCase_c_DisplayClass35_0_ctor, this);
             }
         };
 
-        struct __c : ILClass<__c, 0x04c62f90> {
+        struct __c : ILClass<__c, game::Address::Dpr_UI_UIPofinCase_c_TypeInfo> {
             struct StaticFields {
                 UIPofinCase::__c::Object* __9;
                 UnityEngine::Events::UnityAction::Object* __9__35_0;
@@ -90,16 +90,16 @@ namespace Dpr::UI {
 
         static_assert(offsetof(Fields, conditionParam) == 0xE8);
 
-        static inline StaticILMethod<0x04c80768, Dpr::UI::UIWindow>    Method$$ShowItemContextMenu_b__35_0 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIPofinCase_c_ShowItemContextMenu_b_35_0, Dpr::UI::UIWindow>    Method$$ShowItemContextMenu_b__35_0 {};
 
-        static inline StaticILMethod<0x04c90068, Dpr::UI::UIPofinCase> Method$$CreateUIWindow {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIManager_CreateUIWindow_UIPofinCase, Dpr::UI::UIPofinCase> Method$$CreateUIWindow {};
 
         inline void Open(int32_t prevWindowId) {
-            external<void>(0x01a15460, this, prevWindowId);
+            external<void>(game::Address::Dpr_UI_UIPofinCase_Open, this, prevWindowId);
         }
 
         inline void Close(UnityEngine::Events::UnityAction::Object* onClosed_, int32_t nextWindowId) {
-            external<void>(0x01a15700, this, onClosed_, nextWindowId);
+            external<void>(game::Address::Dpr_UI_UIPofinCase_Close, this, onClosed_, nextWindowId);
         }
     };
 }

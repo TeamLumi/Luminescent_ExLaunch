@@ -18,5 +18,5 @@ HOOK_DEFINE_TRAMPOLINE(BattleRevolver) {
 };
 
 void exl_battle_revolver_main() {
-    BattleRevolver::InstallAtOffset(0x01e8c380);
+    BattleRevolver::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIActionList_PreparaNext);
 }

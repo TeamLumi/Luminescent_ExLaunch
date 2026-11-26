@@ -8,8 +8,8 @@ bool EventEntityClipWaitByIndex(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_EVENT_ENTITY_CLIP_WAIT_BY_INDEX\n");
 
-    system_load_typeinfo(0x442a);
-    system_load_typeinfo(0x45dc);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdEventEntityClipWait);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     int32_t index = GetWorkOrIntValue(args->m_Items[1]);

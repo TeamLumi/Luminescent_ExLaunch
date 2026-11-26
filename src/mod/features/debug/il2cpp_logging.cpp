@@ -65,5 +65,5 @@ void exl_il2cpp_log_main() {
     DebugLogAssertion::InstallAtOffset(0x02c378f0);
     DebugLogAssertion::InstallAtOffset(0x02c37900);*/
 
-    FUN_710025c3d0_Il2CppException::InstallAtOffset(0x025c3d0);
+    FUN_710025c3d0_Il2CppException::InstallAtOffset(game::Address::Il2Cpp_Exception_FromNameMsg);
 }

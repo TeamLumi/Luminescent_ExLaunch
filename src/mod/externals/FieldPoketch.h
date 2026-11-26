@@ -4,28 +4,28 @@
 
 #include "externals/Pml/PokePara/PokemonParam.h"
 
-struct FieldPoketch : ILClass<FieldPoketch, 0x04c5e648> {
+struct FieldPoketch : ILClass<FieldPoketch, game::Address::FieldPoketch_TypeInfo> {
     static inline void OnPushedAppearButton() {
-        external<void>(0x01db9a50);
+        external<void>(game::Address::FieldPoketch_OnPushedAppearButton);
     }
 
     static inline void RestorePoketchWindow() {
-        external<void>(0x01dba500);
+        external<void>(game::Address::FieldPoketch_RestorePoketchWindow);
     }
 
     static inline bool IsControlPoketch() {
-        return external<bool>(0x01db0a70);
+        return external<bool>(game::Address::FieldPoketch_IsControlPoketch);
     }
 
     static inline bool IsRejectPoketch() {
-        return external<bool>(0x01db9c60);
+        return external<bool>(game::Address::FieldPoketch_IsRejectPoketch);
     }
 
     static inline bool IsCloseOncePoketch() {
-        return external<bool>(0x01db9e40);
+        return external<bool>(game::Address::FieldPoketch_IsCloseOncePoketch);
     }
 
     static inline void AddPokemonHistory(Pml::PokePara::PokemonParam::Object* pokeParam) {
-        external<void>(0x01dba9c0, pokeParam);
+        external<void>(game::Address::FieldPoketch_AddPokemonHistory, pokeParam);
     }
 };

@@ -9,7 +9,7 @@
 bool PartyFormNo(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_TEMOTI_FORMNO\n");
-    system_load_typeinfo(0x44f9);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdTemotiMonsNo);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

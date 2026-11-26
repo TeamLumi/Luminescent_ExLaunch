@@ -11,7 +11,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline BTL_POKEPARAM::Object* GetMemberDataConst(uint8_t idx) {
-            return external<BTL_POKEPARAM::Object*>(0x01fd9c40, this, idx);
+            return external<BTL_POKEPARAM::Object*>(game::Address::Dpr_Battle_Logic_BTL_PARTY_GetMemberDataConst, this, idx);
         }
     };
 }

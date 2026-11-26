@@ -6,7 +6,7 @@
 #include "externals/Dpr/Battle/Logic/Section.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_InterruptAction : ILClass<Section_InterruptAction, 0x04c5bae0> {
+    struct Section_InterruptAction : ILClass<Section_InterruptAction, game::Address::Dpr_Battle_Logic_Section_InterruptAction_TypeInfo> {
         struct Description : ILClass<Description> {
             struct Fields {
                 uint8_t interruptPokeID;
@@ -14,7 +14,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x021bd000, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_InterruptAction_Description_ctor, this);
             }
         };
 
@@ -24,14 +24,14 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x021bd030, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_InterruptAction_Result_ctor, this);
             }
         };
 
         struct Fields : Section::Fields {};
 
         inline void processAction(PokeAction::Object* pokeAction) {
-            external<void>(0x01fbd6a0, this, pokeAction);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_InterruptAction_processAction, this, pokeAction);
         }
     };
 }

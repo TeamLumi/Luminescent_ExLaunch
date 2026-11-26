@@ -7,7 +7,7 @@
 #include "externals/System/String.h"
 
 namespace Dpr::UI {
-    struct UIMsgWindowController : ILClass<UIMsgWindowController, 0x04c5e6a8> {
+    struct UIMsgWindowController : ILClass<UIMsgWindowController, game::Address::Dpr_UI_UIMsgWindowController_TypeInfo> {
         struct Fields {
             void* msgWindow;
             void* onCloseMsgWindow;
@@ -20,19 +20,19 @@ namespace Dpr::UI {
         };
 
         inline void ctor() {
-            external<void>(0x01a140a0, this);
+            external<void>(game::Address::Dpr_UI_UIMsgWindowController_ctor, this);
         }
         
         inline void OpenMsgWindow(int32_t messageFileType, System::String::Object * labelName, bool isWait, bool isBatchDisplay, System::Action::Object * onFinishedMessage, System::Action::Object * onCloseWindow) {
-            external<void>(0x01a133c0, this, messageFileType, labelName, isWait, isBatchDisplay, onFinishedMessage, onCloseWindow);
+            external<void>(game::Address::Dpr_UI_UIMsgWindowController_OpenMsgWindow, this, messageFileType, labelName, isWait, isBatchDisplay, onFinishedMessage, onCloseWindow);
         }
 
         inline void CloseMsgWindow() {
-            external<void>(0x01a13610, this);
+            external<void>(game::Address::Dpr_UI_UIMsgWindowController_CloseMsgWindow, this);
         }
 
         inline bool OnUpdate(float deltaTime) {
-            return external<bool>(0x01a13de0, this, deltaTime);
+            return external<bool>(game::Address::Dpr_UI_UIMsgWindowController_OnUpdate, this, deltaTime);
         }
     };
 }

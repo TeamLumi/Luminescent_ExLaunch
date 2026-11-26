@@ -35,7 +35,7 @@ void HandlerBestowUncategorizeWaza(EventFactor::EventHandlerArgs::Object** args,
     if (Common::CheckUnbreakablePokeItem(bpp->GetMonsNo(), itemID))
         return;
 
-    system_load_typeinfo(0xaa76);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Trick);
     auto desc = Section_FromEvent_SwapItem::Description::newInstance();
     desc->fields.userPokeID = pokeID;
     desc->fields.targetPokeID = targetPokeID;

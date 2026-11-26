@@ -12,7 +12,7 @@ namespace Dpr::Battle::View::Systems {
         };
 
         inline Dpr::Battle::View::Objects::BOPokemon::Object * GetPokemonModel(int32_t vPos) {
-            return external<Dpr::Battle::View::Objects::BOPokemon::Object *>(0x0173a670, this, vPos);
+            return external<Dpr::Battle::View::Objects::BOPokemon::Object *>(game::Address::Dpr_Battle_View_Systems_BattleCharacterSystem_GetPokemonModel, this, vPos);
         }
     };
 }

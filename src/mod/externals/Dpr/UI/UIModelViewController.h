@@ -65,15 +65,15 @@ namespace Dpr::UI {
         };
 
         inline void PlayAnimation(int32_t anim, bool forceLoop) {
-            external<void>(0x01a10810, this, anim, forceLoop);
+            external<void>(game::Address::Dpr_UI_UIModelViewController_PlayAnimation, this, anim, forceLoop);
         }
 
         inline int32_t GetAnimationIndexByClipName(System::String::Object* clipName) {
-            return external<int32_t>(0x01a0e950, this, clipName);
+            return external<int32_t>(game::Address::Dpr_UI_UIModelViewController_GetAnimationIndexByClipName, this, clipName);
         }
 
         inline int32_t ResetCaches(int32_t num, bool isUnload) {
-            return external<int32_t>(0x01a0f140, this, num, isUnload);
+            return external<int32_t>(game::Address::Dpr_UI_UIModelViewController_ResetCaches, this, num, isUnload);
         }
     };
 }

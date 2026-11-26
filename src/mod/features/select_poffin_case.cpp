@@ -15,10 +15,10 @@
 static int32_t poffinCaseType = 0;
 
 bool OnClickedContextMenu(Dpr::UI::UIPofinCase::DisplayClass35_0::Object* __this, Dpr::UI::ContextMenuItem::Object* item) {
-    system_load_typeinfo(0x6c65);
-    system_load_typeinfo(0x971f);
-    system_load_typeinfo(0x9720);
-    system_load_typeinfo(0x9cb0);
+    system_load_typeinfo(game::TypeInfo::DPData_PoffinSaveData_DelPoffin);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIPofinCase_c_DisplayClass35_0_ShowItemContextMenu_b_1);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIPofinCase_c_DisplayClass35_0_ShowItemContextMenu_b_2);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIPofinCase_ReloadScrollView);
 
     switch (item->fields._param->fields.menuId)
     {
@@ -60,7 +60,7 @@ bool OnClickedContextMenu(Dpr::UI::UIPofinCase::DisplayClass35_0::Object* __this
 
 HOOK_DEFINE_REPLACE(UIPofinCase$$ShowItemContextMenu) {
     static void Callback(Dpr::UI::UIPofinCase::Object* __this) {
-        system_load_typeinfo(0x9cb4);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIPofinCase_ShowItemContextMenu);
 
         auto disp = Dpr::UI::UIPofinCase::DisplayClass35_0::getClass()->newInstance();
         disp->fields.__4__this = __this;
@@ -176,7 +176,7 @@ HOOK_DEFINE_INLINE(UIPofinCase$$InputUpdate_Close) {
 };
 
 void exl_select_poffin_case_main() {
-    UIPofinCase$$ShowItemContextMenu::InstallAtOffset(0x01a15df0);
-    UIPofinCase$$Open::InstallAtOffset(0x01a15460);
-    UIPofinCase$$InputUpdate_Close::InstallAtOffset(0x01a15d7c);
+    UIPofinCase$$ShowItemContextMenu::InstallAtOffset(game::Address::Dpr_UI_UIPofinCase_ShowItemContextMenu);
+    UIPofinCase$$Open::InstallAtOffset(game::Address::Dpr_UI_UIPofinCase_Open);
+    UIPofinCase$$InputUpdate_Close::InstallAtOffset(game::Address::Dpr_UI_UIPofinCase_InputUpdate + 0x3EC);
 }

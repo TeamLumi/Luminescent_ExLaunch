@@ -31,7 +31,7 @@ namespace System::Collections::Generic {
 }
 
 namespace Dpr::EvScript {
-    struct EvDataManager : ILClass<EvDataManager, 0x04c59c50> {
+    struct EvDataManager : ILClass<EvDataManager, game::Address::Dpr_EvScript_EvDataManager_TypeInfo> {
         struct WorpEventData : ILStruct<WorpEventData> {
             struct Fields {
                 void* Entity;
@@ -61,13 +61,13 @@ namespace Dpr::EvScript {
             };
         };
 
-        struct EventEndDelegate : ILClass<EventEndDelegate, 0x04c5ea10> {
+        struct EventEndDelegate : ILClass<EventEndDelegate, game::Address::Dpr_EvScript_EvDataManager_EventEndDelegate_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
-            static inline StaticILMethod<0x04c7d2b8> PTR_Method$$EvDataManager_WarpUpdateEnd {};
+            static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_WarpUpdateEnd> PTR_Method$$EvDataManager_WarpUpdateEnd {};
 
             inline void ctor(void* target, MethodInfo* method) {
-                external<void>(0x019b23d0, this, target, method);
+                external<void>(game::Address::Dpr_EvScript_EvDataManager_EventEndDelegate_ctor, this, target, method);
             }
         };
 
@@ -115,7 +115,7 @@ namespace Dpr::EvScript {
             };
         };
 
-        struct DisplayClass773_0 : ILClass<DisplayClass773_0, 0x04c5edf0> {
+        struct DisplayClass773_0 : ILClass<DisplayClass773_0, game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass773_0_TypeInfo> {
             struct Fields {
                 Pml::PokePara::PokemonParam::Object* pokemonParam;
                 int32_t trayIndex;
@@ -126,11 +126,11 @@ namespace Dpr::EvScript {
             static_assert(offsetof(Fields, __4__this) == 0x10);
 
             inline void ctor() {
-                external<void>(0x019aeef0, this);
+                external<void>(game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass773_0_ctor, this);
             }
         };
 
-        struct DisplayClass831_0 : ILClass<DisplayClass831_0, 0x04c5ee28> {
+        struct DisplayClass831_0 : ILClass<DisplayClass831_0, game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass831_0_TypeInfo> {
             struct Fields {
                 EvDataManager::Object * __4__this;
                 int32_t month;
@@ -139,11 +139,11 @@ namespace Dpr::EvScript {
             static_assert(offsetof(Fields, __4__this) == 0x0);
 
             inline void ctor() {
-                external<void>(0x019aeff0, this);
+                external<void>(game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass831_0_ctor, this);
             }
         };
 
-        struct DisplayClass1544_0 : ILClass<DisplayClass1544_0, 0x04c5f000> {
+        struct DisplayClass1544_0 : ILClass<DisplayClass1544_0, game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass1544_0_TypeInfo> {
             struct Fields {
                 EvDataManager::Object* __4__this;
                 Pml::PokePara::PokemonParam::Object* param;
@@ -152,17 +152,17 @@ namespace Dpr::EvScript {
             };
 
             inline void ctor() {
-                external<void>(0x019ae530, this);
+                external<void>(game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass1544_0_ctor, this);
             }
         };
 
-        struct DisplayClass1624_0 : ILClass<DisplayClass1624_0, 0x04c5f050> {
+        struct DisplayClass1624_0 : ILClass<DisplayClass1624_0, game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass1624_0_TypeInfo> {
             struct Fields {
                 LocalKoukan::Operation::Object* op;
             };
 
             inline void ctor() {
-                external<void>(0x019ae820, this);
+                external<void>(game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass1624_0_ctor, this);
             }
         };
 
@@ -386,18 +386,18 @@ namespace Dpr::EvScript {
         static_assert(offsetof(Fields, _softwareKeyboardSubState) == 0x448);
         static_assert(offsetof(Fields, _poolLoadObjects) == 0x590);
 
-        static inline StaticILMethod<0x04c2afe0, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
-        static inline StaticILMethod<0x04c2b028, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi {};
+        static inline StaticILMethod<game::Address::Dpr_EvScript_EvDataManager_EvCmdCallWazaOmoidashiUi_MethodInfoPointer, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
+        static inline StaticILMethod<game::Address::Dpr_EvScript_EvDataManager_EvCmdCallWazaOshieUi_MethodInfoPointer, int32_t, int32_t> PTR_Method$$EvDataManager_EvCmdCallWazaOshieUi {};
 
-        static inline StaticILMethod<0x04c77ce0, System::String::Object*, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnInputCheck {};
-        static inline StaticILMethod<0x04c7cf70, bool, System::String::Object*>    Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
-        static inline StaticILMethod<0x04c7cfd0>                                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
-        static inline StaticILMethod<0x04c7cfd8, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
-        static inline StaticILMethod<0x04c7cfe0, int32_t>                          Method$$EvDataManager_EvCmdAddTamago {};
-        static inline StaticILMethod<0x04c7d040, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
-        static inline StaticILMethod<0x04c7d1e0, Dpr::UI::UIWindow::Object*>       Method$$EvDataManager_EvCmd_USE_SPECIAL_ITEM_b__1719_0 {};
-        static inline StaticILMethod<0x04c77cf8, System::String::Object*, int32_t, System::ValueTuple2$$Bool$$String> Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck {};
-        static inline StaticILMethod<0x04c7cf78, bool, System::String::Object*>    Method$$EvDataManager_EvCmdBirthDayInput_OnComplete {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_c_EvCmdNameInPoke_b_773_0, System::String::Object*, int32_t> Method$$EvDataManager_EvCmdNameInPoke_OnInputCheck {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_c_DisplayClass773_0_EvCmdNameInPoke_b_1, bool, System::String::Object*>    Method$$EvDataManager_EvCmdNameInPoke_OnComplete {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_CmdFirstPokeSelectProc_b_478_0>                                   Method$$EvDataManager_CmdFirstPokeSelectProc {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_EvCmdAddPokemonUI_b_706_0, int32_t>                          Method$$EvDataManager_EvCmdAddPokemonUI {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_EvCmdAddTamago_b_708_0, int32_t>                          Method$$EvDataManager_EvCmdAddTamago {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_EvCmdCallWazaOmoidashiUi_b_1542_0, int32_t, int32_t>                 Method$$EvDataManager_EvCmdCallWazaOmoidashiUi {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_EvCmd_USE_SPECIAL_ITEM_b_1719_0, Dpr::UI::UIWindow::Object*>       Method$$EvDataManager_EvCmd_USE_SPECIAL_ITEM_b__1719_0 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_c_DisplayClass831_0_EvCmdBirthDayInput_b_0, System::String::Object*, int32_t, System::ValueTuple2$$Bool$$String> Method$$EvDataManager_EvCmdBirthDayInput_OnInputCheck {};
+        static inline StaticILMethod<game::Address::Method_Dpr_EvScript_EvDataManager_c_DisplayClass831_0_EvCmdBirthDayInput_b_1, bool, System::String::Object*>    Method$$EvDataManager_EvCmdBirthDayInput_OnComplete {};
 
         static inline MethodInfo* Method$$EvCmdCallWazaOmoidashiUiParty = nullptr;
         static MethodInfo* getMethod$$EvCmdCallWazaOmoidashiUiParty(Il2CppMethodPointer method) {
@@ -477,79 +477,79 @@ namespace Dpr::EvScript {
         };
 
         inline bool RunEvCmd(int32_t index) {
-            return external<bool>(0x02c5b290, this, index);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_RunEvCmd, this, index);
         }
 
         inline int32_t GetPokemonFormNo(Pml::PokePara::PokemonParam::Object* index) {
-            return external<int32_t>(0x02c67ff0, this, index);
+            return external<int32_t>(game::Address::Dpr_EvScript_EvDataManager_GetPokemonFormNo, this, index);
         }
 
         inline Pml::PokePara::PokemonParam::Object* GetPokemonParam(int32_t trayIndex, int32_t index) {
-            return external<Pml::PokePara::PokemonParam::Object*>(0x02c67f20, this, trayIndex, index);
+            return external<Pml::PokePara::PokemonParam::Object*>(game::Address::Dpr_EvScript_EvDataManager_GetPokemonParam, this, trayIndex, index);
         }
 
         inline bool JumpLabel(System::String::Object* label, EventEndDelegate::Object* callback) {
-            return external<bool>(0x02c423c0, this, label, callback);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_JumpLabel, this, label, callback);
         }
 
         inline bool CallLabel(System::String::Object* label) {
-            return external<bool>(0x02c485e0, this, label);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_CallLabel, this, label);
         }
 
         inline bool Cmd_TalkMsg(System::String::Object* msbt, System::String::Object* label) {
-            return external<bool>(0x02c567f0, this, msbt, label);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_Cmd_TalkMsg, this, msbt, label);
         }
 
         inline bool EvCmdOpenBoutiqueShopChange() {
-            return external<bool>(0x02c8a810, this);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_EvCmdOpenBoutiqueShopChange, this);
         }
 
         inline void LearnWaza(Pml::PokePara::PokemonParam::Object *param, int32_t learnWazaNo, int32_t unlearnWazaNo) {
-            external<void>(0x02c92a70, this, param, learnWazaNo, unlearnWazaNo);
+            external<void>(game::Address::Dpr_EvScript_EvDataManager_LearnWaza, this, param, learnWazaNo, unlearnWazaNo);
         }
 
         inline int32_t GetBadgeCount() {
-            return external<int32_t>(0x02c4ea10, this);
+            return external<int32_t>(game::Address::Dpr_EvScript_EvDataManager_GetBadgeCount, this);
         }
 
         inline bool IsRunningEvent() {
-            return external<bool>(0x02c423a0, this);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_IsRunningEvent, this);
         }
 
         inline void SetBattleReturn() {
-            external<void>(0x02c45c90, this);
+            external<void>(game::Address::Dpr_EvScript_EvDataManager_SetBattleReturn, this);
         }
 
         inline bool CallWazaUICommon(int32_t bootType, Pml::PokePara::PokemonParam::Object* pokemonParam, System::Action::Object* resultCallback, int32_t oshieWazaNo) {
-            return external<bool>(0x02c92530, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_CallWazaUiCommon, this, bootType, pokemonParam, resultCallback, oshieWazaNo);
         }
 
         inline FieldObjectEntity* GetFieldObject(int32_t id) {
-            return external<FieldObjectEntity*>(0x02c491c0, this, id);
+            return external<FieldObjectEntity*>(game::Address::Dpr_EvScript_EvDataManager_GetFieldObject, this, id);
         }
 
         inline FieldObjectEntity* Find_fieldObjectEntity(System::String::Object* id) {
-            return external<FieldObjectEntity*>(0x02c48c00, this, id);
+            return external<FieldObjectEntity*>(game::Address::Dpr_EvScript_EvDataManager_Find_fieldObjectEntity, this, id);
         }
 
         inline FieldEventEntity* FindEventDoorEntity(System::String::Object* name) {
-            return external<FieldEventEntity*>(0x02c88930, this, name);
+            return external<FieldEventEntity*>(game::Address::Dpr_EvScript_EvDataManager_FindEventDoorEntity, this, name);
         }
 
         inline void PlayerInputActive(bool active, bool animation) {
-            external<void>(0x02c45e10, this, active, animation);
+            external<void>(game::Address::Dpr_EvScript_EvDataManager_PlayerInputActive, this, active, animation);
         }
 
         inline int32_t SetupHeroMoveGridCenterFrontDir(UnityEngine::RectInt::Object* stopGridArea, UnityEngine::Vector2Int::Object* nowGrid, UnityEngine::Vector2Int::Object* oldGrid) {
-            return external<int32_t>(0x02c47760, this, stopGridArea, nowGrid, oldGrid);
+            return external<int32_t>(game::Address::Dpr_EvScript_EvDataManager_SetupHeroMoveGridCenterFrontDir, this, stopGridArea, nowGrid, oldGrid);
         }
 
         inline bool UpdateEvdata(float time, bool sp_script) {
-            return external<bool>(0x02c42ea0, this, time, sp_script);
+            return external<bool>(game::Address::Dpr_EvScript_EvDataManager_UpdateEvdata, this, time, sp_script);
         }
 
         static inline Dpr::EvScript::EvDataManager::Object* get_Instanse() {
-            return external<Dpr::EvScript::EvDataManager::Object*>(0x02c3d4d0);
+            return external<Dpr::EvScript::EvDataManager::Object*>(game::Address::Dpr_EvScript_EvDataManager_get_Instanse);
         }
     };
 }

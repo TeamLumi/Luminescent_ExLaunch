@@ -25,5 +25,5 @@ HOOK_DEFINE_INLINE(BattleProc_FinalizeCoroutine__EndOfBattleTurnCounter) {
 };
 
 void exl_turn_counter_main() {
-    BattleProc_FinalizeCoroutine__EndOfBattleTurnCounter::InstallAtOffset(0x0187e22c);
+    BattleProc_FinalizeCoroutine__EndOfBattleTurnCounter::InstallAtOffset(game::Address::Dpr_Battle_Logic_BattleProc_FinalizeCoroutine_d_34_MoveNext + 0x9C);
 }

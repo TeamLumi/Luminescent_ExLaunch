@@ -5,7 +5,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Pml::PokePara {
-    struct SerializedPokemonFull : ILStruct<SerializedPokemonFull, 0x04c59c08> {
+    struct SerializedPokemonFull : ILStruct<SerializedPokemonFull, game::Address::Pml_PokePara_SerializedPokemonFull_Array_TypeInfo> {
         struct Fields {
             System::Byte_array* buffer;
         };
@@ -15,7 +15,7 @@ namespace Pml::PokePara {
         }
 
         inline void CreateWorkIfNeed() {
-            external<void>(0x020558c0, this);
+            external<void>(game::Address::Pml_PokePara_SerializedPokemonFull_CreateWorkIfNeed, this);
         }
     };
 }

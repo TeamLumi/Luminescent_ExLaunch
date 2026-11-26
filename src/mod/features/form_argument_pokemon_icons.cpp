@@ -38,7 +38,7 @@ System::String::Object* GetSpriteNameForMonWithoutVariant(Pml::PokePara::CorePar
 
 HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
     static void Callback(Dpr::UI::UIManager::Object* __this, Pml::PokePara::PokemonParam::Object* pokemonParam, UnityEngine::Events::UnityAction::Object* onComplete) {
-        system_load_typeinfo(0x9c0b);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIManager_LoadSpritePokemon);
 
         auto coreParam = (Pml::PokePara::CoreParam::Object*)pokemonParam;
         int32_t monsno = coreParam->GetMonsNo();
@@ -90,5 +90,5 @@ HOOK_DEFINE_REPLACE(UIManager$$LoadSpritePokemon_PokemonParam) {
 };
 
 void exl_form_arg_icons_main() {
-    UIManager$$LoadSpritePokemon_PokemonParam::InstallAtOffset(0x017c3e40);
+    UIManager$$LoadSpritePokemon_PokemonParam::InstallAtOffset(game::Address::Dpr_UI_UIManager_LoadSpritePokemon_PokemonParam_UnityAction_Sprite);
 }

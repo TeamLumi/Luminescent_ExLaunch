@@ -92,7 +92,7 @@ namespace Dpr::UI {
 
         static_assert(sizeof(Fields) == 424);
 
-        static inline StaticILMethod<0x04c7f9a0> Method$$OnCreate_b_90 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_PoketchWindow_OnCreate_b_90_0> Method$$OnCreate_b_90 {};
 
         static inline MethodInfo* Method$$GoBackAction = nullptr;
         static MethodInfo* getMethod$$GoBackAction(Il2CppMethodPointer method) {
@@ -102,27 +102,27 @@ namespace Dpr::UI {
         };
 
         inline void SelectApp(bool forward) {
-            external<void>(0x01e68ca0, this, forward);
+            external<void>(game::Address::Dpr_UI_PoketchWindow_SelectApp, this, forward);
         }
 
         inline void OnInputPrev(int32_t button, int32_t state) {
-            external<void>(0x01e68c90, this, button, state);
+            external<void>(game::Address::Dpr_UI_PoketchWindow_OnInputPrev, this, button, state);
         }
 
         inline bool IsInRange(Dpr::UI::PoketchButton* btn, float x, float y) {
-            return external<bool>(0x01e68830, this, btn, x, y);
+            return external<bool>(game::Address::Dpr_UI_PoketchWindow_IsInRange, this, btn, x, y);
         }
 
         inline void Close(UnityEngine::Events::UnityAction::Object* onClosed_) {
-            external<void>(0x01e670e0, this, onClosed_);
+            external<void>(game::Address::Dpr_UI_PoketchWindow_Close, this, onClosed_);
         }
 
         inline void ChangePoketchSize(bool notReleaseUncontrol, UnityEngine::Events::UnityAction::Object* callback) {
-            external<void>(0x01e68410, this, notReleaseUncontrol, callback);
+            external<void>(game::Address::Dpr_UI_PoketchWindow_ChangePoketchSize, this, notReleaseUncontrol, callback);
         }
 
         inline void SetCursorPosition(float posX, float posY) {
-            external<void>(0x01e68a80, this, posX, posY);
+            external<void>(game::Address::Dpr_UI_PoketchWindow_SetCursorPosition, this, posX, posY);
         }
     };
 }

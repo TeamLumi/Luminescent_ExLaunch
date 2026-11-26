@@ -5,7 +5,7 @@
 #include "externals/Dpr/Battle/Logic/PokeTypePair.h"
 
 namespace Dpr::Battle::Logic {
-    struct WazaParam : ILClass<WazaParam, 0x04c5ab90> {
+    struct WazaParam : ILClass<WazaParam, game::Address::Dpr_Battle_Logic_WazaParam_TypeInfo> {
         struct Fields {
             int32_t wazaID;
             int32_t orgWazaID;
@@ -24,11 +24,11 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void ctor() {
-            external<void>(0x01f73610, this);
+            external<void>(game::Address::Dpr_Battle_Logic_WazaParam_ctor, this);
         }
 
         inline void CopyFrom(WazaParam::Object* src) {
-            external<void>(0x01f734c0, this, src);
+            external<void>(game::Address::Dpr_Battle_Logic_WazaParam_CopyFrom, this, src);
         }
     };
 }

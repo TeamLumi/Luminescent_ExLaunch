@@ -26,7 +26,7 @@ namespace UnityEngine {
 
         inline UnityEngine::Vector2::Object get_position() {
             return {
-                .fields = external<UnityEngine::Vector2::Fields>(0x02c2c510, this)
+                .fields = external<UnityEngine::Vector2::Fields>(game::Address::UnityEngine_Touch_get_position, this)
             };
         }
     };

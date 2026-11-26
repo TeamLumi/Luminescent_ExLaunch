@@ -3,7 +3,7 @@
 #include "externals/System/String.h"
 
 namespace Dpr::Message {
-    struct MsbtDataModel : ILClass<MsbtDataModel, 0x04c5fd58> {
+    struct MsbtDataModel : ILClass<MsbtDataModel, game::Address::Dpr_Message_MsbtDataModel_TypeInfo> {
         struct Fields {
             int32_t langID;
             System::String::Object* fileName;

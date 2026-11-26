@@ -23,7 +23,7 @@ HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity$$CheckEndSwim) {
 
 
 void exl_surf_end_check_main() {
-    FieldPlayerEntity$$CheckEndSwim::InstallAtOffset(0x01db2f70);
+    FieldPlayerEntity$$CheckEndSwim::InstallAtOffset(game::Address::FieldPlayerEntity_CheckEndSwim);
 }
 
 

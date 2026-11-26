@@ -12,23 +12,23 @@ namespace Pml {
         };
 
         inline void ReplaceMember(uint32_t idx, Pml::PokePara::PokemonParam* param) {
-            external<void>(0x020560a0, this, idx, param);
+            external<void>(game::Address::Pml_PokeParty_ReplaceMember, this, idx, param);
         }
 
         inline Pml::PokePara::PokemonParam::Object* GetMemberPointer(uint32_t idx) {
-            return external<Pml::PokePara::PokemonParam::Object*>(0x020556f0, this, idx);
+            return external<Pml::PokePara::PokemonParam::Object*>(game::Address::Pml_PokeParty_GetMemberPointer, this, idx);
         }
 
         inline bool AddMember(Pml::PokePara::PokemonParam::Object* pp) {
-            return external<bool>(0x02055fa0, this, pp);
+            return external<bool>(game::Address::Pml_PokeParty_AddMember, this, pp);
         }
 
         inline bool CheckPokeExist(int32_t monsno) {
-            return external<bool>(0x02053170, this, monsno);
+            return external<bool>(game::Address::Pml_PokeParty_CheckPokeExist, this, monsno);
         }
 
         void RemoveMember(uint32_t idx) {
-            external<void>(0x02056390, this, idx);
+            external<void>(game::Address::Pml_PokeParty_RemoveMember, this, idx);
         }
     };
 }

@@ -74,13 +74,13 @@ HOOK_DEFINE_TRAMPOLINE(WarningLog2) {
 
 
 void exl_unity_log_main() {
-    InfoLog::InstallAtOffset(0x026a9c10);
-    InfoLog2::InstallAtOffset(0x026a9d50);
-    AssertionLog::InstallAtOffset(0x026a1de0);
-    ErrorLog::InstallAtOffset(0x026a9ff0);
-    ErrorLog2::InstallAtOffset(0x026aa130);
-    ExceptionLog::InstallAtOffset(0x026a16d0);
-    ExceptionLog2::InstallAtOffset(0x026aa520);
-    WarningLog::InstallAtOffset(0x026aa660);
-    WarningLog2::InstallAtOffset(0x026aa7a0);
+    InfoLog::InstallAtOffset(game::Address::UnityEngine_Debug_Log_Object);
+    InfoLog2::InstallAtOffset(game::Address::UnityEngine_Debug_Log_Object_UnityObject);
+    AssertionLog::InstallAtOffset(game::Address::UnityEngine_Debug_LogAssertion);
+    ErrorLog::InstallAtOffset(game::Address::UnityEngine_Debug_LogError_Object);
+    ErrorLog2::InstallAtOffset(game::Address::UnityEngine_Debug_LogError_Object_UnityObject);
+    ExceptionLog::InstallAtOffset(game::Address::UnityEngine_Debug_LogException_Exception);
+    ExceptionLog2::InstallAtOffset(game::Address::UnityEngine_Debug_LogException_Exception_UnityObject);
+    WarningLog::InstallAtOffset(game::Address::UnityEngine_Debug_LogWarning_Object);
+    WarningLog2::InstallAtOffset(game::Address::UnityEngine_Debug_LogWarning_Object_UnityObject);
 }

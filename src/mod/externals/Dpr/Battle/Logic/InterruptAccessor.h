@@ -9,7 +9,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline bool IsRequested(InterruptCode _interrupt) {
-            return external<bool>(0x0202c020, this, _interrupt);
+            return external<bool>(game::Address::Dpr_Battle_Logic_InterruptAccessor_IsRequested, this, _interrupt);
         }
     };
 }

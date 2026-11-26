@@ -29,10 +29,10 @@ struct FieldEventEntity : ILClass<FieldEventEntity> {
     static_assert(offsetof(Fields, _hit) == 0x12D);
 
     inline void Play(int32_t index) {
-        return external<void>(0x01793d70, this, index);
+        return external<void>(game::Address::FieldEventEntity_Play, this, index);
     }
 
     inline bool get_isCompleted() {
-        return external<bool>(0x01793be0, this);
+        return external<bool>(game::Address::FieldEventEntity_get_isCompleted, this);
     }
 };

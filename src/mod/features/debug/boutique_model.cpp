@@ -44,5 +44,5 @@ HOOK_DEFINE_INLINE(Boutique_ReplaceModel) {
 };
 
 void exl_boutique_model_main() {
-    Boutique_ReplaceModel::InstallAtOffset(0x01a32be0);
+    Boutique_ReplaceModel::InstallAtOffset(game::Address::Dpr_UI_CharacterModelView_Setup + 0x480);
 }

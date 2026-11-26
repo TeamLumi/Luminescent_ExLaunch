@@ -77,7 +77,7 @@ Dpr::UI::TypePanel::Object* getSituationDetailTypeTeraUI(Dpr::Battle::View::Syst
 
 void LoadSpriteToImage(UnityEngine::UI::Image::Object* __this, UnityEngine::Sprite::Object* sprite) {
     Logger::log("LoadSpriteToImage!\n");
-    system_load_typeinfo(0x6d82);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_PokemonIcon_Load_b_10_0);
 
     __this->set_sprite(sprite);
     auto go = __this->cast<UnityEngine::Component>()->get_gameObject();
@@ -168,8 +168,8 @@ HOOK_DEFINE_REPLACE(BUISituation_Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
         Logger::log("BUISituation_Initialize\n");
 
-        system_load_typeinfo(0x1f4e);
-        system_load_typeinfo(0x239d);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituation_Initialize);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionSelectButton_Initialize);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         Dpr::Battle::Logic::BattleStr::getClass()->initIfNeeded();
@@ -229,7 +229,7 @@ HOOK_DEFINE_REPLACE(BUISituation_OnShow) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
         Logger::log("BUISituation_OnShow\n");
 
-        system_load_typeinfo(0x1f50);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituation_OnShow);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
 
@@ -250,7 +250,7 @@ HOOK_DEFINE_REPLACE(BUISituation_OnSubmit) {
     static void Callback(Dpr::Battle::View::UI::BUISituation::Object* __this) {
         Logger::log("BUISituation_OnSubmit\n");
 
-        system_load_typeinfo(0x1f51);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituation_OnSubmit);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
 
@@ -301,9 +301,9 @@ HOOK_DEFINE_TRAMPOLINE(BUISituationButton_Initialize) {
         Orig(__this, btlParam, trainerName);
         Logger::log("BUISituationButton_Initialize Orig done\n");
 
-        system_load_typeinfo(0x1f63);
-        system_load_typeinfo(0x239d);
-        system_load_typeinfo(0x6d80);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUITargetButton_SetPokemon);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionSelectButton_Initialize);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_PokemonIcon_Load_Call2);
 
         auto coreParam = btlParam->GetSrcData()->cast<Pml::PokePara::CoreParam>();
         MethodInfo* mi = Dpr::UI::PokemonIcon::getMethod$$BUISituationLoadIcon((Il2CppMethodPointer) &LoadSpriteToImage);
@@ -440,8 +440,8 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_Initialize) {
     static void Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this) {
         Logger::log("BUISituationDetail_Initialize\n");
 
-        system_load_typeinfo(0x1f42);
-        system_load_typeinfo(0x239d);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituationDetail_Initialize);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionSelectButton_Initialize);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
@@ -595,7 +595,7 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_OnCancel) {
     static void Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this) {
         Logger::log("BUISituationDetail_OnCancel\n");
 
-        system_load_typeinfo(0x1f43);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituationDetail_OnCancel);
 
         __this->fields._IsFocus_k__BackingField = false;
 
@@ -631,7 +631,7 @@ HOOK_DEFINE_TRAMPOLINE(BUISituation_OnUpdate) {
 
 HOOK_DEFINE_REPLACE(BUISituationDetail_OnUpdate) {
     static void Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x1f45);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituationDetail_OnUpdate);
 
         if (!__this->fields._IsFocus_k__BackingField)
             return;
@@ -662,9 +662,9 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_OnUpdate) {
 
 HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
     static int32_t Callback(Dpr::Battle::View::UI::BUISituationDetail::Object* __this) {
-        system_load_typeinfo(0x1f40);
-        system_load_typeinfo(0x1f49);
-        system_load_typeinfo(0x239d);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituationDescriptionButton_Initialize);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUISituationDetail_SetFieldStatus);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionSelectButton_Initialize);
 
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
         Dpr::Message::MessageManager::getClass()->initIfNeeded();
@@ -790,37 +790,37 @@ HOOK_DEFINE_REPLACE(BUISituationDetail_SetFieldStatus) {
 
 void exl_battle_situation_main() {
     // Add more to OnUpdate
-    BattleViewUISystem_OnUpdate::InstallAtOffset(0x01e79c04);
+    BattleViewUISystem_OnUpdate::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_OnUpdate + 0xC4);
 
     // Rewrite methods
-    BUISituation_Initialize::InstallAtOffset(0x01d22cb0);
-    BUISituation_OnShow::InstallAtOffset(0x01d23a40);
-    BUISituation_OnSubmit::InstallAtOffset(0x01d23850);
-    BUISituation_OnCancel::InstallAtOffset(0x01d23980);
+    BUISituation_Initialize::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituation_Initialize);
+    BUISituation_OnShow::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituation_OnShow);
+    BUISituation_OnSubmit::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituation_OnSubmit);
+    BUISituation_OnCancel::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituation_OnCancel);
 
     //BUISituation_OnUpdate::InstallAtOffset(0x01d23280);
 
-    BUISituationButton_Initialize::InstallAtOffset(0x01d22fb0);
+    BUISituationButton_Initialize::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationButton_Initialize);
 
-    BUISituationDetail_ctor_fieldIDs::InstallAtOffset(0x01d26780);
-    BUISituationDetail_ctor_weatherIDs::InstallAtOffset(0x01d26868);
-    BUISituationDetail_ctor_groundIDs::InstallAtOffset(0x01d26930);
-    BUISituationDetail_ctor_sideIDs::InstallAtOffset(0x01d26988);
+    BUISituationDetail_ctor_fieldIDs::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x2B0);
+    BUISituationDetail_ctor_weatherIDs::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x398);
+    BUISituationDetail_ctor_groundIDs::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x460);
+    BUISituationDetail_ctor_sideIDs::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x4B8);
 
-    BUISituationDetail_Initialize::InstallAtOffset(0x01d23f70);
-    BUISituationDetail_OnCancel::InstallAtOffset(0x01d26080);
-    BUISituationDetail_OnUpdate::InstallAtOffset(0x01d25d00);
-    BUISituationDetail_SetFieldStatus::InstallAtOffset(0x01d24f70);
+    BUISituationDetail_Initialize::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_Initialize_NoArgs);
+    BUISituationDetail_OnCancel::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_OnCancel);
+    BUISituationDetail_OnUpdate::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_OnUpdate);
+    BUISituationDetail_SetFieldStatus::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUISituationDetail_SetFieldStatus);
 
     // Assembly Patches
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01d26784, Branch(0xb4) }, // BUISituationDetail_ctor_fieldIDs skip vanilla assignments
-        { 0x01d2686c, Branch(0x94) }, // BUISituationDetail_ctor_weatherIDs skip vanilla assignments
-        { 0x01d26934, Branch(0x24) }, // BUISituationDetail_ctor_groundIDs skip vanilla assignments
-        { 0x01d2698c, Branch(0x190) }, // BUISituationDetail_ctor_sideIDs skip vanilla assignments
+        { game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x2B4, Branch(0xb4) }, // BUISituationDetail_ctor_fieldIDs skip vanilla assignments
+        { game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x39C, Branch(0x94) }, // BUISituationDetail_ctor_weatherIDs skip vanilla assignments
+        { game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x464, Branch(0x24) }, // BUISituationDetail_ctor_groundIDs skip vanilla assignments
+        { game::Address::Dpr_Battle_View_UI_BUISituationDetail_ctor + 0x4BC, Branch(0x190) }, // BUISituationDetail_ctor_sideIDs skip vanilla assignments
     };
     p.WriteInst(inst);
 }

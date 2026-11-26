@@ -5,7 +5,7 @@
 #include "externals/XLSXContent/ItemTable.h"
 
 namespace Pml::Item {
-    struct ItemManager : ILClass<ItemManager, 0x04c5a680> {
+    struct ItemManager : ILClass<ItemManager, game::Address::Pml_Item_ItemManager_TypeInfo> {
         struct Fields {
             XLSXContent::ItemTable::Object* m_alldata;
         };
@@ -15,7 +15,7 @@ namespace Pml::Item {
         };
 
         static inline uint32_t GetWazaMachineNo(uint16_t item) {
-            return external<uint32_t>(0x0249d4e0, item);
+            return external<uint32_t>(game::Address::Pml_Item_ItemData_GetWazaMashineNo, item);
         }
     };
 }

@@ -6,23 +6,23 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic::Handler {
-    struct Field : ILClass<Field, 0x04c5b160> {
-        struct HandlerGetFunc : ILClass<HandlerGetFunc, 0x04c5b190> {
+    struct Field : ILClass<Field, game::Address::Dpr_Battle_Logic_Handler_Field_TypeInfo> {
+        struct HandlerGetFunc : ILClass<HandlerGetFunc, game::Address::Dpr_Battle_Logic_Handler_Field_HandlerGetFunc_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
             inline void ctor(intptr_t m_target, MethodInfo* method) {
-                external<void>(0x01905670, this, m_target, method);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Field_HandlerGetFunc_ctor, this, m_target, method);
             }
         };
 
-        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, 0x04c5b188> {
+        struct GET_FUNC_TABLE_ELEM : ILStruct<GET_FUNC_TABLE_ELEM, game::Address::Dpr_Battle_Logic_Handler_Field_GET_FUNC_TABLE_ELEM_Array_TypeInfo> {
             struct Fields {
                 int32_t effect;
                 HandlerGetFunc::Object* func;
             };
 
             inline void ctor(int32_t effect, HandlerGetFunc::Object* func) {
-                external<void>(0x01905690, this, effect, func);
+                external<void>(game::Address::Dpr_Battle_Logic_Handler_Field_GET_FUNC_TABLE_ELEM_ctor, this, effect, func);
             }
         };
 
@@ -50,15 +50,15 @@ namespace Dpr::Battle::Logic::Handler {
 
         static_assert(sizeof(StaticFields) == 0x98);
 
-        static inline StaticILMethod<0x04c69068, uint8_t> PTR_Method$$ADD_Fld_Ground {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Field_ADD_Fld_Ground, uint8_t> PTR_Method$$ADD_Fld_Ground {};
 
-        static inline StaticILMethod<0x04c78828, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_elec_checkFail {};
-        static inline StaticILMethod<0x04c78868, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_fld_dummy {};
-        static inline StaticILMethod<0x04c78898, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_ooame_CheckExe {};
-        static inline StaticILMethod<0x04c788a0, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_oohideri_CheckExe {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Field_handler_elec_checkFail, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_elec_checkFail {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Field_handler_fld_dummy, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_fld_dummy {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Field_handler_ooame_CheckExe, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_ooame_CheckExe {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_Logic_Handler_Field_handler_oohideri_CheckExe, Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object**, uint8_t> PTR_Method$$handler_oohideri_CheckExe {};
 
         static inline bool common_isGroundEffective(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-            return external<bool>(0x01903250, args, pokeID);
+            return external<bool>(game::Address::Dpr_Battle_Logic_Handler_Field_common_isGroundEffective, args, pokeID);
         }
     };
 }

@@ -11,7 +11,7 @@ using namespace Dpr::Battle::Logic;
 
 HOOK_DEFINE_REPLACE(Tokusei$$handler_TetunoKobusi) {
     static void Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-        system_load_typeinfo(0x8a7a);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_TetunoKobusi);
 
         Common::getClass()->initIfNeeded();
 
@@ -25,5 +25,5 @@ HOOK_DEFINE_REPLACE(Tokusei$$handler_TetunoKobusi) {
 };
 
 void InstallHooks_Ability_IronFist() {
-    Tokusei$$handler_TetunoKobusi::InstallAtOffset(0x01943660);
+    Tokusei$$handler_TetunoKobusi::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Tokusei_handler_TetunoKobusi);
 }

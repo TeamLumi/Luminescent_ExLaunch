@@ -11,7 +11,7 @@ namespace Pml::PokePara {
         };
 
         inline static uint32_t GetRandom(Pml::Local::RandomGenerator::Object* pRandGenerator, uint32_t max_range) {
-            return external<uint32_t>(0x020548c0, pRandGenerator, max_range);
+            return external<uint32_t>(game::Address::Pml_PokePara_Factory_GetRandom, pRandGenerator, max_range);
         }
     };
 }

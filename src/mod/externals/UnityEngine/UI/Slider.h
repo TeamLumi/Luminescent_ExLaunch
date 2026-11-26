@@ -103,15 +103,15 @@ namespace UnityEngine::UI {
         }
 
         inline void set_minValue(float value) {
-            external<void>(0x0256d2a0, this, value);
+            external<void>(game::Address::UnityEngine_UI_Slider_set_minValue, this, value);
         }
 
         inline void set_maxValue(float value) {
-            external<void>(0x0256d350, this, value);
+            external<void>(game::Address::UnityEngine_UI_Slider_set_maxValue, this, value);
         }
 
         inline void set_value(float value) {
-            external<void>(0x0256d590, this, value);
+            external<void>(game::Address::UnityEngine_UI_Slider_set_value, this, value);
         }
     };
 }

@@ -98,7 +98,7 @@ namespace ui {
                 _.Button([species, form, level, ball, sex, shiny, friendship, formArg, customMoves, move1, move2, move3, move4](Button &_) {
                     _.label = "Give Pokemon";
                     _.onClick = [species, form, level, ball, sex, shiny, friendship, formArg, customMoves, move1, move2, move3, move4]() {
-                        system_load_typeinfo(0x43be);
+                        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdAddPokemon);
                         auto party = PlayerWork::get_playerParty();
 
                         auto initialSpec = Pml::PokePara::InitialSpec::newInstance();

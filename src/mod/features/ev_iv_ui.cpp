@@ -155,7 +155,7 @@ HOOK_DEFINE_REPLACE(Dpr_UI_PokemonStatusPanelAbility__SelectRaderChartIndex) {
 
 HOOK_DEFINE_REPLACE(Dpr_UI_PokemonStatusPanelAbility__OnUpdate) {
     static bool Callback (Dpr::UI::PokemonStatusPanelAbility::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x6e26);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_PokemonStatusPanelAbility_OnUpdate);
 
         auto gameObject = (UnityEngine::GameObject::Object*)((UnityEngine::Component::Object*)__this)->get_gameObject();
         if (gameObject->get_activeSelf())
@@ -189,13 +189,13 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_UI_PokemonStatusPanelAbility__Setup) {
 };
 
 void exl_ev_iv_ui_main() {
-    Dpr_UI_PokemonStatusPanelAbility__SelectRaderChartIndex::InstallAtOffset(0x01d99260);
-    Dpr_UI_BoxStatusPanel_GetJudgeTextCode::InstallAtOffset(0x01cb1e40);
-    Dpr_UI_PokemonStatusPanelAbility__OnUpdate::InstallAtOffset(0x01d99660);
-    Dpr_UI_PokemonStatusPanelAbility__Setup::InstallAtOffset(0x01d98280);
+    Dpr_UI_PokemonStatusPanelAbility__SelectRaderChartIndex::InstallAtOffset(game::Address::Dpr_UI_PokemonStatusPanelAbility_SelectRaderChartIndex);
+    Dpr_UI_BoxStatusPanel_GetJudgeTextCode::InstallAtOffset(game::Address::Dpr_UI_BoxStatusPanel_GetJudgeTextCode);
+    Dpr_UI_PokemonStatusPanelAbility__OnUpdate::InstallAtOffset(game::Address::Dpr_UI_PokemonStatusPanelAbility_OnUpdate);
+    Dpr_UI_PokemonStatusPanelAbility__Setup::InstallAtOffset(game::Address::Dpr_UI_PokemonStatusPanelAbility_Setup);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0x01cba4f4);
+    exl::patch::CodePatcher p(game::Address::Dpr_UI_BoxWindow_UpdatePlusMinusButton + 0x1A4);
     p.WriteInst(Movz(X0, 1)); // IV Judge always on
 };

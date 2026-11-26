@@ -11,7 +11,7 @@ namespace System::Linq {
 
         template <typename E, typename L, typename T>
         static inline System::Collections::Generic::List<L, T>* ToList(System::Collections::Generic::IEnumerable<E, T>::Object* source) {
-            return external<System::Collections::Generic::List<L, T>*>(0x01a6c1b0, source, *E::Method$$ToList);
+            return external<System::Collections::Generic::List<L, T>*>(game::Address::System_Linq_Enumerable_ToList_BTL_POKEPARAM, source, *E::Method$$ToList);
         }
     };
 }

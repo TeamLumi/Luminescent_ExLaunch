@@ -20,7 +20,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline bool IsExist(uint8_t pokeID) {
-            return external<bool>(0x020d2540, this, pokeID);
+            return external<bool>(game::Address::Dpr_Battle_Logic_PosPoke_IsExist, this, pokeID);
         }
     };
 }

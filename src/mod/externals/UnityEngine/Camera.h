@@ -9,7 +9,7 @@ namespace UnityEngine {
         struct Fields : UnityEngine::Behaviour::Fields {};
 
         inline float get_fieldOfView() {
-            return external<float>(0x026a4920, this);
+            return external<float>(game::Address::UnityEngine_Camera_get_fieldOfView, this);
         }
     };
 }

@@ -19,59 +19,59 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void SetBppCounter(BTL_POKEPARAM::Object* poke, BTL_POKEPARAM::Counter counterID, uint8_t value) {
-            external<void>(0x01f2ab90, this, poke, counterID, value);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_SetBppCounter, this, poke, counterID, value);
         }
 
         inline void InsertWazaInfo(uint8_t pokeID, bool isTokuseiWindowDisplay, StrParam::Object** message) {
-            external<void>(0x01f2d0c0, this, pokeID, isTokuseiWindowDisplay, message);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_InsertWazaInfo, this, pokeID, isTokuseiWindowDisplay, message);
         }
 
         inline void SetContFlag(BTL_POKEPARAM::Object* poke, ContFlag flag) {
-            external<void>(0x01f187e0, this, poke, flag);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_SetContFlag, this, poke, flag);
         }
 
         inline bool RemoveFieldEffect(int32_t effect) {
-            return external<bool>(0x01f2a0b0, this, effect);
+            return external<bool>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_RemoveFieldEffect, this, effect);
         }
 
         inline bool RemoveFieldEffect_DependPoke(BTL_POKEPARAM::Object* causedPoke, int32_t fieldEffect) {
-            return external<bool>(0x01f2a260, this, causedPoke, fieldEffect);
+            return external<bool>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_RemoveFieldEffect_DependPoke, this, causedPoke, fieldEffect);
         }
 
         inline void RemoveFieldHandler(int32_t effect) {
-            external<void>(0x01f305e0, this, effect);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_RemoveFieldHandler, this, effect);
         }
 
         inline void Message_Std(uint16_t strID) {
-            external<void>(0x01f289e0, this, strID);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_Message_Std, this, strID);
         }
 
         inline void Message_Set(BTL_POKEPARAM::Object* poke, uint16_t strID) {
-            external<void>(0x01f17ab0, this, poke, strID);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_Message_Set, this, poke, strID);
         }
 
         inline bool Message(StrParam::Object** strParam) {
-            return external<bool>(0x01f27ec0, this, strParam);
+            return external<bool>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_Message, this, strParam);
         }
 
         inline void Act_ChangeForm(uint8_t pokeID) {
-            external<void>(0x01f2bdc0, this, pokeID);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_Act_ChangeForm, this, pokeID);
         }
 
         inline void FakeDisable(uint8_t pokeID) {
-            external<void>(0x01f2df50, this, pokeID);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_FakeDisable, this, pokeID);
         }
 
         inline void Act_FakeDisable(uint8_t pokeID) {
-            external<void>(0x01f2e000, this, pokeID);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_Act_FakeDisable, this, pokeID);
         }
 
         inline void PublishClientInformation_AppeardPokemon(BTL_POKEPARAM::Object** appeardPoke) {
-            external<void>(0x01f2ca30, this, appeardPoke);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_PublishClientInformation_AppeardPokemon, this, appeardPoke);
         }
 
         inline void Message_Set(uint16_t strID, int32_t arg1) {
-            external<void>(0x01f28d80, this, strID, arg1);
+            external<void>(game::Address::Dpr_Battle_Logic_ServerCommandPutter_Message_Set_UInt16_Int32, this, strID, arg1);
         }
     };
 }

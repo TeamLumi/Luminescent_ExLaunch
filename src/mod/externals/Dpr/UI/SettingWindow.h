@@ -69,8 +69,8 @@ namespace Dpr::UI {
             VirtualInvokeData _20_OnAddContextMenuYesNoItemParams;
         };
 
-        static inline StaticILMethod<0x04c7fc20, SettingMenuItem> Method$$OnMenuItemValueChaged {};
-        static inline StaticILMethod<0x04c7fc28, SettingMenuItem> Method$$OnUpdate {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_SettingWindow_OnMenuItemValueChaged, SettingMenuItem> Method$$OnMenuItemValueChaged {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_SettingWindow_OnUpdate, SettingMenuItem> Method$$OnUpdate {};
 
         inline System::Collections::IEnumerator::Object* virtual_OpPlayOpenWindowAnimation(int32_t prevWindowId, UnityEngine::Events::UnityAction::Object* onOpend) {
             return (*(this->instance()->klass->vtable)._10_OpPlayOpenWindowAnimation.methodPtr)
@@ -83,15 +83,15 @@ namespace Dpr::UI {
         }
 
         inline bool SetSelectIndex(int32_t selectIndex, bool isInitialize) {
-            return external<bool>(0x01d41700, this, selectIndex, isInitialize);
+            return external<bool>(game::Address::Dpr_UI_SettingWindow_SetSelectIndex, this, selectIndex, isInitialize);
         }
 
         inline bool SetSelectValue(int32_t selectValue) {
-            return external<bool>(0x01d41a70, this, selectValue);
+            return external<bool>(game::Address::Dpr_UI_SettingWindow_SetSelectValue, this, selectValue);
         }
 
         inline void OpenDescriptionMessageWindow() {
-            external<void>(0x01d41c30, this);
+            external<void>(game::Address::Dpr_UI_SettingWindow_OpenDescriptionMessageWindow, this);
         }
     };
 }

@@ -25,15 +25,15 @@ namespace Dpr::UI {
         };
 
         inline bool IsPushButton(int32_t button, bool isForce) {
-            return external<bool>(0x01a352a0, this, button, isForce);
+            return external<bool>(game::Address::Dpr_UI_UIWindow_IsPushButton, this, button, isForce);
         }
 
         inline bool IsRepeatButton(int32_t button, bool isForce) {
-            return external<bool>(0x01a352c0, this, button, isForce);
+            return external<bool>(game::Address::Dpr_UI_UIWindow_IsRepeatButton, this, button, isForce);
         }
 
         inline void OnOpen(int32_t prevWindowId) {
-            external<void>(0x01a351e0, this, prevWindowId);
+            external<void>(game::Address::Dpr_UI_UIWindow_OnOpen, this, prevWindowId);
         }
     };
 }

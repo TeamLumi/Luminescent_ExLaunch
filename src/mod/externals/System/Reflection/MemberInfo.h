@@ -3,7 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace System::Reflection {
-    struct MemberInfo : ILClass<MemberInfo, 0x04c567b8> {
+    struct MemberInfo : ILClass<MemberInfo, game::Address::System_Reflection_MemberInfo_TypeInfo> {
         struct Fields {};
     };
 }

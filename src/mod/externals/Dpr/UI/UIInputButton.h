@@ -15,7 +15,7 @@ namespace Dpr::UI {
         };
 
         inline void OnUpdate(float deltaTime) {
-            external<void>(0x017ba1d0, this, deltaTime);
+            external<void>(game::Address::Dpr_UI_UIInputButton_OnUpdate, this, deltaTime);
         }
     };
 }

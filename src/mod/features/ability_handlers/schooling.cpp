@@ -39,7 +39,7 @@ bool SchoolingCanChangeForm(BTL_POKEPARAM::Object* bpp, uint8_t nextForm) {
 }
 
 bool AdjustSchoolingForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility) {
-    system_load_typeinfo(0x890f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_TenkiFormChange);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
@@ -53,7 +53,7 @@ bool AdjustSchoolingForm(EventFactor::EventHandlerArgs::Object** args, uint8_t p
 }
 
 void HandlerSchoolingMemberInEvo(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x8a7a);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_TetunoKobusi);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID)

@@ -7,7 +7,7 @@
 #include "logger/logger.h"
 
 System::String::Object* FormatUndergroundStatue(uint16_t monsno, uint16_t formno, uint8_t sex, bool shiny) {
-    system_load_typeinfo(0xa6e0);
+    system_load_typeinfo(game::TypeInfo::Viewer_OnRequestPokemon);
 
     int32_t monsno_int = monsno;
     int32_t formno_int = formno;
@@ -31,7 +31,7 @@ HOOK_DEFINE_INLINE(UgBoxFormatNames_Load) {
         int32_t sex = (uint8_t)ctx->W[22];
         int32_t shiny = (bool)ctx->W[23];
 
-        system_load_typeinfo(0x2388);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_BattleStr_CheckTagSet);
 
         Logger::log("[UgBoxFormatNames] %d, %d, %d, %d\n", monsno, formno, sex, shiny);
 
@@ -50,7 +50,7 @@ HOOK_DEFINE_INLINE(UgBoxFormatNames_Append) {
         int32_t sex = (uint8_t)ctx->W[23];
         int32_t shiny = (bool)ctx->W[24];
 
-        system_load_typeinfo(0x2388);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_BattleStr_CheckTagSet);
 
         Logger::log("[UgBoxFormatNames] %d, %d, %d, %d\n", monsno, formno, sex, shiny);
 
@@ -64,6 +64,6 @@ HOOK_DEFINE_INLINE(UgBoxFormatNames_Append) {
 
 
 void exl_ug_statue_names_main() {
-    UgBoxFormatNames_Load::InstallAtOffset(0x019c8fe8);
-    UgBoxFormatNames_Append::InstallAtOffset(0x019daafc);
+    UgBoxFormatNames_Load::InstallAtOffset(game::Address::Dpr_SecretBase_StatueModelLoader_Load + 0x158);
+    UgBoxFormatNames_Append::InstallAtOffset(game::Address::Dpr_SecretBase_StatueModelLoader_AppendRequest + 0x14C);
 }

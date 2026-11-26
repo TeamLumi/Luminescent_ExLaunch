@@ -6,7 +6,7 @@
 #include "externals/UnityEngine/ScriptableObject.h"
 
 namespace XLSXContent {
-    struct LocalKoukanData : ILClass<LocalKoukanData, 0x04c63f80> {
+    struct LocalKoukanData : ILClass<LocalKoukanData, game::Address::XLSXContent_LocalKoukanData_TypeInfo> {
         struct Sheetdata : ILClass<Sheetdata> {
             struct Fields {
                 int32_t target;
@@ -30,7 +30,7 @@ namespace XLSXContent {
         };
 
         inline XLSXContent::LocalKoukanData::Sheetdata::Object* get_Item(int32_t index) {
-            return external<XLSXContent::LocalKoukanData::Sheetdata::Object*>(0x017d5670, this, index);
+            return external<XLSXContent::LocalKoukanData::Sheetdata::Object*>(game::Address::XLSXContent_LocalKoukanData_get_Item, this, index);
         }
     };
 }

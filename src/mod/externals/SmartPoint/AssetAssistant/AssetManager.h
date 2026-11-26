@@ -6,7 +6,7 @@
 #include "externals/System/String.h"
 
 namespace SmartPoint::AssetAssistant {
-    struct AssetManager : ILClass<AssetManager, 0x04c587b8> {
+    struct AssetManager : ILClass<AssetManager, game::Address::SmartPoint_AssetAssistant_AssetManager_TypeInfo> {
         struct Fields {
             // TODO
         };
@@ -16,11 +16,11 @@ namespace SmartPoint::AssetAssistant {
         };
 
         static inline AssetRequestOperation::Object* AppendAssetBundleRequest(System::String::Object* assetBundleName, bool loadAllAssets, void* callback, System::String::Array* variants) {
-            return external<AssetRequestOperation::Object *>(0x022dbfb0, assetBundleName, loadAllAssets, callback, variants);
+            return external<AssetRequestOperation::Object *>(game::Address::SmartPoint_AssetAssistant_AssetManager_AppendAssetBundleRequest, assetBundleName, loadAllAssets, callback, variants);
         }
 
         static inline int32_t UnloadAssetBundle(System::String::Object* assetBundleName) {
-            return external<int32_t>(0x022dbde0, assetBundleName);
+            return external<int32_t>(game::Address::SmartPoint_AssetAssistant_AssetManager_UnloadAssetBundle, assetBundleName);
         }
     };
 }

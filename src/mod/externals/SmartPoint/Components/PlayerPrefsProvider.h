@@ -25,7 +25,7 @@ namespace SmartPoint::Components {
 
         template <typename T>
         static inline typename T::Object* get_instance(ILMethod<T>& method) {
-            return external<typename T::Object*>(0x02324910, *method);
+            return external<typename T::Object*>(game::Address::SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance, *method);
         }
     };
 }

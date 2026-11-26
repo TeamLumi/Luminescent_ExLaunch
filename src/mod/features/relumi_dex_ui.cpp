@@ -76,8 +76,8 @@ void SetEggGroupIcons(Dpr::UI::TypePanel::Object* panel1, Dpr::UI::TypePanel::Ob
 
 void SetEggGroupIconsFromZukanInfo(Dpr::UI::ZukanInfo::Object* zukanInfo, XLSXContent::PersonalTable::SheetPersonal::Object* personalData, UnityEngine::Transform::Object* statusTf, int32_t langId)
 {
-    system_load_typeinfo(0x870a);
-    system_load_typeinfo(0x505e);
+    system_load_typeinfo(game::TypeInfo::Dpr_SubContents_TimeLineText_Awake);
+    system_load_typeinfo(game::TypeInfo::UnityEngine_UI_Graphic_Raycast);
 
     auto eggGroup = statusTf->Find(System::String::Create("Egg Group"));
     auto list = UnityEngine::UI::ListPool::Get(UnityEngine::UI::ListPool::Method$$Component$$Get);
@@ -149,7 +149,7 @@ HOOK_DEFINE_TRAMPOLINE(ZukanInfo$$SetupUITexts) {
         if (classText == nullptr)
             return;
 
-        system_load_typeinfo(0x870a);
+        system_load_typeinfo(game::TypeInfo::Dpr_SubContents_TimeLineText_Awake);
 
         int32_t monsno = __this->fields._MonsNo_k__BackingField;
         uint16_t formno = __this->fields.modelParams->m_Items[__this->fields.modelIndexSelector->fields._CurrentIndex_k__BackingField]->fields.FormNo;
@@ -195,7 +195,7 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$OnSelectLanguageButton) {
     static void Callback(Dpr::UI::ZukanDescriptionPanel::Object* __this, Dpr::UI::ZukanLanguageButton::Object* button) {
         Orig(__this, button);
 
-        system_load_typeinfo(0x505e);
+        system_load_typeinfo(game::TypeInfo::UnityEngine_UI_Graphic_Raycast);
 
         if (UnityEngine::_Object::op_Equality((UnityEngine::_Object::Object*)button, nullptr))
             return;
@@ -231,7 +231,7 @@ HOOK_DEFINE_TRAMPOLINE(ZukanDescriptionPanel$$MoveCatalogSelect) {
         if (!Orig(__this, addValue))
             return false;
 
-        system_load_typeinfo(0x505e);
+        system_load_typeinfo(game::TypeInfo::UnityEngine_UI_Graphic_Raycast);
 
         int32_t monsno = __this->fields._CurrentZukanInfo_k__BackingField->fields._MonsNo_k__BackingField;
         uint16_t formno = __this->fields._CurrentZukanInfo_k__BackingField->fields.modelParams->m_Items[
@@ -255,9 +255,9 @@ HOOK_DEFINE_TRAMPOLINE(UIManager$$GetAtlasSprite) {
 };
 
 void exl_relumi_dex_ui() {
-    ZukanInfo$$SetupUITexts::InstallAtOffset(0x01bb1120);
-    ZukanDescriptionPanel$$OnSelectLanguageButton::InstallAtOffset(0x01bb5b70);
-    ZukanDescriptionPanel$$MoveCatalogSelect::InstallAtOffset(0x01bb57d0);
+    ZukanInfo$$SetupUITexts::InstallAtOffset(game::Address::Dpr_UI_ZukanInfo_SetupUITexts);
+    ZukanDescriptionPanel$$OnSelectLanguageButton::InstallAtOffset(game::Address::Dpr_UI_ZukanDescriptionPanel_OnSelectLanguageButton);
+    ZukanDescriptionPanel$$MoveCatalogSelect::InstallAtOffset(game::Address::Dpr_UI_ZukanDescriptionPanel_MoveCatalogSelect);
 
     //UIManager$$GetAtlasSprite::InstallAtOffset(0x017a9080);
 }

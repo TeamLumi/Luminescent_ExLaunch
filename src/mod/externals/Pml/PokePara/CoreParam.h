@@ -28,195 +28,195 @@ namespace Pml::PokePara {
         };
 
         inline int32_t GetWazaNo(uint8_t index) {
-            return external<int32_t>(0x02045e00, this, index);
+            return external<int32_t>(game::Address::Pml_PokePara_CoreParam_GetWazaNo, this, index);
         }
 
         inline void SetWaza(uint32_t index, uint32_t wazaId) {
-            external<void>(0x020464e0, this, index, wazaId);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetWaza, this, index, wazaId);
         }
 
         inline uint32_t GetLangId() {
-            return external<uint32_t>(0x0204b810, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetLangId, this);
         }
 
         inline bool IsNull() {
-            return external<bool>(0x0204c9d0, this);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_IsNull, this);
         }
 
         inline bool IsEgg(Pml::PokePara::EggCheckType type) {
-            return external<bool>(0x02049370, this, type);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_IsEgg, this, type);
         }
 
         inline int32_t GetSeikaku() {
-            return external<int32_t>(0x02048740, this);
+            return external<int32_t>(game::Address::Pml_PokePara_CoreParam_GetSeikaku, this);
         }
 
         inline bool IsHpZero() {
-            return external<bool>(0x02043bd0, this);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_IsHpZero, this);
         }
 
         inline uint32_t GetLevel() {
-            return external<uint32_t>(0x02043e30, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetLevel, this);
         }
 
         inline int32_t GetMonsNo() {
-            return external<int32_t>(0x02044240, this);
+            return external<int32_t>(game::Address::Pml_PokePara_CoreParam_GetMonsNo, this);
         }
 
         inline uint16_t GetFormNo() {
-            return external<uint16_t>(0x02044250, this);
+            return external<uint16_t>(game::Address::Pml_PokePara_CoreParam_GetFormNo, this);
         }
 
         inline uint16_t GetItem() {
-            return external<uint16_t>(0x02049660, this);
+            return external<uint16_t>(game::Address::Pml_PokePara_CoreParam_GetItem, this);
         }
 
         inline uint16_t GetTokuseiIndex() {
-            return external<uint8_t>(0x02045ce0, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_CoreParam_GetTokuseiIndex, this);
         }
 
         inline void SetTokuseiIndex(uint8_t tokuseiIndex) {
-            external<void>(0x02048ac0, this, tokuseiIndex);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetTokuseiIndex, this, tokuseiIndex);
         }
 
         inline uint16_t GetTokuseiNo() {
-            return external<uint16_t>(0x020488a0, this);
+            return external<uint16_t>(game::Address::Pml_PokePara_CoreParam_GetTokuseiNo, this);
         }
 
         inline void SetItem(uint16_t itemno) {
-            external<void>(0x02049680, this, itemno);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetItem, this, itemno);
         }
 
         inline uint8_t GetMezapaType() {
-            return external<uint8_t>(0x0204b950, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_CoreParam_GetMezapaType, this);
         }
 
         inline Sex GetSex() {
-            return external<Sex>(0x02048540, this);
+            return external<Sex>(game::Address::Pml_PokePara_CoreParam_GetSex, this);
         }
 
         inline void SetNickName(System::String::Object* nickName) {
-            external<void>(0x02048e90, this, nickName);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetNickName, this, nickName);
         }
 
         inline System::Collections::Generic::HashSet$$WazaNo::Object* CollectRemindableWaza() {
-            return external<System::Collections::Generic::HashSet$$WazaNo::Object*>(0x02047aa0, this);
+            return external<System::Collections::Generic::HashSet$$WazaNo::Object*>(game::Address::Pml_PokePara_CoreParam_CollectRemindableWaza, this);
         }
 
         inline int32_t AddWazaIfEmptyExist(int32_t wazano) {
-            return external<int32_t>(0x02047370, this, wazano);
+            return external<int32_t>(game::Address::Pml_PokePara_CoreParam_AddWazaIfEmptyExist, this, wazano);
         }
 
         inline bool CheckWazaMachine(uint32_t machineNo) {
-            return external<bool>(0x02046b40, this, machineNo);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_CheckWazaMachine, this, machineNo);
         }
 
         inline uint32_t GetPower(int32_t powerId) {
-            return external<uint32_t>(0x020435c0, this, powerId);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetPower, this, powerId);
         }
 
         inline bool IsTrainingDone(int32_t powerId) {
-            return external<bool>(0x02044680, this, powerId);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_IsTrainingDone, this, powerId);
         }
 
         inline uint32_t GetTalentPower(int32_t powerId) {
-            return external<uint32_t>(0x02044610, this, powerId);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetTalentPower, this, powerId);
         }
 
         inline uint32_t GetEffortPower(int32_t powerId){
-            return external<uint32_t>(0x02044c50, this, powerId);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetEffortPower, this, powerId);
         }
 
         inline uint32_t GetHp(){
-            return external<uint32_t>(0x02043970, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetHp, this);
         }
 
         inline uint32_t GetMaxHp() {
-            return external<uint32_t>(0x02043620, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetMaxHp, this);
         }
 
         inline void SetGetBall(uint32_t value) {
-            external<void>(0x0204b840, this, value);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetGetBall, this, value);
         }
 
         inline void SetRareType(RareType type) {
-            external<void>(0x0204a920, this, type);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetRareType, this, type);
         }
 
         inline uint8_t CalcLevel() {
-            return external<uint8_t>(0x02043e80, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_CoreParam_CalcLevel, this);
         }
 
         inline uint32_t GetAtk() {
-            return external<uint32_t>(0x020436a0, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetAtk, this);
         }
 
         inline uint32_t GetDef() {
-            return external<uint32_t>(0x02043720, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetDef, this);
         }
 
         inline uint32_t GetPersonalRnd() {
-            return external<uint32_t>(0x0204a690, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetPersonalRnd, this);
         }
 
         inline uint8_t GetType1() {
-            return external<uint8_t>(0x0204a9f0, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_CoreParam_GetType1, this);
         }
 
         inline uint8_t GetType2() {
-            return external<uint8_t>(0x0204aaf0, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_CoreParam_GetType2, this);
         }
 
         inline void SetFriendship(uint32_t value) {
-            external<void>(0x02049070, this, value);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetFriendship, this, value);
         }
 
         inline void ChangeMonsNo(int32_t newMonsno, uint16_t newFormno) {
-            external<void>(0x02045b40, this, newMonsno, newFormno);
+            external<void>(game::Address::Pml_PokePara_CoreParam_ChangeMonsNo, this, newMonsno, newFormno);
         }
 
         inline void ChangeFormNo(uint16_t newFormno, FormChangeResult::Object* pResult) {
-            external<void>(0x0204a260, this, newFormno, pResult);
+            external<void>(game::Address::Pml_PokePara_CoreParam_ChangeFormNo, this, newFormno, pResult);
         }
 
         inline void RemoveItem() {
-            external<void>(0x02049690, this);
+            external<void>(game::Address::Pml_PokePara_CoreParam_RemoveItem, this);
         }
 
         inline RareType GetRareType() {
-            return external<RareType>(0x0204a5a0, this);
+            return external<RareType>(game::Address::Pml_PokePara_CoreParam_GetRareType, this);
         }
 
         inline void ChangeEffortPower(Pml::PokePara::PowerID powerId, uint32_t value) {
-            external<void>(0x02044da0, this, powerId, value);
+            external<void>(game::Address::Pml_PokePara_CoreParam_ChangeEffortPower, this, powerId, value);
         }
 
         inline void ChangeTalentPower(Pml::PokePara::PowerID powerId, uint32_t value) {
-            external<void>(0x020446e0, this, powerId, value);
+            external<void>(game::Address::Pml_PokePara_CoreParam_ChangeTalentPower, this, powerId, value);
         }
 
         inline void SetParentName(System::String::Object* name) {
-            external<void>(0x0204ac00, this, name);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetParentName, this, name);
         }
 
         inline void SetLangId(uint32_t langId) {
-            external<void>(0x02049650, this, langId);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetLangId, this, langId);
         }
 
         inline void SetCondition(Pml::PokePara::Condition cond, uint8_t value) {
-            external<void>(0x0204b040, this, cond, value);
+            external<void>(game::Address::Pml_PokePara_CoreParam_SetCondition, this, cond, value);
         }
 
         inline bool UpdateOwnerInfo(Pml::PokePara::OwnerInfo::Object* ownerInfo) {
-            return external<bool>(0x02048c90, this, ownerInfo);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_UpdateOwnerInfo, this, ownerInfo);
         }
 
         inline bool StartFastMode() {
-            return external<bool>(0x0204c910, this);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_StartFastMode, this);
         }
 
         inline bool EndFastMode(bool validFlag) {
-            return external<bool>(0x0204c960, this, validFlag);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_EndFastMode, this, validFlag);
         }
 
         inline uint32_t GetMultiPurposeWork() {
@@ -228,31 +228,31 @@ namespace Pml::PokePara {
         }
 
         inline uint32_t GetExp() {
-            return external<uint32_t>(0x02043f30, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetExp, this);
         }
 
         inline uint32_t GetMemories(int32_t memoriesKind) {
-            return external<uint32_t>(0x0204ac30, this, memoriesKind);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetMemories, this, memoriesKind);
         }
 
         inline uint32_t GetGetBall() {
-            return external<uint32_t>(0x0204b830, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_CoreParam_GetGetBall, this);
         }
 
         inline uint8_t GetWazaCount() {
-            return external<uint8_t>(0x02045e10, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_CoreParam_GetWazaCount, this);
         }
 
         inline bool HaveWaza(int32_t wazano) {
-            return external<bool>(0x02045ea0, this, wazano);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_HaveWaza, this, wazano);
         }
 
         inline void ChangeEgg() {
-            external<void>(0x02049450, this);
+            external<void>(game::Address::Pml_PokePara_CoreParam_ChangeEgg, this);
         }
 
         inline bool IsRare() {
-            return external<bool>(0x0204a500, this);
+            return external<bool>(game::Address::Pml_PokePara_CoreParam_IsRare, this);
         }
     };
 }

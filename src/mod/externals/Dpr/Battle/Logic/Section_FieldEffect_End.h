@@ -6,40 +6,40 @@
 #include "externals/Dpr/Battle/Logic/Section.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FieldEffect_End : ILClass<Section_FieldEffect_End, 0x04c5b7c8> {
-        struct Description : ILClass<Description, 0x04c5bf28> {
+    struct Section_FieldEffect_End : ILClass<Section_FieldEffect_End, game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_Description_TypeInfo> {
             struct Fields {
                 int32_t effect;
                 BTL_POKEPARAM::Object* pDependPoke;
             };
 
             inline void ctor() {
-                external<void>(0x021b53a0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5bf30> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_Result_TypeInfo> {
             struct Fields {
                 bool isRemoved;
             };
 
             inline void ctor() {
-                external<void>(0x021b53e0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_Result_ctor, this);
             }
         };
 
         struct Fields : Section::Fields {};
 
         inline void checkItemReaction_All() {
-            external<void>(0x021b8460, this);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_checkItemReaction_All, this);
         }
 
         inline void resetGround() {
-            external<void>(0x021b8540, this);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_resetGround, this);
         }
 
         inline void resetKagakuhenkaGas() {
-            external<void>(0x021b8680, this);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_resetKagakuhenkaGas, this);
         }
     };
 }

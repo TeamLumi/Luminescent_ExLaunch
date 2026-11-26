@@ -2,11 +2,11 @@
 
 #include "externals/il2cpp-api.h"
 
-struct PlayReportManager : ILStruct<PlayReportManager, 0x04c59f30> {
+struct PlayReportManager : ILStruct<PlayReportManager, game::Address::PlayReportManager_TypeInfo> {
     struct Fields {
     };
 
     static inline void StartWildBattle(int32_t type) {
-        external<void>(0x02ce9330, type);
+        external<void>(game::Address::PlayReportManager_StartWildBattle, type);
     }
 };

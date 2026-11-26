@@ -4,7 +4,7 @@
 namespace UnityEngine::Switch {
     struct Notification : ILClass<Notification> {
         static inline void EnterExitRequestHandlingSection() {
-            external<void>(0x02c2d1c0);
+            external<void>(game::Address::UnityEngine_Switch_Notification_EnterExitRequestHandlingSection);
         }
     };
 }

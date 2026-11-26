@@ -14,10 +14,10 @@ namespace Dpr::Battle::View::UI {
             int32_t _buttonType;
         };
 
-        static inline StaticILMethod<0x04c6b748> Method$$Submit {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_View_UI_BUIButtonBase_BUIActionSelectButton_Submit> Method$$Submit {};
 
         inline bool Submit() {
-            return external<bool>(0x021d47f0, this, Method$$Submit);
+            return external<bool>(game::Address::Dpr_Battle_View_UI_BUIButtonBase_BUIActionSelectButton_Submit, this, Method$$Submit);
         }
     };
 

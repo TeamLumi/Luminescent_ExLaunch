@@ -2,7 +2,7 @@
 
 #include "externals/il2cpp-api.h"
 
-struct MonsLv : ILStruct<MonsLv, 0x04c5f208> {
+struct MonsLv : ILStruct<MonsLv, game::Address::MonsLv_Array_TypeInfo> {
     struct Fields {
         int32_t maxlv;
         int32_t minlv;

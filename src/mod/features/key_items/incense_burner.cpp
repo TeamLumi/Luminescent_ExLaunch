@@ -21,7 +21,7 @@ static Dpr::UI::UIBag::__c__DisplayClass127_0::Object* sDisplayClassLocals = nul
 
 void OnCloseWindowIncenseBurner(Dpr::UI::UIBag::__c__DisplayClass127_0::Object* __this)
 {
-    system_load_typeinfo(0x95b3);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBag_c_DisplayClass147_0_OnPokemonPartyClickedToEquipItem_b_3);
     __this->fields.__4__this->fields.bagItemPanel->ReloadItemList(false, 0);
     __this->fields.__4__this->fields.bagItemPanel->SetActive(true);
 }
@@ -70,7 +70,7 @@ void OnSelectedIncenseBurner(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * __
             return;
     }
 
-    system_load_typeinfo(0x955c);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBag_c_DisplayClass127_0_ShowItemContextMenu_b_1);
 
     MethodInfo* miOnCloseWindow = Dpr::UI::UIBag::__c__DisplayClass127_0::getMethod$$OnCloseWindowIncenseBurner((Il2CppMethodPointer)&OnCloseWindowIncenseBurner);
     System::Action::Object* action = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(sDisplayClassLocals, miOnCloseWindow);
@@ -84,7 +84,7 @@ void UseIncenseBurner(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Display
 
     if (fromBag)
     {
-        system_load_typeinfo(0x9a2e);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBag_UseFormChangeItem);
         sDisplayClassLocals = bagDisplayClass->fields.CS___8__locals1;
 
         Dpr::UI::UIBag::Object * uiBag = bagDisplayClass->fields.CS___8__locals1->fields.__4__this;

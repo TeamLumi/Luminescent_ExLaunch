@@ -11,15 +11,15 @@ namespace Dpr::Box {
         };
 
         static inline void ClearPokemon(int32_t tray, int32_t pos) {
-            external<void>(0x01d30e80, tray, pos);
+            external<void>(game::Address::Dpr_Box_BoxPokemonWork_ClearPokemon, tray, pos);
         }
 
         static inline void UpdatePokemon(Pml::PokePara::PokemonParam::Object* pp, int32_t tray, int32_t pos) {
-            external<void>(0x01d30d60, pp, tray, pos);
+            external<void>(game::Address::Dpr_Box_BoxPokemonWork_UpdatePokemon, pp, tray, pos);
         }
 
         static inline Pml::PokePara::PokemonParam::Object* GetPokemon(int32_t tray, int32_t pos) {
-            return external<Pml::PokePara::PokemonParam::Object*>(0x01d2fe20, tray, pos);
+            return external<Pml::PokePara::PokemonParam::Object*>(game::Address::Dpr_Box_BoxPokemonWork_GetPokemon_Int32_Int32, tray, pos);
         }
     };
 }

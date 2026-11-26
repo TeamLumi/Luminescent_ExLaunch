@@ -7,7 +7,7 @@
 namespace System {
     struct ThrowHelper : ILClass<ThrowHelper> {
         static inline void ThrowArgumentOutOfRangeException() {
-            external<void>(0x02305100);
+            external<void>(game::Address::System_ThrowHelper_ThrowArgumentOutOfRangeException);
         }
     };
 }

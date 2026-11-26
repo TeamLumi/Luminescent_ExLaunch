@@ -134,7 +134,7 @@ HOOK_DEFINE_TRAMPOLINE(ShortcutUseKeyItem) {
 };
 
 void exl_key_items_main() {
-    BagUseKeyItem::InstallAtOffset(0x01bde370);
-    ShortcutCheckAvailability::InstallAtOffset(0x017a2710);
-    ShortcutUseKeyItem::InstallAtOffset(0x017a17d0);
+    BagUseKeyItem::InstallAtOffset(game::Address::Dpr_UI_UIBag_c_DisplayClass127_1_ShowItemContextMenu_b_11);
+    ShortcutCheckAvailability::InstallAtOffset(game::Address::FieldManager_CheckAvailableFieldItem);
+    ShortcutUseKeyItem::InstallAtOffset(game::Address::FieldManager_UseFieldItem);
 }

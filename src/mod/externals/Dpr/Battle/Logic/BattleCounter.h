@@ -12,7 +12,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline uint64_t Get(uint8_t counterID) {
-            return external<uint64_t>(0x018794a0, this, counterID);
+            return external<uint64_t>(game::Address::Dpr_Battle_Logic_BattleCounter_Get, this, counterID);
         }
     };
 }

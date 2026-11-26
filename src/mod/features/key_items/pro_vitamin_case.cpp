@@ -23,7 +23,7 @@ const uint32_t PROVITAMIN_SOUND_ID = 0x45a3539d;
 
 System::ValueTuple2$$Bool$$String::Object CheckProVitaminInput(Dpr::EvScript::EvDataManager::DisplayClass831_0::Object* __this, System::String::Object* resultText, int32_t errorState)
 {
-    system_load_typeinfo(0x9896);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_c_DisplayClass831_0_EvCmdBirthDayInput_b_0);
 
     auto inputCheck = Dpr::UI::SoftwareKeyboard::InputCheck(resultText, errorState);
 
@@ -71,7 +71,7 @@ void CompleteProVitaminKeyboard(Dpr::EvScript::EvDataManager::DisplayClass831_0:
 
 void SetupProVitaminKeyboard(Dpr::EvScript::EvDataManager::Object* manager)
 {
-    system_load_typeinfo(0x43e0);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdBirthDayInput);
 
     manager->fields._softwareKeyboardSubState = 1; // In progress
 
@@ -139,7 +139,7 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
 
     SetupProVitaminKeyboard(manager);
 
-    system_load_typeinfo(0x955c);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBag_c_DisplayClass127_0_ShowItemContextMenu_b_1);
     System::Action::Object* action = System::Action::getClass(System::Action::void_TypeInfo)->newInstance(sDisplayClassLocals, *Dpr::UI::UIBag::__c__DisplayClass127_0::Method$$ShowItemContextMenu_EndUseAction);
 
     if (manager->fields._softwareKeyboardSubState == 0) {
@@ -155,7 +155,7 @@ void OnSelectedProVitaminCase(Dpr::UI::UIBag::__c__DisplayClass144_0::Object * _
 
 void BuildContextMenu(Dpr::UI::UIBag::Object* __this, Dpr::UI::PokemonPartyItem::Object* pokemonPartyItem, int32_t index)
 {
-        system_load_typeinfo(0x9a2e);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBag_UseFormChangeItem);
 
         Dpr::EvScript::EvDataManager::Object* manager = Dpr::EvScript::EvDataManager::get_Instanse();
 
@@ -210,7 +210,7 @@ void UseProVitaminCase(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__Displa
 {
     if (fromBag)
     {
-        system_load_typeinfo(0x9a0a);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBag_EndUseItemAction);
         sDisplayClassLocals = bagDisplayClass->fields.CS___8__locals1;
 
         Dpr::UI::UIBag::Object* uiBagParty = sDisplayClassLocals->fields.__4__this;

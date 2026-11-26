@@ -56,7 +56,7 @@
 #include "externals/DPData/CON_PHOTO_EXT_DATA.h"
 #include "externals/DPData/GMS_POINT_HISTORY_EXT_DATA.h"
 
-struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
+struct PlayerWork : ILClass<PlayerWork, game::Address::PlayerWork_TypeInfo> {
     struct SaveData : ILStruct<SaveData> {
         struct Fields {
             int32_t version;
@@ -213,132 +213,132 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
 
     static_assert(offsetof(Fields, _autosaveWindowCloseOpenTime) == 0x828);
 
-    static inline StaticILMethod<0x04c81de0> Method$PlayerWork_ToBytes__PlayerWork_SaveData__ {};
-    static inline StaticILMethod<0x04c81dc8> Method$PlayerWork_LoadBytes__PlayerWork_SaveData__ {};
-    static inline StaticILMethod<0x04c90330, PlayerWork> Method$PlayerWork_get_instance {};
+    static inline StaticILMethod<game::Address::Method_PlayerWork_ToBytes_PlayerWork_SaveData> Method$PlayerWork_ToBytes__PlayerWork_SaveData__ {};
+    static inline StaticILMethod<game::Address::Method_PlayerWork_LoadBytes_PlayerWork_SaveData> Method$PlayerWork_LoadBytes__PlayerWork_SaveData__ {};
+    static inline StaticILMethod<game::Address::Method_SmartPoint_Components_PlayerPrefsProvider_PlayerWork_get_instance, PlayerWork> Method$PlayerWork_get_instance {};
 
     static inline Pml::PokeParty::Object* get_playerParty() {
-        return external<Pml::PokeParty::Object*>(0x02ce2b50);
+        return external<Pml::PokeParty::Object*>(game::Address::PlayerWork_get_playerParty);
     }
 
     static inline DPData::CONFIG::Object* get_config() {
-        return external<DPData::CONFIG::Object*>(0x02ceb800);
+        return external<DPData::CONFIG::Object*>(game::Address::PlayerWork_get_config);
     }
 
     static inline DPData::ZUKAN_WORK::Object* get_zukan() {
-        return external<DPData::ZUKAN_WORK::Object*>(0x02cf1040);
+        return external<DPData::ZUKAN_WORK::Object*>(game::Address::PlayerWork_get_zukan);
     }
 
     static inline void SetWarpSorawotobu(int32_t mapID, int32_t warpID) {
-        external<void>(0x02cee520, mapID, warpID);
+        external<void>(game::Address::PlayerWork_SetWarpSorawotobu, mapID, warpID);
     }
 
     static inline bool GetSystemFlag(int32_t index) {
-        return external<bool>(0x02ceda30, index);
+        return external<bool>(game::Address::PlayerWork_GetSytemFlag, index);
     }
 
     static inline bool GetBool(int32_t index) {
-        return external<bool>(0x02ce3e40, index);
+        return external<bool>(game::Address::PlayerWork_GetBool, index);
     }
 
     static inline void SetBool(int32_t index, bool flag) {
-        external<void>(0x02ced9a0, index, flag);
+        external<void>(game::Address::PlayerWork_SetBool, index, flag);
     }
 
     static inline int32_t GetInt(int32_t index) {
-        return external<int32_t>(0x02ce2e20, index);
+        return external<int32_t>(game::Address::PlayerWork_GetInt, index);
     }
 
     static inline void SetInt(int32_t index, int32_t value) {
-        external<void>(0x02ced920, index, value);
+        external<void>(game::Address::PlayerWork_SetInt, index, value);
     }
 
     static inline void SetMoney(int32_t money) {
-        external<void>(0x02cefc80, money);
+        external<void>(game::Address::PlayerWork_SetMoney, money);
     }
 
     static inline int32_t get_zoneID() {
-        return external<int32_t>(0x02ceea50);
+        return external<int32_t>(game::Address::PlayerWork_get_zoneID);
     }
 
     static inline DPData::ENC_SV_DATA::Object get_Enc_SV_Data() {
-        return external<DPData::ENC_SV_DATA::Object>(0x02cf2840, nullptr); // Passing nullptr as the "return_storage_ptr" and making this return the struct works
+        return external<DPData::ENC_SV_DATA::Object>(game::Address::PlayerWork_get_Enc_SV_Data, nullptr); // Passing nullptr as the "return_storage_ptr" and making this return the struct works
     }
 
     static inline DPData::TR_BATTLE_DATA::Array* get_tr_battleData() {
-        return external<DPData::TR_BATTLE_DATA::Array*>(0x02cf1bd0, nullptr);
+        return external<DPData::TR_BATTLE_DATA::Array*>(game::Address::PlayerWork_get_tr_battleData, nullptr);
     }
 
     static inline void set_WalkEncountCount(int32_t value) {
-        external<void>(0x02cf2c00, value);
+        external<void>(game::Address::PlayerWork_set_WalkEncountCount, value);
     }
 
     static inline Dpr::Item::SaveItem::Object GetItem(int32_t itemno) {
-        return external<Dpr::Item::SaveItem::Object>(0x02cefde0, itemno);
+        return external<Dpr::Item::SaveItem::Object>(game::Address::PlayerWork_GetItem, itemno);
     }
 
     static inline int32_t get_cassetVersion() {
-        return external<int32_t>(0x02cefa60);
+        return external<int32_t>(game::Address::PlayerWork_get_cassetVersion);
     }
 
     static inline bool get_isPlayerInputActive() {
-        return external<bool>(0x02cf1110);
+        return external<bool>(game::Address::PlayerWork_get_isPlayerInputActive);
     }
 
     static inline DPData::MYSTATUS::Object* get_playerStatus() {
-        return external<DPData::MYSTATUS::Object*>(0x02ce2d20);
+        return external<DPData::MYSTATUS::Object*>(game::Address::PlayerWork_get_playerStatus);
     }
 
     static inline void set_colorID(int32_t value) {
-        external<void>(0x02cef870, value);
+        external<void>(game::Address::PlayerWork_set_colorID, value);
     }
 
     static inline DPData::PoffinSaveData::Object get_poffinSaveData() {
-        return external<DPData::PoffinSaveData::Object>(0x02cf46d0);
+        return external<DPData::PoffinSaveData::Object>(game::Address::PlayerWork_get_poffinSaveData);
     }
 
     static inline int32_t get_TureWalkMemberIndex() {
-        return external<int32_t>(0x02cf5260);
+        return external<int32_t>(game::Address::PlayerWork_get_TureWalkMemberIndex);
     }
 
     static inline bool get_playerSex() {
-        return external<bool>(0x02ce2cd0);
+        return external<bool>(game::Address::PlayerWork_get_playerSex);
     }
 
     static inline int32_t get_defaultPokeType() {
-        return external<int32_t>(0x02cf1320);
+        return external<int32_t>(game::Address::PlayerWork_get_defaultPokeType);
     }
 
     static inline int32_t get_rivalPokeType() {
-        return external<int32_t>(0x02cf1590);
+        return external<int32_t>(game::Address::PlayerWork_get_rivalPokeType);
     }
 
     static inline int32_t get_supportPokeType() {
-        return external<int32_t>(0x02cf1910);
+        return external<int32_t>(game::Address::PlayerWork_get_supportPokeType);
     }
 
     static inline Dpr::Box::SaveBoxData::Object* GetBoxData() {
-        return external<Dpr::Box::SaveBoxData::Object*>(0x02cf0180);
+        return external<Dpr::Box::SaveBoxData::Object*>(game::Address::PlayerWork_GetBoxData);
     }
 
     static inline Dpr::Message::MessageEnumData::MsgLangId get_msgLangID() {
-        return external<Dpr::Message::MessageEnumData::MsgLangId>(0x02ce2c20);
+        return external<Dpr::Message::MessageEnumData::MsgLangId>(game::Address::PlayerWork_get_msgLangID);
     }
 
     static inline PLAYREPORT_DATA::Object* get_playReportDataRef() {
-        return external<PLAYREPORT_DATA::Object*>(0x02cf6530);
+        return external<PLAYREPORT_DATA::Object*>(game::Address::PlayerWork_get_playReportDataRef);
     }
 
     static inline DPData::PLAYER_DATA::Object* get_playerData() {
-        return external<DPData::PLAYER_DATA::Object*>(0x02ce2a50);
+        return external<DPData::PLAYER_DATA::Object*>(game::Address::PlayerWork_get_playerData);
     }
 
     static inline System::String::Object* get_rivalName() {
-        return external<System::String::Object*>(0x02cee9a0);
+        return external<System::String::Object*>(game::Address::PlayerWork_get_rivalName);
     }
 
     inline void OnPreSave() {
-        external<void>(0x02cecd90, this);
+        external<void>(game::Address::PlayerWork_OnPreSave, this);
     }
 
     static inline PlayerWork::Object* get_instance() {
@@ -346,22 +346,22 @@ struct PlayerWork : ILClass<PlayerWork, 0x04c59b58> {
     }
 
     static inline void set_zukan(DPData::ZUKAN_WORK::Object* value) {
-        external<void>(0x02cf0fd0, value);
+        external<void>(game::Address::PlayerWork_set_zukan, value);
     }
 
     static inline DPData::POKETCH_POKETORE_COUNT_ARRAY::Object get_poketoreCountArray() {
-        return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(0x02ce9ef0);
+        return external<DPData::POKETCH_POKETORE_COUNT_ARRAY::Object>(game::Address::PlayerWork_get_poketoreCountArray);
     }
 
     static inline int32_t get_transitionZoneID() {
-        return external<int32_t>(0x02cef090);
+        return external<int32_t>(game::Address::PlayerWork_get_transitionZoneID);
     }
 
     static inline Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* get_battleSetupParam() {
-        return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*>(0x02ce2a00);
+        return external<Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object*>(game::Address::PlayerWork_get_battleSetupParam);
     }
 
     static inline uint8_t get_bicycleColor() {
-        return external<uint8_t>(0x02cf06f0);
+        return external<uint8_t>(game::Address::PlayerWork_get_bicycleColor);
     }
 };

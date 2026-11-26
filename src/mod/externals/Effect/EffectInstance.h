@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/Vector3.h"
 
 namespace Effect {
-    struct EffectInstance : ILClass<EffectInstance, 0x04c63998> {
+    struct EffectInstance : ILClass<EffectInstance, game::Address::Effect_EffectInstance_TypeInfo> {
         struct Fields {
             void * _effectData;
             void * _particleSystem;
@@ -23,7 +23,7 @@ namespace Effect {
         };
 
         inline void Stop(float fadeTime, bool isForce) {
-            external<void>(0x01efe7b0, this, fadeTime, isForce);
+            external<void>(game::Address::Effect_EffectInstance_Stop, this, fadeTime, isForce);
         }
     };
 }

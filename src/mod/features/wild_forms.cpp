@@ -89,8 +89,8 @@ HOOK_DEFINE_INLINE(PatchGetFormDouble) {
 };
 
 void exl_wild_forms_main() {
-    PatchDataInit::InstallAtOffset(0x019b4990);
-    PatchGetFormSingle::InstallAtOffset(0x0179ea88);
-    PatchGetFormSingle::InstallAtOffset(0x01d4d834);
-    PatchGetFormDouble::InstallAtOffset(0x0179ebec);
+    PatchDataInit::InstallAtOffset(game::Address::Dpr_Field_FieldEncount_LastProc);
+    PatchGetFormSingle::InstallAtOffset(game::Address::FieldManager_ResultSetUpWildBattle + 0x98);
+    PatchGetFormSingle::InstallAtOffset(game::Address::FieldManager_c_DisplayClass121_0_update_b_0 + 0xE4);
+    PatchGetFormDouble::InstallAtOffset(game::Address::FieldManager_ResultSetUpWildBattle + 0x1FC);
 }

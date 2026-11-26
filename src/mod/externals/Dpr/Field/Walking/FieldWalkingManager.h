@@ -28,11 +28,11 @@ namespace Dpr::Field::Walking {
         };
 
         void SetPartnerPoke(Pml::PokePara::PokemonParam::Object* poke) {
-            return external<void>(0x01cd62e0, this, poke);
+            return external<void>(game::Address::Dpr_Field_Walking_FieldWalkingManager_SetPartnerPoke, this, poke);
         }
 
         void CheckPartnerPokeChange(Pml::PokePara::PokemonParam::Object* param, bool isDelete) {
-            return external<void>(0x01cd6dc0, this, param, isDelete);
+            return external<void>(game::Address::Dpr_Field_Walking_FieldWalkingManager_CheckPartnerPokeChange, this, param, isDelete);
         }
     };
 }

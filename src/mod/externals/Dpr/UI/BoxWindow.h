@@ -10,7 +10,7 @@
 
 namespace Dpr::UI {
     struct BoxWindow : ILClass<BoxWindow> {
-        struct OpenParam : ILClass<OpenParam, 0x04c5ef90> {
+        struct OpenParam : ILClass<OpenParam, game::Address::Dpr_UI_BoxWindow_OpenParam_TypeInfo> {
             struct Fields {
                 int32_t dispMode;
                 int32_t tray;
@@ -42,7 +42,7 @@ namespace Dpr::UI {
             static_assert(offsetof(Fields, searchData) == 0x50);
 
             inline void ctor() {
-                external<void>(0x01a27970, this);
+                external<void>(game::Address::Dpr_UI_BoxWindow_OpenParam_ctor, this);
             }
         };
 
@@ -196,7 +196,7 @@ namespace Dpr::UI {
         static_assert(offsetof(Fields, _isForceClosing) == 0x3CD);
 
         inline void Open(OpenParam::Object* param, System::Action::Object* onSelected, int32_t prevWindowId) {
-            external<void>(0x01cb64c0, this, param, onSelected, prevWindowId);
+            external<void>(game::Address::Dpr_UI_BoxWindow_Open_OpenParam_Action_BoxWindow_SelectedPokemonArray_Int32, this, param, onSelected, prevWindowId);
         }
     };
 }

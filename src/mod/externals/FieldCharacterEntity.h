@@ -11,7 +11,7 @@
 #include "externals/UnityEngine/Transform.h"
 #include "externals/UnityEngine/Vector3.h"
 
-struct FieldCharacterEntity : ILClass<FieldCharacterEntity, 0x04c5ece8> {
+struct FieldCharacterEntity : ILClass<FieldCharacterEntity, game::Address::FieldCharacterEntity_TypeInfo> {
     struct Fields : FieldObjectEntity::Fields {
         float HandScale;
         AnimationPlayer::Object* _animationPlayer;

@@ -167,11 +167,11 @@ HOOK_DEFINE_TRAMPOLINE(Section_Escape_escape) {
 };
 
 void exl_battle_escape_flag_main() {
-    MainModule_IsEscapeEnableBattle::InstallAtOffset(0x02034b70);
-    MainModule_GetEscapeMode::InstallAtOffset(0x02034bb0);
-    MainModule_CanUseEscapeItem::InstallAtOffset(0x02035040);
-    Section_UseItem_Core_canUseEscapeItem::InstallAtOffset(0x021774d0);
-    Section_UseItem_Core_Execute_EscapeItem::InstallAtOffset(0x02175c00);
-    Section_PushOut_Execute_EscapeCheck::InstallAtOffset(0x021c2abc);
-    Section_Escape_escape::InstallAtOffset(0x021b6a50);
+    MainModule_IsEscapeEnableBattle::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_IsEscapeEnableBattle);
+    MainModule_GetEscapeMode::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_GetEscapeMode);
+    MainModule_CanUseEscapeItem::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_CanUseEscapeItem);
+    Section_UseItem_Core_canUseEscapeItem::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_UseItem_Core_canUseEscapeItem);
+    Section_UseItem_Core_Execute_EscapeItem::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_UseItem_Core_Execute + 0x1E0);
+    Section_PushOut_Execute_EscapeCheck::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_PushOut_Execute + 0x7C);
+    Section_Escape_escape::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_Escape_escape);
 }

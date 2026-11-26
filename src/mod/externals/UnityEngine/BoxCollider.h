@@ -5,7 +5,7 @@
 #include "externals/UnityEngine/Collider.h"
 
 namespace UnityEngine {
-    struct BoxCollider : ILClass<BoxCollider, 0x04c63d58> {
+    struct BoxCollider : ILClass<BoxCollider, game::Address::UnityEngine_BoxCollider_TypeInfo> {
         struct Fields : UnityEngine::Collider::Fields {
 
         };

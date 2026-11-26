@@ -8,8 +8,8 @@ bool ObjDirChange(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_OBJ_DIR_CHANGE\n");
 
-    system_load_typeinfo(0x44d6);
-    system_load_typeinfo(0x45dc);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdSxyDirChange);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     auto entity = FindEntity(manager, args->m_Items[1]);

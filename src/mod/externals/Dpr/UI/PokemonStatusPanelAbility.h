@@ -49,15 +49,15 @@ namespace Dpr::UI {
         };
 
         inline void Setup(Pml::PokePara::PokemonParam::Object *pokemonParam) {
-            external<void>(0x01d98280, this, pokemonParam);
+            external<void>(game::Address::Dpr_UI_PokemonStatusPanelAbility_Setup, this, pokemonParam);
         }
 
         inline void PlayEffortEffects(Pml::PokePara::PokemonParam::Object *pokemonParam) {
-            external<void>(0x01d99040, this, pokemonParam);
+            external<void>(game::Address::Dpr_UI_PokemonStatusPanelAbility_PlayEffortEffects, this, pokemonParam);
         }
 
         inline void SelectRaderChartIndex(int32_t selectIndex, bool isInitialized) {
-            external<void>(0x01d99260, this, selectIndex, isInitialized);
+            external<void>(game::Address::Dpr_UI_PokemonStatusPanelAbility_SelectRaderChartIndex, this, selectIndex, isInitialized);
         }
     };
 }

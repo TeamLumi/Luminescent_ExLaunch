@@ -14,7 +14,7 @@ using namespace Dpr::Battle::Logic;
 
 HOOK_DEFINE_REPLACE(Tokusei$$handler_MegaLauncher_Pow) {
     static void Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-        system_load_typeinfo(0x89e3);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_MegaLauncher_Pow);
 
         Common::getClass()->initIfNeeded();
 
@@ -39,5 +39,5 @@ HOOK_DEFINE_REPLACE(Tokusei$$handler_MegaLauncher_Pow) {
 };
 
 void InstallHooks_Ability_MegaLauncher() {
-    Tokusei$$handler_MegaLauncher_Pow::InstallAtOffset(0x0195e950);
+    Tokusei$$handler_MegaLauncher_Pow::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Tokusei_handler_MegaLauncher_Pow);
 }

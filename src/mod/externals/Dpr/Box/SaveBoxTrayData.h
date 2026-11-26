@@ -5,7 +5,7 @@
 #include "externals/Pml/PokePara/SerializedPokemonFull.h"
 
 namespace Dpr::Box {
-    struct SaveBoxTrayData : ILStruct<SaveBoxTrayData, 0x04c64da0> {
+    struct SaveBoxTrayData : ILStruct<SaveBoxTrayData, game::Address::Dpr_Box_SaveBoxTrayData_Array_TypeInfo> {
         struct Fields {
             Pml::PokePara::SerializedPokemonFull::Array* pokemonParam;
         };

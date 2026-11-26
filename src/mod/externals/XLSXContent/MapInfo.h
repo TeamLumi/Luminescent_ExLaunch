@@ -77,7 +77,7 @@ namespace XLSXContent {
         };
 
         inline XLSXContent::MapInfo::SheetZoneData::Object* get_Item(int32_t index) {
-            return external<XLSXContent::MapInfo::SheetZoneData::Object*>(0x017d5790, this, index);
+            return external<XLSXContent::MapInfo::SheetZoneData::Object*>(game::Address::XLSXContent_MapInfo_get_Item, this, index);
         }
     };
 }

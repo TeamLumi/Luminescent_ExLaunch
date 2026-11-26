@@ -11,7 +11,7 @@ namespace Pml::Local {
         };
 
         inline uint32_t GetRand() {
-            return external<uint32_t>(0x024a0420, this);
+            return external<uint32_t>(game::Address::Pml_Local_RandomGenerator_GetRand, this);
         }
     };
 }

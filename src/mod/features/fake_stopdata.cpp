@@ -13,7 +13,7 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_EvScript_EvDataManager$$OnEventEnter) {
     static void Callback(Dpr::EvScript::EvDataManager::Object* __this, float deltaTime, FieldEventEntity::Object* eventEntity) {
         Orig(__this, deltaTime, eventEntity);
 
-        system_load_typeinfo(0x4382);
+        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CheckPosEvent);
 
         auto player = EntityManager::getClass()->static_fields->_activeFieldPlayer_k__BackingField;
         if (player->fields._currentSequence_k__BackingField != 4096)
@@ -59,6 +59,6 @@ HOOK_DEFINE_TRAMPOLINE(FieldEventEntity$$Awake) {
 };
 
 void exl_fake_stopdata_main() {
-    Dpr_EvScript_EvDataManager$$OnEventEnter::InstallAtOffset(0x02c4cd00);
-    FieldEventEntity$$Awake::InstallAtOffset(0x01792d50);
+    Dpr_EvScript_EvDataManager$$OnEventEnter::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_OnEventEnter);
+    FieldEventEntity$$Awake::InstallAtOffset(game::Address::FieldEventEntity_Awake);
 };

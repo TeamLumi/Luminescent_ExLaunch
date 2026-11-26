@@ -31,7 +31,7 @@ HOOK_DEFINE_INLINE(UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix) {
 
 HOOK_DEFINE_REPLACE(UgResManager$$AppendAsset_ShinyFix) {
     static void Callback(Pml::PokePara::PokemonParam::Object* param, System::Action::Object* callback) {
-        system_load_typeinfo(0xa0b6);
+        system_load_typeinfo(game::TypeInfo::UgResManager_AppendAsset);
 
         UgResManager::getClass()->initIfNeeded();
         GameData::DataManager::getClass()->initIfNeeded();
@@ -77,17 +77,17 @@ HOOK_DEFINE_TRAMPOLINE(UgMainProc$$OnSceneInit_ShinySound) {
 
 
 void exl_ug_shinies_main() {
-    UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix::InstallAtOffset(0x018d5ea0);
-    UgResManager$$AppendAsset_ShinyFix::InstallAtOffset(0x01b1b110);
-    UgMainProc$$OnSceneInit_ShinySound::InstallAtOffset(0x018d2af0);
+    UgMainProc_DisplayClass9_0$$CreatePoke_b__0_ShinyFix::InstallAtOffset(game::Address::UgMainProc_c_DisplayClass9_0_CreatePoke_b_0 + 0x140);
+    UgResManager$$AppendAsset_ShinyFix::InstallAtOffset(game::Address::UgResManager_AppendAsset);
+    UgMainProc$$OnSceneInit_ShinySound::InstallAtOffset(game::Address::UgMainProc_OnSceneInit);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
 
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x02057cec, Nop() }, // Do not add category 1 (spheres) items to UG sellers
-        { 0x02057e40, Nop() }, // Do not add category 1 (spheres) items to UG sellers
+        { game::Address::Pml_UgFather_UgFatherDataManager_LotShopUgSItemList + 0xEC, Nop() }, // Do not add category 1 (spheres) items to UG sellers
+        { game::Address::Pml_UgFather_UgFatherDataManager_LotShopUgLItemList + 0x90, Nop() }, // Do not add category 1 (spheres) items to UG sellers
     };
     p.WriteInst(inst);
 

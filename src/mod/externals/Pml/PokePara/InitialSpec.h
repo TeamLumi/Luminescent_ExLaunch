@@ -5,7 +5,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Pml::PokePara {
-    struct InitialSpec : ILClass<InitialSpec, 0x04c5e700> {
+    struct InitialSpec : ILClass<InitialSpec, game::Address::Pml_PokePara_InitialSpec_TypeInfo> {
         struct Fields {
             uint64_t randomSeed;
             bool isRandomSeedEnable;
@@ -27,7 +27,7 @@ namespace Pml::PokePara {
         };
 
         inline void ctor() {
-            external<void>(0x020521d0, this);
+            external<void>(game::Address::Pml_PokePara_InitialSpec_ctor, this);
         }
     };
 }

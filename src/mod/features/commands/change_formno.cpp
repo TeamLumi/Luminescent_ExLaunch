@@ -7,7 +7,7 @@
 bool ChangeFormNo(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_CHANGE_FORMNO\n");
-    system_load_typeinfo(0x4495);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdPartyDeokisisuFormChange);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     if (args->max_length >= 2)

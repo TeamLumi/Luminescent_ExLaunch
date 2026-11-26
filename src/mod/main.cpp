@@ -97,22 +97,15 @@ HOOK_DEFINE_REPLACE(NoAction) {
 extern "C" void exl_main(void* x0, void* x1) {
     exl::hook::Initialize();
 
-    if (!is_game_version(DIAMOND, "1.3.0")) {
-        nn::err::ApplicationErrorArg err(nn::err::MakeErrorCode(nn::err::ErrorCodeCategoryType::unk1, 0x420), "Unsupported game version!",
-                                         "Please make sure you are running Pokemon Brilliant Diamond version 1.3.0.",
-                                         nn::settings::LanguageCode::Make(nn::settings::Language::Language_English));
-        nn::err::ShowApplicationError(err);
-        svcSleepThread(2000000000);
-        EXL_ABORT(0, "Unsupported game version!");
-    }
+    EXL_ASSERT(exl::util::offsets::GetGame() != exl::util::offsets::Game::Unknown);
 
     // We alloc before this is called
     NoAction::InstallAtSymbol("_ZN2nn2fs12SetAllocatorEPFPvmEPFvS1_mE");
 
 #if DEBUG_BUILD
     // For logging, we initialize nn::socket before the game does; make the game not call it
-    NoAction::InstallAtOffset(0x01733d88);
-    NoAction::InstallAtOffset(0x01733d78);
+    NoAction::InstallAtOffset(game::Address::Import_ZN2nn6socket10InitializeERKNS0_6ConfigE);
+    NoAction::InstallAtOffset(game::Address::Import_ZN2nn6socket10InitializeEPvmmi);
 #endif
 
     MainInitHook::InstallAtSymbol("nnMain");

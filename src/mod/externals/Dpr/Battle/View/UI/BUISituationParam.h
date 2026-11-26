@@ -17,7 +17,7 @@ namespace Dpr::Battle::View::UI {
         };
 
         inline void Initialize(System::String::Object* paramName, int32_t value) {
-            external<void>(0x01d24930, this, paramName, value);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituationParam_Initialize, this, paramName, value);
         }
     };
 }

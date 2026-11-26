@@ -5,7 +5,7 @@
 #include "externals/System/Primitives.h"
 #include "externals/UnityEngine/Vector2.h"
 
-struct GameController : ILClass<GameController, 0x04c5a618> {
+struct GameController : ILClass<GameController, game::Address::GameController_TypeInfo> {
     struct ButtonIndex : ILClass<ButtonIndex> {
         static const int A = 0;
         static const int B = 1;
@@ -102,6 +102,6 @@ struct GameController : ILClass<GameController, 0x04c5a618> {
     };
 
     static inline int32_t GetAnalogStickButtonIndex(UnityEngine::Vector2::Object analogStick) {
-        return external<int32_t>(0x02ccc470, analogStick);
+        return external<int32_t>(game::Address::GameController_GetAnalogStickButtonIndex, analogStick);
     }
 };

@@ -48,7 +48,7 @@ namespace Dpr::UI {
         };
 
         inline void Set(Pml::PokePara::PokemonParam::Object* param, int32_t index) {
-            external<void>(0x01c5a4f0, this, param, index);
+            external<void>(game::Address::Dpr_UI_LevelUpPokemonPanel_Set, this, param, index);
         }
     };
 }

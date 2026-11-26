@@ -7,7 +7,7 @@ namespace Dpr::Box {
     struct BoxWork : ILClass<BoxWork> {
 
         static inline void SetTrayName(System::String::Object* str, int32_t tray) {
-            external<void>(0x01d322a0, str, tray);
+            external<void>(game::Address::Dpr_Box_BoxWork_SetTrayName, str, tray);
         }
     };
 }

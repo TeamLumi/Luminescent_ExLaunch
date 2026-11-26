@@ -18,7 +18,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline bool IsMyPokemon(Pml::PokePara::CoreParam* poke) {
-            return external<bool>(0x0203d330, this, poke);
+            return external<bool>(game::Address::Dpr_Battle_Logic_MyStatus_IsMyPokemon, this, poke);
         }
     };
 }

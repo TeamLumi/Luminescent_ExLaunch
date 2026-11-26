@@ -17,7 +17,7 @@ namespace Dpr::Battle::View::UI {
         };
 
         inline bool Initialize(Dpr::Battle::Logic::BTL_POKEPARAM::Object* btlParam, System::String::Object* trainerName) {
-            return external<bool>(0x01d22fb0, this, btlParam, trainerName);
+            return external<bool>(game::Address::Dpr_Battle_View_UI_BUISituationButton_Initialize, this, btlParam, trainerName);
         }
     };
 }

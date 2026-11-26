@@ -14,6 +14,6 @@ namespace Dpr::UI {
 
 namespace System::Collections::Generic {
     struct List$$SelectLanguageItem : List<List$$SelectLanguageItem, Dpr::UI::SelectLanguageItem> {
-        static inline StaticILMethod<0x04c898c8> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_SelectLanguageItem_Add> Method$$Add {};
     };
 }

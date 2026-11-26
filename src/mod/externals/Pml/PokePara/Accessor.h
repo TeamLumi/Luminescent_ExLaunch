@@ -7,7 +7,7 @@
 #include "externals/System/String.h"
 
 namespace Pml::PokePara {
-    struct Accessor : ILClass<Accessor, 0x04c64ec8> {
+    struct Accessor : ILClass<Accessor, game::Address::Pml_PokePara_Accessor_TypeInfo> {
         struct AccessState : ILStruct<AccessState> {
             bool isEncoded;
             bool isFastMode;
@@ -20,243 +20,243 @@ namespace Pml::PokePara {
         };
 
         inline void ctor() {
-            external<void>(0x024a3ed0, this);
+            external<void>(game::Address::Pml_PokePara_Accessor_ctor, this);
         }
 
         inline void SetLangID(uint8_t langId) {
-            external<void>(0x024a8bb0, this, langId);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetLangId, this, langId);
         }
 
         inline void SetOwnedOthersFlag(bool flag) {
-            external<void>(0x024ab2b0, this, flag);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetOwnedOthersFlag, this, flag);
         }
 
         inline int32_t GetWazaNo(uint8_t wazaIndex) {
-            return external<int32_t>(0x024a5d70, this, wazaIndex);
+            return external<int32_t>(game::Address::Pml_PokePara_Accessor_GetWazaNo, this, wazaIndex);
         }
 
         inline void SetFormNo(uint16_t formno) {
-            external<void>(0x024a9c30, this, formno);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetFormNo, this, formno);
         }
         
         inline void SetGetBall(uint8_t ball) {
-            external<void>(0x024aaba0, this, ball);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetGetBall, this, ball);
         }
 
         inline bool HaveCalcData() {
-            return external<bool>(0x024a40f0, this);
+            return external<bool>(game::Address::Pml_PokePara_Accessor_HaveCalcData, this);
         }
 
         inline uint32_t GetLevel() {
-            return external<uint32_t>(0x024a71a0, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetLevel, this);
         }
 
         inline uint8_t GetOyasex() {
-            return external<uint8_t>(0x024a7120, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetOyasex, this);
         }
 
         inline uint32_t GetID() {
-            return external<uint32_t>(0x024a4f50, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetID, this);
         }
 
         inline bool CompareOyaName(System::String::Object* cmpName) {
-            return external<bool>(0x024a7eb0, this, cmpName);
+            return external<bool>(game::Address::Pml_PokePara_Accessor_CompareOyaName, this, cmpName);
         }
 
         inline uint32_t GetFriendship() {
-            return external<uint32_t>(0x024a5030, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetFriendship, this);
         }
 
         inline uint8_t GetOthersFriendship() {
-            return external<uint8_t>(0x024a7960, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetOthersFriendship, this);
         }
 
         inline uint8_t GetStyle() {
-            return external<uint8_t>(0x024a58a0, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetStyle, this);
         }
 
         inline uint8_t GetBeautiful() {
-            return external<uint8_t>(0x024a5910, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetBeautiful, this);
         }
 
         inline uint8_t GetCute() {
-            return external<uint8_t>(0x024a5980, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetCute, this);
         }
 
         inline uint8_t GetClever() {
-            return external<uint8_t>(0x024a59f0, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetClever, this);
         }
 
         inline uint8_t GetStrong() {
-            return external<uint8_t>(0x024a5a60, this);
+            return external<uint8_t>(game::Address::Pml_PokePara_Accessor_GetStrong, this);
         }
 
         inline uint32_t GetItemNo() {
-            return external<uint32_t>(0x024a4ee0, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetItemNo, this);
         }
 
         inline bool IsTamago() {
-            return external<bool>(0x024a68b0, this);
+            return external<bool>(game::Address::Pml_PokePara_Accessor_IsTamago, this);
         }
 
         inline bool IsFuseiTamago() {
-            return external<bool>(0x024a4bc0, this);
+            return external<bool>(game::Address::Pml_PokePara_Accessor_IsFuseiTamago, this);
         }
 
         inline int32_t GetMonsNo() {
-            return external<int32_t>(0x024a4e70, this);
+            return external<int32_t>(game::Address::Pml_PokePara_Accessor_GetMonsNo, this);
         }
 
         inline uint16_t GetFormNo() {
-            return external<uint16_t>(0x024a64e0, this);
+            return external<uint16_t>(game::Address::Pml_PokePara_Accessor_GetFormNo, this);
         }
 
         inline uint32_t GetMultiPurposeWork() {
-            return external<uint32_t>(0x024a7f40, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetMultiPurposeWork, this);
         }
 
         inline void SetMultiPurposeWork(uint32_t value) {
-            external<void>(0x024abac0, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetMultiPurposeWork, this, value);
         }
 
         inline void AttachDecodedData(System::Byte_array* coreData, System::Byte_array* calcData) {
-            external<void>(0x024a3ee0, this, coreData, calcData);
+            external<void>(game::Address::Pml_PokePara_Accessor_AttachDecodedData, this, coreData, calcData);
         }
 
         inline void SetPersonalRnd(uint32_t rnd) {
-            external<void>(0x024a85a0, this, rnd);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetPersonalRnd, this, rnd);
         }
 
         inline void SetID(uint32_t id) {
-            external<void>(0x024a8950, this, id);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetID, this, id);
         }
 
         inline void SetColorRnd(uint32_t rnd) {
-            external<void>(0x024a8640, this, rnd);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetColorRnd, this, rnd);
         }
 
         inline void SetMonsNo(uint32_t monsno) {
-            external<void>(0x024a8870, this, monsno);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetMonsNo, this, monsno);
         }
 
         inline void SetLevel(uint8_t level) {
-            external<void>(0x024aad10, this, level);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetLevel, this, level);
         }
 
         inline void SetSeikaku(uint32_t seikaku) {
-            external<void>(0x024a9ca0, this, seikaku);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetSeikaku, this, seikaku);
         }
 
         inline void SetSeikakuHosei(uint32_t seikaku) {
-            external<void>(0x024a9d10, this, seikaku);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetSeikakuHosei, this, seikaku);
         }
 
         inline void SetSex(Pml::Sex sex) {
-            external<void>(0x024a9b90, this, sex);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetSex, this, sex);
         }
 
         inline void SetGetLevel(uint8_t level) {
-            external<void>(0x024aac10, this, level);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetGetLevel, this, level);
         }
 
         inline void SetCassetteVersion(uint32_t version) {
-            external<void>(0x024aa4e0, this, version);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetCassetteVersion, this, version);
         }
 
         inline void SetFriendship(uint8_t friendship) {
-            external<void>(0x024a8a30, this, friendship);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetFriendship, this, friendship);
         }
 
         inline void SetEquipRibbonNo(uint8_t ribbonNo) {
-            external<void>(0x024a9410, this, ribbonNo);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetEquipRibbonNo, this, ribbonNo);
         }
 
         inline void SetTalentHp(uint8_t value) {
-            external<void>(0x024a9700, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentHp, this, value);
         }
 
         inline void SetTalentAtk(uint8_t value) {
-            external<void>(0x024a9780, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentAtk, this, value);
         }
 
         inline void SetTalentDef(uint8_t value) {
-            external<void>(0x024a9800, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentDef, this, value);
         }
 
         inline void SetTalentSpAtk(uint8_t value) {
-            external<void>(0x024a9880, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentSpAtk, this, value);
         }
 
         inline void SetTalentSpDef(uint8_t value) {
-            external<void>(0x024a9900, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentSpDef, this, value);
         }
 
         inline void SetTalentAgi(uint8_t value) {
-            external<void>(0x024a9980, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentAgi, this, value);
         }
 
         inline void SetTokuseiNo(uint32_t tokusei) {
-            external<void>(0x024a8ad0, this, tokusei);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTokuseiNo, this, tokusei);
         }
 
         inline void SetTokusei1Flag(bool flag) {
-            external<void>(0x024a9e20, this, flag);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTokusei1Flag, this, flag);
         }
 
         inline void SetTokusei2Flag(bool flag) {
-            external<void>(0x024a9ea0, this, flag);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTokusei2Flag, this, flag);
         }
 
         inline void SetTokusei3Flag(bool flag) {
-            external<void>(0x024a9f40, this, flag);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTokusei3Flag, this, flag);
         }
 
         inline void SetFavoriteFlag(bool flag) {
-            external<void>(0x024a9fe0, this, flag);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetFavoriteFlag, this, flag);
         }
 
         inline void SetExp(uint32_t exp) {
-            external<void>(0x024a89c0, this, exp);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetExp, this, exp);
         }
 
         inline void SetTalentHeight(uint8_t value) {
-            external<void>(0x024ac100, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentHeight, this, value);
         }
 
         inline void SetTalentWeight(uint8_t value) {
-            external<void>(0x024ac170, this, value);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTalentWeight, this, value);
         }
 
         inline bool IsFastMode() {
-            return external<bool>(0x024a4250, this);
+            return external<bool>(game::Address::Pml_PokePara_Accessor_IsFastMode, this);
         }
 
         inline void StartFastMode() {
-            external<void>(0x024a4260, this);
+            external<void>(game::Address::Pml_PokePara_Accessor_StartFastMode, this);
         }
 
         inline void SetOyaName(System::String::Object* oyaName) {
-            external<void>(0x024aa550, this, oyaName);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetOyaName, this, oyaName);
         }
 
         inline void SetTamagoWazaNo(uint8_t index, uint32_t wazano) {
-            external<void>(0x024a9660, this, index, wazano);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTamagoWazaNo, this, index, wazano);
         }
 
         inline void SetTamagoFlag(bool flag) {
-            external<void>(0x024a9d80, this, flag);
+            external<void>(game::Address::Pml_PokePara_Accessor_SetTamagoFlag, this, flag);
         }
 
         inline void EndFastMode() {
-            external<void>(0x024a42a0, this);
+            external<void>(game::Address::Pml_PokePara_Accessor_EndFastMode, this);
         }
 
         inline uint32_t GetGetPlace() {
-            return external<uint32_t>(0x024a6ee0, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetGetPlace, this);
         }
 
         inline uint32_t GetBirthPlace() {
-            return external<uint32_t>(0x024a6f50, this);
+            return external<uint32_t>(game::Address::Pml_PokePara_Accessor_GetBirthPlace, this);
         }
     };
 }

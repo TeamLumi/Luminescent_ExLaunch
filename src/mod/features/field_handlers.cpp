@@ -185,9 +185,9 @@ void InstallActivatedFieldEffectHooks() {
 }
 
 void exl_field_handlers_main() {
-    Dpr_Battle_Logic_FieldStatus_initWork::InstallAtOffset(0x018fa2b0);
-    Section_FieldEffect_End_Execute::InstallAtOffset(0x021b53f0);
-    Field_system_array_new::InstallAtOffset(0x01904274);
+    Dpr_Battle_Logic_FieldStatus_initWork::InstallAtOffset(game::Address::Dpr_Battle_Logic_FieldStatus_initWork);
+    Section_FieldEffect_End_Execute::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_FieldEffect_End_Execute);
+    Field_system_array_new::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Field_cctor + 0x54);
 
     SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Weather"));
     SetActivatedFieldHandlers(array_index(FIELD_EFFECTS, "Mud Sport"));
@@ -195,21 +195,21 @@ void exl_field_handlers_main() {
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x018f54b8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fa1c4, Movz(W20, FIELD_EFFECT_COUNT + 1) },
-        { 0x018fabc8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018facc8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb028, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb200, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb2e8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb370, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb418, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb470, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb528, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x018fb598, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
-        { 0x02170b2c, CmpImmediate(W20, FIELD_EFFECT_COUNT + 1) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_CheckEffect_Int32 + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_Data_ctor + 0x44, Movz(W20, FIELD_EFFECT_COUNT + 1) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_AddDependPoke + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_RemoveEffect + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_IsDependPoke + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_IncTurnCount + 0x10, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_CheckEffect_Int32_UInt16 + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_CheckRemainingTurn + 0x10, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_GetPassedTurn + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_GetWholeTurn + 0x10, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_GetDependPokeID + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_FieldStatus_GetDependPokeCount + 0x8, CmpImmediate(W1, FIELD_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_Section_TurnCheck_Field_Execute + 0x9C, CmpImmediate(W20, FIELD_EFFECT_COUNT + 1) },
     };
     p.WriteInst(inst);
 

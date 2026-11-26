@@ -11,7 +11,7 @@
 bool AddPokemonExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_ADD_POKEMON_EXTRA\n");
-    system_load_typeinfo(0x43be);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdAddPokemon);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

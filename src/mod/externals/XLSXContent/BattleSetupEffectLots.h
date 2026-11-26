@@ -5,7 +5,7 @@
 #include "externals/UnityEngine/ScriptableObject.h"
 
 namespace XLSXContent {
-    struct BattleSetupEffectLots : ILClass<BattleSetupEffectLots, 0x04c5aad8> {
+    struct BattleSetupEffectLots : ILClass<BattleSetupEffectLots, game::Address::XLSXContent_BattleSetupEffectLots_TypeInfo> {
         struct SheetAttEffTable : ILClass<SheetAttEffTable> {
             struct Fields {
                 int32_t AttributeEx;

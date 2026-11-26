@@ -15,6 +15,6 @@ namespace Dpr::UI {
 
 namespace System::Collections::Generic {
     struct List$$SelectPlayerVisualItem : List<List$$SelectPlayerVisualItem, Dpr::UI::SelectPlayerVisualItem> {
-        static inline StaticILMethod<0x04c898f0> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_SelectPlayerVisualItem_Add> Method$$Add {};
     };
 }

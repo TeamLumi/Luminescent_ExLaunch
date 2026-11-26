@@ -7,14 +7,14 @@
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_Damage : ILClass<Section_FromEvent_Damage, 0x04c5b8f8> {
+    struct Section_FromEvent_Damage : ILClass<Section_FromEvent_Damage, game::Address::Dpr_Battle_Logic_Section_FromEvent_Damage_TypeInfo> {
         enum class EffectPlayMode : uint8_t {
             DISABLE = 0,
             ENABLE = 1,
             FORCE = 2,
         };
 
-        struct Description : ILClass<Description, 0x04c5b1d8> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_Damage_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 uint8_t targetPokeID;
@@ -32,17 +32,17 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb32c0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Damage_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5ad80> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_Damage_Result_TypeInfo> {
             struct Fields {
                 bool isSuccessed;
             };
 
             inline void ctor() {
-                external<void>(0x01fb3350, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Damage_Result_ctor, this);
             }
         };
 

@@ -8,7 +8,7 @@
 
 namespace Dpr::UI {
     struct SoftwareKeyboard : ILClass<SoftwareKeyboard> {
-        struct Param : ILClass<Param, 0x04c5ee00> {
+        struct Param : ILClass<Param, game::Address::Dpr_UI_SoftwareKeyboard_Param_TypeInfo> {
             struct Fields {
                 int32_t preset;
                 int32_t keyboardMode;
@@ -31,7 +31,7 @@ namespace Dpr::UI {
             };
 
             inline void ctor() {
-                external<void>(0x0184abe0, this);
+                external<void>(game::Address::Dpr_UI_SoftwareKeyboard_Param_ctor, this);
             }
         };
 
@@ -39,19 +39,19 @@ namespace Dpr::UI {
         };
 
         static inline int32_t LanguageMaxLength(int32_t maxLength, int32_t langId) {
-            return external<int32_t>(0x0184a650, maxLength, langId);
+            return external<int32_t>(game::Address::Dpr_UI_SoftwareKeyboard_LanguageMaxLength, maxLength, langId);
         }
 
         static inline System::String::Object* GetMessageText(System::String::Object* messageLabel) {
-            return external<System::String::Object*>(0x018485e0, messageLabel);
+            return external<System::String::Object*>(game::Address::Dpr_UI_SoftwareKeyboard_GetMessageText, messageLabel);
         }
 
         static inline System::ValueTuple2$$Bool$$String::Object InputCheck(System::String::Object* resultText, int32_t errorState) {
-            return external<System::ValueTuple2$$Bool$$String::Object>(0x0184a710, resultText, errorState);
+            return external<System::ValueTuple2$$Bool$$String::Object>(game::Address::Dpr_UI_SoftwareKeyboard_InputCheck, resultText, errorState);
         }
 
         static inline bool Open(Dpr::UI::SoftwareKeyboard::Param::Object* param, System::Func::Object* onInputCheck, UnityEngine::Events::UnityAction::Object* onComplete) {
-            return external<bool>(0x01848e70, param, onInputCheck, onComplete);
+            return external<bool>(game::Address::Dpr_UI_SoftwareKeyboard_Open, param, onInputCheck, onComplete);
         }
     };
 }

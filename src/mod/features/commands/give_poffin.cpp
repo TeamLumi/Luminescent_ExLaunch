@@ -9,7 +9,7 @@
 bool GivePoffin(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("_GIVE_POFFIN\n");
 
-    system_load_typeinfo(0x4521);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmd_ADD_MAROYAKA_POFFIN);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

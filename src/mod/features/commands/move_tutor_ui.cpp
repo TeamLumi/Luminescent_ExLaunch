@@ -59,8 +59,8 @@ void MoveTutorUI_Callback(Dpr::EvScript::EvDataManager::DisplayClass1544_0::Obje
 {
     Logger::log("MoveTutorUI_Callback\n");
 
-    system_load_typeinfo(0x31aa);
-    system_load_typeinfo(0x43f0);
+    system_load_typeinfo(game::TypeInfo::Pml_PokePara_CoreParam_InheriteTamagoWaza);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdCallWazaOshieUi);
 
     EvData::Aregment::Array* args = __this->fields.__4__this->fields._evArg;
 
@@ -112,9 +112,9 @@ bool MoveTutorUI(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_MOVE_TUTOR_UI\n");
 
-    system_load_typeinfo(0x31aa);
-    system_load_typeinfo(0x43ef);
-    system_load_typeinfo(0x43f0);
+    system_load_typeinfo(game::TypeInfo::Pml_PokePara_CoreParam_InheriteTamagoWaza);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdCallWazaOmoidashiUi);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdCallWazaOshieUi);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

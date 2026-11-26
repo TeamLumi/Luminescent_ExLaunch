@@ -20,7 +20,7 @@ void EvCmdAddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager, int32_t 
 bool AddTamagoExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_ADD_TAMAGO_EXTRA\n");
-    system_load_typeinfo(0x43bf);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdAddTamago);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
     auto azukariyaSeq = manager->fields._azukariyaSequence;

@@ -8,7 +8,7 @@
 #include "externals/UnityEngine/Events/UnityAction.h"
 
 namespace Audio {
-    struct AudioInstance : ILClass<AudioInstance, 0x04c59b68> {
+    struct AudioInstance : ILClass<AudioInstance, game::Address::Audio_AudioInstance_TypeInfo> {
         struct Fields {
             void * _akGameObj; // AkGameObj_o
             int32_t _listenerType;
@@ -27,11 +27,11 @@ namespace Audio {
         };
 
         inline void Stop() {
-            external<void>(0x02127e30, this);
+            external<void>(game::Address::Audio_AudioInstance_Stop, this);
         }
 
         inline AudioInstance* Play(UnityEngine::Events::UnityAction::Object* onFinished, bool isManualRemoved) {
-            return external<AudioInstance*>(0x021273d0, this, onFinished, isManualRemoved);
+            return external<AudioInstance*>(game::Address::Audio_AudioInstance_Play, this, onFinished, isManualRemoved);
         }
     };
 }

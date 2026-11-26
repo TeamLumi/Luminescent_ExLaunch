@@ -13,10 +13,10 @@ using namespace Dpr::Battle::Logic;
 HOOK_DEFINE_REPLACE(Handler_Dorobou) {
     static void Callback(EventFactor::EventHandlerArgs::Object **args, uint8_t pokeID)
     {
-        system_load_typeinfo(0xa92f);
-        system_load_typeinfo(0xa965);
-        system_load_typeinfo(0x43b9);
-        system_load_typeinfo(0x43ba);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Dorobou);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Waza_handler_Hatakiotosu_EndHit);
+        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdAddItemChk);
+        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdAddItem);
         Common::getClass()->initIfNeeded();
 
         // Check that we're looking at the attacking pokémon.
@@ -119,6 +119,6 @@ HOOK_DEFINE_REPLACE(Dorobou_CheckEnable) {
 };
 
 void InstallHooks_Move_Thief() {
-    Handler_Dorobou::InstallAtOffset(0x01807cb0);
-    Dorobou_CheckEnable::InstallAtOffset(0x01d0e720);
+    Handler_Dorobou::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Waza_handler_Dorobou);
+    Dorobou_CheckEnable::InstallAtOffset(game::Address::Dpr_Battle_Logic_Common_Dorobou_CheckEnable);
 }

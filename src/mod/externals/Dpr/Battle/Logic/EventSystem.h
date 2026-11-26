@@ -26,27 +26,27 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void EVENTVAR_Push() {
-            external<void>(0x018f5510, this);
+            external<void>(game::Address::Dpr_Battle_Logic_EventSystem_EVENTVAR_Push, this);
         }
 
         inline void EVENTVAR_SetConstValue(EventVar::Label label, int32_t value) {
-            external<void>(0x018f5b60, this, label, value);
+            external<void>(game::Address::Dpr_Battle_Logic_EventSystem_EVENTVAR_SetConstValue, this, label, value);
         }
 
         inline void EVENTVAR_SetRewriteOnceValue(EventVar::Label label, int32_t value) {
-            external<void>(0x018f5c60, this, label, value);
+            external<void>(game::Address::Dpr_Battle_Logic_EventSystem_EVENTVAR_SetRewriteOnceValue, this, label, value);
         }
 
         inline void CallEvent(EventID eventID) {
-            external<void>(0x018f4a00, this, eventID);
+            external<void>(game::Address::Dpr_Battle_Logic_EventSystem_CallEvent, this, eventID);
         }
 
         inline int32_t EVENTVAR_GetValue(EventVar::Label label) {
-            return external<int32_t>(0x018f60a0, this, label);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_EventSystem_EVENTVAR_GetValue, this, label);
         }
 
         inline void EVENTVAR_Pop() {
-            external<void>(0x018f56a0, this);
+            external<void>(game::Address::Dpr_Battle_Logic_EventSystem_EVENTVAR_Pop, this);
         }
     };
 }

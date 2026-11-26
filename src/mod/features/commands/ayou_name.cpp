@@ -8,7 +8,7 @@
 
 bool AYouName(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("_AYOU_NAME\n");
-    system_load_typeinfo(0x44ac);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdPokemonNameExtra);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

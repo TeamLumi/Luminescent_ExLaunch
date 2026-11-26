@@ -11,8 +11,8 @@
 
 HOOK_DEFINE_REPLACE(WildHeldItems) {
     static uint16_t Callback(Pml::PokePara::PokemonParam::Object *pp,int32_t itemRnd,int32_t rnd1,int32_t rnd2) {
-        system_load_typeinfo(0x3f54);
-        system_load_typeinfo(0xa0a8);
+        system_load_typeinfo(game::TypeInfo::Dpr_EncountTools_SetWildPokemonItem);
+        system_load_typeinfo(game::TypeInfo::Dpr_UnderGround_UgPokeLottery_CreatePokemonParam_by_Tokusei);
 
         auto coreParam = reinterpret_cast<Pml::PokePara::CoreParam::Object *>(pp);
 
@@ -78,5 +78,5 @@ HOOK_DEFINE_REPLACE(WildHeldItems) {
 };
 
 void exl_wild_held_items_main(){
-    WildHeldItems::InstallAtOffset(0x02c3aab0);
+    WildHeldItems::InstallAtOffset(game::Address::Dpr_EncountTools_SetWildPokemonItem);
 };

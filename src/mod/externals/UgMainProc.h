@@ -10,8 +10,8 @@ namespace System::Collections::Generic {
     struct List$$UgMainProc_SimbolMons;
 }
 
-struct UgMainProc : ILClass<UgMainProc, 0x04c63d10> {
-    struct DisplayClass9_0 : ILClass<DisplayClass9_0, 0x04c655d8> {
+struct UgMainProc : ILClass<UgMainProc, game::Address::UgMainProc_TypeInfo> {
+    struct DisplayClass9_0 : ILClass<DisplayClass9_0, game::Address::UgMainProc_c_DisplayClass9_0_TypeInfo> {
         struct Fields {
             void* sm; // UgMainProc_SimbolMons_o*
             Pml::PokePara::PokemonParam::Object* param;

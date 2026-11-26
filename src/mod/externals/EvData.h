@@ -12,7 +12,7 @@ namespace System::Collections::Generic {
     struct List$$Command;
 }
 
-struct EvData : ILClass<EvData, 0x04c5f100> {
+struct EvData : ILClass<EvData, game::Address::EvData_TypeInfo> {
     enum class ArgType : int32_t {
         Command = 0,
         Float = 1,
@@ -48,7 +48,7 @@ struct EvData : ILClass<EvData, 0x04c5f100> {
     };
     
     inline System::String::Object * GetString(int32_t index) {
-        return external<System::String::Object *>(0x01f115b0, this, index);
+        return external<System::String::Object *>(game::Address::EvData_GetString, this, index);
     }
 };
 

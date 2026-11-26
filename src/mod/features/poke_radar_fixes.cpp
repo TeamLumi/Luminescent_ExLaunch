@@ -7,7 +7,7 @@
 
 HOOK_DEFINE_REPLACE(Dpr_Field_SwayGrass_RensaTalent) {
     static uint8_t Callback() {
-        system_load_typeinfo(0x8259);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_SwayGrass_RensaTalent);
         Dpr::Field::SwayGrass::getClass()->initIfNeeded();
 
         bool isSwayGrass = Dpr::Field::SwayGrass::getClass()->static_fields->is_swaygrass_flag;
@@ -57,14 +57,14 @@ HOOK_DEFINE_REPLACE(Dpr_Field_SwayGrass_RensaTalent) {
 };
 
 void exl_poke_radar_fixes_main() {
-    Dpr_Field_SwayGrass_RensaTalent::InstallAtOffset(0x019bd110);
+    Dpr_Field_SwayGrass_RensaTalent::InstallAtOffset(game::Address::Dpr_Field_SwayGrass_RensaTalent);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x019bd0a4, Movz(W8, 100) },    // Catching on ring 4 is 100%
-        { 0x019bd098, Movz(W8, 97) },     // Defeating on ring 4 is 97%
+        { game::Address::Dpr_Field_SwayGrass_BtlResultRensa + 0x2F4, Movz(W8, 100) },    // Catching on ring 4 is 100%
+        { game::Address::Dpr_Field_SwayGrass_BtlResultRensa + 0x2E8, Movz(W8, 97) },     // Defeating on ring 4 is 97%
     };
     p.WriteInst(inst);
 };

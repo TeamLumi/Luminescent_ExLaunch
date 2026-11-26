@@ -10,7 +10,7 @@ namespace Dpr::Message {
         };
 
         static inline System::String::Object* GetLanguageVariant(int32_t langID) {
-            return external<System::String::Object*>(0x0210a420, langID);
+            return external<System::String::Object*>(game::Address::Dpr_Message_MessageHelper_GetLanguageVariant, langID);
         }
     };
 }

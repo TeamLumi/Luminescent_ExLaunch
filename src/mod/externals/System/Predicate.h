@@ -8,7 +8,7 @@ namespace System {
     struct Predicate : ILClass<Predicate> {
         struct Fields : System::MulticastDelegate::Fields {};
 
-        static const inline long PoffinData__TypeInfo = 0x04c5a530;
+        static const inline game::Address PoffinData__TypeInfo = game::Address::System_Predicate_PoffinData_TypeInfo;
 
         template <typename T, typename... Args>
         inline void ctor(T* owner, ILMethod<T, Args...>& mi) {
@@ -16,7 +16,7 @@ namespace System {
         }
 
         inline void ctor(void* owner, MethodInfo* delegate) {
-            external<void>(0x025e3b60, this, owner, delegate);
+            external<void>(game::Address::System_Predicate_PoffinData_ctor, this, owner, delegate);
         }
     };
 }

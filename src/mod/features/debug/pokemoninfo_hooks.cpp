@@ -13,5 +13,5 @@ HOOK_DEFINE_TRAMPOLINE(PokemonInfo_Catalog_Checked) {
 };
 
 void exl_pokemoninfo_hooks_main() {
-    PokemonInfo_Catalog_Checked::InstallAtOffset(0x02cccf40);
+    PokemonInfo_Catalog_Checked::InstallAtOffset(game::Address::GameData_DataManager_GetPokemonCatalog_Int32);
 }

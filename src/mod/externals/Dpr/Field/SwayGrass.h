@@ -8,8 +8,8 @@
 #include "externals/UnityEngine/Vector3.h"
 
 namespace Dpr::Field {
-    struct SwayGrass : ILClass<SwayGrass, 0x04c5ac58> {
-        struct GrassData : ILClass<GrassData, 0x04c5f238> {
+    struct SwayGrass : ILClass<SwayGrass, game::Address::Dpr_Field_SwayGrass_TypeInfo> {
+        struct GrassData : ILClass<GrassData, game::Address::Dpr_Field_SwayGrass_GrassData_TypeInfo> {
             struct Fields {
                 bool enable;
                 float effectTime;
@@ -23,7 +23,7 @@ namespace Dpr::Field {
             };
 
             inline void ctor() {
-                external<void>(0x019bafd0, this);
+                external<void>(game::Address::Dpr_Field_SwayGrass_GrassData_ctor, this);
             }
         };
 
@@ -42,19 +42,19 @@ namespace Dpr::Field {
             bool _callStopSwayBGM;
         };
 
-        static inline StaticILMethod<0x04c7d300, Audio::AudioInstance> Method$$Play$$OnAudioInstanceFinished {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Field_SwayGrass_OnAudioInstanceFinished, Audio::AudioInstance> Method$$Play$$OnAudioInstanceFinished {};
 
         static inline void StopSE() {
-            external<void>(0x019b4fa0);
+            external<void>(game::Address::Dpr_Field_SwayGrass_StopSE);
         }
 
         static inline bool SwayGrass_CheckSpEncount(Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object *info, UnityEngine::Vector3::Object *pos, float size) {
             UnityEngine::Vector3::Fields posProxy = { .x = pos->fields.x, .y = pos->fields.y, .z = pos->fields.z };
-            return external<bool>(0x019b43d0, info, &posProxy, size);
+            return external<bool>(game::Address::Dpr_Field_SwayGrass_SwayGrass_CheckSpEncount, info, &posProxy, size);
         }
 
         static inline int32_t RensaNum(uint32_t rensa, bool omamori) {
-            return external<int32_t>(0x019bc470, rensa, omamori);
+            return external<int32_t>(game::Address::Dpr_Field_SwayGrass_RensaNum, rensa, omamori);
         }
     };
 }

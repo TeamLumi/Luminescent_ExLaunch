@@ -6,7 +6,7 @@
 #include "externals/XLSXContent/PersonalTable.h"
 
 namespace Pml {
-    struct PmlUse : ILClass<PmlUse, 0x04c5b4d0> {
+    struct PmlUse : ILClass<PmlUse, game::Address::Pml_PmlUse_TypeInfo> {
         struct Fields {
             bool isAutoLoad;
             XLSXContent::PersonalTable::Object* personalTotal;
@@ -32,15 +32,15 @@ namespace Pml {
         };
 
         static inline Pml::PmlUse::Object* get_Instance() {
-            return external<Pml::PmlUse::Object*>(0x024a0110);
+            return external<Pml::PmlUse::Object*>(game::Address::Pml_PmlUse_get_Instance);
         }
 
         inline int32_t get_LangId() {
-            return external<int32_t>(0x024a3c20, this);
+            return external<int32_t>(game::Address::Pml_PmlUse_get_LangId, this);
         }
 
         inline uint8_t get_CassetVersion() {
-            return external<uint8_t>(0x024a3cb0, this);
+            return external<uint8_t>(game::Address::Pml_PmlUse_get_CassetVersion, this);
         }
     };
 }

@@ -26,7 +26,7 @@ namespace Dpr::Battle::View::Objects {
         };
 
         inline uint8_t get_IsGChange() {
-            return external<uint8_t>(0x01e51c70, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_View_Objects_BOPokemon_get_IsGChange, this);
         }
     };
 }

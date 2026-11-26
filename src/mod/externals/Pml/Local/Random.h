@@ -11,7 +11,7 @@ namespace Pml::Local {
         };
 
         static inline uint32_t GetValue() {
-            return external<uint32_t>(0x024a00a0);
+            return external<uint32_t>(game::Address::Pml_Local_Random_GetValue);
         }
     };
 }

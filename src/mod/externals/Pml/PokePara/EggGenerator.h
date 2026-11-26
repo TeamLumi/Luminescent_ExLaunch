@@ -28,7 +28,7 @@ namespace Pml::PokePara {
         struct Fields {};
 
         static inline void SetupEggParam(CoreParam::Object* egg, EggParam::Object* egg_param, Parents::Object* parents, Setting::Object* setting) {
-            external<void>(0x0204e970, egg, egg_param, parents, setting);
+            external<void>(game::Address::Pml_PokePara_EggGenerator_SetupEggParam, egg, egg_param, parents, setting);
         }
     };
 }

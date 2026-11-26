@@ -5,13 +5,13 @@
 #include "externals/UnityEngine/Component.h"
 
 namespace UnityEngine {
-    struct Collider : ILClass<Collider, 0x04c57608> {
+    struct Collider : ILClass<Collider, game::Address::UnityEngine_Collider_TypeInfo> {
         struct Fields : UnityEngine::Component::Fields {
 
         };
 
         inline void set_enabled(bool value) {
-            external<void>(0x02c1c600, this, value);
+            external<void>(game::Address::UnityEngine_Collider_set_enabled, this, value);
         }
     };
 }

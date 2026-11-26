@@ -34,5 +34,5 @@ HOOK_DEFINE_TRAMPOLINE(DailyEventWork$$ResetScriptFlag) {
 };
 
 void exl_time_flags_main() {
-    DailyEventWork$$ResetScriptFlag::InstallAtOffset(0x01ab43f0);
+    DailyEventWork$$ResetScriptFlag::InstallAtOffset(game::Address::DailyEventWork_ResetScriptFlag);
 }

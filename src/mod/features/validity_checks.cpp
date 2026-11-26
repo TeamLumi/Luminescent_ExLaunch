@@ -32,9 +32,9 @@ HOOK_DEFINE_REPLACE(set_fuseiTamagoFlag) {
 };
 
 void exl_validity_checks_main() {
-    GetDprIllegalFlag::InstallAtOffset(0x024a8520);
-    IsDuplicatedPokemonParam::InstallAtOffset(0x01997390);
-    SetDprIllegalFlag::InstallAtOffset(0x024a84a0);
-    set_fuseiTamagoFlag::InstallAtOffset(0x02043460);
+    GetDprIllegalFlag::InstallAtOffset(game::Address::Pml_PokePara_Accessor_GetDprIllegalFlag);
+    IsDuplicatedPokemonParam::InstallAtOffset(game::Address::PokeDupeChecker_IsDuplicatedPokemonParam);
+    SetDprIllegalFlag::InstallAtOffset(game::Address::Pml_PokePara_Accessor_SetDprIllegalFlag);
+    set_fuseiTamagoFlag::InstallAtOffset(game::Address::Pml_PokePara_CoreDataHeader_set_fuseiTamagoFlag);
 }
 

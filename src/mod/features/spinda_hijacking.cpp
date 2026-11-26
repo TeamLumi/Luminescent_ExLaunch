@@ -17,8 +17,8 @@
 HOOK_DEFINE_TRAMPOLINE(PatcheelPattern$$SetPattern) {
     // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
     static void Callback(Dpr::PatcheelPattern::Object* __this, uint32_t personalRand, Pml::PokePara::PokemonParam::Object* param) {
-        system_load_typeinfo(0x7deb);
-        system_load_typeinfo(0x6d4d);
+        system_load_typeinfo(game::TypeInfo::SimpleCamera_GetPositions);
+        system_load_typeinfo(game::TypeInfo::Dpr_FureaiHiroba_PokeWalkerDebug_CreateReactionArea_b_12_0);
 
         if (param == nullptr)
         {
@@ -155,7 +155,7 @@ HOOK_DEFINE_REPLACE(BattlePokemonEntity$$SetPatcheelPattern) {
     // Third argument is normally a MethodInfo, we are sneaking in the PokemonParam in there :)
     static void Callback(BattlePokemonEntity::Object* __this, uint32_t rand, Pml::PokePara::PokemonParam::Object* param) {
         Logger::log("BattlePokemonEntity$$SetPatcheelPattern\n");
-        system_load_typeinfo(0x2226);
+        system_load_typeinfo(game::TypeInfo::BattlePokemonEntity_SetPatcheelPattern);
         UnityEngine::_Object::getClass()->initIfNeeded();
 
         if (UnityEngine::_Object::op_Inequality((UnityEngine::_Object::Object*)__this->fields._patcheelPattern_k__BackingField, nullptr))
@@ -194,7 +194,7 @@ HOOK_DEFINE_TRAMPOLINE(Demo_Hatch_DisplayClass9_0$$Enter_b__2) {
     static void Callback(Dpr::Demo::Demo_Hatch::DisplayClass9_0::Object* __this, UnityEngine::_Object::Object* asset) {
         Orig(__this, asset);
 
-        system_load_typeinfo(0x98bd);
+        system_load_typeinfo(game::TypeInfo::UgMainProc_c_DisplayClass9_0_CreatePoke_b_0);
 
         if (System::String::op_Equality(asset->get_Name(), __this->fields.tamagoCatalog->fields.AssetBundleName)) {
             auto pokeParam = __this->fields.__4__this->fields.param;
@@ -211,26 +211,26 @@ HOOK_DEFINE_TRAMPOLINE(Demo_Hatch_DisplayClass9_0$$Enter_b__2) {
 
 
 void exl_spinda_hijacking_main() {
-    PatcheelPattern$$SetPattern::InstallAtOffset(0x01bcb200);
-    BattlePokemonEntity$$SetPatcheelPattern::InstallAtOffset(0x01d77990);
-    PatcheelPattern$$Awake::InstallAtOffset(0x01bcb1f0);
+    PatcheelPattern$$SetPattern::InstallAtOffset(game::Address::Dpr_PatcheelPattern_SetPattern);
+    BattlePokemonEntity$$SetPatcheelPattern::InstallAtOffset(game::Address::BattlePokemonEntity_SetPatcheelPattern);
+    PatcheelPattern$$Awake::InstallAtOffset(game::Address::Dpr_PatcheelPattern_Awake);
 
-    TimeLineBinder$$Bind_b__30_0::InstallAtOffset(0x0186687c);
-    TimeLineMotion$$Update::InstallAtOffset(0x01869978);
+    TimeLineBinder$$Bind_b__30_0::InstallAtOffset(game::Address::Dpr_SubContents_TimeLineBinder_Bind_b_30_0 + 0x48C);
+    TimeLineMotion$$Update::InstallAtOffset(game::Address::Dpr_SubContents_TimeLineMotion_Update + 0xD8);
 
     // Egg in hatching Demo
-    Demo_Hatch_DisplayClass9_0$$Enter_b__2::InstallAtOffset(0x01ad8260);
+    Demo_Hatch_DisplayClass9_0$$Enter_b__2::InstallAtOffset(game::Address::Dpr_Demo_Demo_Hatch_c_DisplayClass9_0_Enter_b_2);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01e520f0, MovRegister(X2, X20) }, // BOPokemon$$Initialize
-        { 0x01add5ac, LdrRegisterImmediate(X2, X20, 0x19 /*X20 + 0xC8*/) }, // Demo_PoffinEat.<Enter>d__16$$MoveNext
-        { 0x01cd94f0, MovRegister(X2, X26) }, // FieldWalkingManager.<CreatePartner>d__43$$MoveNext
-        { 0x01a7fc10, LdrRegisterImmediate(X2, X19, 0x6 /*X19 + 0x30*/) }, // FureaiHiroba_PokeFactory.<AddPoke>d__10$$MoveNext
-        { 0x01a104b8, MovRegister(X2, X19) }, // UIModelViewController$$_SetupPokemonModel
-        { 0x018d6068, LdrRegisterImmediate(X2, X19, 0x3 /*X8 + 0x18*/) }, // UgMainProc.<>c__DisplayClass9_0$$<CreatePoke>b__0
+        { game::Address::Dpr_Battle_View_Objects_BOPokemon_Initialize + 0x440, MovRegister(X2, X20) }, // BOPokemon$$Initialize
+        { game::Address::Dpr_Demo_Demo_PoffinEat_Enter_d_16_MoveNext + 0x6CC, LdrRegisterImmediate(X2, X20, 0x19 /*X20 + 0xC8*/) }, // Demo_PoffinEat.<Enter>d__16$$MoveNext
+        { game::Address::Dpr_Field_Walking_FieldWalkingManager_CreatePartner_d_43_MoveNext + 0xB60, MovRegister(X2, X26) }, // FieldWalkingManager.<CreatePartner>d__43$$MoveNext
+        { game::Address::Dpr_FureaiHiroba_FureaiHiroba_PokeFactory_AddPoke_d_10_MoveNext + 0x4E0, LdrRegisterImmediate(X2, X19, 0x6 /*X19 + 0x30*/) }, // FureaiHiroba_PokeFactory.<AddPoke>d__10$$MoveNext
+        { game::Address::Dpr_UI_UIModelViewController_SetupPokemonModel + 0x2D8, MovRegister(X2, X19) }, // UIModelViewController$$_SetupPokemonModel
+        { game::Address::UgMainProc_c_DisplayClass9_0_CreatePoke_b_0 + 0x308, LdrRegisterImmediate(X2, X19, 0x3 /*X8 + 0x18*/) }, // UgMainProc.<>c__DisplayClass9_0$$<CreatePoke>b__0
     };
     p.WriteInst(inst);
 }

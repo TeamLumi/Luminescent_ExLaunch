@@ -14,7 +14,7 @@ namespace Dpr::EvScript {
         };
 
         inline EvData::Script::Object* get_GetScript() {
-            return external<EvData::Script::Object*>(0x019b29a0, this);
+            return external<EvData::Script::Object*>(game::Address::Dpr_EvScript_EvScriptData_get_GetScript, this);
         }
     };
 }

@@ -11,7 +11,7 @@
 
 HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
     static void Callback(Dpr::UI::UIWazaManage::Object* __this) {
-        system_load_typeinfo(0x9e21);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIWazaManage_SetupPokemonInfo);
 
         Dpr::Message::MessageWordSetHelper::getClass()->initIfNeeded();
         Dpr::Message::MessageWordSetHelper::SetPokemonNickNameWord(0, __this->fields.param.fields.PokemonParam->cast<Pml::PokePara::CoreParam>(), true);
@@ -118,9 +118,9 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$SetupPokemonInfo) {
 
 HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
     static void Callback(Dpr::UI::UIWazaManage::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x9e1b);
-        system_load_typeinfo(0x9752);
-        system_load_typeinfo(0x9753);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIWazaManage_OnUpdate);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIWazaManage_c_DisplayClass39_0_OnUpdate_b_2);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIWazaManage_c_DisplayClass39_0_OnUpdate_b_3);
 
         Dpr::UI::UIManager::getClass()->initIfNeeded();
         auto currWindow = Dpr::UI::UIManager::get_Instance()->GetCurrentUIWindow(Dpr::UI::UIManager::Method$$GetCurrentUIWindow_UIWindow_);
@@ -257,6 +257,6 @@ HOOK_DEFINE_REPLACE(UIWazaManage$$OnUpdate) {
 };
 
 void exl_move_tutor_relearner_main() {
-    UIWazaManage$$SetupPokemonInfo::InstallAtOffset(0x01dd40e0);
-    UIWazaManage$$OnUpdate::InstallAtOffset(0x01dd4ae0);
+    UIWazaManage$$SetupPokemonInfo::InstallAtOffset(game::Address::Dpr_UI_UIWazaManage_SetupPokemonInfo);
+    UIWazaManage$$OnUpdate::InstallAtOffset(game::Address::Dpr_UI_UIWazaManage_OnUpdate);
 }

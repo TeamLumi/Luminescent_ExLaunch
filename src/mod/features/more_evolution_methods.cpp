@@ -244,7 +244,7 @@ void CopyEvolveSituation(Pml::PokePara::EvolveSituation::Object* situation)
 HOOK_DEFINE_REPLACE(IsSatisfyEvolveConditionLevelUp) {
     static bool Callback(Pml::PokePara::EvolveManager::Object* __this, Pml::PokePara::CoreParam::Object* poke, Pml::PokeParty::Object* party,
                          Pml::PokePara::EvolveSituation::Object* situation, XLSXContent::EvolveTable::SheetEvolve::Object* evolveData, int32_t evolveRouteIndex) {
-        system_load_typeinfo(0x4724);
+        system_load_typeinfo(game::TypeInfo::Pml_PokePara_EvolveManager_IsSatisfyEvolveConditionLevelUp);
 
         Logger::log("IsSatisfyEvolveConditionLevelUp\n");
         LogExtraData();
@@ -518,7 +518,7 @@ HOOK_DEFINE_INLINE(BattleProc_FinalizeCoroutine_AdjustEvolveSituation) {
 HOOK_DEFINE_REPLACE(CoreParam_Evolve) {
     static void Callback(Pml::PokePara::CoreParam::Object* __this, int32_t nextMonsno, uint32_t routeIndex) {
         Logger::log("CoreParam_Evolve\n");
-        system_load_typeinfo(0x319b);
+        system_load_typeinfo(game::TypeInfo::Pml_PokePara_CoreParam_Evolve);
 
         int32_t monsno = __this->GetMonsNo();
         uint16_t formno = __this->GetFormNo();
@@ -615,16 +615,16 @@ HOOK_DEFINE_TRAMPOLINE(PlayReportManager_AddWalkCnt) {
 };
 
 void exl_evolution_methods_main() {
-    IsSatisfyEvolveConditionLevelUp::InstallAtOffset(0x020525d0);
-    BattleProc_FinalizeCoroutine_AdjustEvolveSituation::InstallAtOffset(0x0187e5b8);
-    CoreParam_Evolve::InstallAtOffset(0x020496a0);
+    IsSatisfyEvolveConditionLevelUp::InstallAtOffset(game::Address::Pml_PokePara_EvolveManager_IsSatisfyEvolveConditionLevelUp);
+    BattleProc_FinalizeCoroutine_AdjustEvolveSituation::InstallAtOffset(game::Address::Dpr_Battle_Logic_BattleProc_FinalizeCoroutine_d_34_MoveNext + 0x428);
+    CoreParam_Evolve::InstallAtOffset(game::Address::Pml_PokePara_CoreParam_Evolve);
 
-    FieldWalkingManager_UpdatePartnerPokeIndex::InstallAtOffset(0x01cd6310);
-    PlayReportManager_AddWalkCnt::InstallAtOffset(0x02cea1d0);
+    FieldWalkingManager_UpdatePartnerPokeIndex::InstallAtOffset(game::Address::Dpr_Field_Walking_FieldWalkingManager_UpdatePartnerPokeIndex);
+    PlayReportManager_AddWalkCnt::InstallAtOffset(game::Address::PlayReportManager_AddWalkCnt);
 
     // Always check for evolutions, even if none are ready, and clear the extra data before checking
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0x0187e484);
+    exl::patch::CodePatcher p(game::Address::Dpr_Battle_Logic_BattleProc_FinalizeCoroutine_d_34_MoveNext + 0x2F4);
     p.BranchLinkInst((void*)&ClearExtraEvoData);
 }

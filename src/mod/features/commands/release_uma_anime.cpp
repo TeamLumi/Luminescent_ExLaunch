@@ -13,7 +13,7 @@ bool ReleaseUmaAnime(Dpr::EvScript::EvDataManager::Object* manager)
     Logger::log("_RELEASE_UMA_ANIME\n");
     UnityEngine::_Object::getClass()->initIfNeeded();
     SmartPoint::AssetAssistant::AssetManager::getClass()->initIfNeeded();
-    system_load_typeinfo(0x4594);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmd_RELEASE_UMA_ANIME);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

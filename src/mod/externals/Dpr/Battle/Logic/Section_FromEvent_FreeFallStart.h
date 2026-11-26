@@ -6,7 +6,7 @@
 #include "externals/Dpr/Battle/Logic/WazaParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_FreeFallStart : ILClass<Section_FromEvent_FreeFallStart, 0x04c5b948> {
+    struct Section_FromEvent_FreeFallStart : ILClass<Section_FromEvent_FreeFallStart, game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_TypeInfo> {
         struct Description : ILClass<Description> {
             struct Fields {
                 uint8_t attackerID;
@@ -15,33 +15,33 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb4d50, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5af90> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Result_TypeInfo> {
             struct Fields {
                 bool isSucceeded;
                 bool isFailMessageDisplayed;
             };
 
             inline void ctor() {
-                external<void>(0x01fb4d90, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_Result_ctor, this);
             }
         };
 
         struct Fields : Section::Fields {};
 
         inline uint32_t getWeight(BTL_POKEPARAM::Object* poke) {
-            return external<uint32_t>(0x01fb4860, this, poke);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_getWeight, this, poke);
         }
 
         inline void onMamoruSuccess(BTL_POKEPARAM::Object* attacker, BTL_POKEPARAM::Object* target, WazaParam::Object* wazaParam) {
-            external<void>(0x01fb4990, this, attacker, target, wazaParam);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_onMamoruSuccess, this, attacker, target, wazaParam);
         }
 
         inline void setFreeFallSick(BTL_POKEPARAM::Object* attacker, BTL_POKEPARAM::Object* target) {
-            external<void>(0x01fb4b30, this, attacker, target);
+            external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_FreeFallStart_setFreeFallSick, this, attacker, target);
         }
     };
 }

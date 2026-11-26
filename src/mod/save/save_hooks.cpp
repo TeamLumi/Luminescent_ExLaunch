@@ -98,8 +98,8 @@ nn::json WriteCustomSaveData() {
 
 HOOK_DEFINE_REPLACE(PlayerWork$$CustomLoadOperation) {
     static bool Callback(PlayerWork::Object* playerWork) {
-        system_load_typeinfo(0x6a91);
-        system_load_typeinfo(0x6ad4);
+        system_load_typeinfo(game::TypeInfo::PlayerWork_CustomLoadOperation);
+        system_load_typeinfo(game::TypeInfo::PlayerWork_ToBytes_PlayerWork_SaveData);
         Dpr::NX::SaveSystem::getClass()->initIfNeeded();
 
         // Initialize version as "Vanilla" prior to loading.
@@ -133,8 +133,16 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomLoadOperation) {
     }
 };
 
+static_assert(offsetof(PlayerWork::Object, fields._saveData.fields.playerData.fields.mystatus.fields.rom_code) == 0xf4);
+static void SetSaveEdition(PlayerWork::Object* playerWork) {
+    using exl::util::offsets::Game;
+    playerWork->fields._saveData.fields.playerData.fields.mystatus.fields.rom_code =
+        exl::util::offsets::GetGame() == Game::ShiningPearl130 ? 1 : 0;
+}
+
 HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveOperation) {
     static bool Callback(PlayerWork::Object* playerWork) {
+        SetSaveEdition(playerWork);
         Dpr::NX::SaveSystem::Save(nullptr, playerWork->fields._isMainSave, playerWork->fields._isBackupSave);
 
         playerWork->fields._isMainSave = true;
@@ -145,7 +153,8 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveOperation) {
 
 HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveAsyncOperation) {
     static bool Callback(PlayerWork::Object* playerWork) {
-        system_load_typeinfo(0x6a92);
+        SetSaveEdition(playerWork);
+        system_load_typeinfo(game::TypeInfo::PlayerWork_CustomSaveAsyncOperation);
         playerWork->OnPreSave();
         Dpr::NX::SaveSystem::SaveAsync(nullptr, playerWork->fields._isMainSave, playerWork->fields._isBackupSave);
 
@@ -157,7 +166,7 @@ HOOK_DEFINE_REPLACE(PlayerWork$$CustomSaveAsyncOperation) {
 
 HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
     static bool Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
-        system_load_typeinfo(0x757e);
+        system_load_typeinfo(game::TypeInfo::Dpr_NX_SaveSystem_Save);
         Dpr::NX::SaveSystem::getClass()->initIfNeeded();
         Dpr::NX::SaveSystem::getClass()->static_fields->_Instance->MountSaveData();
         auto playerWork = PlayerWork::get_instance();
@@ -192,7 +201,7 @@ HOOK_DEFINE_REPLACE(SaveSystem$$Save) {
 
 HOOK_DEFINE_REPLACE(SaveSystem$$SaveAsync) {
     static void Callback(System::Byte_array* data, bool writeMain, bool writeBackup) {
-        system_load_typeinfo(0x757c);
+        system_load_typeinfo(game::TypeInfo::Dpr_NX_SaveSystem_SaveAsync);
         Dpr::NX::SaveSystem::getClass()->initIfNeeded();
 
         auto saveSystem = Dpr::NX::SaveSystem::getClass()->static_fields->_Instance;
@@ -218,14 +227,14 @@ void exl_save_main() {
     exl_migration_main();
 
     // Loading
-    PlayerWork$$CustomLoadOperation::InstallAtOffset(0x02ceb850);
+    PlayerWork$$CustomLoadOperation::InstallAtOffset(game::Address::PlayerWork_CustomLoadOperation);
 
     // Saving
-    PlayerWork$$CustomSaveOperation::InstallAtOffset(0x02cebf00);
-    PlayerWork$$CustomSaveAsyncOperation::InstallAtOffset(0x02cec400);
-    SaveSystem$$Save::InstallAtOffset(0x01ddf3e0);
-    SaveSystem$$SaveAsync::InstallAtOffset(0x01ddf680);
+    PlayerWork$$CustomSaveOperation::InstallAtOffset(game::Address::PlayerWork_CustomSaveOperation);
+    PlayerWork$$CustomSaveAsyncOperation::InstallAtOffset(game::Address::PlayerWork_CustomSaveAsyncOperation);
+    SaveSystem$$Save::InstallAtOffset(game::Address::Dpr_NX_SaveSystem_Save);
+    SaveSystem$$SaveAsync::InstallAtOffset(game::Address::Dpr_NX_SaveSystem_SaveAsync);
 
     // Verifying
-    PlayerWork$$VerifySaveData::InstallAtOffset(0x02ceba00);
+    PlayerWork$$VerifySaveData::InstallAtOffset(game::Address::PlayerWork_VerifySaveData);
 }

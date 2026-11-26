@@ -14,7 +14,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
-    struct MainModule : ILClass<MainModule, 0x04c5a6d0> {
+    struct MainModule : ILClass<MainModule, game::Address::Dpr_Battle_Logic_MainModule_TypeInfo> {
         struct Fields {
             Dpr::Battle::Logic::BATTLE_SETUP_PARAM::Object* m_setupParam;
             void* m_viewCore;
@@ -72,39 +72,39 @@ namespace Dpr::Battle::Logic {
         };
 
         inline int32_t GetCompetitor(bool isDemoCaptureConvert) {
-            return external<int32_t>(0x0202de60, this, isDemoCaptureConvert);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_MainModule_GetCompetitor, this, isDemoCaptureConvert);
         }
 
         inline uint8_t GetExpLevelCap() {
-            return external<uint8_t>(0x02034a10, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_MainModule_GetExpLevelCap, this);
         }
 
         inline uint8_t GetPokeFriendship(Dpr::Battle::Logic::BTL_POKEPARAM* bpp) {
-            return external<uint8_t>(0x0202c3d0, this, bpp);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_MainModule_GetPokeFriendship, this, bpp);
         }
 
         inline Pml::PokeParty::Object* GetSrcParty(uint8_t clientID, bool fForServer) {
-            return external<Pml::PokeParty::Object*>(0x020325a0, this, clientID, fForServer);
+            return external<Pml::PokeParty::Object*>(game::Address::Dpr_Battle_Logic_MainModule_GetSrcParty, this, clientID, fForServer);
         }
 
         inline bool IsFriendPokeID(uint8_t pokeID1, uint8_t pokeID2) {
-            return external<bool>(0x02037470, this, pokeID1, pokeID2);
+            return external<bool>(game::Address::Dpr_Battle_Logic_MainModule_IsFriendPokeID, this, pokeID1, pokeID2);
         }
 
         inline BtlEscapeMode GetEscapeMode() {
-            return external<BtlEscapeMode>(0x02034bb0, this);
+            return external<BtlEscapeMode>(game::Address::Dpr_Battle_Logic_MainModule_GetEscapeMode, this);
         }
 
         inline BtlGround GetDefaultGround() {
-            return external<BtlGround>(0x02035090, this);
+            return external<BtlGround>(game::Address::Dpr_Battle_Logic_MainModule_GetDefaultGround, this);
         }
         
         inline System::Collections::IEnumerator::Object* LeavenOnErrorCoroutine() {
-            return external<System::Collections::IEnumerator::Object*>(0x0202e6b0, this);
+            return external<System::Collections::IEnumerator::Object*>(game::Address::Dpr_Battle_Logic_MainModule_LeavenOnErrorCoroutine, this);
         }
 
         inline int32_t PokeIDtoSide(uint8_t pokeID) {
-            return external<int32_t>(0x020374e0, this, pokeID);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_MainModule_PokeIDtoSide, this, pokeID);
         }
     };
 }

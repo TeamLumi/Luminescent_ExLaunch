@@ -45,7 +45,7 @@ XLSXContent::UIDatabase::SheetCharacterBag::Object* FindBagDataById(XLSXContent:
 
 HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_GetCharacterBagData) {
     static XLSXContent::UIDatabase::SheetCharacterBag::Object* Callback(Dpr::UI::UIManager::Object* __this, int32_t characterDressId) {
-        system_load_typeinfo(0x9bd6);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIManager_GetCharacterBagData);
 
         XLSXContent::UIDatabase::SheetCharacterBag::Array* characterBags = __this->fields._mdUis->fields.CharacterBag;
 
@@ -90,7 +90,7 @@ HOOK_DEFINE_REPLACE(Dpr_UI_UIManager_LoadSpritePokemonLargeParam) {
 
 HOOK_DEFINE_REPLACE(ContestPlayerEntity$$AppendLoadPokemonIcon) {
     static void Callback(Dpr::Contest::ContestPlayerEntity::Object* __this) {
-        system_load_typeinfo(0x2fc3);
+        system_load_typeinfo(game::TypeInfo::Dpr_Contest_ContestPlayerEntity_AppendLoadPokemonIcon);
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
         auto uiManager = Dpr::UI::UIManager::get_Instance();
@@ -115,7 +115,7 @@ HOOK_DEFINE_INLINE(ZukanCompareWeightController$$RequestLoadModel) {
 
 HOOK_DEFINE_TRAMPOLINE(PoketchAppEggChecker$$OnInitialize) {
     static void Callback(Dpr::UI::PoketchAppEggChecker::Object* __this) {
-        system_load_typeinfo(0x6d81);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_PokemonIcon_Load_Call1);
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
         auto sprite = Dpr::UI::UIManager::get_Instance()->GetAtlasSprite(SpriteAtlasID::TEXTUREMASS, System::String::Create("pm0000_00_20"));
@@ -127,43 +127,43 @@ HOOK_DEFINE_TRAMPOLINE(PoketchAppEggChecker$$OnInitialize) {
 
 void exl_uniform_ui_main() {
     // Outfit-neutral UI
-    Dpr_UI_UIManager_GetCharacterBagData::InstallAtOffset(0x017c5710);
+    Dpr_UI_UIManager_GetCharacterBagData::InstallAtOffset(game::Address::Dpr_UI_UIManager_GetCharacterBagData);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
-    p.Seek(0x01bb17b8);
+    p.Seek(game::Address::Dpr_UI_ZukanCompareWeightController_LoadPlayerIcon + 0x88);
     p.BranchLinkInst((void*)&GetWeightSpriteName);
 
-    p.Seek(0x0184fc08);
+    p.Seek(game::Address::Dpr_UI_TownmapPlayerIcon_GetSpritePlayerIcon + 0xA8);
     p.BranchLinkInst((void*)&GetTownMapSpriteName);
 
-    p.Seek(0x01f07380);
+    p.Seek(game::Address::EncEffectSequenceController_LoadGymEffect_d_13_MoveNext + 0xE0);
     p.BranchLinkInst((void*)&GetEncSeqPath);
-    p.Seek(0x01f077e0);
+    p.Seek(game::Address::EncEffectSequenceController_LoadLeagueEffect_d_14_MoveNext + 0xE0);
     p.BranchLinkInst((void*)&GetEncSeqPath);
 
     // Repoint Large and DP/Pixel sprites to base one
-    Dpr_UI_UIManager_LoadSpritePokemonDot::InstallAtOffset(0x017c46a0);
-    Dpr_UI_UIManager_LoadSpritePokemonLarge::InstallAtOffset(0x017c4140);
-    Dpr_UI_UIManager_LoadSpritePokemonDotParam::InstallAtOffset(0x017c4600);
-    Dpr_UI_UIManager_LoadSpritePokemonLargeParam::InstallAtOffset(0x017c4090);
+    Dpr_UI_UIManager_LoadSpritePokemonDot::InstallAtOffset(game::Address::Dpr_UI_UIManager_LoadSpritePokemonDot_Int32_UInt16_UInt8_UInt8_Bool_UnityAction_Sprite);
+    Dpr_UI_UIManager_LoadSpritePokemonLarge::InstallAtOffset(game::Address::Dpr_UI_UIManager_LoadSpritePokemonLarge_Int32_UInt16_UInt8_UInt8_Bool_UnityAction_Sprite);
+    Dpr_UI_UIManager_LoadSpritePokemonDotParam::InstallAtOffset(game::Address::Dpr_UI_UIManager_LoadSpritePokemonDot_PokemonParam_UnityAction_Sprite);
+    Dpr_UI_UIManager_LoadSpritePokemonLargeParam::InstallAtOffset(game::Address::Dpr_UI_UIManager_LoadSpritePokemonLarge_PokemonParam_UnityAction_Sprite);
 
     // Repoint all LoadSpritePokemon calls to the PokemonParam overload
-    ContestPlayerEntity$$AppendLoadPokemonIcon::InstallAtOffset(0x01c77ae0);
-    ZukanCompareWeightController$$RequestLoadModel::InstallAtOffset(0x01bb1a0c);
+    ContestPlayerEntity$$AppendLoadPokemonIcon::InstallAtOffset(game::Address::Dpr_Contest_ContestPlayerEntity_AppendLoadPokemonIcon);
+    ZukanCompareWeightController$$RequestLoadModel::InstallAtOffset(game::Address::Dpr_UI_ZukanCompareWeightController_RequestLoadModel + 0x12C);
 
-    p.Seek(0x01d8e12c); // PokemonIcon$$Load
+    p.Seek(game::Address::Dpr_UI_PokemonIcon_Load_PokemonParam_Int32_Int32 + 0x16C); // PokemonIcon$$Load
     p.WriteInst(MovRegister(X1, X20));
     p.WriteInst(MovRegister(X2, X21));
-    p.BranchLinkInst(0x017c3e40); // Address of LoadPokemonIcon with the PokemonParam overload
+    p.BranchLinkInst(game::Address::Dpr_UI_UIManager_LoadSpritePokemon_PokemonParam_UnityAction_Sprite); // Address of LoadPokemonIcon with the PokemonParam overload
 
-    p.Seek(0x01d8e4cc); // PokemonIcon$$Load
+    p.Seek(game::Address::Dpr_UI_PokemonIcon_Load_PokemonParam_UInt16_Int32_Int32 + 0x16C); // PokemonIcon$$Load
     p.WriteInst(MovRegister(X1, X20));
     p.WriteInst(MovRegister(X2, X22));
-    p.BranchLinkInst(0x017c3e40); // Address of LoadPokemonIcon with the PokemonParam overload
+    p.BranchLinkInst(game::Address::Dpr_UI_UIManager_LoadSpritePokemon_PokemonParam_UnityAction_Sprite); // Address of LoadPokemonIcon with the PokemonParam overload
 
     // Dynamically grab the egg sprite for the Daycare Pokétch app
-    PoketchAppEggChecker$$OnInitialize::InstallAtOffset(0x01a06710);
+    PoketchAppEggChecker$$OnInitialize::InstallAtOffset(game::Address::Dpr_UI_PoketchAppEggChecker_OnInitialize);
 };

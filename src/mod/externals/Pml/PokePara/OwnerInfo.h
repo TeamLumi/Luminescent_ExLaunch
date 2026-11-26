@@ -6,7 +6,7 @@
 #include "externals/System/String.h"
 
 namespace Pml::PokePara {
-    struct OwnerInfo : ILClass<OwnerInfo, 0x04c5fbe8> {
+    struct OwnerInfo : ILClass<OwnerInfo, game::Address::Pml_PokePara_OwnerInfo_TypeInfo> {
         struct Fields {
             uint32_t trainerId;
             uint8_t sex;
@@ -15,7 +15,7 @@ namespace Pml::PokePara {
         };
 
         inline void ctor(DPData::MYSTATUS::Object* ownerStatus) {
-            external<void>(0x02054ea0, this, ownerStatus);
+            external<void>(game::Address::Pml_PokePara_OwnerInfo_ctor, this, ownerStatus);
         }
     };
 }

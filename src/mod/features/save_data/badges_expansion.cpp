@@ -9,7 +9,7 @@
 #include "logger/logger.h"
 
 /*int32_t GetBadgeCount() {
-    system_load_typeinfo(0x99e2);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBadgeGet_GetBadgeAnimation);
     Logger::log("GetBadgeCount\n");
 
     int32_t count = 0;
@@ -110,7 +110,7 @@ void exl_save_badges_expansion_main() {
     // Patch badge limit checks
     /*using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector {
         std::make_pair<uint32_t, Instruction>(0x01d60340, CmpImmediate(X23, BadgeCount - 1)),
         std::make_pair<uint32_t, Instruction>(0x02299640, Movz(X1, BadgeCount)),

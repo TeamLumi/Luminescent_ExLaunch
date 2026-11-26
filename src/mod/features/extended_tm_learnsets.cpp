@@ -9,7 +9,7 @@
 #include "logger/logger.h"
 
 uint32_t GetWazaMachineNo(uint16_t itemno) {
-    system_load_typeinfo(0x569e);
+    system_load_typeinfo(game::TypeInfo::Pml_Item_ItemData_GetWazaMashineMax);
     Pml::Item::ItemManager::getClass()->initIfNeeded();
     auto tms = Pml::Item::ItemManager::getClass()->static_fields->s_Instance->fields.m_alldata->fields.WazaMachine;
 
@@ -65,8 +65,8 @@ HOOK_DEFINE_REPLACE(PersonalTableExtensions_CheckWazaMachine) {
 };
 
 void exl_extended_tm_learnsets_main() {
-    ItemTableExtensions_GetWazaMachineNo::InstallAtOffset(0x0249d650);
-    ItemData_GetWazaMachineNo::InstallAtOffset(0x0249d4e0);
-    PersonalSystem_CheckPersonalWazaMachine::InstallAtOffset(0x024a1280);
-    PersonalTableExtensions_CheckWazaMachine::InstallAtOffset(0x024a1330);
+    ItemTableExtensions_GetWazaMachineNo::InstallAtOffset(game::Address::Pml_Item_ItemTableExtensions_GetWazaMashineNo);
+    ItemData_GetWazaMachineNo::InstallAtOffset(game::Address::Pml_Item_ItemData_GetWazaMashineNo);
+    PersonalSystem_CheckPersonalWazaMachine::InstallAtOffset(game::Address::Pml_Personal_PersonalSystem_CheckPersonalWazaMachine);
+    PersonalTableExtensions_CheckWazaMachine::InstallAtOffset(game::Address::Pml_Personal_PersonalTableExtensions_CheckWazaMachine);
 }

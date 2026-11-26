@@ -209,6 +209,6 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart) {
 };
 
 void InstallHooks_Move_Pursuit() {
-    Dpr_Battle_Logic_Section_ProcessActionCore_Execute::InstallAtOffset(0x021c0460);
-    Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart::InstallAtOffset(0x01d1cc90);
+    Dpr_Battle_Logic_Section_ProcessActionCore_Execute::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_ProcessActionCore_Execute);
+    Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart::InstallAtOffset(game::Address::Dpr_Battle_Logic_EventLauncher_Event_WazaExecuteStart);
 }

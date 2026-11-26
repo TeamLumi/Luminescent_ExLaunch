@@ -83,7 +83,7 @@ HOOK_DEFINE_REPLACE(PlayerWork_get_supportPokeType) {
 
 HOOK_DEFINE_REPLACE(Demo_Starters_SelectPoke) {
     static void Callback(Dpr::Demo::Demo_Gosanke::Object* __this) {
-        system_load_typeinfo(0x378b);
+        system_load_typeinfo(game::TypeInfo::Dpr_Demo_Demo_Gosanke_SelectPoke_b_22_0);
 
         int32_t cursor = __this->fields.nowCursolPosIndex;
         RomData::Starter starter = GetStarter(cursor);
@@ -208,25 +208,25 @@ HOOK_DEFINE_INLINE(DemoBase_DrawMessage_SetMonTags) {
 };
 
 void exl_alt_starters_main() {
-    PlayerWork_get_defaultPokeNo::InstallAtOffset(0x02cf13d0);
-    PlayerWork_get_defaultPokeType::InstallAtOffset(0x02cf1320);
-    PlayerWork_get_rivalPokeNo::InstallAtOffset(0x02cf1750);
-    PlayerWork_get_rivalPokeType::InstallAtOffset(0x02cf1590);
-    PlayerWork_get_supportPokeNo::InstallAtOffset(0x02cf19c0);
-    PlayerWork_get_supportPokeType::InstallAtOffset(0x02cf1910);
+    PlayerWork_get_defaultPokeNo::InstallAtOffset(game::Address::PlayerWork_get_defaultPokeNo);
+    PlayerWork_get_defaultPokeType::InstallAtOffset(game::Address::PlayerWork_get_defaultPokeType);
+    PlayerWork_get_rivalPokeNo::InstallAtOffset(game::Address::PlayerWork_get_rivalPokeNo);
+    PlayerWork_get_rivalPokeType::InstallAtOffset(game::Address::PlayerWork_get_rivalPokeType);
+    PlayerWork_get_supportPokeNo::InstallAtOffset(game::Address::PlayerWork_get_supportPokeNo);
+    PlayerWork_get_supportPokeType::InstallAtOffset(game::Address::PlayerWork_get_supportPokeType);
 
-    Demo_Starters_SelectPoke::InstallAtOffset(0x01ad0560);
+    Demo_Starters_SelectPoke::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_SelectPoke_b_22_0);
 
-    Demo_Starters_Enter_Starter_0::InstallAtOffset(0x01ad0bf8);
-    Demo_Starters_Enter_Starter_1::InstallAtOffset(0x01ad0c28);
-    Demo_Starters_Enter_Starter_2::InstallAtOffset(0x01ad0c5c);
+    Demo_Starters_Enter_Starter_0::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_Enter_d_13_MoveNext + 0x1A8);
+    Demo_Starters_Enter_Starter_1::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_Enter_d_13_MoveNext + 0x1D8);
+    Demo_Starters_Enter_Starter_2::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_Enter_d_13_MoveNext + 0x20C);
 
-    Demo_Starters_ShowPokeView::InstallAtOffset(0x01ad0210);
-    PokeRenderViewer_ShowPokeView::InstallAtOffset(0x01997dcc);
+    Demo_Starters_ShowPokeView::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_ShowPokeView);
+    PokeRenderViewer_ShowPokeView::InstallAtOffset(game::Address::PokeRenderViewer_ShowPokeView + 0x2BC);
 
-    Demo_Gosanke_PokeConfirm_Cry::InstallAtOffset(0x01ad1800);
+    Demo_Gosanke_PokeConfirm_Cry::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_PokeConfirm_d_23_MoveNext + 0x370);
 
-    DemoBase_DrawMessage_SetMonTags::InstallAtOffset(0x01ad1548);
+    DemoBase_DrawMessage_SetMonTags::InstallAtOffset(game::Address::Dpr_Demo_Demo_Gosanke_PokeConfirm_d_23_MoveNext + 0xB8);
 
     int32_t idleAnim1 = array_index(FIELD_MON_CLIPS, "Idle");         // Starter idle anim, Priority 1
     int32_t idleAnim2 = array_index(FIELD_MON_CLIPS, "Kw_Wait");      // Starter idle anim, Priority 2
@@ -235,25 +235,25 @@ void exl_alt_starters_main() {
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01ad1780, Movz(W0, 0) }, // Starter 0 value to save
-        { 0x01ad1650, Movz(W0, 1) }, // Starter 1 value to save
-        { 0x01ad1798, Movz(W0, 2) }, // Starter 2 value to save
+        { game::Address::Dpr_Demo_Demo_Gosanke_PokeConfirm_d_23_MoveNext + 0x2F0, Movz(W0, 0) }, // Starter 0 value to save
+        { game::Address::Dpr_Demo_Demo_Gosanke_PokeConfirm_d_23_MoveNext + 0x1C0, Movz(W0, 1) }, // Starter 1 value to save
+        { game::Address::Dpr_Demo_Demo_Gosanke_PokeConfirm_d_23_MoveNext + 0x308, Movz(W0, 2) }, // Starter 2 value to save
 
-        { 0x01997dd0, Branch(0x4c) }, // PokeRenderViewer_ShowPokeView skip some re-written code
+        { game::Address::PokeRenderViewer_ShowPokeView + 0x2C0, Branch(0x4c) }, // PokeRenderViewer_ShowPokeView skip some re-written code
 
-        { 0x0199899c, CmpImmediate(W9, idleAnim1) },                         // Change animation on starter idle (Priority 1)
-        { 0x019989ec, Movz(W1, idleAnim1) },                                 // Change animation on starter idle (Priority 1)
-        { 0x019989a8, LdrRegisterImmediate(X20, X8, idleAnim1 + 0x4) },  // Change animation on starter idle (Priority 1)
-        { 0x019989fc, CmpImmediate(W9, idleAnim2) },                         // Change animation on starter idle (Priority 2)
-        { 0x01998a4c, Movz(W1, idleAnim2) },                                 // Change animation on starter idle (Priority 2)
-        { 0x01998a08, LdrRegisterImmediate(X20, X8, idleAnim2 + 0x4) },  // Change animation on starter idle (Priority 2)
-        { 0x01998a8c, CmpImmediate(W9, idleAnim3) },                         // Change animation on starter idle (Priority 3)
-        { 0x01998ad4, Movz(W1, idleAnim3) },                                 // Change animation on starter idle (Priority 3)
-        { 0x01998a98, LdrRegisterImmediate(X20, X8, idleAnim3 + 0x4) },  // Change animation on starter idle (Priority 3)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0xCC, CmpImmediate(W9, idleAnim1) },                         // Change animation on starter idle (Priority 1)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x11C, Movz(W1, idleAnim1) },                                 // Change animation on starter idle (Priority 1)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0xD8, LdrRegisterImmediate(X20, X8, idleAnim1 + 0x4) },  // Change animation on starter idle (Priority 1)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x12C, CmpImmediate(W9, idleAnim2) },                         // Change animation on starter idle (Priority 2)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x17C, Movz(W1, idleAnim2) },                                 // Change animation on starter idle (Priority 2)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x138, LdrRegisterImmediate(X20, X8, idleAnim2 + 0x4) },  // Change animation on starter idle (Priority 2)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x1BC, CmpImmediate(W9, idleAnim3) },                         // Change animation on starter idle (Priority 3)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x204, Movz(W1, idleAnim3) },                                 // Change animation on starter idle (Priority 3)
+        { game::Address::PokeRenderViewer_PokeAnimationUpdate_d_18_MoveNext + 0x1C8, LdrRegisterImmediate(X20, X8, idleAnim3 + 0x4) },  // Change animation on starter idle (Priority 3)
 
-        { 0x01ad17a8, Movz(W9, confirmAnim) }, // Change animation on starter selection
+        { game::Address::Dpr_Demo_Demo_Gosanke_PokeConfirm_d_23_MoveNext + 0x318, Movz(W9, confirmAnim) }, // Change animation on starter selection
     };
     p.WriteInst(inst);
 }

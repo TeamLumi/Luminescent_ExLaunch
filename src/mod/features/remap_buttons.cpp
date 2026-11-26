@@ -8,12 +8,12 @@
 
 HOOK_DEFINE_REPLACE(RemapPoketchToPlus) {
     static bool Callback(FieldManager* __this) {
-        system_load_typeinfo(0x4929);
+        system_load_typeinfo(game::TypeInfo::FieldManager_ControlPoketch);
         if (FlagWork::GetFlag(FlagWork_Flag::FE_POKETCH_GET) &&
             !FlagWork::GetSysFlag(FlagWork_SysFlag::SYS_FLAG_POKETCH_HOOK) &&
             !FlagWork::GetSysFlag(FlagWork_SysFlag::SYS_INPUT_OFF)) {
 
-            system_load_typeinfo(0x4910);
+            system_load_typeinfo(game::TypeInfo::FieldInput_Push);
             GameController::getClass()->initIfNeeded();
             FieldPoketch::getClass()->initIfNeeded();
 
@@ -53,24 +53,24 @@ HOOK_DEFINE_TRAMPOLINE(LogButton) {
 
 void exl_remap_main() {
     // Remap Poketch to Plus
-    RemapPoketchToPlus::InstallAtOffset(0x0179e360);
-    exl::patch::CodePatcher p(0x01e66ac0);
+    RemapPoketchToPlus::InstallAtOffset(game::Address::FieldManager_ControlPoketch);
+    exl::patch::CodePatcher p(game::Address::Dpr_UI_PoketchWindow_OnCreate + 0x250);
     p.WriteInst(exl::armv8::inst::Movz(exl::armv8::reg::X1, GameController::ButtonMask::Plus));
 
     // Disable Y to warp to union room
-    UnionWarp::InstallAtOffset(0x017a1050);
+    UnionWarp::InstallAtOffset(game::Address::FieldManager_OpenUnionRoomWarp);
 
     // Log button presses
 //    LogButton::InstallAtOffset(0x0179a970);
 
     // Remap Plus/Minus to Y for registered items
-    p.Seek(0x017a0e18);
+    p.Seek(game::Address::FieldManager_UseShotCut + 0x558);
     p.Write(0x39407108);  // ldrb w8, [x8, #0x1c]
     p.Write(0x721d011f);  // tst w8, #8
-    p.Seek(0x017a0e80);
+    p.Seek(game::Address::FieldManager_UseShotCut + 0x5C0);
     p.Write(0x39406108);  // ldrb w8, [x8, #0x18]
     p.Write(0x721d011f);  // tst w8, #8
-    p.Seek(0x017a0f74);
+    p.Seek(game::Address::FieldManager_UseShotCut + 0x6B4);
     p.Write(0x39408108);    // ldrb w8, [x8, #0x20]
     p.Write(0x721d011f);    // tst w8, #8
 }

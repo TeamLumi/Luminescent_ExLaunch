@@ -14,7 +14,7 @@
 using namespace Dpr::Battle::Logic;
 
 void HandlerSharpnessWazaPower(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x8a7a);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_TetunoKobusi);
 
     Common::getClass()->initIfNeeded();
 

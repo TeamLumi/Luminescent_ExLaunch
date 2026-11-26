@@ -29,10 +29,10 @@ HOOK_DEFINE_TRAMPOLINE(BagItemButton_UpdateStockCount) {
 };
 
 void exl_items_infinite_tms_main() {
-    UseWazaMachine_SkipTMBreak::InstallAtOffset(0x01be0d40);
-    BagItemButton_UpdateStockCount::InstallAtOffset(0x1AA23A0);
+    UseWazaMachine_SkipTMBreak::InstallAtOffset(game::Address::Dpr_UI_UIBag_c_DisplayClass134_0_UseWazaMachine_b_0);
+    BagItemButton_UpdateStockCount::InstallAtOffset(game::Address::Dpr_UI_BagItemButton_UpdateStockCount);
 
     // Skip Dpr.UI.UIMsgWindowController$$CloseMsgWindow call in _UseWazaMachine_b__3
-    exl::patch::CodePatcher p(0x01be0fec);
+    exl::patch::CodePatcher p(game::Address::Dpr_UI_UIBag_c_DisplayClass134_0_UseWazaMachine_b_3 + 0x4C);
     p.WriteInst(exl::armv8::inst::Nop());
 }

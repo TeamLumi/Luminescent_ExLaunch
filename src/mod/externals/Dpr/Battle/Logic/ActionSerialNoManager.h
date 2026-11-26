@@ -8,7 +8,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void AssignSerialNo(void* actionDesc) {
-            external<void>(0x01abdd30, this, actionDesc);
+            external<void>(game::Address::Dpr_Battle_Logic_ActionSerialNoManager_AssignSerialNo, this, actionDesc);
         };
     };
 }

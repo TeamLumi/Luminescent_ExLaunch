@@ -58,19 +58,19 @@ namespace Dpr::Battle::View::UI {
         static_assert(offsetof(Fields, _Result_k__BackingField) == 0xA0);
 
         inline void PreparaNext(bool isForward) {
-            external<void>(0x01e8c380, this, isForward);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIActionList_PreparaNext, this, isForward);
         }
 
         inline void UpdateActionButton(bool isPlaySe) {
-            external<void>(0x01e7eee0, this, isPlaySe);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIActionList_UpdateActionButton, this, isPlaySe);
         }
 
         inline void Initialize(Dpr::Battle::Logic::BattleViewBase::SelectActionParam::Object** param) {
-            external<void>(0x01e75e20, this, param);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIActionList_Initialize, this, param);
         }
 
         inline void OnSubmitPokeBall() {
-            external<void>(0x01e8c1b0, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIActionList_OnSubmitPokeBall, this);
         }
 
         inline void virtual_ForceHide() {

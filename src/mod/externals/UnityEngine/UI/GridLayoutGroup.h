@@ -15,7 +15,7 @@ namespace UnityEngine::UI {
 
         inline void set_cellSize(Vector2::Object value) {
             Vector2::Fields valueProxy = { .x = value.fields.x, .y = value.fields.y };
-            external<void>(0x024b7130, this, valueProxy);
+            external<void>(game::Address::UnityEngine_UI_GridLayoutGroup_set_cellSize, this, valueProxy);
         };
     };
 }

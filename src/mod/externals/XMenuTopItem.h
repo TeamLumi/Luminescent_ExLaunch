@@ -26,8 +26,8 @@ struct XMenuTopItem : ILClass<XMenuTopItem> {
 namespace System::Collections::Generic {
     struct List$$XMenuTopItem : List<List$$XMenuTopItem, XMenuTopItem> {
 
-        static inline StaticILMethod<0x04c8b3a8> Method$$Add {};
-        static inline StaticILMethod<0x04c8b3b0> Method$$Clear {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_XMenuTopItem_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_XMenuTopItem_Clear> Method$$Clear {};
     };
 }
 

@@ -16,5 +16,5 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Handler_Side_handler_side_Omajinai) {
 };
 
 void InstallHooks_SideEffect_LuckyChant() {
-    Dpr_Battle_Logic_Handler_Side_handler_side_Omajinai::InstallAtOffset(0x01939c40);
+    Dpr_Battle_Logic_Handler_Side_handler_side_Omajinai::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Side_handler_side_Omajinai);
 }

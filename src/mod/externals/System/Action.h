@@ -11,10 +11,10 @@ namespace System {
 
         };
 
-        static const inline long void_TypeInfo = 0x04c56040;
-        static const inline long ContextMenuID_TypeInfo = 0x04c627e0;
-        static const inline long WazaNo_WazaNo_TypeInfo = 0x04c5eff0;
-        static const inline long UIZukanRegister_AddMemberResult_TypeInfo = 0x04c5edb0;
+        static const inline game::Address void_TypeInfo = game::Address::System_Action_TypeInfo;
+        static const inline game::Address ContextMenuID_TypeInfo = game::Address::System_Action_ContextMenuID_TypeInfo;
+        static const inline game::Address WazaNo_WazaNo_TypeInfo = game::Address::System_Action_WazaNo_WazaNo_TypeInfo;
+        static const inline game::Address UIZukanRegister_AddMemberResult_TypeInfo = game::Address::System_Action_UIZukanRegister_AddMemberResult_TypeInfo;
 
         template <typename T, typename... Args>
         inline void ctor(T* target, ILMethod<T, Args...>& mi) {
@@ -22,19 +22,19 @@ namespace System {
         }
 
         inline void ctor(void* target, MethodInfo* delegate) {
-            external<void>(0x023feb30, this, target, delegate);
+            external<void>(game::Address::System_Action_ctor, this, target, delegate);
         }
 
         inline void Invoke() {
-            external<void>(0x023feb50, this);
+            external<void>(game::Address::System_Action_Invoke, this);
         }
 
         inline void Invoke(Pml::WazaNo arg0, Pml::WazaNo arg1) {
-            external<void>(0x0263da30, this, arg0, arg1);
+            external<void>(game::Address::System_Action_Int32Enum_Int32Enum_Invoke, this, arg0, arg1);
         }
 
         inline void Invoke(Il2CppObject* obj) {
-            external<void>(0x02630500, this, obj);
+            external<void>(game::Address::System_Action_ADancePlayer_Invoke, this, obj);
         }
     };
 }

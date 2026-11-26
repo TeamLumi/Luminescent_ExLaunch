@@ -58,16 +58,16 @@ HOOK_DEFINE_REPLACE(CheckUnbreakablePokeItem) {
 };
 
 void exl_form_change_held_items_main(){
-    DecideFormNoFromHoldItem::InstallAtOffset(0x024aeb90);
-    CheckUnbreakablePokeItem::InstallAtOffset(0x01d0d780);
+    DecideFormNoFromHoldItem::InstallAtOffset(game::Address::Pml_PokePara_CalcTool_DecideFormNoFromHoldItem);
+    CheckUnbreakablePokeItem::InstallAtOffset(game::Address::Dpr_Battle_Logic_Common_CheckUnbreakablePokeItem);
 
     // Remove hardcoded Arceus Type check on GetType1 and GetType2 and use the form data instead
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x0204aa48, Branch(0x50) },
-        { 0x0204ab48, Branch(0x50) },
+        { game::Address::Pml_PokePara_CoreParam_GetType1 + 0x58, Branch(0x50) },
+        { game::Address::Pml_PokePara_CoreParam_GetType2 + 0x58, Branch(0x50) },
     };
     p.WriteInst(inst);
 }

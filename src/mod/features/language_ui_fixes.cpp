@@ -13,7 +13,7 @@ UnityEngine::Transform::Object* NavigateToLevelUpImage(UnityEngine::Transform::O
 
 HOOK_DEFINE_TRAMPOLINE(LevelUpPokemonPanel$$Set) {
     static void Callback(Dpr::UI::LevelUpPokemonPanel::Object* __this, Pml::PokePara::PokemonParam::Object* param, int32_t index) {
-        system_load_typeinfo(0xab8f);
+        system_load_typeinfo(game::TypeInfo::XMenuTopItem_Setup);
 
         auto tf = NavigateToLevelUpImage(__this->cast<UnityEngine::Component>()->get_transform()->instance());
         auto image = tf->cast<UnityEngine::Component>()->GetComponent(UnityEngine::Component::Method$$Image$$GetComponent);
@@ -27,5 +27,5 @@ HOOK_DEFINE_TRAMPOLINE(LevelUpPokemonPanel$$Set) {
 };
 
 void exl_language_ui_fixes_main() {
-    LevelUpPokemonPanel$$Set::InstallAtOffset(0x01c5a4f0);
+    LevelUpPokemonPanel$$Set::InstallAtOffset(game::Address::Dpr_UI_LevelUpPokemonPanel_Set);
 }

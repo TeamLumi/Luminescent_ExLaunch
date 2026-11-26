@@ -62,7 +62,7 @@ namespace Dpr::Demo {
         };
 
         inline Dpr::MsgWindow::MsgWindowParam::Object* DrawMessage(int32_t NextMessageNo) {
-            return external<Dpr::MsgWindow::MsgWindowParam::Object*>(0x01ac6ea0, this, NextMessageNo);
+            return external<Dpr::MsgWindow::MsgWindowParam::Object*>(game::Address::Dpr_Demo_DemoBase_DrawMessage, this, NextMessageNo);
         }
     };
 }

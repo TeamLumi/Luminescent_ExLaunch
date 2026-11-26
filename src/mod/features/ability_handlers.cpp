@@ -78,7 +78,7 @@ void InstallActivatedAbilityHooks() {
 }
 
 void exl_ability_handlers_main() {
-    Tokusei_system_array_new::InstallAtOffset(0x01964f24);
+    Tokusei_system_array_new::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Tokusei_cctor + 0x54);
 
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Run Away"));
     SetActivatedAbilityHandlers(array_index(ABILITIES, "Iron Fist"));

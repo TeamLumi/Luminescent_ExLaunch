@@ -62,7 +62,7 @@ HOOK_DEFINE_INLINE(Infinite_Items) {
 
 HOOK_DEFINE_REPLACE(ItemIconOverride) {
     static void Callback(int32_t itemId, System::Action::Object* onLoadedCallback, bool isUnload, bool isLarge) {
-        system_load_typeinfo(0x56c0);
+        system_load_typeinfo(game::TypeInfo::Dpr_Item_ItemInfo_LoadItemIcon);
         Dpr::UI::UIManager::getClass()->initIfNeeded();
 
         auto itemName = GetItemSpriteName(itemId, isLarge);
@@ -88,6 +88,6 @@ void exl_items_changes_main() {
     if (IsActivatedItemFeature(array_index(ITEM_FEATURES, "Infinite Repel")))
         exl_items_repel_main();
 
-    Infinite_Items::InstallAtOffset(0x0185eb8c);
-    ItemIconOverride::InstallAtOffset(0x01ca7100);
+    Infinite_Items::InstallAtOffset(game::Address::Dpr_UI_UIBag_EndUseItemAction + 0x8C);
+    ItemIconOverride::InstallAtOffset(game::Address::Dpr_Item_ItemInfo_LoadItemIcon);
 };

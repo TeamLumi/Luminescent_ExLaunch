@@ -81,11 +81,11 @@ namespace Pml::Item {
         };
 
         static inline uint32_t GetWazaMachineNo(uint16_t item) {
-            return external<uint32_t>(0x0249d4e0, item);
+            return external<uint32_t>(game::Address::Pml_Item_ItemData_GetWazaMashineNo, item);
         }
 
         static inline int32_t GetParam(uint16_t itemno, PrmID prmID) {
-            return external<int32_t>(0x0249b950, itemno, prmID);
+            return external<int32_t>(game::Address::Pml_Item_ItemData_GetParam, itemno, prmID);
         }
     };
 }

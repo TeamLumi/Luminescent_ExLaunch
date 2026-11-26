@@ -14,7 +14,7 @@ namespace Dpr::UI {
         static_assert(offsetof(Fields, iconImage) == 0x8);
 
         inline void Deactive() {
-            external<void>(0x01a41320, this);
+            external<void>(game::Address::Dpr_UI_WazaCategoryPanel_Deactive, this);
         }
     };
 }

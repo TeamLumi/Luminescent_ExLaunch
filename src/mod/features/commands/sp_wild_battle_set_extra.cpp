@@ -20,11 +20,11 @@
 bool SpWildBtlSetExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_SP_WILD_BTL_SET_EXTRA\n");
-    system_load_typeinfo(0x44d1);
-    system_load_typeinfo(0x4931);
-    system_load_typeinfo(0x497c);
-    system_load_typeinfo(0x4932);
-    system_load_typeinfo(0x3f8c);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdSpWildBattleSet);
+    system_load_typeinfo(game::TypeInfo::FieldManager_EventWildBattle_Call1);
+    system_load_typeinfo(game::TypeInfo::Dpr_EncountTools_OnPostBattle);
+    system_load_typeinfo(game::TypeInfo::FieldManager_EventWildBattle_Call2);
+    system_load_typeinfo(game::TypeInfo::FieldBattleSearcher_TrainerSearch);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
     if (args->max_length >= 4)

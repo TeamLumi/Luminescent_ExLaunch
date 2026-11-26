@@ -79,7 +79,7 @@ bool ZenModeCanChangeForm(BTL_POKEPARAM::Object* bpp, uint8_t nextForm) {
 }
 
 bool AdjustZenModeForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility, bool hpCheck) {
-    system_load_typeinfo(0x890f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_TenkiFormChange);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
@@ -93,7 +93,7 @@ bool AdjustZenModeForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pok
 }
 
 bool DisableZenMode(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x890f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_TenkiFormChange);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);
@@ -114,7 +114,7 @@ void HandlerZenModeTurnCheckDone(EventFactor::EventHandlerArgs::Object** args, u
 }
 
 void HandlerZenModeTokuseiDisable(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x8a73);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_Tenkiya_TokOff);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID)
@@ -124,7 +124,7 @@ void HandlerZenModeTokuseiDisable(EventFactor::EventHandlerArgs::Object** args, 
 }
 
 void HandlerZenModeChangeTokuseiBefore(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x8a70);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_Tenkiya_ChangeTok);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID)
@@ -157,7 +157,7 @@ void HandlerZenModeLumiMemberInComp(EventFactor::EventHandlerArgs::Object** args
 }
 
 void HandlerZenModeLumiChangeTokuseiAfter(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x895a);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_FlowerGift_GotTok);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetEventVar(args, EventVar::Label::POKEID) != pokeID)
@@ -165,7 +165,7 @@ void HandlerZenModeLumiChangeTokuseiAfter(EventFactor::EventHandlerArgs::Object*
 }
 
 void HandlerZenModeLumiTokuseiDisable(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x895f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_FlowerGift_TokOff);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetWorkValue(args, WorkValue::A) == 0)
@@ -178,7 +178,7 @@ void HandlerZenModeLumiTokuseiDisable(EventFactor::EventHandlerArgs::Object** ar
 }
 
 void HandlerZenModeLumiActProcEnd(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x895f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_FlowerGift_TokOff);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetWorkValue(args, WorkValue::A) == 0)
@@ -188,7 +188,7 @@ void HandlerZenModeLumiActProcEnd(EventFactor::EventHandlerArgs::Object** args, 
 }
 
 void HandlerZenModeLumiTurnCheckDone(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-    system_load_typeinfo(0x895f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_FlowerGift_TokOff);
     Common::getClass()->initIfNeeded();
 
     if (Common::GetWorkValue(args, WorkValue::A) == 0)

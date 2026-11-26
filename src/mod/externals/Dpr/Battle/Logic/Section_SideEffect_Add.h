@@ -8,8 +8,8 @@
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_SideEffect_Add : ILClass<Section_SideEffect_Add, 0x04c5ba68> {
-        struct Description : ILClass<Description, 0x04c5b3c8> {
+    struct Section_SideEffect_Add : ILClass<Section_SideEffect_Add, game::Address::Dpr_Battle_Logic_Section_SideEffect_Add_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_SideEffect_Add_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 BtlSideEffect effect;
@@ -21,17 +21,17 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x021cb080, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_SideEffect_Add_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5ae38> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_SideEffect_Add_Result_TypeInfo> {
             struct Fields {
                 bool isSuccessed;
             };
 
             inline void ctor() {
-                external<void>(0x021cb120, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_SideEffect_Add_Result_ctor, this);
             }
         };
 

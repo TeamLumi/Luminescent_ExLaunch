@@ -717,11 +717,11 @@ int32_t RollForFishingSlot(int32_t inFishingRod)
 // REGULAR ENCOUNTER GENERATION
 HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
     static Dpr::Field::EncountResult::Object * Callback(FieldObjectEntity::Object *entity, bool inGridmove) {
-        system_load_typeinfo(0x48c1);
-        system_load_typeinfo(0x6ae9);
-        system_load_typeinfo(0x48c9);
-        system_load_typeinfo(0x48c7);
-        system_load_typeinfo(0x48c6);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_FieldEncount_Check_Call1);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_FieldEncount_Check_Call2);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_SetSfariMonster);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_SafariRandomSeed);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_SafariEnc_SetSafariEnc);
 
         // No encounters if party is empty
         if (IsPartyEmpty())
@@ -848,7 +848,7 @@ HOOK_DEFINE_REPLACE(FieldEncountCheckEncounterSlots) {
 // SAFARI BINOCULARS ENCOUNTER GENERATION
 HOOK_DEFINE_REPLACE(GetSafariScopeMonsterEncounterSlots) {
     static int32_t Callback(int32_t zoneId) {
-        system_load_typeinfo(0x48c3);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_GetSafariScopeMonster);
 
         auto slots = MonsLv::newArray(12);
         XLSXContent::FieldEncountTable::Sheettable::Object *fieldEnc = GameManager::GetFieldEncountData(zoneId);
@@ -872,8 +872,8 @@ HOOK_DEFINE_REPLACE(GetSafariScopeMonsterEncounterSlots) {
 // FISHING ENCOUNTER GENERATION
 HOOK_DEFINE_REPLACE(SetFishingEncountEncounterSlots) {
     static Dpr::Field::EncountResult::Object * Callback(int32_t inRodType, UnityEngine::Vector2Int::Object position) {
-        system_load_typeinfo(0x48c8);
-        system_load_typeinfo(0x6ae9);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_SetFishingEncount);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_FieldEncount_Check_Call2);
 
         // No encounters if current zone does not have encounters
         if (!DoesCurrentZoneIDHaveEncounters())
@@ -933,9 +933,9 @@ HOOK_DEFINE_REPLACE(SetFishingEncountEncounterSlots) {
 // SWEET SCENT ENCOUNTER GENERATION
 HOOK_DEFINE_REPLACE(SetSweetEncountEncounterSlots) {
     static Dpr::Field::EncountResult::Object * Callback() {
-        system_load_typeinfo(0x48cc);
-        system_load_typeinfo(0x3f80);
-        system_load_typeinfo(0x48c4);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_SetSweetEncount);
+        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_TurnEnumerator_d_452_MoveNext);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_FieldEncount_FieldEncount_Check_Call3);
 
         // No encounters if party is empty
         if (IsPartyEmpty())
@@ -1143,7 +1143,7 @@ static CenterMaterial CheckCenterTile(const UnityEngine::Vector2Int::Object& cen
 
 HOOK_DEFINE_REPLACE(SwayGrass$$LotSwayGrass) {
     static int32_t Callback(UnityEngine::Vector2Int::Object* grid, float height) {
-        system_load_typeinfo(0x8255);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_SwayGrass_LotSwayGrass);
 
         Dpr::Field::SwayGrass::getClass()->initIfNeeded();
         GameManager::getClass()->initIfNeeded();
@@ -1384,7 +1384,7 @@ HOOK_DEFINE_REPLACE(SwayGrass$$LotSwayGrass) {
 
 HOOK_DEFINE_REPLACE(SwayGrass$$PlayEffect) {
     static void Callback(float deltatime, int32_t i) {
-        system_load_typeinfo(0x8257);
+        system_load_typeinfo(game::TypeInfo::Dpr_Field_SwayGrass_PlayEffect);
 
         Dpr::Field::SwayGrass::getClass()->initIfNeeded();
         FieldManager::getClass()->initIfNeeded();
@@ -1465,23 +1465,23 @@ HOOK_DEFINE_INLINE(FieldManager$$CheckAvailableFieldItem) {
 };
 
 void exl_encounter_slots_main() {
-    FieldEncountCheckEncounterSlots::InstallAtOffset(0x019b30b0);
-    GetSafariScopeMonsterEncounterSlots::InstallAtOffset(0x019b82c0);
-    SetFishingEncountEncounterSlots::InstallAtOffset(0x019b5130);
-    SetSweetEncountEncounterSlots::InstallAtOffset(0x019b5950);
+    FieldEncountCheckEncounterSlots::InstallAtOffset(game::Address::Dpr_Field_FieldEncount_FieldEncount_Check);
+    GetSafariScopeMonsterEncounterSlots::InstallAtOffset(game::Address::Dpr_Field_FieldEncount_GetSafariScopeMonster);
+    SetFishingEncountEncounterSlots::InstallAtOffset(game::Address::Dpr_Field_FieldEncount_SetFishingEncount);
+    SetSweetEncountEncounterSlots::InstallAtOffset(game::Address::Dpr_Field_FieldEncount_SetSweetEncount);
 
-    FieldEncount$$SetEncountData::InstallAtOffset(0x019b6e30);
+    FieldEncount$$SetEncountData::InstallAtOffset(game::Address::Dpr_Field_FieldEncount_SetEncountData);
 
     // Skips the forced vanilla radar slots
-    exl::patch::CodePatcher p(0x019b4c80);
+    exl::patch::CodePatcher p(game::Address::Dpr_Field_FieldEncount_WildEncSingle + 0x80);
     p.WriteInst(exl::armv8::inst::Branch(0x88));
 
     // RADAR
-    SwayGrass$$LotSwayGrass::InstallAtOffset(0x019bb540);
-    SwayGrass$$PlayEffect::InstallAtOffset(0x019bc950);
-    FieldManager$$CheckAvailableFieldItem::InstallAtOffset(0x017a2aa0);
+    SwayGrass$$LotSwayGrass::InstallAtOffset(game::Address::Dpr_Field_SwayGrass_LotSwayGrass);
+    SwayGrass$$PlayEffect::InstallAtOffset(game::Address::Dpr_Field_SwayGrass_PlayEffect);
+    FieldManager$$CheckAvailableFieldItem::InstallAtOffset(game::Address::FieldManager_CheckAvailableFieldItem + 0x390);
 
     // Skips the radar reset from the surf commands
-    p.Seek(0x02c87bb8);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_EvCmdNaminoriEnd + 0x3D8);
     p.WriteInst(exl::armv8::inst::Nop());
 }

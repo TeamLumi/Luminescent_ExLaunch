@@ -36,7 +36,7 @@ void exl_items_everlasting_candies_main(){
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
 
-    exl::patch::CodePatcher p(0x0185cc94);
+    exl::patch::CodePatcher p(game::Address::Dpr_UI_UIBag_OnPokemonPartyClickedToUseItem + 0x484);
     p.WriteInst(MovRegister(W0, W22));
     p.WriteInst(MovRegister(X1, X19));
     p.BranchLinkInst((void*)&isValidRareCandy);

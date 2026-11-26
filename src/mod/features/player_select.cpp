@@ -23,7 +23,7 @@ void SelectGridIndex(Dpr::UI::SelectPlayerVisualWindow::Object* window, int32_t 
 
 HOOK_DEFINE_REPLACE(SelectPlayerVisualWindow_UpdateSelect) {
     static void Callback(Dpr::UI::SelectPlayerVisualWindow::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x79d0);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SelectPlayerVisualWindow_UpdateSelect);
         using namespace Dpr::UI;
         UIManager::getClass()->initIfNeeded();
         UnityEngine::Mathf::getClass()->initIfNeeded();
@@ -123,16 +123,16 @@ HOOK_DEFINE_TRAMPOLINE(OpeningController_OpenKeyboardByPlayerName_b__10_Log) {
 };
 
 void exl_player_select_main() {
-    SelectPlayerVisualWindow_UpdateSelect::InstallAtOffset(0x01d3db80);
-    SelectPlayerVisualItem_Awake_Nop::InstallAtOffset(0x01d3d480);
-    OpeningController_OpenKeyboardByPlayerName_b__10_Log::InstallAtOffset(0x01e124e0);
+    SelectPlayerVisualWindow_UpdateSelect::InstallAtOffset(game::Address::Dpr_UI_SelectPlayerVisualWindow_UpdateSelect);
+    SelectPlayerVisualItem_Awake_Nop::InstallAtOffset(game::Address::Dpr_UI_SelectPlayerVisualItem_Awake);
+    OpeningController_OpenKeyboardByPlayerName_b__10_Log::InstallAtOffset(game::Address::OpeningController_OpenKeyboardByPlayerName_b_10_0);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x02cf3cf4, Movz(W21, array_index(OUTFITS, "Platinum Style Masculine")) }, // Change Lucas default outfit in intro to platinum outfit
-        { 0x02cf3d38, Movz(W21, array_index(OUTFITS, "Platinum Style Feminine")) },  // Change Dawn default outfit in intro to platinum outfit
+        { game::Address::PlayerWork_SetPlayerStatus + 0x204, Movz(W21, array_index(OUTFITS, "Platinum Style Masculine")) }, // Change Lucas default outfit in intro to platinum outfit
+        { game::Address::PlayerWork_SetPlayerStatus + 0x248, Movz(W21, array_index(OUTFITS, "Platinum Style Feminine")) },  // Change Dawn default outfit in intro to platinum outfit
     };
     p.WriteInst(inst);
 }

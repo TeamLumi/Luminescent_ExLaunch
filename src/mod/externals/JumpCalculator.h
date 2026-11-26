@@ -17,11 +17,11 @@ struct JumpCalculator : ILClass<JumpCalculator> {
 
     inline UnityEngine::Vector3::Object Process(float deltaTime, bool *isFinished) {
         return {
-            .fields = external<UnityEngine::Vector3::Fields>(0x01aec2d0, this, deltaTime, isFinished)
+            .fields = external<UnityEngine::Vector3::Fields>(game::Address::JumpCalculator_Process, this, deltaTime, isFinished)
         };
     }
 
     inline void Startup(UnityEngine::Transform::Object* transform, float moveDistance, float relativeHeight, float relativeLower, float duration) {
-        external<void>(0x01aec160, this, transform, moveDistance, relativeHeight, relativeLower, duration);
+        external<void>(game::Address::JumpCalculator_Startup, this, transform, moveDistance, relativeHeight, relativeLower, duration);
     }
 };

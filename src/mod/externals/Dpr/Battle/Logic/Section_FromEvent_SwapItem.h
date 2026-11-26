@@ -7,8 +7,8 @@
 #include "externals/Dpr/Battle/Logic/Section_CommonParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_SwapItem : ILClass<Section_FromEvent_SwapItem, 0x04c5ba88> {
-        struct Description : ILClass<Description, 0x04c5b1f0> {
+    struct Section_FromEvent_SwapItem : ILClass<Section_FromEvent_SwapItem, game::Address::Dpr_Battle_Logic_Section_FromEvent_SwapItem_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_SwapItem_Description_TypeInfo> {
             struct Fields {
                 uint8_t userPokeID;
                 uint8_t targetPokeID;
@@ -20,7 +20,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb8800, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_SwapItem_Description_ctor, this);
             }
         };
     };

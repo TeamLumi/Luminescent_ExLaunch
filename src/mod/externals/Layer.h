@@ -1,7 +1,7 @@
 #pragma once
 #include "externals/il2cpp-api.h"
 
-struct Layer : ILClass<Layer, 0x04c59fa0> {
+struct Layer : ILClass<Layer, game::Address::Layer_TypeInfo> {
     struct StaticFields {
         int32_t Nothing;
         int32_t Everything;

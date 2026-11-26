@@ -9,7 +9,7 @@
 #include "externals/Dpr/Battle/Logic/Section_InterruptAction.h"
 
 namespace Dpr::Battle::Logic {
-    struct SectionContainer : ILClass<SectionContainer, 0x04c5ab10> {
+    struct SectionContainer : ILClass<SectionContainer, game::Address::Dpr_Battle_Logic_SectionContainer_TypeInfo> {
         struct Fields {
             void* m_section_AddSick_Core; // Dpr_Battle_Logic_Section_AddSick_Core_o*
             void* m_section_AddSickCheckFail; // Dpr_Battle_Logic_Section_AddSickCheckFail_o*

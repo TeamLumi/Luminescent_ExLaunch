@@ -6,6 +6,6 @@
 
 struct TrainerWork : ILClass<TrainerWork> {
     static inline bool GetWinFlag(int32_t index) {
-        return external<bool>(0x018c18a0, index);
+        return external<bool>(game::Address::TrainerWork_GetWinFlag, index);
     }
 };

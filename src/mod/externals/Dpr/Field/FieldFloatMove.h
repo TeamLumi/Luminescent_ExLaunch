@@ -4,7 +4,7 @@
 
 namespace Dpr::Field
 {
-    struct FieldFloatMove : ILClass<FieldFloatMove, 0x04c5ec58> {
+    struct FieldFloatMove : ILClass<FieldFloatMove, game::Address::Dpr_FieldFloatMove_TypeInfo> {
         struct Fields {
             void* EaseFunc; // System_Func_float__float__o *
             float _CurrentValue_k__BackingField;

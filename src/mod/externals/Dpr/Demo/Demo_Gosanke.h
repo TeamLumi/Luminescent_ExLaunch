@@ -11,7 +11,7 @@
 #include "externals/UnityEngine/Vector2.h"
 
 namespace Dpr::Demo {
-    struct Demo_Gosanke : ILClass<Demo_Gosanke, 0x04c5e600> {
+    struct Demo_Gosanke : ILClass<Demo_Gosanke, game::Address::Dpr_Demo_Demo_Gosanke_TypeInfo> {
         struct Fields : Dpr::Demo::DemoBase::Fields {
             void* BagAnimator; // UnityEngine_Animator_o*
             UnityEngine::RectTransform::Object* CursolParent;
@@ -38,7 +38,7 @@ namespace Dpr::Demo {
         };
 
         inline void ctor() {
-            external<void>(0x01acaf50, this);
+            external<void>(game::Address::Dpr_Demo_Demo_Gosanke_ctor, this);
         }
 
         static_assert(offsetof(Fields, nowCursolPosIndex) == 0xfc);

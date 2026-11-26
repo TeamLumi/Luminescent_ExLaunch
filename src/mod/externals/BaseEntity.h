@@ -55,16 +55,16 @@ struct BaseEntity : ILClass<BaseEntity> {
     };
 
     inline UnityEngine::Transform::Object* get_transform() {
-        return external<UnityEngine::Transform::Object*>(0x01d66e50, this);
+        return external<UnityEngine::Transform::Object*>(game::Address::BaseEntity_get_transform, this);
     }
 
     inline void SetPositionDirect(UnityEngine::Vector3::Object pos) {
         UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
-        external<void>(0x01d67740, this, posProxy);
+        external<void>(game::Address::BaseEntity_SetPositionDirect, this, posProxy);
     }
 
     inline void SetYawAngleDirect(float angle) {
-        external<void>(0x01d67790, this, angle);
+        external<void>(game::Address::BaseEntity_SetYawAngleDirect, this, angle);
     }
 
     inline AnimationPlayer::Object* virtual_GetAnimationPlayer() {

@@ -7,7 +7,7 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Demo {
-    struct Demo_Evolve : ILClass<Demo_Evolve, 0x04c5e600> {
+    struct Demo_Evolve : ILClass<Demo_Evolve, game::Address::Dpr_Demo_Demo_Gosanke_TypeInfo> {
         struct Param : ILClass<Param> {
             struct Fields {
                 Pml::PokePara::PokemonParam::Object* pokemonParam;

@@ -18,7 +18,7 @@
 namespace Dpr::UI {
     struct UIBag : ILClass<UIBag> {
 
-        static inline StaticILMethod<0x04c80270, PokemonPartyItem, int32_t> Method$$OnPokemonPartyClickedToUseItem {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_UIBag_OnPokemonPartyClickedToUseItem, PokemonPartyItem, int32_t> Method$$OnPokemonPartyClickedToUseItem {};
 
         static inline MethodInfo* Method$$BuildContextMenu = nullptr;
         static MethodInfo* getMethod$$BuildContextMenu(Il2CppMethodPointer method) {
@@ -39,10 +39,10 @@ namespace Dpr::UI {
                 void* __9__19;
             };
             inline void EndUseAction() {
-                external<void>(0x01bdd4b0, this);
+                external<void>(game::Address::Dpr_UI_UIBag_c_DisplayClass127_0_ShowItemContextMenu_g_EndUseAction_0, this);
             }
 
-            static inline StaticILMethod<0x04c80068> Method$$ShowItemContextMenu_EndUseAction {};
+            static inline StaticILMethod<game::Address::Method_Dpr_UI_UIBag_c_DisplayClass127_0_ShowItemContextMenu_g_EndUseAction_0> Method$$ShowItemContextMenu_EndUseAction {};
 
             static inline MethodInfo* Method$$OnCloseWindowIncenseBurner = nullptr;
             static MethodInfo* getMethod$$OnCloseWindowIncenseBurner(Il2CppMethodPointer method) {
@@ -61,7 +61,7 @@ namespace Dpr::UI {
 
         struct __c__DisplayClass134_0 : ILClass<__c__DisplayClass134_0> {
             inline void _UseWazaMachine_b__3(int32_t index) {
-                external<void>(0x01be0fa0, this, index);
+                external<void>(game::Address::Dpr_UI_UIBag_c_DisplayClass134_0_UseWazaMachine_b_3, this, index);
             }
         };
 
@@ -71,14 +71,14 @@ namespace Dpr::UI {
             };
         };
 
-        struct __c__DisplayClass144_0 : ILClass<__c__DisplayClass144_0, 0x04c62840> {
+        struct __c__DisplayClass144_0 : ILClass<__c__DisplayClass144_0, game::Address::Dpr_UI_UIBag_c_DisplayClass144_0_TypeInfo> {
             struct Fields {
                 Dpr::UI::UIBag::Object* __4__this;
                 Pml::PokePara::PokemonParam::Object* pokemonParam;
                 Dpr::UI::PokemonPartyItem::Object* pokemonPartyItem;
             };
 
-            static inline StaticILMethod<0x04c801a0, int32_t> Method$$DisplayClass144_0_UseFormChange {};
+            static inline StaticILMethod<game::Address::Method_Dpr_UI_UIBag_c_DisplayClass144_0_UseFormChangeItem_b_0, int32_t> Method$$DisplayClass144_0_UseFormChange {};
 
             static inline MethodInfo* Method$$OnSelectedIncenseBurner = nullptr;
             static MethodInfo* getMethod$$OnSelectedIncenseBurner(Il2CppMethodPointer method) {
@@ -94,7 +94,7 @@ namespace Dpr::UI {
             };
 
             inline void ctor() {
-                external<void>(0x01be1910, this);
+                external<void>(game::Address::Dpr_UI_UIBag_c_DisplayClass144_0_ctor, this);
             }
         };
 
@@ -134,17 +134,17 @@ namespace Dpr::UI {
         };
 
         inline void Close(void* onClosed, int32_t nextWindowId, bool isPlayCloseSe) {
-            external<void>(0x01859870, this, onClosed, nextWindowId, isPlayCloseSe);
+            external<void>(game::Address::Dpr_UI_UIBag_Close, this, onClosed, nextWindowId, isPlayCloseSe);
         }
 
         inline void OpenContextMenu(System::Int32_array* contextMenuIDs, System::Action::Object* onSelected, UnityEngine::Vector2::Object pivot, UnityEngine::Vector3::Object pos, System::Action::Object* onClosed, bool isNoDecideSe, bool isNoCancelSe) {
             UnityEngine::Vector2::Fields pivotProxy = { .x = pivot.fields.x, .y = pivot.fields.y };
             UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
-            external<void>(0x0185c1f0, this, contextMenuIDs, onSelected, pivotProxy, posProxy, onClosed, isNoDecideSe, isNoCancelSe);
+            external<void>(game::Address::Dpr_UI_UIBag_OpenContextMenu, this, contextMenuIDs, onSelected, pivotProxy, posProxy, onClosed, isNoDecideSe, isNoCancelSe);
         }
 
         inline void StartSelectPokemonParty(UnityEngine::Events::UnityAction::Object* onClicked) {
-            external<void>(0x0185c080, this, onClicked);
+            external<void>(game::Address::Dpr_UI_UIBag_StartSelectPokemonParty, this, onClicked);
         }
     };
 }

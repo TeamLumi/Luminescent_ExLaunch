@@ -21,27 +21,27 @@ namespace Dpr::Battle::Logic {
         };
 
         inline bool IsEffective() {
-            return external<bool>(0x01f71530, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_SideEffectStatus_IsEffective, this);
         }
 
         inline uint8_t GetCausePokeID() {
-            return external<uint8_t>(0x01f71910, this);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_SideEffectStatus_GetCausePokeID, this);
         }
 
         inline uint32_t GetMaxTurnCount() {
-            return external<uint32_t>(0x01f71840, this);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_SideEffectStatus_GetMaxTurnCount, this);
         }
 
         inline uint32_t GetTurnUpCount() {
-            return external<uint32_t>(0x01f718c0, this);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_SideEffectStatus_GetTurnUpCount, this);
         }
 
         inline uint32_t GetRemainingTurn() {
-            return external<uint32_t>(0x01f71880, this);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_SideEffectStatus_GetRemainingTurn, this);
         }
 
         inline uint32_t GetCurrentTurnCount() {
-            return external<uint32_t>(0x01f71870, this);
+            return external<uint32_t>(game::Address::Dpr_Battle_Logic_SideEffectStatus_GetCurrentTurnCount, this);
         }
     };
 }

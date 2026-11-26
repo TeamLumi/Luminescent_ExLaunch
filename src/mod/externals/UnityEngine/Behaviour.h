@@ -11,11 +11,11 @@ namespace UnityEngine {
         };
 
         inline void set_enabled(bool value) {
-            external<void>(0x026a3450, this, value);
+            external<void>(game::Address::UnityEngine_Behaviour_set_enabled, this, value);
         }
 
         inline bool get_enabled() {
-            return external<bool>(0x026a3400, this);
+            return external<bool>(game::Address::UnityEngine_Behaviour_get_enabled, this);
         }
     };
 }

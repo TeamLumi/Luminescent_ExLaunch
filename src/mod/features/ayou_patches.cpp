@@ -29,6 +29,6 @@ HOOK_DEFINE_TRAMPOLINE(MessageWordSetHelper$$SetTrainerNameWord) {
 };
 
 void exl_ayou_patches_main() {
-    MessageManager$$GetNameMessage::InstallAtOffset(0x0210ce50);
-    MessageWordSetHelper$$SetTrainerNameWord::InstallAtOffset(0x01f9bf50);
+    MessageManager$$GetNameMessage::InstallAtOffset(game::Address::Dpr_Message_MessageManager_GetNameMessage);
+    MessageWordSetHelper$$SetTrainerNameWord::InstallAtOffset(game::Address::Dpr_Message_MessageWordSetHelper_SetTrainerNameWord);
 }

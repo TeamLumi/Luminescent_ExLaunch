@@ -6,6 +6,6 @@
 
 struct ExtensionMethods : ILClass<ExtensionMethods> {
     static inline void SetActive(UnityEngine::Component::Object* self, bool value) {
-        external<void>(0x017806a0, self, value);
+        external<void>(game::Address::ExtensionMethods_SetActive, self, value);
     }
 };

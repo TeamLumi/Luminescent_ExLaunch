@@ -21,7 +21,7 @@ void HandlerFieldEffectExtremelyHarshSunlightWazaDmgProc3(EventFactor::EventHand
 }
 
 void HandlerFieldEffectExtremelyHarshSunlightAddSickCheckFail(EventFactor::EventHandlerArgs::Object** args, uint8_t subParam) {
-    system_load_typeinfo(0x4b48);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Field_handler_mist_checkFail);
     Common::getClass()->initIfNeeded();
 
     auto sick = Common::GetEventVar(args, EventVar::Label::SICKID);

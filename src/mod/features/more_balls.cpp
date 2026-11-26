@@ -70,28 +70,28 @@ HOOK_DEFINE_REPLACE(UtilsGetBallModelPath) {
 };
 
 void exl_balls_main() {
-    IsStrangeBall::InstallAtOffset(0x0249f130);
-    InlineGetBallModelPath::InstallAtOffset(0x01db6cb4);
-    BattleViewSystemGetBallModelPath::InstallAtOffset(0x01c92790);
-    SealPreviewViewSystemGetBallModelPath::InstallAtOffset(0x01bd9aa0);
-    UtilsGetBallModelPath::InstallAtOffset(0x0186b4a0);
-    UtilsGetBallModelPath::InstallAtOffset(0x01e4df50);
+    IsStrangeBall::InstallAtOffset(game::Address::Pml_Item_ItemManager_IsStrangeBall);
+    InlineGetBallModelPath::InstallAtOffset(game::Address::FieldPokemonCenter_LoadTemotiBall + 0x224);
+    BattleViewSystemGetBallModelPath::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewSystem_GetBallModelPath);
+    SealPreviewViewSystemGetBallModelPath::InstallAtOffset(game::Address::Dpr_SealPreview_SealPreviewViewSystem_GetBallModelPath);
+    UtilsGetBallModelPath::InstallAtOffset(game::Address::Dpr_SubContents_Utils_GetBallModelPath);
+    UtilsGetBallModelPath::InstallAtOffset(game::Address::Dpr_Battle_View_BattleViewDefine_Path_GetBallPath);
 
     // Assembly Patches
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01db6a40, Movz(W20, BALL_COUNT + 2) },
-        { 0x01db7488, Movz(W10, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x01db6e78, Movz(W8, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x01db7244, Movz(W10, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x01db6f18, Movz(W28, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x01db6c08, Movz(W8, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x01db6c38, CmpImmediate(W9, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x01abc8dc, Movz(W8, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x02cc01b4, CmpImmediate(W1, array_index(BALLS, "--BALL ZERO--")) },
-        { 0x02cc01c4, CmpImmediate(W1, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::FieldPokemonCenter_Initialize + 0x40, Movz(W20, BALL_COUNT + 2) },
+        { game::Address::FieldPokemonCenterEntity_PutBall + 0xD8, Movz(W10, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::FieldPokemonCenter_CheckBallId + 0x68, Movz(W8, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::FieldPokemonCenter_GetBallObject + 0x74, Movz(W10, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::FieldPokemonCenter_IsLoadedTemotiBall + 0x88, Movz(W28, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::FieldPokemonCenter_LoadTemotiBall + 0x178, Movz(W8, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::FieldPokemonCenter_LoadTemotiBall + 0x1A8, CmpImmediate(W9, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::Dpr_BallDeco_BallDecoWork_GetBallLightEffectAssetBundleName + 0x6C, Movz(W8, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::TrainerSystem_setupPokemon + 0xD4, CmpImmediate(W1, array_index(BALLS, "--BALL ZERO--")) },
+        { game::Address::TrainerSystem_setupPokemon + 0xE4, CmpImmediate(W1, array_index(BALLS, "--BALL ZERO--")) },
     };
     p.WriteInst(inst);
 }

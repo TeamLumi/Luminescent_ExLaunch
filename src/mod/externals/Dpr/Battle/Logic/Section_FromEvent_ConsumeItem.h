@@ -7,8 +7,8 @@
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_ConsumeItem : ILClass<Section_FromEvent_ConsumeItem, 0x04c5b8e8> {
-        struct Description : ILClass<Description, 0x04c5b1d0> {
+    struct Section_FromEvent_ConsumeItem : ILClass<Section_FromEvent_ConsumeItem, game::Address::Dpr_Battle_Logic_Section_FromEvent_ConsumeItem_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_ConsumeItem_Description_TypeInfo> {
             struct Fields {
                 uint8_t userPokeID;
                 bool isUseActionDisable;
@@ -18,15 +18,15 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb2dc0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_ConsumeItem_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5aec8> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_ConsumeItem_Result_TypeInfo> {
             struct Fields {};
 
             inline void ctor() {
-                external<void>(0x01fb2e40, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_ConsumeItem_Result_ctor, this);
             }
         };
 

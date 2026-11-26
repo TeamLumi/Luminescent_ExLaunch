@@ -5,7 +5,7 @@
 #include "externals/FieldObjectEntity.h"
 #include "externals/FieldPlayerEntity.h"
 
-struct EntityManager : ILClass<EntityManager, 0x04c59d10> {
+struct EntityManager : ILClass<EntityManager, game::Address::EntityManager_TypeInfo> {
     struct StaticFields {
         void* _baseEntities;
         void* _activeBattlePlayer_k__BackingField;

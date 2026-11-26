@@ -11,7 +11,7 @@
 namespace Audio {
     struct AudioInstance;
 
-    struct AudioManager : ILClass<AudioManager, 0x04c59b78> {
+    struct AudioManager : ILClass<AudioManager, game::Address::SmartPoint_AssetAssistant_SingletonMonoBehaviour_AudioManager_TypeInfo> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             UnityEngine::GameObject::Object * _prefab;
             System::Int32_array * _poolCounts;
@@ -34,17 +34,17 @@ namespace Audio {
         }
 
         inline UnityEngine::Transform::Object* PlaySe(uint32_t playEventId, void *onFinished) {
-            return external<UnityEngine::Transform::Object*>(0x021eb8d0, this, playEventId, onFinished);
+            return external<UnityEngine::Transform::Object*>(game::Address::Audio_AudioManager_PlaySe, this, playEventId, onFinished);
         }
 
         inline uint32_t PostEvent(uint32_t eventId, uint32_t callbackFlags, bool isThroughSameEvent) {
-            return external<uint32_t>(0x021eb100, this, eventId, callbackFlags, isThroughSameEvent);
+            return external<uint32_t>(game::Address::Audio_AudioManager_PostEvent, this, eventId, callbackFlags, isThroughSameEvent);
         }
 
         inline Audio::AudioInstance* CreateSe(uint32_t playEventId, uint32_t stopEventId, UnityEngine::Vector3::Object position, UnityEngine::Quaternion::Object rotation, UnityEngine::Transform::Object* attachedTransform) {
             UnityEngine::Vector3::Fields positionProxy = { .x = position.fields.x, .y = position.fields.y, .z = position.fields.z };
             UnityEngine::Quaternion::Fields rotationProxy = { .x = rotation.fields.x, .y = rotation.fields.y, .z = rotation.fields.z, .w = rotation.fields.w };
-            return external<Audio::AudioInstance*>(0x021eba50, this, playEventId, stopEventId, positionProxy, rotationProxy, attachedTransform);
+            return external<Audio::AudioInstance*>(game::Address::Audio_AudioManager_CreateSe_UInt32_UInt32_Vector3_Quaternion_Transform, this, playEventId, stopEventId, positionProxy, rotationProxy, attachedTransform);
         }
     };
 }

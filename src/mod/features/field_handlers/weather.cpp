@@ -57,7 +57,7 @@ bool IsRegularWeather(uint8_t weather) {
 
 HOOK_DEFINE_REPLACE(Handler_Field$$ADD_Fld_Weather) {
     static EventFactor::EventHandlerTable::Array* Callback(uint8_t sub_param) {
-        system_load_typeinfo(0x4b38);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Field_ADD_Fld_Weather);
 
         if (sub_param >= BATTLE_WEATHER_COUNT || !ACTIVATED_FIELD_WEATHER_HANDLERS[sub_param])
             return Handler::Field::getClass()->static_fields->DammyHandlerTable;
@@ -358,7 +358,7 @@ HOOK_DEFINE_REPLACE(Section_ChangeWeather_Check$$Execute) {
 // CHANGE WEATHER SPAWNED BY SAND STREAM TO SNOW FOR TESTING
 HOOK_DEFINE_REPLACE(handler_Sunaokosi) {
     static void Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-        system_load_typeinfo(0x8a5b);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_Sunaokosi);
         Common::getClass()->initIfNeeded();
         Handler::Tokusei::getClass()->initIfNeeded();
 
@@ -369,16 +369,16 @@ HOOK_DEFINE_REPLACE(handler_Sunaokosi) {
 
 
 void InstallHooks_FieldEffect_Weather() {
-    calc$$GetWeatherDmgRatio::InstallAtOffset(0x01f75830);
-    Handler_Field$$ADD_Fld_Weather::InstallAtOffset(0x019022c0);
-    calc$$RecvWeatherDamage::InstallAtOffset(0x01f75770);
-    Section_TurnCheck_Weather$$weatherDamage_Message::InstallAtOffset(0x02173840);
-    BTL_CLIENT$$getWeatherStartMessage::InstallAtOffset(0x01f618f0);
-    BTL_CLIENT$$scProc_ACT_WeatherEnd::InstallAtOffset(0x01f61a20);
+    calc$$GetWeatherDmgRatio::InstallAtOffset(game::Address::Dpr_Battle_Logic_calc_GetWeatherDmgRatio);
+    Handler_Field$$ADD_Fld_Weather::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Field_ADD_Fld_Weather);
+    calc$$RecvWeatherDamage::InstallAtOffset(game::Address::Dpr_Battle_Logic_calc_RecvWeatherDamage);
+    Section_TurnCheck_Weather$$weatherDamage_Message::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_TurnCheck_Weather_weatherDamage_Message);
+    BTL_CLIENT$$getWeatherStartMessage::InstallAtOffset(game::Address::Dpr_Battle_Logic_BTL_CLIENT_getWeatherStartMessage);
+    BTL_CLIENT$$scProc_ACT_WeatherEnd::InstallAtOffset(game::Address::Dpr_Battle_Logic_BTL_CLIENT_scProc_ACT_WeatherEnd);
 
-    calc$$IsShineWeather::InstallAtOffset(0x01f758a0);
-    calc$$IsRainWeather::InstallAtOffset(0x01f758c0);
-    Section_ChangeWeather_Check$$Execute::InstallAtOffset(0x021ae6d0);
+    calc$$IsShineWeather::InstallAtOffset(game::Address::Dpr_Battle_Logic_calc_IsShineWeather);
+    calc$$IsRainWeather::InstallAtOffset(game::Address::Dpr_Battle_Logic_calc_IsRainWeather);
+    Section_ChangeWeather_Check$$Execute::InstallAtOffset(game::Address::Dpr_Battle_Logic_Section_ChangeWeather_Check_Execute);
 
     //handler_Sunaokosi::InstallAtOffset(0x01947000);
 
@@ -393,10 +393,10 @@ void InstallHooks_FieldEffect_Weather() {
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01d15588, Movz(W0, 0) }, // EventLauncher$$Event_getDefenderGuard, skip Sandstorm defensive effect (use DEFENDER_GUARD handler instead)
-        { 0x020dc0f0, Movz(W0, 0) }, // Section_AddSickCheckFail$$checkFail_byBasicRules, skip Harsh Sunlight check for freezing (use ADDSICK_CHECKFAIL handler instead)
+        { game::Address::Dpr_Battle_Logic_EventLauncher_Event_getDefenderGuard + 0x1B8, Movz(W0, 0) }, // EventLauncher$$Event_getDefenderGuard, skip Sandstorm defensive effect (use DEFENDER_GUARD handler instead)
+        { game::Address::Dpr_Battle_Logic_Section_AddSickCheckFail_checkFail_byBasicRules + 0x50, Movz(W0, 0) }, // Section_AddSickCheckFail$$checkFail_byBasicRules, skip Harsh Sunlight check for freezing (use ADDSICK_CHECKFAIL handler instead)
     };
     p.WriteInst(inst);
 }

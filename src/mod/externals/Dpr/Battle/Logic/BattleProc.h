@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/Transform.h"
 
 namespace Dpr::Battle::Logic {
-    struct BattleProc : ILClass<BattleProc, 0x04c5ac28> {
+    struct BattleProc : ILClass<BattleProc, game::Address::Dpr_Battle_Logic_BattleProc_TypeInfo> {
         struct FinalizeCoroutine_d_34 : ILClass<FinalizeCoroutine_d_34> {
             struct Fields {
                 int32_t __1__state;

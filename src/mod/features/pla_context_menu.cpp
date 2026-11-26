@@ -101,9 +101,9 @@ void EvDataManager_EvCmdCallWazaOmoidashiUi_b__1542_0(Dpr::EvScript::EvDataManag
 void createMoveRelearnerWindow(Dpr::UI::PokemonWindow::DisplayClass25_0::Object * dispClass)
 {
     Logger::log("createMoveRelearnerWindow\n");
-    system_load_typeinfo(0x43f0);
-    system_load_typeinfo(0x43ef);
-    system_load_typeinfo(0x4378);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdCallWazaOshieUi);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdCallWazaOmoidashiUi);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CallWazaUiCommon);
 
     Dpr::EvScript::EvDataManager::Object * evDataManager = Dpr::EvScript::EvDataManager::get_Instanse();
 
@@ -132,7 +132,7 @@ void createMoveRelearnerWindow(Dpr::UI::PokemonWindow::DisplayClass25_0::Object 
 
 void renamePokemon(Dpr::UI::PokemonWindow::DisplayClass25_0::Object * dispClass, Dpr::UI::ContextMenuItem::Param::Object * ctxMenuParam)
 {
-    system_load_typeinfo(0x4469);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdNameInPoke);
 
     auto evDataManager = Dpr::EvScript::EvDataManager::Object::get_Instanse();
 
@@ -247,19 +247,19 @@ void exl_pla_context_menu_main() {
     using namespace exl::armv8::reg;
 
     // Add to Party Context Menu
-    exl::patch::CodePatcher p(0x019fa08c);
+    exl::patch::CodePatcher p(game::Address::Dpr_UI_PokemonWindow_OpenContextMenu + 0x54C);
     p.WriteInst(MovRegister(X0, X21));
     p.WriteInst(MovRegister(X1, X23));
     p.WriteInst(MovRegister(X2, X19));
     p.BranchLinkInst((void*)&patchContextMenu);
 
     // Assign code to the Context Menu options
-    ContextMenuAction::InstallAtOffset(0x019fbf7c);
+    ContextMenuAction::InstallAtOffset(game::Address::Dpr_UI_PokemonWindow_c_DisplayClass25_0_OpenContextMenu_b_1 + 0x6EC);
 
     // Queue the window closing after nicknaming
-    DisplayClass773_0_EvCmdNameInPoke_b__1::InstallAtOffset(0x019aef00);
+    DisplayClass773_0_EvCmdNameInPoke_b__1::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_c_DisplayClass773_0_EvCmdNameInPoke_b_1);
 
     // Close the window
-    p.Seek(0x019f8460);
+    p.Seek(game::Address::Dpr_UI_PokemonWindow_OnUpdate + 0x320);
     p.BranchLinkInst((void*)&IsPushButton_CloseWindow);
 }

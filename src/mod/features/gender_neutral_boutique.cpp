@@ -22,7 +22,7 @@ void AddOutfit(System::Collections::Generic::List$$ShopBoutiqueItemItem_Param::O
 
 HOOK_DEFINE_REPLACE(Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams) {
     static int32_t Callback(System::Collections::Generic::List$$ShopBoutiqueItemItem_Param::Object *itemParams) {
-        system_load_typeinfo(0x7cbb);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_ShopBoutiqueBuy_SetupScrollViewItemParams);
 
         bool playerSex = PlayerWork::get_playerSex();
 
@@ -57,14 +57,14 @@ HOOK_DEFINE_REPLACE(Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams) {
 };
 
 void exl_gender_neutral_boutique_main() {
-    Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams::InstallAtOffset(0x01d46b00);
+    Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams::InstallAtOffset(game::Address::Dpr_UI_ShopBoutiqueChange_SetupBoutiqueItemParams);
 
     // Remove bike outfit override for battles on cycling road
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x0202f120, Movz(X0, 0) }, // Remove bike outfit override for battles on cycling road
+        { game::Address::Dpr_Battle_Logic_MainModule_trainerParam_StorePlayer + 0xF0, Movz(X0, 0) }, // Remove bike outfit override for battles on cycling road
     };
     p.WriteInst(inst);
 };

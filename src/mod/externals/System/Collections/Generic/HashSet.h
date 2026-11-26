@@ -27,12 +27,12 @@ namespace System::Collections::Generic {
         };
 
         inline bool Add(E* item) {
-            return ILClass<T>::template external<bool>(0x028f8520, this, item, *T::Method$$Add);
+            return ILClass<T>::template external<bool>(game::Address::System_Collections_Generic_HashSet_AkRoomAwareObject_Add, this, item, *T::Method$$Add);
         }
 
         // Only use for primitive types
         inline bool AddPrimitive(E item) {
-            return ILClass<T>::template external<bool>(0x028f8520, this, item, *T::Method$$Add);
+            return ILClass<T>::template external<bool>(game::Address::System_Collections_Generic_HashSet_AkRoomAwareObject_Add, this, item, *T::Method$$Add);
         }
     };
 }

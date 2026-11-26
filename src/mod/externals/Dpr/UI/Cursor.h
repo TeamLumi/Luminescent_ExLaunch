@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/Coroutine.h"
 
 namespace Dpr::UI {
-    struct Cursor : ILClass<Cursor, 0x04c5dc90> {
+    struct Cursor : ILClass<Cursor, game::Address::Dpr_UI_Cursor_TypeInfo> {
         struct Fields : UnityEngine::MonoBehaviour::Fields {
             UnityEngine::UI::Image::Array* _frameImages;
             void* _frameSprites;
@@ -16,11 +16,11 @@ namespace Dpr::UI {
         };
 
         inline void SetActive(bool enabled) {
-            external<void>(0x01ec07b0, this, enabled);
+            external<void>(game::Address::Dpr_UI_Cursor_SetActive, this, enabled);
         }
 
         inline void SetFrameSprite(int32_t index) {
-            external<void>(0x01ec2810, this, index);
+            external<void>(game::Address::Dpr_UI_Cursor_SetFrameSprite, this, index);
         }
     };
 }

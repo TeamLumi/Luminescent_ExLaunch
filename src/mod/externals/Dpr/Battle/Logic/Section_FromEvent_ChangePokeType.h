@@ -7,8 +7,8 @@
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_ChangePokeType : ILClass<Section_FromEvent_ChangePokeType, 0x04c5b8c0> {
-        struct Description : ILClass<Description, 0x04c5b2c8> {
+    struct Section_FromEvent_ChangePokeType : ILClass<Section_FromEvent_ChangePokeType, game::Address::Dpr_Battle_Logic_Section_FromEvent_ChangePokeType_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_ChangePokeType_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 PokeTypePair::Object nextType;
@@ -20,17 +20,17 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb16b0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_ChangePokeType_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5adf8> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_ChangePokeType_Result_TypeInfo> {
             struct Fields {
                 bool isSuccessed;
             };
 
             inline void ctor() {
-                external<void>(0x01fb1750, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_ChangePokeType_Result_ctor, this);
             }
         };
 

@@ -9,8 +9,8 @@
 #include "externals/Pml/WazaData/WazaSick.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_AddSick : ILClass<Section_AddSick, 0x04c5b890> {
-        struct Description : ILClass<Description, 0x04c5adb8> {
+    struct Section_AddSick : ILClass<Section_AddSick, game::Address::Dpr_Battle_Logic_Section_AddSick_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_AddSick_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 uint8_t targetPokeID;
@@ -28,7 +28,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x020dbd00, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_AddSick_Description_ctor, this);
             }
         };
 

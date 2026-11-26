@@ -629,15 +629,15 @@ namespace Dpr::Battle::View::Systems {
         }
 
         inline void SetSexIcon(Pml::Sex sex, UnityEngine::UI::Image::Object* target) {
-            external<void>(0x01e7c7d0, this, sex, target);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_SetSexIcon, this, sex, target);
         }
 
         inline void PlaySequenceEffect(int32_t no, bool isKeepResource) {
-            external<void>(0x01c7ea40, this, no, isKeepResource);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewSystem_PlaySequenceEffect, this, no, isKeepResource);
         }
 
         inline void PlaySequenceCore(System::String::Object* path, bool keepResource) {
-            external<void>(0x01c85970, this, path, keepResource);
+            external<void>(game::Address::Dpr_Battle_View_Systems_BattleViewSystem_PlaySequenceCore, this, path, keepResource);
         }
     };
 }

@@ -108,7 +108,7 @@ HOOK_DEFINE_REPLACE(Factory$$InitCoreData) {
     static void Callback(System::Byte_array* coreData, Pml::PokePara::InitialSpec::Object* spec) {
         // This is POST FixInitSpec
 
-        system_load_typeinfo(0x47e3);
+        system_load_typeinfo(game::TypeInfo::Pml_PokePara_Factory_InitCoreData);
         Pml::PmlUse::getClass()->initIfNeeded();
         Pml::PokePara::CalcTool::getClass()->initIfNeeded();
         Pml::Personal::PersonalSystem::getClass()->initIfNeeded();
@@ -195,16 +195,16 @@ HOOK_DEFINE_TRAMPOLINE(Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Toku
 
 
 void exl_form_arg_generation_main() {
-    Factory$$InitCoreData::InstallAtOffset(0x02054140);
-    FixInitSpec_FormRolling::InstallAtOffset(0x02053f8c);
-    EggGenerator$$CreateEgg_CoreParam_Variants::InstallAtOffset(0x0204e28c);
-    ZukanInfo$$GetCurrentPokemonParam::InstallAtOffset(0x01bb04e0);
+    Factory$$InitCoreData::InstallAtOffset(game::Address::Pml_PokePara_Factory_InitCoreData);
+    FixInitSpec_FormRolling::InstallAtOffset(game::Address::Pml_PokePara_Factory_FixInitSpec + 0x7CC);
+    EggGenerator$$CreateEgg_CoreParam_Variants::InstallAtOffset(game::Address::Pml_PokePara_EggGenerator_CreateEgg_CoreParam + 0x19C);
+    ZukanInfo$$GetCurrentPokemonParam::InstallAtOffset(game::Address::Dpr_UI_ZukanInfo_GetCurrentPokemonParam);
 
-    Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei::InstallAtOffset(0x018bfea0);
+    Dpr_UnderGround_UgPokeLottery$$CreatePokemonParam_by_Tokusei::InstallAtOffset(game::Address::Dpr_UnderGround_UgPokeLottery_CreatePokemonParam_by_Tokusei);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
-    p.Seek(0x02053f90);
+    exl::patch::CodePatcher p;
+    p.Seek(game::Address::Pml_PokePara_Factory_FixInitSpec + 0x7D0);
     p.WriteInst(Branch(0xA8)); // Jump to 02054038
 }

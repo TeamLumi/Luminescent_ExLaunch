@@ -10,11 +10,11 @@ namespace UnityEngine {
         };
 
         inline int32_t get_top() {
-            return external<int32_t>(0x02695e30, this);
+            return external<int32_t>(game::Address::UnityEngine_RectOffset_get_top, this);
         }
 
         inline int32_t get_bottom() {
-            return external<int32_t>(0x02695e80, this);
+            return external<int32_t>(game::Address::UnityEngine_RectOffset_get_bottom, this);
         }
     };
 }

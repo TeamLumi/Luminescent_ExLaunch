@@ -197,23 +197,23 @@ namespace Dpr::UI {
         }
 
         inline void SetupMessage(System::String::Object* messageFile, System::String::Object* messageId) {
-            external<void>(0x01dd18d0, this, messageFile, messageId);
+            external<void>(game::Address::Dpr_UI_UIText_SetupMessage_String_String, this, messageFile, messageId);
         }
 
         inline void SetupMessage(System::String::Object* messageFile, int32_t messageIndex) {
-            external<void>(0x01dd1940, this, messageFile, messageIndex);
+            external<void>(game::Address::Dpr_UI_UIText_SetupMessage_String_Int32, this, messageFile, messageIndex);
         }
 
         inline void ChangeLanguage(int32_t langId) {
-            external<void>(0x01dd19b0, this, langId);
+            external<void>(game::Address::Dpr_UI_UIText_ChangeLanguage, this, langId);
         }
 
         inline void SetFormattedText(UnityEngine::Events::UnityAction::Object* onSet, System::String::Object* messageFile, System::String::Object* messageId) {
-            external<void>(0x01dc76c0, this, onSet, messageFile, messageId);
+            external<void>(game::Address::Dpr_UI_UIText_SetFormattedText, this, onSet, messageFile, messageId);
         }
 
         inline void UpdateMessage(bool isForce, Dpr::Message::MessageEnumData::MsgLangId langId) {
-            external<void>(0x01dd1480, this, isForce, langId);
+            external<void>(game::Address::Dpr_UI_UIText_UpdateMessage, this, isForce, langId);
         }
     };
 }
@@ -221,8 +221,8 @@ namespace Dpr::UI {
 namespace System::Collections::Generic {
     struct List$$UIText : List<List$$UIText, Dpr::UI::UIText> {
 
-        static inline StaticILMethod<0x04c89ac0, Dpr::UI::UIText> Method$$UIText$$Add {};
-        static inline StaticILMethod<0x04c89ac8, Dpr::UI::UIText> Method$$UIText$$Clear {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_UIText_Add, Dpr::UI::UIText> Method$$UIText$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_UIText_Clear, Dpr::UI::UIText> Method$$UIText$$Clear {};
     };
 
 }

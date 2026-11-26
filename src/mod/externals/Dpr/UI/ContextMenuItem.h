@@ -10,8 +10,8 @@
 #include "externals/UnityEngine/MonoBehaviour.h"
 
 namespace Dpr::UI {
-    struct ContextMenuItem : ILClass<ContextMenuItem, 0x04c61bc8> {
-        struct Param : ILClass<Param, 0x04c5e788, 0x04c5e780> {
+    struct ContextMenuItem : ILClass<ContextMenuItem, game::Address::Dpr_UI_ContextMenuItem_TypeInfo> {
+        struct Param : ILClass<Param, game::Address::Dpr_UI_ContextMenuItem_Param_TypeInfo, game::Address::Dpr_UI_ContextMenuItem_Param_Array_TypeInfo> {
             struct Fields {
                 ContextMenuID menuId;
                 System::String::Object* messageFile;
@@ -22,7 +22,7 @@ namespace Dpr::UI {
             };
 
             inline void ctor() {
-                external<void>(0x01ebee30, this);
+                external<void>(game::Address::Dpr_UI_ContextMenuItem_Param_ctor, this);
             }
         };
 
@@ -37,10 +37,10 @@ namespace Dpr::UI {
 
 namespace System::Collections::Generic {
     struct List$$ContextMenuItem : List<List$$ContextMenuItem, Dpr::UI::ContextMenuItem> {
-        static inline StaticILMethod<0x04c896d0, Dpr::UI::ContextMenuItem> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_ContextMenuItem_Add, Dpr::UI::ContextMenuItem> Method$$Add {};
     };
 
     struct List$$ContextMenuItem_Param : List<List$$ContextMenuItem_Param, Dpr::UI::ContextMenuItem::Param> {
-        static inline StaticILMethod<0x04c896c0, Dpr::UI::ContextMenuItem::Param> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_ContextMenuItem_Param_Add, Dpr::UI::ContextMenuItem::Param> Method$$Add {};
     };
 }

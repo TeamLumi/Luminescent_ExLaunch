@@ -8,7 +8,7 @@
 bool WaitForGameObject(Dpr::EvScript::EvDataManager::Object* manager) {
     //Logger::log("_WAIT_FOR_GAMEOBJECT\n");
 
-    system_load_typeinfo(0x4af3);
+    system_load_typeinfo(game::TypeInfo::FieldTvRedGyaradosEntity_GetTvRedGyarados);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

@@ -6,8 +6,8 @@
 #include "externals/System/Primitives.h"
 
 namespace Dpr::Battle::Logic {
-    struct StrParam : ILClass<StrParam, 0x04c5b010> {
-        struct Param : ILClass<Param, 0x04c5c8e8> {
+    struct StrParam : ILClass<StrParam, game::Address::Dpr_Battle_Logic_StrParam_TypeInfo> {
+        struct Param : ILClass<Param, game::Address::Dpr_Battle_Logic_StrParam_Param_TypeInfo> {
             struct Fields {
                 uint16_t ID;
                 uint16_t type;
@@ -18,7 +18,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01f71e00, this);
+                external<void>(game::Address::Dpr_Battle_Logic_StrParam_Param_ctor, this);
             }
         };
 
@@ -27,23 +27,23 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void ctor() {
-            external<void>(0x01f71cd0, this);
+            external<void>(game::Address::Dpr_Battle_Logic_StrParam_ctor, this);
         }
 
         inline void Setup(BtlStrType type, uint16_t strID) {
-            external<void>(0x01f720f0, this, type, strID);
+            external<void>(game::Address::Dpr_Battle_Logic_StrParam_Setup, this, type, strID);
         }
 
         inline void AddArg(int32_t arg) {
-            external<void>(0x01f72130, this, arg);
+            external<void>(game::Address::Dpr_Battle_Logic_StrParam_AddArg, this, arg);
         }
 
         inline void Clear() {
-            external<void>(0x01f71e70, this);
+            external<void>(game::Address::Dpr_Battle_Logic_StrParam_Clear, this);
         }
 
         inline bool IsEnable() {
-            return external<bool>(0x01f720d0, this);
+            return external<bool>(game::Address::Dpr_Battle_Logic_StrParam_IsEnable, this);
         }
     };
 }

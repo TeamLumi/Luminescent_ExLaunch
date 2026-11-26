@@ -13,7 +13,7 @@
 bool FirstPokeSelectProc(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_FIRST_POKE_SELECT_PROC\n");
-    system_load_typeinfo(0x438a);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdFirstPokeSelectProc);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

@@ -8,7 +8,7 @@
 bool SelectPoffinUI(Dpr::EvScript::EvDataManager::Object* manager) {
     //Logger::log("_SELECT_POFFIN_UI\n");
 
-    system_load_typeinfo(0x45b4);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmd_USE_SPECIAL_ITEM);
 
     switch (manager->fields._itemSequence)
     {

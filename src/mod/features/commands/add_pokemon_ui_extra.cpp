@@ -21,7 +21,7 @@ void EvCmdAddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager, int32
 bool AddPokemonUIExtra(Dpr::EvScript::EvDataManager::Object* manager)
 {
     //Logger::log("_ADD_POKEMON_UI_EXTRA\n");
-    system_load_typeinfo(0x43bd);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdAddPokemonUI);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
     auto azukariyaSeq = manager->fields._azukariyaSequence;

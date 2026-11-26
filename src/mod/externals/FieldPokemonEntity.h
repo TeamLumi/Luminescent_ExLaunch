@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/MaterialPropertyBlock.h"
 #include "externals/UnityEngine/Transform.h"
 
-struct FieldPokemonEntity : ILClass<FieldPokemonEntity, 0x04c5ecf0> {
+struct FieldPokemonEntity : ILClass<FieldPokemonEntity, game::Address::FieldPokemonEntity_TypeInfo> {
     struct Fields : FieldObjectEntity::Fields {
         float scale;
         void* _animationPlayer; // AnimationPlayer_o*

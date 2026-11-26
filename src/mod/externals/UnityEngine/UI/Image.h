@@ -135,26 +135,26 @@ namespace UnityEngine::UI {
         }
 
         inline void set_sprite(UnityEngine::Sprite::Object* value) {
-            external<void>(0x024b8ed0, this, value);
+            external<void>(game::Address::UnityEngine_UI_Image_set_sprite, this, value);
         }
 
         inline UnityEngine::Sprite::Object* get_sprite() {
-            return external<UnityEngine::Sprite::Object*>(0x024b8ec0, this);
+            return external<UnityEngine::Sprite::Object*>(game::Address::UnityEngine_UI_Image_get_sprite, this);
         }
     };
 }
 
 namespace System::Collections::Generic {
     struct List$$UnityEngine_UI_Image : List<List$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
-        static inline StaticILMethod<0x04c896b8> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_ContextMenuItem_Param_ctor> Method$$ctor {};
     };
 
     struct Dictionary$$int32_t$$UnityEngine_UI_Image : Dictionary$$int32_t<Dictionary$$int32_t$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
-        static inline StaticILMethod<0x04c87bb0> Method$$set_Item {};
-        static inline StaticILMethod<0x04c70da8> Method$$get_Values {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_Image_set_Item> Method$$set_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_Image_get_Values> Method$$get_Values {};
     };
 
     struct IEnumerable$$UnityEngine_UI_Image : IEnumerable<IEnumerable$$UnityEngine_UI_Image, UnityEngine::UI::Image> {
-        static inline StaticILMethod<0x04c71770> Method$$ToList {};
+        static inline StaticILMethod<game::Address::Method_System_Linq_Enumerable_ToList_Image> Method$$ToList {};
     };
 }

@@ -183,7 +183,7 @@ HOOK_DEFINE_TRAMPOLINE(CONFIG$$GetValue) {
 // Only really used in GameManager's OnetimeInitializeOperation, we do want to keep this
 HOOK_DEFINE_REPLACE(ConfigWork$$InvokeChangedValues) {
     static void Callback(DPData::CONFIG::Object* config) {
-        system_load_typeinfo(0x2e11);
+        system_load_typeinfo(game::TypeInfo::ConfigWork_InvokeChangedValues);
 
         for (int i=0; i<SETTING_COUNT; i++) {
             OnValueChanged(i, GetSetting(config, &getCustomSaveData()->settings, i));
@@ -193,7 +193,7 @@ HOOK_DEFINE_REPLACE(ConfigWork$$InvokeChangedValues) {
 
 HOOK_DEFINE_REPLACE(SettingWindow$$InitializeSettings) {
     static void Callback(Dpr::UI::SettingWindow::Object *__this) {
-        system_load_typeinfo(0x7c49);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_InitializeSettings);
 
         ResetSettings(&__this->fields._tempConfig, &tempExtraSettings);
 
@@ -210,7 +210,7 @@ HOOK_DEFINE_REPLACE(SettingWindow$$InitializeSettings) {
 
 HOOK_DEFINE_REPLACE(SettingWindow$$OnMenuItemValueChaged) {
     static void Callback(Dpr::UI::SettingWindow::Object* __this, Dpr::UI::SettingMenuItem::Object* menuItem) {
-        system_load_typeinfo(0x7c4c);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_OnMenuItemValueChaged);
 
         SetSetting(&__this->fields._tempConfig, &tempExtraSettings, menuItem->fields._configId, menuItem->fields._selectIndex);
         OnValueChanged(menuItem->fields._configId, menuItem->fields._selectIndex);
@@ -219,7 +219,7 @@ HOOK_DEFINE_REPLACE(SettingWindow$$OnMenuItemValueChaged) {
 
 HOOK_DEFINE_REPLACE(SettingWindow$$RevertSettings) {
     static void Callback(Dpr::UI::SettingWindow::Object *__this) {
-        system_load_typeinfo(0x7c53);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_RevertSettings);
 
         for (int i=0; i<SETTING_COUNT; i++) {
             PlayerWork::getClass()->initIfNeeded();
@@ -233,7 +233,7 @@ HOOK_DEFINE_REPLACE(SettingWindow$$RevertSettings) {
 
 HOOK_DEFINE_REPLACE(SettingWindow$$AcceptSettings) {
     static void Callback(Dpr::UI::SettingWindow::Object *__this) {
-        system_load_typeinfo(0x7c47);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_AcceptSettings);
 
         PlayerWork::getClass()->initIfNeeded();
         memmove(PlayerWork::get_config(), &__this->fields._tempConfig, sizeof(DPData::CONFIG::Object));
@@ -246,8 +246,8 @@ HOOK_DEFINE_REPLACE(SettingWindow$$AcceptSettings) {
 
 HOOK_DEFINE_REPLACE(SettingWindow$$UpdateSelectValue) {
     static bool Callback(Dpr::UI::SettingWindow::Object* __this, float deltaTime) {
-        system_load_typeinfo(0x7c5e);
-        system_load_typeinfo(0x7c46);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_UpdateSelectValue);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingMenuItem_get_valueCount);
 
         auto item = __this->fields._activeItems->fields._items->m_Items[__this->fields._selectIndex];
 
@@ -317,7 +317,7 @@ HOOK_DEFINE_REPLACE(SettingWindow$$UpdateSelectValue) {
 
 HOOK_DEFINE_REPLACE(SettingWindow$$OpenDescriptionMessageWindow) {
     static void Callback(Dpr::UI::SettingWindow::Object* __this) {
-        system_load_typeinfo(0x7c50);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_OpenDescriptionMessageWindow);
 
         auto param = Dpr::MsgWindow::MsgWindowParam::newInstance();
         param->fields.useMsgFile = Dpr::Message::MessageManager::get_Instance()->GetMsgFile(System::String::Create("ss_option"));
@@ -377,7 +377,7 @@ HOOK_DEFINE_INLINE(SettingWindow$$OnUpdate_SavedString) {
 
 HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
     static bool Callback(Dpr::UI::SettingWindow::_OpOpen_d__11::Object* __this) {
-        system_load_typeinfo(0x927b);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingWindow_OpOpen_d_11_MoveNext);
 
         auto window = __this->fields.__4__this;
 
@@ -465,7 +465,7 @@ HOOK_DEFINE_REPLACE(SettingWindow_OpOpen$$MoveNext) {
 
 HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
     static bool Callback(Dpr::UI::SettingMenuItem::Object* __this, int32_t selectIndex, bool isEqualChecked, bool isCallbacked) {
-        system_load_typeinfo(0x7c42);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_SettingMenuItem_SetSelectIndex);
 
         if (isEqualChecked && __this->fields._selectIndex == selectIndex)
             return false;
@@ -536,26 +536,26 @@ HOOK_DEFINE_REPLACE(SettingMenuItem$$SetSelectIndex) {
 };
 
 void exl_settings_main() {
-    CONFIG$$GetValue::InstallAtOffset(0x02299720);
+    CONFIG$$GetValue::InstallAtOffset(game::Address::DPData_CONFIG_GetValue);
 
-    ConfigWork$$InvokeChangedValues::InstallAtOffset(0x018ed400);
+    ConfigWork$$InvokeChangedValues::InstallAtOffset(game::Address::ConfigWork_InvokeChangedValues);
 
-    SettingWindow$$InitializeSettings::InstallAtOffset(0x01d413b0);
-    SettingWindow$$OnMenuItemValueChaged::InstallAtOffset(0x01d401f0);
-    SettingWindow$$RevertSettings::InstallAtOffset(0x01d411b0);
-    SettingWindow$$AcceptSettings::InstallAtOffset(0x01d414d0);
-    SettingWindow$$UpdateSelectValue::InstallAtOffset(0x01d40ec0);
-    SettingWindow$$OpenDescriptionMessageWindow::InstallAtOffset(0x01d41c30);
+    SettingWindow$$InitializeSettings::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_InitializeSettings);
+    SettingWindow$$OnMenuItemValueChaged::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnMenuItemValueChaged);
+    SettingWindow$$RevertSettings::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_RevertSettings);
+    SettingWindow$$AcceptSettings::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_AcceptSettings);
+    SettingWindow$$UpdateSelectValue::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_UpdateSelectValue);
+    SettingWindow$$OpenDescriptionMessageWindow::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OpenDescriptionMessageWindow);
 
-    SettingWindow$$OnUpdate_CONFIG$$IsEqual::InstallAtOffset(0x01d40624);
-    SettingWindow$$OnUpdate_ResetString::InstallAtOffset(0x01d40930);
-    SettingWindow$$OnUpdate_AcceptString::InstallAtOffset(0x01d40754);
-    SettingWindow$$OnUpdate_CancelString::InstallAtOffset(0x01d40800);
-    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(0x01d41ffc);
-    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(0x01d4223c);
-    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(0x01d4247c);
+    SettingWindow$$OnUpdate_CONFIG$$IsEqual::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate + 0x1A4);
+    SettingWindow$$OnUpdate_ResetString::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate + 0x4B0);
+    SettingWindow$$OnUpdate_AcceptString::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate + 0x2D4);
+    SettingWindow$$OnUpdate_CancelString::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate + 0x380);
+    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate_b_15_1 + 0xCC);
+    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate_b_15_4 + 0xCC);
+    SettingWindow$$OnUpdate_SavedString::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OnUpdate_b_15_7 + 0xCC);
 
-    SettingWindow_OpOpen$$MoveNext::InstallAtOffset(0x01d42830);
+    SettingWindow_OpOpen$$MoveNext::InstallAtOffset(game::Address::Dpr_UI_SettingWindow_OpOpen_d_11_MoveNext);
 
-    SettingMenuItem$$SetSelectIndex::InstallAtOffset(0x01d3f1a0);
+    SettingMenuItem$$SetSelectIndex::InstallAtOffset(game::Address::Dpr_UI_SettingMenuItem_SetSelectIndex);
 }

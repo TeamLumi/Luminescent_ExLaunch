@@ -23,11 +23,11 @@ namespace Dpr::Item {
         };
 
         inline int32_t get_Id() {
-            return external<int32_t>(0x01ca61f0, this);
+            return external<int32_t>(game::Address::Dpr_Item_ItemInfo_get_Id, this);
         }
 
         inline int32_t get_count() {
-            return external<int32_t>(0x01ca5cc0, this);
+            return external<int32_t>(game::Address::Dpr_Item_ItemInfo_get_count, this);
         }
     };
 }

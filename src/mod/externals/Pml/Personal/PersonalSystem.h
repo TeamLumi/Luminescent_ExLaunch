@@ -9,7 +9,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace Pml::Personal {
-    struct PersonalSystem : ILClass<PersonalSystem, 0x04c5ad18> {
+    struct PersonalSystem : ILClass<PersonalSystem, game::Address::Pml_Personal_PersonalSystem_TypeInfo> {
         struct Fields {};
 
         struct StaticFields {
@@ -25,55 +25,55 @@ namespace Pml::Personal {
         };
 
         static inline XLSXContent::PersonalTable::SheetPersonal::Object* GetPersonalData(int32_t monsno, uint16_t formno) {
-            return external<XLSXContent::PersonalTable::SheetPersonal::Object*>(0x024a0ca0, monsno, formno);
+            return external<XLSXContent::PersonalTable::SheetPersonal::Object*>(game::Address::Pml_Personal_PersonalSystem_GetPersonalData, monsno, formno);
         }
 
         static inline void LoadPersonalData(int32_t monsno, uint16_t formno) {
-            external<void>(0x024a0d50, monsno, formno);
+            external<void>(game::Address::Pml_Personal_PersonalSystem_LoadPersonalData, monsno, formno);
         }
 
         static inline int32_t GetTokuseiPattern() {
-            return external<int32_t>(0x024a15d0);
+            return external<int32_t>(game::Address::Pml_Personal_PersonalSystem_GetTokuseiPattern);
         }
 
         static inline void LoadEvolutionTable(int32_t monsno, uint16_t formno) {
-            external<void>(0x024a2240, monsno, formno);
+            external<void>(game::Address::Pml_Personal_PersonalSystem_LoadEvolutionTable, monsno, formno);
         }
 
         static inline Pml::Personal::EvolveCond GetEvolutionCondition(uint8_t route_index) {
-            return external<Pml::Personal::EvolveCond>(0x024a2500, route_index);
+            return external<Pml::Personal::EvolveCond>(game::Address::Pml_Personal_PersonalSystem_GetEvolutionCondition, route_index);
         }
 
         static inline int32_t GetEvolvedMonsNo(uint8_t route_index) {
-            return external<int32_t>(0x024a26d0, route_index);
+            return external<int32_t>(game::Address::Pml_Personal_PersonalSystem_GetEvolvedMonsNo, route_index);
         }
 
         static inline bool IsEvolvedFormNoSpecified(uint8_t route_index) {
-            return external<bool>(0x024a2830, route_index);
+            return external<bool>(game::Address::Pml_Personal_PersonalSystem_IsEvolvedFormNoSpecified, route_index);
         }
 
         static inline uint16_t GetEvolvedFormNo(uint8_t route_index) {
-            return external<uint16_t>(0x024a2780, route_index);
+            return external<uint16_t>(game::Address::Pml_Personal_PersonalSystem_GetEvolvedFormNo, route_index);
         }
 
         static inline uint16_t GetEvolutionParam(uint8_t route_index) {
-            return external<uint16_t>(0x024a2620, route_index);
+            return external<uint16_t>(game::Address::Pml_Personal_PersonalSystem_GetEvolutionParam, route_index);
         }
 
         static inline XLSXContent::GrowTable::SheetData::Object* GetGrowTable(int32_t monsno, uint16_t formno) {
-            return external<XLSXContent::GrowTable::SheetData::Object*>(0x024a1790, monsno, formno);
+            return external<XLSXContent::GrowTable::SheetData::Object*>(game::Address::Pml_Personal_PersonalSystem_GetGrowTable, monsno, formno);
         }
 
         static inline System::String::Object* GetMonsName(int32_t monsNo, int32_t langId) {
-            return external<System::String::Object*>(0x024a0a90, monsNo, langId);
+            return external<System::String::Object*>(game::Address::Pml_Personal_PersonalSystem_GetMonsName_Int32_Int32, monsNo, langId);
         }
 
         static inline void LoadGrowTable(int32_t monsno, uint16_t formno) {
-            external<void>(0x024a1700, monsno, formno);
+            external<void>(game::Address::Pml_Personal_PersonalSystem_LoadGrowTable, monsno, formno);
         }
 
         static inline uint32_t GetMinExp(uint8_t level) {
-            return external<uint32_t>(0x024a1a30, level);
+            return external<uint32_t>(game::Address::Pml_Personal_PersonalSystem_GetMinExp, level);
         }
     };
 }

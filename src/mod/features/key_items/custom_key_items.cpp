@@ -4,7 +4,7 @@
 
 void UseCustomKeyItem(int32_t itemId, bool fromBag, Dpr::UI::UIBag::__c__DisplayClass127_1::Object* bagDisplayClass) {
 
-    system_load_typeinfo(0x2a05);
+    system_load_typeinfo(game::TypeInfo::UnityEngine_Camera_AddCommandBuffer);
 
     auto index = itemId - 1278; // This will be 1-12
     auto intObj = System::String::ConvertToStringObject(System::Int32_klass::getClass(), &index);

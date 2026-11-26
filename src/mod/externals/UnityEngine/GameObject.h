@@ -18,41 +18,41 @@ namespace UnityEngine {
 
     struct SkinnedMeshRenderer;
 
-    struct GameObject : ILClass<GameObject, 0x04c57d90> {
+    struct GameObject : ILClass<GameObject, game::Address::UnityEngine_GameObject_TypeInfo> {
         struct Fields : UnityEngine::_Object::Fields {
 
         };
 
-        static inline StaticILMethod<0x04c67678, UnityEngine::SkinnedMeshRenderer> Method$$SkinnedMeshRenderer$$GetComponentsInChildren {};
+        static inline StaticILMethod<game::Address::Method_UnityEngine_GameObject_GetComponentsInChildren_SkinnedMeshRenderer, UnityEngine::SkinnedMeshRenderer> Method$$SkinnedMeshRenderer$$GetComponentsInChildren {};
 
-        static inline StaticILMethod<0x04c66f08, Dpr::PatcheelPattern> Method$$PatcheelPattern$$GetComponent {};
-        static inline StaticILMethod<0x04c670c8, UnityEngine::UI::Image>   Method$$Image$$GetComponent {};
+        static inline StaticILMethod<game::Address::Method_UnityEngine_GameObject_GetComponent_PatcheelPattern, Dpr::PatcheelPattern> Method$$PatcheelPattern$$GetComponent {};
+        static inline StaticILMethod<game::Address::Method_UnityEngine_GameObject_GetComponent_Image, UnityEngine::UI::Image>   Method$$Image$$GetComponent {};
 
-        static inline StaticILMethod<0x04c8e9c0, UnityEngine::Component> Method$$Component$$GetComponents {};
+        static inline StaticILMethod<game::Address::Method_UnityEngine_GameObject_GetComponents_Component, UnityEngine::Component> Method$$Component$$GetComponents {};
 
         inline void ctor() {
-            external<void>(0x026b1cc0, this);
+            external<void>(game::Address::UnityEngine_GameObject_ctor_NoArgs, this);
         }
 
         inline UnityEngine::Transform::Object* get_transform() {
-            return external<UnityEngine::Transform::Object*>(0x026b18d0, this);
+            return external<UnityEngine::Transform::Object*>(game::Address::UnityEngine_GameObject_get_transform, this);
         }
 
         static inline GameObject::Object* Find(System::String::Object *name) {
-            return external<GameObject::Object*>(0x026b1ea0, name);
+            return external<GameObject::Object*>(game::Address::UnityEngine_GameObject_Find, name);
         }
 
         inline void SetActive(bool value) {
-            external<void>(0x026b19c0, this, value);
+            external<void>(game::Address::UnityEngine_GameObject_SetActive, this, value);
         }
 
         inline bool get_activeSelf() {
-            return external<bool>(0x026b1a10, this);
+            return external<bool>(game::Address::UnityEngine_GameObject_get_activeSelf, this);
         }
 
         template <typename T>
         inline T::Array* GetComponentsInternal(System::Type::Object* type, bool useSearchTypeAsArrayReturnType, bool recursive, bool includeInactive, bool reverse, Il2CppObject* resultList) {
-            return external<typename T::Array*>(0x026b1680, this, type, useSearchTypeAsArrayReturnType, recursive, includeInactive, reverse, resultList);
+            return external<typename T::Array*>(game::Address::UnityEngine_GameObject_GetComponentsInternal, this, type, useSearchTypeAsArrayReturnType, recursive, includeInactive, reverse, resultList);
         }
 
         inline Component::Array* GetAllComponents() {
@@ -70,12 +70,12 @@ namespace UnityEngine {
         inline T::Object* GetComponent(T::Class* type) {
             System::RuntimeTypeHandle::Object handle {};
             handle.fields.value = &type->_1.byval_arg;
-            return external<typename T::Object*>(0x026a8240, this, System::Type::GetTypeFromHandle(handle));
+            return external<typename T::Object*>(game::Address::UnityEngine_GameObject_GetComponent, this, System::Type::GetTypeFromHandle(handle));
         }
 
         template <typename T>
         inline T::Object* GetComponent(ILMethod<T>& method) {
-            return external<typename T::Object*>(0x01f48980, this, *method);
+            return external<typename T::Object*>(game::Address::UnityEngine_GameObject_GetComponent_AkGameObj, this, *method);
         }
 
         template <typename T>
@@ -87,12 +87,12 @@ namespace UnityEngine {
         inline T::Array* GetComponentsInternal(T::Class* type, bool includeInactive) {
             System::RuntimeTypeHandle::Object handle {};
             handle.fields.value = &type->_1.byval_arg;
-            return external<typename T::Array*>(0x026b1680, this, System::Type::GetTypeFromHandle(handle), true, true, includeInactive, false, nullptr);
+            return external<typename T::Array*>(game::Address::UnityEngine_GameObject_GetComponentsInternal, this, System::Type::GetTypeFromHandle(handle), true, true, includeInactive, false, nullptr);
         }
 
         template <typename T>
         inline T::Array* GetComponentsInChildren(bool includeInactive, ILMethod<T>& method) {
-            return external<typename T::Array*>(0x02bed170, this, includeInactive, *method);
+            return external<typename T::Array*>(game::Address::UnityEngine_GameObject_GetComponentsInChildren_EffectActivator, this, includeInactive, *method);
         }
     };
 }

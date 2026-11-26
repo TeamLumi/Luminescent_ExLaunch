@@ -19,7 +19,7 @@ namespace System {
         };
 
         static inline System::Delegate::Object* Combine(System::Delegate::Object* a, System::Delegate::Object* b) {
-            return external<System::Delegate::Object*>(0x024897f0, a, b);
+            return external<System::Delegate::Object*>(game::Address::System_Delegate_Combine, a, b);
         }
     };
 }

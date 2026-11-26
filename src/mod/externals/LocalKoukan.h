@@ -7,7 +7,7 @@
 #include "externals/XLSXContent/LocalKoukanData.h"
 
 struct LocalKoukan : ILClass<LocalKoukan> {
-    struct Operation : ILClass<Operation, 0x04c643b0> {
+    struct Operation : ILClass<Operation, game::Address::LocalKoukan_Operation_TypeInfo> {
         struct Fields {
             bool IsTemotiMode;
             int32_t TrayNo;
@@ -17,13 +17,13 @@ struct LocalKoukan : ILClass<LocalKoukan> {
         };
 
         inline void ctor() {
-            external<void>(0x01af3940, this);
+            external<void>(game::Address::LocalKoukan_Operation_ctor, this);
         }
     };
 
     struct Fields {};
 
     inline static XLSXContent::LocalKoukanData::Sheetdata::Object* GetTargetData(int32_t npcindex, Dpr::Message::MessageEnumData::MsgLangId lang) {
-        return external<XLSXContent::LocalKoukanData::Sheetdata::Object*>(0x01af32a0, npcindex, lang);
+        return external<XLSXContent::LocalKoukanData::Sheetdata::Object*>(game::Address::LocalKoukan_GetTargetData, npcindex, lang);
     }
 };

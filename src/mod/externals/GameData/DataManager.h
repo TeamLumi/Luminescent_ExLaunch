@@ -10,7 +10,7 @@
 #include "externals/XLSXContent/ShopTable.h"
 
 namespace GameData {
-    struct DataManager : ILClass<DataManager, 0x04c59d70> {
+    struct DataManager : ILClass<DataManager, game::Address::GameData_DataManager_TypeInfo> {
         struct StaticFields {
             void* CharacterGraphics;
             void* TrainerTable;
@@ -50,19 +50,19 @@ namespace GameData {
         };
 
         static inline XLSXContent::ShopTable::SheetBoutiqueShop::Object * GetBoutiqueShopData(int32_t dressId) {
-            return external<XLSXContent::ShopTable::SheetBoutiqueShop::Object *>(0x02ccd550, dressId);
+            return external<XLSXContent::ShopTable::SheetBoutiqueShop::Object *>(game::Address::GameData_DataManager_GetBoutiqueShopData, dressId);
         }
 
         static inline XLSXContent::CharacterDressData::SheetData::Object * GetCharacterDressData(int32_t dressId) {
-            return external<XLSXContent::CharacterDressData::SheetData::Object *>(0x02ccd460, dressId);
+            return external<XLSXContent::CharacterDressData::SheetData::Object *>(game::Address::GameData_DataManager_GetCharacterDressData, dressId);
         }
 
         static inline XLSXContent::PokemonInfo::SheetCatalog::Object* GetPokemonCatalog(int32_t monsNo, int32_t formNo, Pml::Sex sex, bool isRare, bool isEgg) {
-            return external<XLSXContent::PokemonInfo::SheetCatalog::Object*>(0x02cc76a0, monsNo, formNo, sex, isRare, isEgg);
+            return external<XLSXContent::PokemonInfo::SheetCatalog::Object*>(game::Address::GameData_DataManager_GetPokemonCatalog_Int32_Int32_UInt8_Bool_Bool, monsNo, formNo, sex, isRare, isEgg);
         }
 
         static inline float GetFieldCommonParam(int32_t paramIndex) {
-            return external<float>(0x02cc4780, paramIndex);
+            return external<float>(game::Address::GameData_DataManager_GetFieldCommonParam, paramIndex);
         }
     };
 }

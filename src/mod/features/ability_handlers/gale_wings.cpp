@@ -13,7 +13,7 @@ using namespace Dpr::Battle::Logic;
 
 HOOK_DEFINE_REPLACE(Tokusei$$handler_HayateNoTsubasa) {
     static void Callback(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
-        system_load_typeinfo(0x8990);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_handler_HayateNoTsubasa);
         Common::getClass()->initIfNeeded();
 
         if (Common::GetEventVar(args, EventVar::Label::POKEID_ATK) != pokeID)
@@ -28,5 +28,5 @@ HOOK_DEFINE_REPLACE(Tokusei$$handler_HayateNoTsubasa) {
 };
 
 void InstallHooks_Ability_GaleWings() {
-    Tokusei$$handler_HayateNoTsubasa::InstallAtOffset(0x0195ebd0);
+    Tokusei$$handler_HayateNoTsubasa::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Tokusei_handler_HayateNoTsubasa);
 }

@@ -22,22 +22,22 @@ struct AreaNameWindow : ILClass<AreaNameWindow> {
     };
 
     inline void Open(System::String* labelName) {
-        external<void>(0x02120600, this, labelName);
+        external<void>(game::Address::AreaNameWindow_Open, this, labelName);
     }
 
     inline bool IsSameShowingLabel(System::String* nextLabelName) {
-        return external<bool>(0x02120700, this, nextLabelName);
+        return external<bool>(game::Address::AreaNameWindow_IsSameShowingLabel, this, nextLabelName);
     }
 
     inline bool IsSameLastShowingLabel(System::String* nextLabelName) {
-        return external<bool>(0x02120760, this, nextLabelName);
+        return external<bool>(game::Address::AreaNameWindow_IsSameLastShowingLabel, this, nextLabelName);
     }
 
     inline void SetActive(bool active) {
-        external<void>(0x02120400, this, active);
+        external<void>(game::Address::AreaNameWindow_SetActive, this, active);
     }
 
     inline void PerformShowAreaName(System::String* labelName) {
-        external<void>(0x021207c0, this, labelName);
+        external<void>(game::Address::AreaNameWindow_PerformShowAreaName, this, labelName);
     }
 };

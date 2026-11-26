@@ -17,11 +17,11 @@ namespace Dpr::UI {
         };
 
         inline void Setup(Pml::PokePara::PokemonParam::Object* pokemonParam) {
-            external<void>(0x01d93960, this, pokemonParam);
+            external<void>(game::Address::Dpr_UI_PokemonSick_Setup_PokemonParam, this, pokemonParam);
         }
 
         inline void Setup(Dpr::Battle::Logic::BTL_POKEPARAM::Object* btlParam) {
-            external<void>(0x01d938e0, this, btlParam);
+            external<void>(game::Address::Dpr_UI_PokemonSick_Setup_BTL_POKEPARAM, this, btlParam);
         }
     };
 }

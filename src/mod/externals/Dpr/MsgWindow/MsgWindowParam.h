@@ -8,7 +8,7 @@
 #include "externals/UnityEngine/Vector2.h"
 
 namespace Dpr::MsgWindow {
-    struct MsgWindowParam : ILClass<MsgWindowParam, 0x04c59ca0> {
+    struct MsgWindowParam : ILClass<MsgWindowParam, game::Address::Dpr_MsgWindow_MsgWindowParam_TypeInfo> {
         struct Fields {
             System::String::Object* labelName;
             int32_t labelIndex;
@@ -36,7 +36,7 @@ namespace Dpr::MsgWindow {
         static_assert(sizeof(Fields) == 0x70);
 
         inline void ctor() {
-            external<void>(0x01ddb1c0, this);
+            external<void>(game::Address::Dpr_MsgWindow_MsgWindowParam_ctor, this);
         }
     };
 

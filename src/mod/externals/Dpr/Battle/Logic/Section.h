@@ -35,31 +35,31 @@ namespace Dpr::Battle::Logic {
         };
 
         inline BtlRule GetRule() {
-            return external<BtlRule>(0x020d6690, this);
+            return external<BtlRule>(game::Address::Dpr_Battle_Logic_Section_GetRule, this);
         }
 
         inline BtlCompetitor GetCompetitor() {
-            return external<BtlCompetitor>(0x020d66b0, this);
+            return external<BtlCompetitor>(game::Address::Dpr_Battle_Logic_Section_GetCompetitor, this);
         }
 
         inline int32_t CheckEncoreWazaChange(PokeAction::Object* action) {
-            return external<int32_t>(0x020d70e0, this, action);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_Section_CheckEncoreWazaChange, this, action);
         }
 
         inline uint8_t GetPokePos(uint8_t pokeID) {
-            return external<uint8_t>(0x020d6580, this, pokeID);
+            return external<uint8_t>(game::Address::Dpr_Battle_Logic_Section_GetPokePos, this, pokeID);
         }
 
         inline ActionSharedData::Object* GetActionSharedData() {
-            return external<ActionSharedData::Object*>(0x020d6400, this);
+            return external<ActionSharedData::Object*>(game::Address::Dpr_Battle_Logic_Section_GetActionSharedData, this);
         }
 
         inline BTL_POKEPARAM::Object* GetPokeParam(uint8_t pokeID) {
-            return external<BTL_POKEPARAM::Object*>(0x020d64a0, this, pokeID);
+            return external<BTL_POKEPARAM::Object*>(game::Address::Dpr_Battle_Logic_Section_GetPokeParam, this, pokeID);
         }
 
         inline BTL_PARTY::Object* GetPokeParty(uint8_t clientID) {
-            return external<BTL_PARTY::Object*>(0x020d6670, this, clientID);
+            return external<BTL_PARTY::Object*>(game::Address::Dpr_Battle_Logic_Section_GetPokeParty, this, clientID);
         }
     };
 }

@@ -22,7 +22,7 @@ namespace Dpr::UI {
         static_assert(sizeof(Fields) == 0x38);
 
         inline void OnUpdate(bool isAppControlEnable, Dpr::UI::PoketchButton::Object* currentButton, int32_t currentState) {
-            external<void>(0x019ffa60, this, isAppControlEnable, currentButton, currentState);
+            external<void>(game::Address::Dpr_UI_PoketchAppBase_OnUpdate, this, isAppControlEnable, currentButton, currentState);
         }
     };
 }

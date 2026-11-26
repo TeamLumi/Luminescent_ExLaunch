@@ -4,7 +4,7 @@
 
 namespace Dpr::Battle::Logic {
     struct Exp : ILClass<Exp> {
-        struct CalcParam : ILClass<CalcParam, 0x04c5b0a0> {
+        struct CalcParam : ILClass<CalcParam, game::Address::Dpr_Battle_Logic_Exp_CalcParam_TypeInfo> {
             struct Fields {
                 int32_t competitor;
                 uint32_t playerLanguageId;
@@ -22,11 +22,11 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x026d1230, this);
+                external<void>(game::Address::System_Object_ctor, this);
             }
         };
 
-        struct CalcResult : ILClass<CalcResult, 0x04c5b0a8> {
+        struct CalcResult : ILClass<CalcResult, game::Address::Dpr_Battle_Logic_Exp_CalcResult_TypeInfo> {
             struct Fields {
                 uint32_t exp;
                 bool byGakusyuSouti;
@@ -34,12 +34,12 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x026d1230, this);
+                external<void>(game::Address::System_Object_ctor, this);
             }
         };
 
         static inline void CalcExp(Dpr::Battle::Logic::Exp::CalcParam** param, Dpr::Battle::Logic::Exp::CalcResult* result) {
-            external<void>(0x018f7d70, param, result);
+            external<void>(game::Address::Dpr_Battle_Logic_Exp_CalcExp, param, result);
         }
     };
 }

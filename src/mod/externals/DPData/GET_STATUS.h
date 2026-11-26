@@ -9,5 +9,5 @@ namespace DPData {
         GET = 3,
     };
 
-    PRIMITIVE_ARRAY(GET_STATUS, 0x04c5a5a8)
+    PRIMITIVE_ARRAY(GET_STATUS, game::Address::DPData_GET_STATUS_Array_TypeInfo)
 }

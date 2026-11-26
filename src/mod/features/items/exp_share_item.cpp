@@ -15,7 +15,7 @@
 using namespace Dpr::Battle::Logic;
 HOOK_DEFINE_REPLACE(CalcExp) {
     static void Callback(ExpCalculator::CalcExpWork::Object* result, MyStatus::Object* myStatus, MainModule::Object** mainModule, BTL_POKEPARAM::Object** bpp, BTL_POKEPARAM::Object** deadPoke) {
-        system_load_typeinfo(0x479c);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_ExpCalculator_calcExp_Poke_Call1);
 
         if ((*bpp)->IsFightEnable()) {
             auto param = (*bpp)->GetSrcDataConst()->cast<Pml::PokePara::CoreParam>();
@@ -25,7 +25,7 @@ HOOK_DEFINE_REPLACE(CalcExp) {
             calc->fields.levelCap = (*mainModule)->GetExpLevelCap();
 
             ExpCalculator::getClass()->initIfNeeded();
-            system_load_typeinfo(0x479f);
+            system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_ExpCalculator_calcExp_Poke_Call2);
 
             calc->fields.deadPokeExp = calc::PERSONAL_GetParam((*deadPoke)->GetMonsNo(), (*deadPoke)->fields.m_formNo, 9);
             calc->fields.deadPokeLevel = (*deadPoke)->GetValue(BTL_POKEPARAM::ValueID::BPP_LEVEL);
@@ -51,7 +51,7 @@ HOOK_DEFINE_REPLACE(CalcExp) {
                 calc->fields.haveSiawasetamago = hasLuckyEggItem || hasExpShareItem;
             }
 
-            system_load_typeinfo(0x47a0);
+            system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_ExpCalculator_calcExp_Poke_Call3);
             calc::getClass()->initIfNeeded();
 
             calc->fields.isEvoCanceledPoke = calc::PERSONAL_IsEvoCancelPokemon((*bpp)->GetMonsNo(), (*bpp)->fields.m_formNo, (*bpp)->GetValue(BTL_POKEPARAM::ValueID::BPP_LEVEL));
@@ -68,5 +68,5 @@ HOOK_DEFINE_REPLACE(CalcExp) {
 };
 
 void exl_items_exp_share_main() {
-    CalcExp::InstallAtOffset(0x018f8c10);
+    CalcExp::InstallAtOffset(game::Address::Dpr_Battle_Logic_ExpCalculator_calcExp_Poke);
 }

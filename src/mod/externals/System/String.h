@@ -18,7 +18,7 @@ namespace System {
         };
 
         static String::Object* Create(const char* value) {
-            return external<String::Object*>(0x026fb3e0, nullptr, (int8_t*)value);
+            return external<String::Object*>(game::Address::System_String_CreateString, nullptr, (int8_t*)value);
         }
 
         static String::Object* Create(const nn::string& value) {
@@ -26,64 +26,64 @@ namespace System {
         }
 
         static inline bool op_Equality(String::Object* a, String::Object* b) {
-            return external<bool>(0x026f05c0, a, b);
+            return external<bool>(game::Address::System_String_op_Equality, a, b);
         }
 
         static inline bool IsNullOrEmpty(String::Object* value) {
-            return external<bool>(0x026f3810, value);
+            return external<bool>(game::Address::System_String_IsNullOrEmpty, value);
         }
 
         static inline String::Object* Concat(String::Object* str0, String::Object* str1) {
-            return external<String::Object*>(0x026ef430, str0, str1);
+            return external<String::Object*>(game::Address::System_String_Concat, str0, str1);
         }
 
         static inline String::Object* Concat(String::Object* str0, String::Object* str1, String::Object* str2) {
-            return external<String::Object*>(0x026ee6a0, str0, str1, str2);
+            return external<String::Object*>(game::Address::System_String_Concat_String_String_String, str0, str1, str2);
         }
 
         static inline String::Object* Concat(String::Object* str0, String::Object* str1, String::Object* str2, String::Object* str3) {
-            return external<String::Object*>(0x026f94b0, str0, str1, str2, str3);
+            return external<String::Object*>(game::Address::System_String_Concat_String_String_String_String, str0, str1, str2, str3);
         }
 
         static inline String::Object* Format(String::Object* format, Il2CppObject* arg0) {
-            return external<String::Object*>(0x026f8970, format, arg0);
+            return external<String::Object*>(game::Address::System_String_Format_String_Object, format, arg0);
         }
 
         static inline String::Object* Format(String::Object* format, Il2CppObject* arg0, Il2CppObject* arg1) {
-            return external<String::Object*>(0x026f8ab0, format, arg0, arg1);
+            return external<String::Object*>(game::Address::System_String_Format_String_Object_Object, format, arg0, arg1);
         }
 
         static inline String::Object* Format(String::Object* format, Il2CppObject* arg0, Il2CppObject* arg1, Il2CppObject* arg2) {
-            return external<String::Object*>(0x026f8b10, format, arg0, arg1, arg2);
+            return external<String::Object*>(game::Address::System_String_Format_String_Object_Object_Object, format, arg0, arg1, arg2);
         }
 
         static inline String::Object* Format(String::Object* format, System::_Object::Array* args) {
-            return external<String::Object*>(0x026f8b70, format, args);
+            return external<String::Object*>(game::Address::System_String_Format_String_ObjectArray, format, args);
         }
 
         inline String::Object* Substring(int32_t startIndex, int32_t length) {
-            return external<String::Object*>(0x026f4560, this, startIndex, length);
+            return external<String::Object*>(game::Address::System_String_Substring_Int32_Int32, this, startIndex, length);
         }
 
         inline String::Object* Substring(int32_t startIndex) {
-            return external<String::Object*>(0x026f46d0, this, startIndex);
+            return external<String::Object*>(game::Address::System_String_Substring_Int32, this, startIndex);
         }
 
         inline int32_t LastIndexOf(uint16_t value) {
-            return external<int32_t>(0x026f6ef0, this, value);
+            return external<int32_t>(game::Address::System_String_LastIndexOf, this, value);
         }
 
         inline bool StartsWith(String::Object* value) {
-            return external<bool>(0x026f78d0, this, value);
+            return external<bool>(game::Address::System_String_StartsWith, this, value);
         }
 
         inline String::Array* Split(System::Char_array* separator) {
-            return external<String::Array*>(0x026f3a60, this, separator);
+            return external<String::Array*>(game::Address::System_String_Split, this, separator);
         }
 
         // Only tested to work on int
         static Il2CppObject* ConvertToStringObject(Il2CppClass* klass, void* ptr) {
-            return external<Il2CppObject*>(0x00252fd8, klass, ptr);
+            return external<Il2CppObject*>(game::Address::System_String_ConvertToStringObject_Native, klass, ptr);
         }
 
         inline String::Object* Truncate(int32_t maxLength) {
@@ -139,13 +139,13 @@ namespace System {
 
 namespace System::Collections::Generic {
     struct List$$String : List<List$$String, System::String> {
-        static inline StaticILMethod<0x04c8a528> Method$$Add {};
-        static inline StaticILMethod<0x04c8a538> Method$$Clear {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_string_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_string_Clear> Method$$Clear {};
     };
 
     struct List$$ValueTuple3$$String$$String$$String : ILClass<List$$ValueTuple3$$String$$String$$String> {
-        static inline StaticILMethod<0x04c8a850> Method$$Add{};
-        static inline StaticILMethod<0x04c8a858> Method$$Clear{};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_ValueTuple_string_string_string_Add> Method$$Add{};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_ValueTuple_string_string_string_Clear> Method$$Clear{};
 
         struct Fields {
             ValueTuple3$$String$$String$$String::Array* _items;
@@ -155,50 +155,50 @@ namespace System::Collections::Generic {
         };
 
         inline void Add(ValueTuple3$$String$$String$$String::Object* item) {
-            external<void>(0x02b096a0, this, item, *Method$$Add);
+            external<void>(game::Address::System_Collections_Generic_List_ValueTuple_object_object_object_Add, this, item, *Method$$Add);
         }
 
         inline void Clear() {
-            external<void>(0x02b09ae0, this, *Method$$Clear);
+            external<void>(game::Address::System_Collections_Generic_List_ValueTuple_object_object_object_Clear, this, *Method$$Clear);
         }
     };
 
     struct Dictionary$$int32_t$$String : Dictionary$$int32_t<Dictionary$$int32_t$$String, System::String> {
-        static inline StaticILMethod<0x04c879e8> Method$$ctor {};
-        static inline StaticILMethod<0x04c879f8> Method$$Add {};
-        static inline StaticILMethod<0x04c87a08> Method$$set_Item {};
-        static inline StaticILMethod<0x04c70d98> Method$$get_Values {}; // NOTE: not for that specific dictionary but it's probably fine
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_string_ctor> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_string_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_string_set_Item> Method$$set_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_int_string_get_Values> Method$$get_Values {}; // NOTE: not for that specific dictionary but it's probably fine
     };
 
     struct Dictionary$$EffectType$$String : Dictionary$$int32_t<Dictionary$$EffectType$$String, System::String> {
-        static inline StaticILMethod<0x04c87350> Method$$ctor {};
-        static inline StaticILMethod<0x04c87358> Method$$Add {};
-        static inline StaticILMethod<0x04c6e8a0> Method$$ContainsKey {};
-        static inline StaticILMethod<0x04c68a90> Method$$get_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_EffectType_string_ctor> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_EffectType_string_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_EffectType_string_ContainsKey> Method$$ContainsKey {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_EffectType_string_get_Item> Method$$get_Item {};
     };
 
     struct Dictionary$$BtlSideEffect$$String : Dictionary$$int32_t<Dictionary$$BtlSideEffect$$String, System::String> {
-        static inline StaticILMethod<0x04c87308> Method$$ctor {};
-        static inline StaticILMethod<0x04c87310> Method$$Add {};
-        static inline StaticILMethod<0x04c6e8a0> Method$$ContainsKey {}; // NOTE: not for that specific dictionary and it'S NOT FINE
-        static inline StaticILMethod<0x04c68a90> Method$$get_Item {}; // NOTE: not for that specific dictionary but it's probably fine
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlSideEffect_string_ctor> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlSideEffect_string_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_EffectType_string_ContainsKey> Method$$ContainsKey {}; // NOTE: not for that specific dictionary and it'S NOT FINE
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_EffectType_string_get_Item> Method$$get_Item {}; // NOTE: not for that specific dictionary but it's probably fine
     };
 
     struct Dictionary$$BtlWeather$$String : Dictionary$$uint8_t<Dictionary$$BtlWeather$$String, System::String> {
-        static inline StaticILMethod<0x04c87318> Method$$ctor {};
-        static inline StaticILMethod<0x04c87320> Method$$Add {};
-        static inline StaticILMethod<0x04c6e890> Method$$ContainsKey {};
-        static inline StaticILMethod<0x04c68a80> Method$$get_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlWeather_string_ctor> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlWeather_string_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlWeather_string_ContainsKey> Method$$ContainsKey {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlWeather_string_get_Item> Method$$get_Item {};
     };
 
     struct Dictionary$$BtlGround$$String : Dictionary$$uint8_t<Dictionary$$BtlGround$$String, System::String> {
-        static inline StaticILMethod<0x04c872f8> Method$$ctor {};
-        static inline StaticILMethod<0x04c87300> Method$$Add {};
-        static inline StaticILMethod<0x04c6e888> Method$$ContainsKey {};
-        static inline StaticILMethod<0x04c68a78> Method$$get_Item {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlGround_string_ctor> Method$$ctor {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlGround_string_Add> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlGround_string_ContainsKey> Method$$ContainsKey {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_Dictionary_BtlGround_string_get_Item> Method$$get_Item {};
     };
 
     struct IEnumerable$$String : IEnumerable<IEnumerable$$String, System::String> {
-        static inline StaticILMethod<0x04c71720> Method$$ToList {};
+        static inline StaticILMethod<game::Address::Method_System_Linq_Enumerable_ToList_string> Method$$ToList {};
     };
 }

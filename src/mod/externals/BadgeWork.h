@@ -4,6 +4,6 @@
 
 struct BadgeWork : ILClass<BadgeWork> {
     static inline bool IsGet(int32_t id) {
-        return external<bool>(0x01d603e0, id);
+        return external<bool>(game::Address::BadgeWork_IsGet, id);
     }
 };

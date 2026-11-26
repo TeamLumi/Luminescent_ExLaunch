@@ -16,11 +16,11 @@ static constexpr int32_t ANIM_JUMP_END   = 22;
 static bool initializedJump = false;
 
 bool LedgeJump(Dpr::EvScript::EvDataManager::Object* manager) {
-    system_load_typeinfo(0x4989);
-    system_load_typeinfo(0x45dc);
-    system_load_typeinfo(0x4a68);
-    system_load_typeinfo(0x4a72);
-    system_load_typeinfo(0x6c0b);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_ChangeBicycleGear);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_ProcessSequence);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_SwitchToNext);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_ChangeAnime);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

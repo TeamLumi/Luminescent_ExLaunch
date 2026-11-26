@@ -12,7 +12,7 @@ namespace UnityEngine {
 
         static inline Quaternion::Object get_identity() {
             return {
-                .fields = external<Quaternion::Fields>(0x02692cf0)
+                .fields = external<Quaternion::Fields>(game::Address::UnityEngine_Quaternion_get_identity)
             };
         }
     };

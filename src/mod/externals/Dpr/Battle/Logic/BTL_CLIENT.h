@@ -136,11 +136,11 @@ namespace Dpr::Battle::Logic {
         static_assert(sizeof(Fields) == 0x290);
 
         inline int32_t checkForbidChangeEscapeCommon(BTL_POKEPARAM* procPoke, uint8_t* pokeID, uint16_t* tokuseiID) {
-            return external<int32_t>(0x01f574e0, this, procPoke, pokeID, tokuseiID);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_BTL_CLIENT_checkForbidChangeEscapeCommon, this, procPoke, pokeID, tokuseiID);
         }
 
         inline void setupSelectActionUIParam(BattleViewBase::SelectActionParam::Object* pViewParam, BTL_POKEPARAM* pActPoke, uint8_t actPokeIdx) {
-            external<void>(0x01f53970, this, pViewParam, pActPoke, actPokeIdx);
+            external<void>(game::Address::Dpr_Battle_Logic_BTL_CLIENT_setupSelectActionUIParam, this, pViewParam, pActPoke, actPokeIdx);
         }
     };
 }

@@ -8,25 +8,25 @@
 #include "externals/Pml/WazaData/WazaRankEffect.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_Shrink : ILClass<Section_FromEvent_Shrink, 0x04c5ba60> {
-        struct Description : ILClass<Description, 0x04c5b1e8> {
+    struct Section_FromEvent_Shrink : ILClass<Section_FromEvent_Shrink, game::Address::Dpr_Battle_Logic_Section_FromEvent_Shrink_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_Shrink_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 uint8_t percentage;
             };
 
             inline void ctor() {
-                external<void>(0x01fb8490, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Shrink_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5af00> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_Shrink_Result_TypeInfo> {
             struct Fields {
                 bool isSucceeded;
             };
 
             inline void ctor() {
-                external<void>(0x01fb84c0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_Shrink_Result_ctor, this);
             }
         };
 

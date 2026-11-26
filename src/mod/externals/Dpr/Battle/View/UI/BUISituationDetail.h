@@ -91,27 +91,27 @@ namespace Dpr::Battle::View::UI {
         inline void Initialize(System::Collections::Generic::List$$BTL_POKEPARAM::Object* pokeList,
                                System::Collections::Generic::List$$String::Object* trainerNames,
                                System::Collections::Generic::List$$UnityEngine_UI_Image::Object* icons, int32_t index) {
-            external<void>(0x01d23f00, this, pokeList, trainerNames, icons, index);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituationDetail_Initialize_List_BTL_POKEPARAM_List_String_List_Image_Int32, this, pokeList, trainerNames, icons, index);
         }
 
         inline void SelectButton(bool isPlayse) {
-            external<void>(0x01d25b00, this, isPlayse);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituationDetail_SelectButton, this, isPlayse);
         }
 
         inline void SetPokeStatus(Dpr::Battle::Logic::BTL_POKEPARAM::Object* btlParam, int32_t index) {
-            external<void>(0x01d24aa0, this, btlParam, index);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituationDetail_SetPokeStatus, this, btlParam, index);
         }
 
         inline int32_t SetFieldStatus() {
-            return external<int32_t>(0x01d24f70, this);
+            return external<int32_t>(game::Address::Dpr_Battle_View_UI_BUISituationDetail_SetFieldStatus, this);
         }
 
         inline void OnChangePoke(bool isForward) {
-            external<void>(0x01d25fe0, this, isForward);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituationDetail_OnChangePoke, this, isForward);
         }
 
         inline void OnCancel() {
-            external<void>(0x01d26080, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUISituationDetail_OnCancel, this);
         }
     };
 }

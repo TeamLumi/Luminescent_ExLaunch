@@ -8,7 +8,7 @@ namespace UnityEngine {
         };
 
         static inline bool op_Equality(Vector2Int::Object lhs, Vector2Int::Object rhs) {
-            return external<bool>(0x029a24e0, lhs, rhs);
+            return external<bool>(game::Address::UnityEngine_Vector2Int_op_Equality, lhs, rhs);
         }
     };
 }

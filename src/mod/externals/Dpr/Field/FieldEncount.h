@@ -33,55 +33,55 @@ namespace Dpr::Field {
         };
 
         static inline void LastProc(Dpr::Field::EncountResult::Object **result, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *spa) {
-            external<void>(0x019b4990, result, spa);
+            external<void>(game::Address::Dpr_Field_FieldEncount_LastProc, result, spa);
         }
         
         static inline int32_t CheckMovePokeEnc() {
-            return external<int32_t>(0x019b4500);
+            return external<int32_t>(game::Address::Dpr_Field_FieldEncount_CheckMovePokeEnc);
         }
         
         static inline void EncountParamSet(int32_t poke, int32_t lv, int32_t inTarget, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, Pml::PokePara::PokemonParam::Object *inPokeParam, Dpr::Field::EncountResult::Object **outBattleParam) {
-            external<void>(0x019b47f0, poke, lv, inTarget, inFldSpa, inPokeParam, outBattleParam);
+            external<void>(game::Address::Dpr_Field_FieldEncount_EncountParamSet, poke, lv, inTarget, inFldSpa, inPokeParam, outBattleParam);
         }
 
         static inline bool SetEncountData(Pml::PokePara::PokemonParam::Object *param, int32_t inRodType, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, MonsLv::Array *inData, int32_t location, int32_t inTarget, Dpr::Field::EncountResult::Object **outBattleParam) {
-            return external<bool>(0x019b6e30, param, inRodType, inFldSpa, inData, location, inTarget, outBattleParam);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_SetEncountData, param, inRodType, inFldSpa, inData, location, inTarget, outBattleParam);
         }
 
         static inline bool SetSwayEncountData(Pml::PokePara::PokemonParam::Object *param, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, MonsLv::Array *inData, int32_t inTarget, Dpr::Field::EncountResult::Object **outBattleParam, int32_t inMonsNo, uint32_t inLv) {
-            return external<bool>(0x019b6aa0, param, inFldSpa, inData, inTarget, outBattleParam, inMonsNo, inLv);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_SetSwayEncountData, param, inFldSpa, inData, inTarget, outBattleParam, inMonsNo, inLv);
         }
         
         static inline void SetSpaStruct(Pml::PokePara::PokemonParam::Object *inPokeParam, XLSXContent::FieldEncountTable::Sheettable::Object *inData, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object *outSpa) {
-            external<void>(0x019b3eb0, inPokeParam, inData, outSpa);
+            external<void>(game::Address::Dpr_Field_FieldEncount_SetSpaStruct, inPokeParam, inData, outSpa);
         }
 
         static inline bool MapEncountCheck(uint32_t per, int32_t attr, bool inGridmove) {
-            return external<bool>(0x019b4100, per, attr, inGridmove);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_MapEncountCheck, per, attr, inGridmove);
         }
         
         static inline bool WildEncSingle(Pml::PokePara::PokemonParam::Object *poke_param, Dpr::Field::EncountResult::Object **param, XLSXContent::FieldEncountTable::Sheettable::Object *data, MonsLv::Array *enc_data, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object inFldSpa, Dpr::Field::FieldEncount::SWAY_ENC_INFO::Object inSwayEncInfo) {
-            return external<bool>(0x019b4c00, poke_param, param, data, enc_data, inFldSpa, inSwayEncInfo);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_WildEncSingle, poke_param, param, data, enc_data, inFldSpa, inSwayEncInfo);
         }
 
         static inline bool WildEncDouble(Pml::PokePara::PokemonParam::Object *poke_param, Dpr::Field::EncountResult::Object **param, MonsLv::Array *enc_data, Dpr::Field::FieldEncount::ENC_FLD_SPA::Object* inFldSpa) {
-            return external<bool>(0x019b4e80, poke_param, param, enc_data, inFldSpa);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_WildEncDouble, poke_param, param, enc_data, inFldSpa);
         }
 
         static inline bool CheckFixTypeEcnt(ENC_FLD_SPA::Object* inFldSpa, MonsLv::Array* inData, int32_t inListNum, uint8_t type, int32_t tokusei, int32_t* outNo) {
-            return external<bool>(0x019b7c40, inFldSpa, inData, inListNum, type, tokusei, outNo);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_CheckFixTypeEcnt, inFldSpa, inData, inListNum, type, tokusei, outNo);
         }
 
         static inline int32_t SetEncountPokeLv(MonsLv::Object inData, ENC_FLD_SPA::Object* inFldSpa) {
-            return external<int32_t>(0x019b7cb0, inData, inFldSpa);
+            return external<int32_t>(game::Address::Dpr_Field_FieldEncount_SetEncountPokeLv, inData, inFldSpa);
         }
 
         static inline int32_t GetMaxLvMonsTblNo(MonsLv::Array* inEncCommonData, ENC_FLD_SPA::Object* inFldSpa, int32_t inTblNo) {
-            return external<int32_t>(0x019b6630, inEncCommonData, inFldSpa, inTblNo);
+            return external<int32_t>(game::Address::Dpr_Field_FieldEncount_GetMaxLvMonsTblNo, inEncCommonData, inFldSpa, inTblNo);
         }
 
         static inline bool SetEncountDataDecideMons(int32_t inMonsNo, uint32_t inLv, int32_t inTarget, bool inRare, ENC_FLD_SPA::Object* inFldSpa, Pml::PokePara::PokemonParam::Object* param, EncountResult::Object** outBattleParam) {
-            return external<bool>(0x019b7d60, inMonsNo, inLv, inTarget, inRare, inFldSpa, param, outBattleParam);
+            return external<bool>(game::Address::Dpr_Field_FieldEncount_SetEncountDataDecideMons, inMonsNo, inLv, inTarget, inRare, inFldSpa, param, outBattleParam);
         }
     };
 }

@@ -9,7 +9,7 @@
 HOOK_DEFINE_REPLACE(WindowMsgText$$Initialize) {
     static void Callback(Dpr::MsgWindow::WindowMsgText::Object* __this) {
         Logger::log("[WindowMsgText$$Initialize]\n");
-        system_load_typeinfo(0xab43);
+        system_load_typeinfo(game::TypeInfo::Dpr_MsgWindow_WindowMsgText_Initialize);
 
         __this->fields.textRect = __this->cast<UnityEngine::Component>()->GetComponent(UnityEngine::Component::Method$$RectTransform$$GetComponent);
         __this->fields.text = __this->cast<UnityEngine::Component>()->GetComponent(UnityEngine::Component::Method$$TextMeshProUGUI$$GetComponent);
@@ -27,5 +27,5 @@ HOOK_DEFINE_REPLACE(WindowMsgText$$Initialize) {
 };
 
 void exl_text_color_main() {
-    WindowMsgText$$Initialize::InstallAtOffset(0x01ddddb0);
+    WindowMsgText$$Initialize::InstallAtOffset(game::Address::Dpr_MsgWindow_WindowMsgText_Initialize);
 }

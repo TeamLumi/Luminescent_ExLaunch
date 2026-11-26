@@ -81,7 +81,7 @@ namespace ui {
                 _.Button([spicyValue, dryValue, sweetValue, bitterValue, sourValue, smoothnessValue, levelValue, generateNameValue, nameValue](Button &_) {
                     _.label = "Add Poffin";
                     _.onClick = [spicyValue, dryValue, sweetValue, bitterValue, sourValue, smoothnessValue, levelValue, generateNameValue, nameValue]() {
-                        system_load_typeinfo(0x4521);
+                        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmd_ADD_MAROYAKA_POFFIN);
 
                         DPData::PoffinSaveData::Object poffinSaveData = PlayerWork::get_poffinSaveData();
                         DPData::PoffinData::Object newPoffin = {};

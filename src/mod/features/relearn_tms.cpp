@@ -12,7 +12,7 @@
 HOOK_DEFINE_TRAMPOLINE(CollectRemindableWaza) {
     static System::Collections::Generic::HashSet$$WazaNo::Object * Callback(Pml::PokePara::CoreParam::Object *__this) {
         Logger::log("CollectRemindableWaza\n");
-        system_load_typeinfo(0x3199);
+        system_load_typeinfo(game::TypeInfo::Pml_PokePara_CoreParam_CollectRemindableWaza);
         
         auto hashSet = Orig(__this);
 
@@ -64,5 +64,5 @@ HOOK_DEFINE_TRAMPOLINE(CollectRemindableWaza) {
 };
 
 void exl_relearn_tms_main() {
-    CollectRemindableWaza::InstallAtOffset(0x02047aa0);
+    CollectRemindableWaza::InstallAtOffset(game::Address::Pml_PokePara_CoreParam_CollectRemindableWaza);
 }

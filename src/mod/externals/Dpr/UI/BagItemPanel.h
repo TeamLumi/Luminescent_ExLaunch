@@ -33,11 +33,11 @@ namespace Dpr::UI {
         };
 
         inline void ReloadItemList(bool isFocusSelectedItem, int32_t selectedItemId) {
-            external<void>(0x01aa3a60, this, isFocusSelectedItem, selectedItemId);
+            external<void>(game::Address::Dpr_UI_BagItemPanel_ReloadItemList, this, isFocusSelectedItem, selectedItemId);
         }
 
         inline void SetActive(bool isActive) {
-            external<void>(0x01aa3210, this, isActive);
+            external<void>(game::Address::Dpr_UI_BagItemPanel_SetActive, this, isActive);
         }
     };
 }

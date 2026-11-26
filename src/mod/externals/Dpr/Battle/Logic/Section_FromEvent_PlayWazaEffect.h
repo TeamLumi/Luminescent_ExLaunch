@@ -5,8 +5,8 @@
 #include "externals/Dpr/Battle/Logic/Section.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_PlayWazaEffect : ILClass<Section_FromEvent_PlayWazaEffect, 0x04c5b9a0> {
-        struct Description : ILClass<Description, 0x04c5b380> {
+    struct Section_FromEvent_PlayWazaEffect : ILClass<Section_FromEvent_PlayWazaEffect, game::Address::Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_Description_TypeInfo> {
             struct Fields {
                 uint8_t atkPos;
                 uint8_t defPos;
@@ -18,13 +18,13 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb6110, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_Description_ctor, this);
             }
         };
 
-        struct Result : ILClass<Result, 0x04c5afd8> {
+        struct Result : ILClass<Result, game::Address::Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_Result_TypeInfo> {
             inline void ctor() {
-                external<void>(0x01fb6150, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_PlayWazaEffect_Result_ctor, this);
             }
         };
 

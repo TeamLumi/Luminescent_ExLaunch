@@ -20,7 +20,7 @@ void OnComplete(Dpr::EvScript::EvDataManager::DisplayClass773_0::Object* __this,
 
 bool SetAYouName(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("_SET_AYOU_NAME\n");
-    system_load_typeinfo(0x4469);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_EvCmdNameInPoke);
 
     manager->fields._softwareKeyboardSubState = 1; // In progress
 

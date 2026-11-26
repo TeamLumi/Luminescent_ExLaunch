@@ -19,7 +19,7 @@ namespace Dpr::Message {
         };
 
         inline System::String::Object* GetName() {
-            return external<System::String::Object*>(0x020ff740, this);
+            return external<System::String::Object*>(game::Address::Dpr_Message_MessageGlossaryParseDataModel_GetName, this);
         }
     };
 }

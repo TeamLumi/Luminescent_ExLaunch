@@ -8,7 +8,7 @@
 namespace DG::Tweening {
     struct DOVirtual : ILClass<DOVirtual> {
         static inline DG::Tweening::Tween::Object* DelayedCall(float delay, DG::Tweening::TweenCallback::Object* callback, bool ignoreTimeScale) {
-            return external<DG::Tweening::Tween::Object*>(0x0260ae30, delay, callback, ignoreTimeScale);
+            return external<DG::Tweening::Tween::Object*>(game::Address::DG_Tweening_DOVirtual_DelayedCall, delay, callback, ignoreTimeScale);
         }
     };
 }

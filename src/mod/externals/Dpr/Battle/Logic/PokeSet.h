@@ -20,7 +20,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline BTL_POKEPARAM::Object* Get(uint32_t idx) {
-            return external<BTL_POKEPARAM::Object*>(0x020cd920, this, idx);
+            return external<BTL_POKEPARAM::Object*>(game::Address::Dpr_Battle_Logic_PokeSet_Get, this, idx);
         }
     };
 }

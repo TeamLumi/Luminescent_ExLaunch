@@ -34,11 +34,11 @@ namespace Dpr::Battle::Logic {
             };
         };
 
-        struct EventHandler : ILClass<EventHandler, 0x04c5b150> {
+        struct EventHandler : ILClass<EventHandler, game::Address::Dpr_Battle_Logic_EventFactor_EventHandler_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
             inline void ctor(intptr_t m_target, MethodInfo* method) {
-                external<void>(0x01d12b60, this, m_target, method);
+                external<void>(game::Address::Dpr_Battle_Logic_EventFactor_EventHandler_ctor, this, m_target, method);
             }
         };
 
@@ -56,14 +56,14 @@ namespace Dpr::Battle::Logic {
             };
         };
 
-        struct EventHandlerTable : ILClass<EventHandlerTable, 0x04c5b158, 0x04c5b148> {
+        struct EventHandlerTable : ILClass<EventHandlerTable, game::Address::Dpr_Battle_Logic_EventFactor_EventHandlerTable_TypeInfo, game::Address::Dpr_Battle_Logic_EventFactor_EventHandlerTable_Array_TypeInfo> {
             struct Fields {
                 EventID eventID;
                 Dpr::Battle::Logic::EventFactor::EventHandler::Object* eventHandler;
             };
 
             inline void ctor(EventID eventID, EventHandler::Object* eventHandler) {
-                external<void>(0x01d12ed0, this, eventID, eventHandler);
+                external<void>(game::Address::Dpr_Battle_Logic_EventFactor_EventHandlerTable_ctor, this, eventID, eventHandler);
             }
         };
 
@@ -75,7 +75,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void SetSubID(uint16_t value) {
-            external<void>(0x01d12ac0, this, value);
+            external<void>(game::Address::Dpr_Battle_Logic_EventFactor_SetSubID, this, value);
         }
     };
 }

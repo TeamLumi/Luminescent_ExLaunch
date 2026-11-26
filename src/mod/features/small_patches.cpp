@@ -122,61 +122,61 @@ HOOK_DEFINE_TRAMPOLINE(FieldObjectEntity$$OnLateUpdate) {
 void exl_patches_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Affection Toggle")))
-        FriendshipFlag::InstallAtOffset(0x020378d0);
+        FriendshipFlag::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_IsFriendshipActive);
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Global Exp. Share Toggle")))
-        ExpShareFlag::InstallAtOffset(0x020397f0);
+        ExpShareFlag::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_HasPlayerGakusyuSouti);
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Disabled Time Travel Penalty")))
-        SystemTimeWork$$IsPenalty::InstallAtOffset(0x02cae1c0);
+        SystemTimeWork$$IsPenalty::InstallAtOffset(game::Address::SystemTimeWork_IsPenalty);
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Catch Rate Fix")))
     {
-        p.Seek(0x02177394);
+        p.Seek(game::Address::Dpr_Battle_Logic_Section_UseItem_Core_useBall + 0x184);
         p.WriteInst(Branch(0x44));
     }
 
     if (IsActivatedSmallPatchFeature(array_index(SMALL_PATCH_FEATURES, "Extended Flags Fixes")))
     {
         auto townmapinst = nn::vector<exl::patch::Instruction> {
-            { 0x0184c5c8, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupHoneyTrees
-            { 0x0184c3a0, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupKinomis
-            { 0x0184d140, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap.Cell$$IsArrive
-            { 0x0184eeac, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
-            { 0x0184ef54, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
-            { 0x0184f12c, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { game::Address::Dpr_UI_Townmap_SetupHoneyTrees + 0x128, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupHoneyTrees
+            { game::Address::Dpr_UI_Townmap_SetupKinomis + 0x290, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap$$SetupKinomis
+            { game::Address::Dpr_UI_Townmap_Cell_IsArrive + 0xC0, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.Townmap.Cell$$IsArrive
+            { game::Address::Dpr_UI_TownmapFacility_Setup + 0x13C, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { game::Address::Dpr_UI_TownmapFacility_Setup + 0x1E4, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
+            { game::Address::Dpr_UI_TownmapFacility_Setup + 0x3BC, CmpImmediate(W0, SysFlagCount - 1) }, // Dpr.UI.TownmapFacility$$Setup
 
-            { 0x0184c01c, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$SetupSymbols
-            { 0x0184d060, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsView
-            { 0x0184d104, CmpImmediate(W8, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsArrive
-            { 0x0184e634, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$PlayCellChangeSe
-            { 0x0184edc8, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapFacility$$Setup
-            { 0x0184fd78, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapSymbolName$$Setup
-            { 0x01850c58, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapWindowBase$$Fly
+            { game::Address::Dpr_UI_Townmap_SetupSymbols + 0x36C, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$SetupSymbols
+            { game::Address::Dpr_UI_Townmap_Cell_IsView + 0x10, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsView
+            { game::Address::Dpr_UI_Townmap_Cell_IsArrive + 0x84, CmpImmediate(W8, WorkCount - 1) },    // Dpr.UI.Townmap.Cell$$IsArrive
+            { game::Address::Dpr_UI_Townmap_PlayCellChangeSe + 0x44, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.Townmap$$PlayCellChangeSe
+            { game::Address::Dpr_UI_TownmapFacility_Setup + 0x58, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapFacility$$Setup
+            { game::Address::Dpr_UI_TownmapSymbolName_Setup + 0x38, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapSymbolName$$Setup
+            { game::Address::Dpr_UI_TownmapWindowBase_Fly + 0x398, CmpImmediate(W0, WorkCount - 1) },    // Dpr.UI.TownmapWindowBase$$Fly
         };
         p.WriteInst(townmapinst);
 
         auto adventureguideinst = nn::vector<exl::patch::Instruction> {
-            { 0x0187626c, CmpImmediate(W0, FlagCount) }, // Dpr.UI.AdventureNoteWindow.<OpOpen>d__6$$MoveNext
+            { game::Address::Dpr_UI_AdventureNoteWindow_OpOpen_d_6_MoveNext + 0x1DC, CmpImmediate(W0, FlagCount) }, // Dpr.UI.AdventureNoteWindow.<OpOpen>d__6$$MoveNext
         };
         p.WriteInst(adventureguideinst);
     }
 
     // Always-on Patches
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x02053b24, CmpImmediate(W8, 0x7) },          // Allow 6IV Pokémon
-        { 0x0202c140, CmpImmediate(W19, ITEM_COUNT) },  // Make the battle check for if you own balls that go past 1822 items
-        { 0x02c5b0d8, Movz(W2, 0x1)}, // Patches _VISIBLE_OBJ_PROP to always look at inactive objects.
+        { game::Address::Pml_PokePara_Factory_FixInitSpec + 0x364, CmpImmediate(W8, 0x7) },          // Allow 6IV Pokémon
+        { game::Address::Dpr_Battle_Logic_ItemData_IsBallExist + 0x70, CmpImmediate(W19, ITEM_COUNT) },  // Make the battle check for if you own balls that go past 1822 items
+        { game::Address::Dpr_EvScript_EvDataManager_CmdVisibleObjProp + 0x1B8, Movz(W2, 0x1)}, // Patches _VISIBLE_OBJ_PROP to always look at inactive objects.
     };
     p.WriteInst(inst);
 
-    AIStateBase$$CommonUpdate::InstallAtOffset(0x019BFA70); // Fix NPC AI behavior speed at non-30fps framerates
-    FieldObjectEntity$$OnLateUpdate::InstallAtOffset(0x01D54BA0); // Fix NPC movement speed at non-30fps framerates
-    GetMessageLangIdFromIetfCode::InstallAtOffset(0x017c21f0); // Always returns first boot language as English
-    DoEvolve_ItemCancelCheck::InstallAtOffset(0x0177f16c); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
-    BoxSearchPanel_CreateSearchDataListCore_MonIcon::InstallAtOffset(0x01caf0b8); // Box Search checks all characters after "_" to get monsno and not just the last 3
-    EvDataManager$$LoadObjectCreate_Asset_SetOGI::InstallAtOffset(0x02ca4160); // Always sets the "CharacterGraphicsIndex" on a FieldObjectEntity to the OGI, not just for characters
+    AIStateBase$$CommonUpdate::InstallAtOffset(game::Address::Dpr_Field_Walking_AIStateBase_CommonUpdate); // Fix NPC AI behavior speed at non-30fps framerates
+    FieldObjectEntity$$OnLateUpdate::InstallAtOffset(game::Address::FieldObjectEntity_OnLateUpdate); // Fix NPC movement speed at non-30fps framerates
+    GetMessageLangIdFromIetfCode::InstallAtOffset(game::Address::Dpr_UI_UIManager_GetMessageLangIdFromIetfCode); // Always returns first boot language as English
+    DoEvolve_ItemCancelCheck::InstallAtOffset(game::Address::EvolveDemoTools_DoEvolve + 0x12C); // All evolutions by item make the evolution non-cancellable with B, not just vanilla items
+    BoxSearchPanel_CreateSearchDataListCore_MonIcon::InstallAtOffset(game::Address::Dpr_UI_BoxSearchPanel_CreateSearchDataListCore + 0x4F8); // Box Search checks all characters after "_" to get monsno and not just the last 3
+    EvDataManager$$LoadObjectCreate_Asset_SetOGI::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_LoadObjectCreate_Asset + 0x2E0); // Always sets the "CharacterGraphicsIndex" on a FieldObjectEntity to the OGI, not just for characters
 }

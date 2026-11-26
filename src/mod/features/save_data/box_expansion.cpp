@@ -45,21 +45,21 @@ using namespace exl::armv8::reg;
 
 void Dpr_Box_BoxPokemonWork_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01d30ba4, CmpImmediate(W24, BoxCount - 1)}, // $$MovePokemon
-            {0x01d30bac, CmpImmediate(W22, BoxCount - 1)}, // $$MovePokemon
-            {0x01d30da0, CmpImmediate(W21, BoxCount - 1)}, // $$UpdatePokemon
-            {0x01d309ec, CmpImmediate(W19, BoxCount - 1)}, // $$MovePokemon
-            {0x01d309f4, CmpImmediate(W20, BoxCount)}, // $$SwapTray
-            {0x01d31460, CmpImmediate(W20, BoxCount)}, // $$GetSpaceCountAll
-            {0x01d31468, Movz(W8, BoxCount * 30)}, // $$GetSpaceCountAll
-            {0x01d2fd90, CmpImmediate(W21, BoxCount - 1)}, // $$GetPokemon
-            {0x01d308f0, CmpImmediate(W22, BoxCount - 1)}, // $$SwapPokemon
-            {0x01d30900, CmpImmediate(W21, BoxCount)}, // $$SwapPokemon
-            {0x01d31754, CmpImmediate(W22, BoxCount)}, // $$GetSpacePos
-            {0x01d3170c, CmpImmediate(W22, BoxCount - 1)}, // $$GetSpacePos
-            {0x01d31058, CmpImmediate(W21, BoxCount)}, // $$GetPokemonCountAll
-            {0x01d3106c, CmpImmediate(W21, BoxCount)}, // $$GetPokemonCountAll
-            {0x01d30da0, CmpImmediate(W21, BoxCount - 1)}, // $$ClearPokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_MovePokemon + 0x64, CmpImmediate(W24, BoxCount - 1)}, // $$MovePokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_MovePokemon + 0x6C, CmpImmediate(W22, BoxCount - 1)}, // $$MovePokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_UpdatePokemon + 0x40, CmpImmediate(W21, BoxCount - 1)}, // $$UpdatePokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_SwapTray + 0x3C, CmpImmediate(W19, BoxCount - 1)}, // $$MovePokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_SwapTray + 0x44, CmpImmediate(W20, BoxCount)}, // $$SwapTray
+            {game::Address::Dpr_Box_BoxPokemonWork_GetSpaceCountAll + 0xA0, CmpImmediate(W20, BoxCount)}, // $$GetSpaceCountAll
+            {game::Address::Dpr_Box_BoxPokemonWork_GetSpaceCountAll + 0xA8, Movz(W8, BoxCount * 30)}, // $$GetSpaceCountAll
+            {game::Address::Dpr_Box_BoxPokemonWork_GetPokemon_PokemonParam_Int32_Int32 + 0x40, CmpImmediate(W21, BoxCount - 1)}, // $$GetPokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_SwapPokemon + 0x50, CmpImmediate(W22, BoxCount - 1)}, // $$SwapPokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_SwapPokemon + 0x60, CmpImmediate(W21, BoxCount)}, // $$SwapPokemon
+            {game::Address::Dpr_Box_BoxPokemonWork_GetSpacePos + 0x1A4, CmpImmediate(W22, BoxCount)}, // $$GetSpacePos
+            {game::Address::Dpr_Box_BoxPokemonWork_GetSpacePos + 0x15C, CmpImmediate(W22, BoxCount - 1)}, // $$GetSpacePos
+            {game::Address::Dpr_Box_BoxPokemonWork_GetPokemonCountAll + 0x68, CmpImmediate(W21, BoxCount)}, // $$GetPokemonCountAll
+            {game::Address::Dpr_Box_BoxPokemonWork_GetPokemonCountAll + 0x7C, CmpImmediate(W21, BoxCount)}, // $$GetPokemonCountAll
+            {game::Address::Dpr_Box_BoxPokemonWork_UpdatePokemon + 0x40, CmpImmediate(W21, BoxCount - 1)}, // $$ClearPokemon
 
     };
     p.WriteInst(inst);
@@ -67,20 +67,20 @@ void Dpr_Box_BoxPokemonWork_ASM(exl::patch::CodePatcher p) {
 
 void Dpr_Box_BoxWork_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01d32370, CmpImmediate(W19, BoxCount)}, // $$GetTrayName
-            {0x01d33f20, CmpImmediate(W19, BoxCount)}, // $$GetWallPaper
-            {0x01d33e78, CmpImmediate(W20, BoxCount)}, // $$SetWallPaper
-            {0x01d32438, CmpImmediate(W0, BoxCount - 1)}, // $$ChangePokemon
-            {0x01d32448, CmpImmediate(W2, BoxCount)}, // $$ChangePokemon
-            {0x01d322b0, CmpImmediate(W1, BoxCount)}, // $$SetTrayName
-            {0x01d320d0, CmpImmediate(W0, BoxCount - 1)}, // $$ChangeTeam
-            {0x01d320dc, CmpImmediate(W1, BoxCount - 1)}, // $$ChangeTeam
-            {0x01d33064, CmpImmediate(W0, BoxCount - 1)}, // $$DeleteTeam
-            {0x01d32c60, CmpImmediate(W0, BoxCount - 1)}, // $$GetPokeTeamPos
-            {0x01d32b00, CmpImmediate(W0, BoxCount - 1)}, // $$IsPokeTeam
-            {0x01d32988, CmpImmediate(W0, BoxCount - 1)}, // $$IsTeam
-            {0x01d32a10, CmpImmediate(W0, BoxCount - 1)}, // $$IsTeamPos
-            {0x01d33b20, CmpImmediate(W2, BoxCount - 1)}, // $$SetTeamPokePos
+            {game::Address::Dpr_Box_BoxWork_GetTrayName + 0x10, CmpImmediate(W19, BoxCount)}, // $$GetTrayName
+            {game::Address::Dpr_Box_BoxWork_GetWallPaper + 0x10, CmpImmediate(W19, BoxCount)}, // $$GetWallPaper
+            {game::Address::Dpr_Box_BoxWork_SetWallPaper + 0x18, CmpImmediate(W20, BoxCount)}, // $$SetWallPaper
+            {game::Address::Dpr_Box_BoxWork_ChangePokemon + 0x28, CmpImmediate(W0, BoxCount - 1)}, // $$ChangePokemon
+            {game::Address::Dpr_Box_BoxWork_ChangePokemon + 0x38, CmpImmediate(W2, BoxCount)}, // $$ChangePokemon
+            {game::Address::Dpr_Box_BoxWork_SetTrayName + 0x10, CmpImmediate(W1, BoxCount)}, // $$SetTrayName
+            {game::Address::Dpr_Box_BoxWork_ChangeTeam + 0x20, CmpImmediate(W0, BoxCount - 1)}, // $$ChangeTeam
+            {game::Address::Dpr_Box_BoxWork_ChangeTeam + 0x2C, CmpImmediate(W1, BoxCount - 1)}, // $$ChangeTeam
+            {game::Address::Dpr_Box_BoxWork_DeleteTeam + 0x14, CmpImmediate(W0, BoxCount - 1)}, // $$DeleteTeam
+            {game::Address::Dpr_Box_BoxWork_GetPokeTeamPos + 0x10, CmpImmediate(W0, BoxCount - 1)}, // $$GetPokeTeamPos
+            {game::Address::Dpr_Box_BoxWork_IsPokeTeam + 0x10, CmpImmediate(W0, BoxCount - 1)}, // $$IsPokeTeam
+            {game::Address::Dpr_Box_BoxWork_IsTeam + 0x18, CmpImmediate(W0, BoxCount - 1)}, // $$IsTeam
+            {game::Address::Dpr_Box_BoxWork_IsTeamPos + 0x40, CmpImmediate(W0, BoxCount - 1)}, // $$IsTeamPos
+            {game::Address::Dpr_Box_BoxWork_SetTeamPokePos + 0x40, CmpImmediate(W2, BoxCount - 1)}, // $$SetTeamPokePos
 
     };
     p.WriteInst(inst);
@@ -88,8 +88,8 @@ void Dpr_Box_BoxWork_ASM(exl::patch::CodePatcher p) {
 
 void Dpr_Box_SaveBoxData_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            { 0x01d34238, Movz(X1, BoxCount)}, // $$Clear
-            { 0x01d3438c, Movz(X1, BoxCount)}, // $$Clear
+            { game::Address::Dpr_Box_SaveBoxData_Clear + 0x48, Movz(X1, BoxCount)}, // $$Clear
+            { game::Address::Dpr_Box_SaveBoxData_Clear + 0x19C, Movz(X1, BoxCount)}, // $$Clear
 
     };
     p.WriteInst(inst);
@@ -97,7 +97,7 @@ void Dpr_Box_SaveBoxData_ASM(exl::patch::CodePatcher p) {
 
 void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x01aaff64, CmpImmediate(W21, BoxCount)}, // $$Initialize
+            {game::Address::Dpr_UI_BoxListPanel_Initialize + 0x104, CmpImmediate(W21, BoxCount)}, // $$Initialize
 
     };
     p.WriteInst(inst);
@@ -105,7 +105,7 @@ void Dpr_UI_BoxListPanel_ASM(exl::patch::CodePatcher p) {
 
 void PlayerWork_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x02ceb170, Movz(X1, BoxCount)}, // $$Initialization
+            {game::Address::PlayerWork_Initialization + 0x170, Movz(X1, BoxCount)}, // $$Initialization
 
     };
     p.WriteInst(inst);
@@ -119,7 +119,7 @@ HOOK_DEFINE_INLINE(SaveBoxData$$Clear) {
 
 
 void exl_save_box_expansion_main() {
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     /* Write Assembly Patches */
     Dpr_Box_BoxPokemonWork_ASM(p);
@@ -129,10 +129,10 @@ void exl_save_box_expansion_main() {
     PlayerWork_ASM(p);
 
     /* Install Hooks */
-    UpdateTrayMax::InstallAtOffset(0x01d317f0);
-    GetOpenTrayMax::InstallAtOffset(0x01d30190);
-    GetTrayMax::InstallAtOffset(0x01d30610);
-    BoxListPanel$$ctor::InstallAtOffset(0x01ab0630);
-    PokeDupeChecker$$UpdateIllegalFlagAll::InstallAtOffset(0x01996900);
-    SaveBoxData$$Clear::InstallAtOffset(0x01d343d4);
+    UpdateTrayMax::InstallAtOffset(game::Address::Dpr_Box_BoxPokemonWork_UpdateTrayMax);
+    GetOpenTrayMax::InstallAtOffset(game::Address::Dpr_Box_BoxWork_GetOpenTrayMax);
+    GetTrayMax::InstallAtOffset(game::Address::Dpr_Box_BoxWork_GetTrayMax);
+    BoxListPanel$$ctor::InstallAtOffset(game::Address::Dpr_UI_BoxListPanel_ctor);
+    PokeDupeChecker$$UpdateIllegalFlagAll::InstallAtOffset(game::Address::PokeDupeChecker_UpdateIllegalFlagAll);
+    SaveBoxData$$Clear::InstallAtOffset(game::Address::Dpr_Box_SaveBoxData_Clear + 0x1E4);
 }

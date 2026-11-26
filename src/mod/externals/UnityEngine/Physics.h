@@ -9,7 +9,7 @@ namespace UnityEngine {
                                    UnityEngine::RaycastHit::Object* hitInfo, float maxDistance, int32_t layer_mask) {
             UnityEngine::Vector3::Fields originProxy = { .x = origin.fields.x, .y = origin.fields.y, .z = origin.fields.z };
             UnityEngine::Vector3::Fields directionProxy = { .x = direction.fields.x, .y = direction.fields.y, .z = direction.fields.z };
-            return external<bool>(0x02c1d320, originProxy, directionProxy, hitInfo, maxDistance, layer_mask);
+            return external<bool>(game::Address::UnityEngine_Physics_Raycast_Vector3_Vector3_RaycastHit_Float_Int32, originProxy, directionProxy, hitInfo, maxDistance, layer_mask);
         }
     };
 }

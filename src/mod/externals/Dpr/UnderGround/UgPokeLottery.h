@@ -7,7 +7,7 @@
 #include "externals/XLSXContent/UgRandMark.h"
 
 namespace Dpr::UnderGround {
-    struct UgPokeLottery : ILClass<UgPokeLottery, 0x04c655c0> {
+    struct UgPokeLottery : ILClass<UgPokeLottery, game::Address::Dpr_UnderGround_UgPokeLottery_TypeInfo> {
         struct TypeAndSize : ILStruct<TypeAndSize> {
             struct Fields {
                 int32_t size;
@@ -16,7 +16,7 @@ namespace Dpr::UnderGround {
             };
         };
 
-        struct PokeSlot : ILClass<PokeSlot, 0x04c63898> {
+        struct PokeSlot : ILClass<PokeSlot, game::Address::Dpr_UnderGround_UgPokeLottery_PokeSlot_TypeInfo> {
             struct Fields {
                 Pml::PokePara::PokemonParam::Object* param;
                 TypeAndSize::Object ts;
@@ -31,7 +31,7 @@ namespace Dpr::UnderGround {
         };
 
         inline Pml::PokePara::PokemonParam::Object* CreatePokemonParam_by_Tokusei(int32_t monsNo, uint8_t rareTryCount) {
-            return external<Pml::PokePara::PokemonParam::Object*>(0x018bfea0, this, monsNo, rareTryCount);
+            return external<Pml::PokePara::PokemonParam::Object*>(game::Address::Dpr_UnderGround_UgPokeLottery_CreatePokemonParam_by_Tokusei, this, monsNo, rareTryCount);
         }
     };
 }

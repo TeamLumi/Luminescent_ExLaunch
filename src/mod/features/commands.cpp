@@ -199,7 +199,7 @@ void exl_commands_hooks_main() {
 }
 
 void exl_commands_main() {
-    RunEvCmdCustom::InstallAtOffset(0x02c5b290);
+    RunEvCmdCustom::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_RunEvCmd);
 
     for (bool & i : ACTIVATED_COMMANDS)
         i = false;

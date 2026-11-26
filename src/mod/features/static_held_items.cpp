@@ -20,7 +20,7 @@ using namespace Pml;
 HOOK_DEFINE_INLINE(SetWildPokemonItem) {
     static void Callback(exl::hook::nx64::InlineCtx* ctx) {
 
-        system_load_typeinfo(0x3f8c);
+        system_load_typeinfo(game::TypeInfo::FieldBattleSearcher_TrainerSearch);
 
         auto __this = (PokeParty::Object*) ctx->X[0];
         auto idx = (uint32_t) ctx->W[1];
@@ -36,7 +36,7 @@ HOOK_DEFINE_INLINE(SetWildPokemonItem) {
 };
 
 void exl_static_held_items_main() {
-    SetWildPokemonItem::InstallAtOffset(0x0179f85c);
+    SetWildPokemonItem::InstallAtOffset(game::Address::FieldManager_EventWildBattle_Int32_Int32_Bool_Bool_Bool_UInt8_Bool_Int32_Bool + 0x13C);
 }
 
 

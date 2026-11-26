@@ -59,22 +59,22 @@ using namespace exl::armv8::reg;
 
 void PlayerWork_Initialization_ASM(exl::patch::CodePatcher p) {
     auto inst = nn::vector<exl::patch::Instruction> {
-            {0x02ceb054, Movz(X1, WorkCount)},
-            {0x02ceb078, Movz(X1, FlagCount)},
-            {0x02ceb094, Movz(X1, SysFlagCount)},
-            {0x02ceb0ec, Movz(X1, SaveItemCount)},
-            {0x02ceb110, Movz(X1, SaveUgItemCount)},
-            {0x018d1484, Movz(X1, SaveUgItemCount)},
+            {game::Address::PlayerWork_Initialization + 0x54, Movz(X1, WorkCount)},
+            {game::Address::PlayerWork_Initialization + 0x78, Movz(X1, FlagCount)},
+            {game::Address::PlayerWork_Initialization + 0x94, Movz(X1, SysFlagCount)},
+            {game::Address::PlayerWork_Initialization + 0xEC, Movz(X1, SaveItemCount)},
+            {game::Address::PlayerWork_Initialization + 0x110, Movz(X1, SaveUgItemCount)},
+            {game::Address::UgItemWork_ctor + 0x54, Movz(X1, SaveUgItemCount)},
             // Box Expansion in box_expansion.cpp
             // Dex Expansion in dex_expansion.cpp
-            {0x02ceb224, Movz(X1, TrainerCount)},
-            {0x02ceb2b8, Movz(X1, BerryCount)},
+            {game::Address::PlayerWork_Initialization + game::Offset{.bd = 0x224, .sp = 0x250}, Movz(X1, TrainerCount)},
+            {game::Address::PlayerWork_Initialization + game::Offset{.bd = 0x2B8, .sp = 0x2E4}, Movz(X1, BerryCount)},
     };
     p.WriteInst(inst);
 }
 
 void exl_migration_main() {
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     /* Write Assembly Patches */
     PlayerWork_Initialization_ASM(p);

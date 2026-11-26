@@ -7,7 +7,7 @@
 
 void PlayerBonkCheck(FieldPlayerEntity::Object* player)
 {
-    system_load_typeinfo(0x35f1);
+    system_load_typeinfo(game::TypeInfo::Dpr_DigFossil_Dbg_DebugDigMenuInput_Initialize);
     GameController::getClass()->initIfNeeded();
     bool movingStick = UnityEngine::Vector2::op_Inequality(GameController::getClass()->static_fields->analogStickL, UnityEngine::Vector2::get_zero());
     bool movingDpad = UnityEngine::Vector2::op_Inequality(GameController::getClass()->static_fields->digitalPad, UnityEngine::Vector2::get_zero());
@@ -29,5 +29,5 @@ HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity_CheckMapCollision_AfterCharacterHit) {
 };
 
 void exl_npc_collision_audio_main() {
-    FieldPlayerEntity_CheckMapCollision_AfterCharacterHit::InstallAtOffset(0x01da4b00);
+    FieldPlayerEntity_CheckMapCollision_AfterCharacterHit::InstallAtOffset(game::Address::FieldPlayerEntity_CheckMapCollision_AfterCharacterHit);
 }

@@ -11,7 +11,7 @@ namespace Dpr::Battle::Logic {
     struct MainModule;
 
     struct BattleViewBase : ILClass<BattleViewBase> {
-        struct SelectActionParam : ILClass<SelectActionParam, 0x04c5a8d8> {
+        struct SelectActionParam : ILClass<SelectActionParam, game::Address::Dpr_Battle_Logic_BattleViewBase_SelectActionParam_TypeInfo> {
             struct Fields {
                 BTL_POKEPARAM* pActPoke;
                 uint8_t pokeIndex;
@@ -29,7 +29,7 @@ namespace Dpr::Battle::Logic {
             static_assert(offsetof(Fields, buttonMode_Cheer) == 0x20);
 
             inline void ctor() {
-                external<void>(0x0188a4c0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_BattleViewBase_SelectActionParam_ctor, this);
             }
         };
 
@@ -371,7 +371,7 @@ namespace Dpr::Battle::Logic {
         };
 
         inline int32_t BtlPosToViewPos(uint8_t pos) {
-            return external<int32_t>(0x01888200, this, pos);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_BattleViewBase_BtlPosToViewPos, this, pos);
         }
 
         inline void virtual_CMD_UI_SelectAction_Start(BattleViewBase::SelectActionParam::Object** param, BTL_ACTION_PARAM_OBJ* dest) {

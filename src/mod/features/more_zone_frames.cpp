@@ -14,7 +14,7 @@
 
 HOOK_DEFINE_REPLACE(AreaNameWindow$$Open) {
     static void Callback(AreaNameWindow::Object* __this, System::String::Object* labelName) {
-        system_load_typeinfo(0x2a05);
+        system_load_typeinfo(game::TypeInfo::UnityEngine_Camera_AddCommandBuffer);
 
         FieldManager::getClass()->initIfNeeded();
         Dpr::UI::UIManager::getClass()->initIfNeeded();
@@ -57,8 +57,8 @@ HOOK_DEFINE_REPLACE(AreaNameWindow$$Open) {
 
 HOOK_DEFINE_TRAMPOLINE(AreaNameWindow$$PerformShowAreaName) {
     static void Callback(AreaNameWindow::Object* __this, System::String::Object* labelName) {
-        system_load_typeinfo(0x2a05);
-        system_load_typeinfo(0xa43f);
+        system_load_typeinfo(game::TypeInfo::UnityEngine_Camera_AddCommandBuffer);
+        system_load_typeinfo(game::TypeInfo::Dpr_SubContents_Utils_GetAssetNamebyPath);
 
         auto separator = System::Char_array::newArray(1);
         separator->m_Items[0] = '%';
@@ -82,6 +82,6 @@ HOOK_DEFINE_TRAMPOLINE(AreaNameWindow$$PerformShowAreaName) {
 };
 
 void exl_zone_frames_main() {
-    AreaNameWindow$$Open::InstallAtOffset(0x02120600);
-    AreaNameWindow$$PerformShowAreaName::InstallAtOffset(0x021207c0);
+    AreaNameWindow$$Open::InstallAtOffset(game::Address::AreaNameWindow_Open);
+    AreaNameWindow$$PerformShowAreaName::InstallAtOffset(game::Address::AreaNameWindow_PerformShowAreaName);
 }

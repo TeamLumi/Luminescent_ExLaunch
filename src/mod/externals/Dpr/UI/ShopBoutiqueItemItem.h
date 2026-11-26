@@ -7,15 +7,15 @@
 #include "ShopItemItem.h"
 
 namespace Dpr::UI {
-    struct ShopBoutiqueItemItem : ILClass<ShopBoutiqueItemItem, 0x04c62438> {
-        struct Param : ILClass<Param, 0x04c62470> {
+    struct ShopBoutiqueItemItem : ILClass<ShopBoutiqueItemItem, game::Address::Dpr_UI_ShopBoutiqueItemItem_TypeInfo> {
+        struct Param : ILClass<Param, game::Address::Dpr_UI_ShopBoutiqueItemItem_Param_TypeInfo> {
             struct Fields{
                 XLSXContent::ShopTable::SheetBoutiqueShop::Object* data;
                 XLSXContent::CharacterDressData::SheetData::Object* dressData;
             };
 
             inline void ctor() {
-                external<void>(0x01d45cc0, this);
+                external<void>(game::Address::Dpr_UI_ShopBoutiqueItemItem_Param_ctor, this);
             }
         };
 
@@ -33,6 +33,6 @@ namespace Dpr::UI {
 
 namespace System::Collections::Generic {
     struct List$$ShopBoutiqueItemItem_Param : List<List$$ShopBoutiqueItemItem_Param, Dpr::UI::ShopBoutiqueItemItem::Param> {
-        static inline StaticILMethod<0x04c89920, Dpr::UI::ShopBoutiqueItemItem::Param> Method$$Add {};
+        static inline StaticILMethod<game::Address::Method_System_Collections_Generic_List_ShopBoutiqueItemItem_Param_Add, Dpr::UI::ShopBoutiqueItemItem::Param> Method$$Add {};
     };
 }

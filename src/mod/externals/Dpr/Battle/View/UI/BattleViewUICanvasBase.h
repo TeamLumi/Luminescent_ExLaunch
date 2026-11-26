@@ -39,29 +39,29 @@ namespace Dpr::Battle::View::UI {
             int32_t _animationState_k__BackingField;
         };
 
-        static inline StaticILMethod<0x04c7c3d0, BUISituationButton> Method$$BUISituationButton$$SelectButton {};
-        static inline StaticILMethod<0x04c7c3d8, BUISituationDescriptionButton> Method$$BUISituationDescriptionButton$$SelectButton {};
-        static inline StaticILMethod<0x04c7c3e8, BUIWazaButton> Method$$BUIWazaButton$$SelectButton {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_View_UI_BattleViewUICanvasBase_SelectButton_BUISituationButton, BUISituationButton> Method$$BUISituationButton$$SelectButton {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_View_UI_BattleViewUICanvasBase_SelectButton_BUISituationDescriptionButton, BUISituationDescriptionButton> Method$$BUISituationDescriptionButton$$SelectButton {};
+        static inline StaticILMethod<game::Address::Method_Dpr_Battle_View_UI_BattleViewUICanvasBase_SelectButton_BUIWazaButton, BUIWazaButton> Method$$BUIWazaButton$$SelectButton {};
 
         template <typename T>
         inline void SelectButton(void* buttons, int32_t index, bool isPlaySe, ILMethod<T>& method) {
-            external<void>(0x01a88450, this, buttons, index, isPlaySe, *method);
+            external<void>(game::Address::Dpr_Battle_View_UI_BattleViewUICanvasBase_SelectButton_BUIActionSelectButton, this, buttons, index, isPlaySe, *method);
         }
 
         inline void Show(System::Action::Object* onComplete) {
-            external<void>(0x01d20420, this, onComplete);
+            external<void>(game::Address::Dpr_Battle_View_UI_BattleViewUICanvasBase_Show, this, onComplete);
         }
 
         inline void Hide(bool isForce, System::Action::Object* onComplete) {
-            external<void>(0x01d21340, this, isForce, onComplete);
+            external<void>(game::Address::Dpr_Battle_View_UI_BattleViewUICanvasBase_Hide, this, isForce, onComplete);
         }
 
         inline void OnShow() {
-            external<void>(0x01d20590, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BattleViewUICanvasBase_OnShow, this);
         }
 
         inline void PlayTransitionAnimation(bool isShow) {
-            external<void>(0x01d2d960, this, isShow);
+            external<void>(game::Address::Dpr_Battle_View_UI_BattleViewUICanvasBase_PlayTransitionAnimation, this, isShow);
         }
     };
 }

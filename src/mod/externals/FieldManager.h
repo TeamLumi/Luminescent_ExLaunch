@@ -12,7 +12,7 @@
 #include "externals/UnityEngine/Transform.h"
 #include "externals/UnityEngine/Vector3.h"
 
-struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
+struct FieldManager : ILClass<FieldManager, game::Address::FieldManager_TypeInfo> {
     struct Fields {
         System::Action::Object* OnZoneChangeEvent;
         System::Action::Object* OnZoneChangeOnce;
@@ -83,59 +83,59 @@ struct FieldManager : ILClass<FieldManager, 0x04c5a638> {
 
     inline void CallEffect(int32_t index, UnityEngine::Transform::Object* parent, UnityEngine::Vector3::Object ofs, void* loadcallback, void* eff_onFinished) { // System_Action_EffectInstance__o *loadcallback, UnityEngine_Events_UnityAction_EffectInstance__o *eff_onFinished
         UnityEngine::Vector3::Fields ofsProxy = { .x = ofs.fields.x, .y = ofs.fields.y, .z = ofs.fields.z };
-        external<void>(0x017a0450, this, index, parent, ofsProxy, loadcallback, eff_onFinished);
+        external<void>(game::Address::FieldManager_CallEffect_Int32_Transform_Vector3_Action_EffectInstance_UnityAction_EffectInstance, this, index, parent, ofsProxy, loadcallback, eff_onFinished);
     }
 
     inline uint16_t GetFormNo(int32_t mons, int32_t karana, int32_t anno) {
-        return external<uint16_t>(0x0179f560, this, mons, karana, anno);
+        return external<uint16_t>(game::Address::FieldManager_GetFormNo, this, mons, karana, anno);
     }
 
     inline void GetLegendPokeEncountInfo(Pml::PokePara::PokemonParam::Object* param, System::String::Object** encSec, int32_t* arenaID, System::String::Object** bgm, int32_t* setupEffect) {
-        external<void>(0x0179efe0, this, param, encSec, arenaID, bgm, setupEffect);
+        external<void>(game::Address::FieldManager_GetLegendPokeEncountInfo, this, param, encSec, arenaID, bgm, setupEffect);
     }
 
     inline void EventWildBattle(int32_t mons, int32_t level, bool isCaptureDemo, bool isSymbol, bool isMitu, uint8_t talentVNum, bool isCantUseBall, int32_t formNo, bool tokusei3rd) {
-        external<void>(0x0179f720, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
+        external<void>(game::Address::FieldManager_EventWildBattle_Int32_Int32_Bool_Bool_Bool_UInt8_Bool_Int32_Bool, this, mons, level, isCaptureDemo, isSymbol, isMitu, talentVNum, isCantUseBall, formNo, tokusei3rd);
     }
 
     inline void EventWildBattle(Pml::PokeParty::Object* pokeParty, bool isCaptureDemo, bool isSymbol, bool isMitu, bool isCantUseBall) {
-        external<void>(0x0179f940, this, pokeParty, isCaptureDemo, isSymbol, isMitu, isCantUseBall);
+        external<void>(game::Address::FieldManager_EventWildBattle_PokeParty_Bool_Bool_Bool_Bool, this, pokeParty, isCaptureDemo, isSymbol, isMitu, isCantUseBall);
     }
 
     inline void EncountStart(int32_t type, int32_t trainerid1, int32_t trainerid2) {
-        external<void>(0x0179f330, this, type, trainerid1, trainerid2);
+        external<void>(game::Address::FieldManager_EncountStart, this, type, trainerid1, trainerid2);
     }
 
     inline int32_t get_areaID() {
-        return external<int32_t>(0x01797f90, this);
+        return external<int32_t>(game::Address::FieldManager_get_areaID, this);
     }
 
     inline int32_t GetBatleWeather() {
-        return external<int32_t>(0x0179f1a0, this);
+        return external<int32_t>(game::Address::FieldManager_GetBatleWeather, this);
     }
 
     inline void PreLoadEncEffect(System::String::Object* assetname) {
-        external<void>(0x0179e6a0, this, assetname);
+        external<void>(game::Address::FieldManager_PreLoadEncEffect, this, assetname);
     }
 
     inline void RequestAttributeEffect(FieldObjectEntity::Object* entity, int32_t attri) {
-        external<void>(0x017a0090, this, entity, attri);
+        external<void>(game::Address::FieldManager_RequestAttributeEffect, this, entity, attri);
     }
 
     inline void RequestAttributeSE(FieldObjectEntity::Object* entity, int32_t attri) {
-        external<void>(0x017a0130, this, entity, attri);
+        external<void>(game::Address::FieldManager_RequestAttributeSE, this, entity, attri);
     }
 
     inline void CallEffect(int32_t index, UnityEngine::Vector3::Object pos, void* loadCallback, void* eff_onFinished) {
         UnityEngine::Vector3::Fields posProxy = { .x = pos.fields.x, .y = pos.fields.y, .z = pos.fields.z };
-        external<void>(0x017a0590, this, index, posProxy, loadCallback, eff_onFinished);
+        external<void>(game::Address::FieldManager_CallEffect_Int32_Vector3_Action_EffectInstance_UnityAction_EffectInstance, this, index, posProxy, loadCallback, eff_onFinished);
     }
 
     inline void SetBgmEvent(uint32_t eventid) {
-        external<void>(0x0179ca70, this, eventid);
+        external<void>(game::Address::FieldManager_SetBgmEvent_UInt32, this, eventid);
     }
 
     inline bool StopSwayGrass_NextArea() {
-        return external<bool>(0x0179c590, this);
+        return external<bool>(game::Address::FieldManager_StopSwayGrass_NextArea, this);
     }
 };

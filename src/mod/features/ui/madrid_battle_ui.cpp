@@ -373,9 +373,9 @@ bool IsButtonHeldFor(int32_t buttonMask, float* currentTime, float deltaTime, fl
 
 HOOK_DEFINE_REPLACE(BUIActionList$$OnUpdate) {
     static void Callback(Dpr::Battle::View::UI::BUIActionList::Object* __this, float deltatime) {
-        system_load_typeinfo(0x1f11);
-        system_load_typeinfo(0x1f10);
-        system_load_typeinfo(0x1f0d);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionList_OnUpdate);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Systems_BattleViewUISystem_ExecuteActionButton_d_223_MoveNext);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionList_OnCancel);
 
         if (!__this->fields._IsFocus_k__BackingField)
             return;
@@ -578,7 +578,7 @@ HOOK_DEFINE_REPLACE(BUIWazaList$$OnUpdate) {
 
 HOOK_DEFINE_REPLACE(BUIWazaList$$OnShow) {
     static void Callback(Dpr::Battle::View::UI::BUIWazaList::Object* __this) {
-        system_load_typeinfo(0x1f80);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIWazaList_OnShow);
         Dpr::Battle::View::BattleViewCore::getClass()->initIfNeeded();
 
         __this->fields._IsFocus_k__BackingField = false;
@@ -621,8 +621,8 @@ HOOK_DEFINE_REPLACE(BUIWazaButton$$Initialize) {
                          UnityEngine::Sprite::Object* typeSprite, UnityEngine::Sprite::Object* effBgSprite,
                          UnityEngine::Sprite::Object* effSprite, System::String::Object* affinityString,
                          UnityEngine::Color::Array* ppColors) {
-        system_load_typeinfo(0x1f77);
-        system_load_typeinfo(0x239d);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIWazaButton_Initialize);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_UI_BUIActionSelectButton_Initialize);
 
         __this->fields._index = index;
         if (!info->fields.has_value)
@@ -774,7 +774,7 @@ HOOK_DEFINE_REPLACE(BUIWazaDescription$$SetWazaDamageType) {
 
 HOOK_DEFINE_REPLACE(BattleViewUISystem_SwitchActionListCoroutine$$MoveNext) {
     static bool Callback(Dpr::Battle::View::Systems::BattleViewUISystem::SwitchActionListCoroutine_d__198::Object* __this) {
-        system_load_typeinfo(0x1f16);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Systems_BattleViewUISystem_ShowActionListOnlyCoroutine_d_200_MoveNext);
 
         switch (__this->fields.__1__state)
         {
@@ -836,8 +836,8 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectAction_Start) {
                          Dpr::Battle::Logic::BattleViewBase::SelectActionParam::Object** param,
                          Dpr::Battle::Logic::BTL_ACTION_PARAM_OBJ::Object* dest) {
         Logger::log("[BattleViewUISystem$$CMD_UI_SelectAction_Start] we're in\n");
-        system_load_typeinfo(0x2476);
-        system_load_typeinfo(0x24a1);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectAction_Start_Call1);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectAction_Start_Call2);
         UnityEngine::Debug::getClass()->initIfNeeded();
 
         UnityEngine::Debug::Log(System::String::Create("[BattleUI]SelectAction"));
@@ -859,7 +859,7 @@ HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectAction_Start) {
 
 HOOK_DEFINE_REPLACE(BattleViewUISystem$$CMD_UI_SelectAction_Wait) {
     static Dpr::Battle::Logic::BtlAction Callback(Dpr::Battle::View::Systems::BattleViewUISystem::Object* __this) {
-        system_load_typeinfo(0x24a1);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectAction_Start_Call2);
 
         // Remove this damn cursor in the safari
         if (__this->fields._actionList->fields._isSafari)
@@ -961,31 +961,31 @@ HOOK_DEFINE_INLINE(BTL_CLIENT$$selact_Fight$$Seq7_SEQ_WAIT_UNSEL_WAZA_MSG) {
 
 
 void exl_madrid_ui_main() {
-    BUIActionList$$OnUpdate::InstallAtOffset(0x01e8bdb0);
-    BUIActionList$$OnSubmitPokeBall::InstallAtOffset(0x01e8c1b0);
-    BUIActionList$$OnShow::InstallAtOffset(0x01e8c4c0);
+    BUIActionList$$OnUpdate::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIActionList_OnUpdate);
+    BUIActionList$$OnSubmitPokeBall::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIActionList_OnSubmitPokeBall);
+    BUIActionList$$OnShow::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIActionList_OnShow);
 
-    BUIPokeBallList$$OnCancel::InstallAtOffset(0x01d221b0);
+    BUIPokeBallList$$OnCancel::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIPokeBallList_OnCancel);
 
-    BUIWazaList$$OnUpdate::InstallAtOffset(0x01d2c490);
-    BUIWazaList$$OnShow::InstallAtOffset(0x01d2cb70);
-    BUIWazaList$$Initialize::InstallAtOffset(0x01d2b800);
+    BUIWazaList$$OnUpdate::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIWazaList_OnUpdate);
+    BUIWazaList$$OnShow::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIWazaList_OnShow);
+    BUIWazaList$$Initialize::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIWazaList_Initialize);
 
-    BUIWazaButton$$Initialize::InstallAtOffset(0x01d2a8f0);
+    BUIWazaButton$$Initialize::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIWazaButton_Initialize);
 
-    BUIWazaDescription$$Initialize::InstallAtOffset(0x01d2aea0);
-    BUIWazaDescription$$SetWazaDamageType::InstallAtOffset(0x01d2b3c0);
+    BUIWazaDescription$$Initialize::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIWazaDescription_Initialize);
+    BUIWazaDescription$$SetWazaDamageType::InstallAtOffset(game::Address::Dpr_Battle_View_UI_BUIWazaDescription_SetWazaDamageType);
 
-    BattleViewUISystem_SwitchActionListCoroutine$$MoveNext::InstallAtOffset(0x01e7efe0);
+    BattleViewUISystem_SwitchActionListCoroutine$$MoveNext::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_SwitchActionListCoroutine_d_198_MoveNext);
 
-    BattleViewUISystem$$CMD_UI_SelectAction_Start::InstallAtOffset(0x01e75c40);
-    BattleViewUISystem$$CMD_UI_SelectAction_Wait::InstallAtOffset(0x01e764a0);
-    BattleViewUISystem$$CMD_UI_SelectAction_ForceQuit::InstallAtOffset(0x01e76590);
+    BattleViewUISystem$$CMD_UI_SelectAction_Start::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectAction_Start);
+    BattleViewUISystem$$CMD_UI_SelectAction_Wait::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectAction_Wait);
+    BattleViewUISystem$$CMD_UI_SelectAction_ForceQuit::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectAction_ForceQuit);
 
-    BattleViewUISystem$$CMD_UI_SelectWaza_Start::InstallAtOffset(0x01e765a0);
-    BattleViewUISystem$$CMD_UI_SelectWaza_Wait::InstallAtOffset(0x01e76ac0);
-    BattleViewUISystem$$CMD_UI_SelectWaza_End::InstallAtOffset(0x01e76b40);
-    BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit::InstallAtOffset(0x01e76b70);
+    BattleViewUISystem$$CMD_UI_SelectWaza_Start::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectWaza_Start);
+    BattleViewUISystem$$CMD_UI_SelectWaza_Wait::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectWaza_Wait);
+    BattleViewUISystem$$CMD_UI_SelectWaza_End::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectWaza_End);
+    BattleViewUISystem$$CMD_UI_SelectWaza_ForceQuit::InstallAtOffset(game::Address::Dpr_Battle_View_Systems_BattleViewUISystem_CMD_UI_SelectWaza_ForceQuit);
 
-    BTL_CLIENT$$selact_Fight$$Seq7_SEQ_WAIT_UNSEL_WAZA_MSG::InstallAtOffset(0x01f54570);
+    BTL_CLIENT$$selact_Fight$$Seq7_SEQ_WAIT_UNSEL_WAZA_MSG::InstallAtOffset(game::Address::Dpr_Battle_Logic_BTL_CLIENT_selact_Fight + 0x270);
 }

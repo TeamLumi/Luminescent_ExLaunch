@@ -95,8 +95,8 @@ bool PunchingBagAttributeCheck(UnityEngine::Vector2Int::Object grid, int* count)
 }
 
 void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
-    system_load_typeinfo(0x4a4e);
-    system_load_typeinfo(0x4989);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_KairikiPushObject);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_ChangeBicycleGear);
 
     auto oldPushTime = punchingBagPushTime;
     auto oldPushObj = punchingBagObjIndex;
@@ -242,8 +242,8 @@ void PunchingBagPushObject(FieldPlayerEntity::Object* __this, float deltaTime) {
 }
 
 void ContactLabelCallOnPush(FieldPlayerEntity::Object* __this, float deltaTime) {
-    system_load_typeinfo(0x4a4e);
-    system_load_typeinfo(0x4989);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_KairikiPushObject);
+    system_load_typeinfo(game::TypeInfo::FieldPlayerEntity_ChangeBicycleGear);
 
     auto oldPushTime = contactablePushTime;
     auto oldPushObj = contactableObjIndex;
@@ -322,5 +322,5 @@ HOOK_DEFINE_TRAMPOLINE(FieldPlayerEntity$$KairikiPushObject) {
 };
 
 void exl_pushable_entities_main() {
-    FieldPlayerEntity$$KairikiPushObject::InstallAtOffset(0x01da6500);
+    FieldPlayerEntity$$KairikiPushObject::InstallAtOffset(game::Address::FieldPlayerEntity_KairikiPushObject);
 }

@@ -10,7 +10,7 @@ namespace Dpr::UI {
         };
 
         inline bool IsPushButton(int32_t button, bool isForce) {
-            return external<bool>(0x017a87f0, this, button, isForce);
+            return external<bool>(game::Address::Dpr_UI_UIInputController_IsPushButton, this, button, isForce);
         }
     };
 }

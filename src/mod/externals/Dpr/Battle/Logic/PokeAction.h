@@ -10,7 +10,7 @@
 #include "externals/Dpr/Battle/Logic/PokeActionParam_PokeChange.h"
 
 namespace Dpr::Battle::Logic {
-    struct PokeAction : ILClass<PokeAction, 0x04c5b5a0> {
+    struct PokeAction : ILClass<PokeAction, game::Address::Dpr_Battle_Logic_PokeAction_TypeInfo> {
         struct Fields {
             BTL_POKEPARAM::Object* bpp;
             PokeActionCategory actionCategory;
@@ -26,11 +26,11 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void ctor() {
-            external<void>(0x020423d0, this);
+            external<void>(game::Address::Dpr_Battle_Logic_PokeAction_ctor, this);
         };
 
         static inline int32_t GetWazaID(PokeAction::Object* action) {
-            return external<int32_t>(0x02042560, action);
+            return external<int32_t>(game::Address::Dpr_Battle_Logic_PokeAction_GetWazaID, action);
         }
     };
 }

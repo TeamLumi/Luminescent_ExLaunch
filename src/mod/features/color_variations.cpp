@@ -97,8 +97,8 @@ RomData::ColorSet GetCustomColorSet()
 
 ColorVariation::Property::Array* GetEditedProperty00(ColorVariation::Object* variation, int32_t index)
 {
-    system_load_typeinfo(0x2c09);
-    system_load_typeinfo(0x9c60);
+    system_load_typeinfo(game::TypeInfo::ColorVariation_LateUpdate);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIModelViewController_SetupCharacterModel);
 
     auto component = variation->cast<UnityEngine::Component>();
     auto gameObject = component->get_gameObject()->instance();
@@ -155,7 +155,7 @@ void UpdateColorVariation(ColorVariation::Object* variation) {
     auto name = variation->cast<UnityEngine::Component>()->get_gameObject()->cast<UnityEngine::_Object>()->get_Name()->asCString();
     //Logger::log("Setting variation %d for %s...\n", variation->fields.ColorIndex, name.c_str());
 
-    system_load_typeinfo(0x2c09);
+    system_load_typeinfo(game::TypeInfo::ColorVariation_LateUpdate);
     ColorVariation::Property::Array* properties = GetEditedProperty00(variation, variation->fields.ColorIndex);
 
     if (variation->fields.propertyBlock != nullptr)
@@ -291,32 +291,32 @@ HOOK_DEFINE_INLINE(UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_Inline
 };
 
 void exl_color_variations_main() {
-    ColorVariation_LateUpdate::InstallAtOffset(0x018ecd90);
-    ColorVariation_OnEnable::InstallAtOffset(0x018ecd20);
+    ColorVariation_LateUpdate::InstallAtOffset(game::Address::ColorVariation_LateUpdate);
+    ColorVariation_OnEnable::InstallAtOffset(game::Address::ColorVariation_OnEnable);
 
-    GetColorID::InstallAtOffset(0x0203d3f0);
-    GetColorID::InstallAtOffset(0x02cef820);
+    GetColorID::InstallAtOffset(game::Address::Dpr_Battle_Logic_MyStatus_GetColorID);
+    GetColorID::InstallAtOffset(game::Address::PlayerWork_get_colorID);
 
-    SetColorID::InstallAtOffset(0x02cef870);
-    SetColorID_Inline::InstallAtOffset(0x02cf3c7c);
+    SetColorID::InstallAtOffset(game::Address::PlayerWork_set_colorID);
+    SetColorID_Inline::InstallAtOffset(game::Address::PlayerWork_SetPlayerStatus + 0x18C);
 
-    CardModelViewController_LoadModels::InstallAtOffset(0x01a315a4);
+    CardModelViewController_LoadModels::InstallAtOffset(game::Address::Dpr_UI_CardModelViewController_c_DisplayClass47_0_LoadModels_b_0 + 0x244);
 
-    EvDataManager$$LoadObjectCreate_Asset_InlineColorID::InstallAtOffset(0x02ca4e34);
-    BattleCharacterEntity$$SetSkinColor_InlineColorID::InstallAtOffset(0x01d68454);
-    UIModelViewController$$SetupCharacterModel_InlineColorID::InstallAtOffset(0x01a0fcb4);
-    FieldConnector_SetupOperation$$MoveNext_InlineColorID::InstallAtOffset(0x0178e98c);
-    EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID::InstallAtOffset(0x02c90dd4);
-    TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID::InstallAtOffset(0x02cb3ad0);
-    TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID::InstallAtOffset(0x02cb40a8);
-    ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x018e40fc);
-    UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID::InstallAtOffset(0x01b18728);
-    UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(0x019e0c4c);
+    EvDataManager$$LoadObjectCreate_Asset_InlineColorID::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_LoadObjectCreate_Asset + 0xFB4);
+    BattleCharacterEntity$$SetSkinColor_InlineColorID::InstallAtOffset(game::Address::BattleCharacterEntity_SetSkinColor + 0xD4);
+    UIModelViewController$$SetupCharacterModel_InlineColorID::InstallAtOffset(game::Address::Dpr_UI_UIModelViewController_SetupCharacterModel + 0x374);
+    FieldConnector_SetupOperation$$MoveNext_InlineColorID::InstallAtOffset(game::Address::FieldConnector_SetupOperation_d_19_MoveNext + 0xFAC);
+    EvDataManager$$EvCmd_CHANGE_FASHION_REQ_InlineColorID::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_EvCmd_CHANGE_FASHION_REQ + 0x264);
+    TheaterTrackPlayer$$OnLoad_b__37_1_InlineColorID::InstallAtOffset(game::Address::TheaterTrackPlayer_OnLoad_b_37_1 + 0x130);
+    TheaterTrackPlayer__DisplayClass37_1$$OnLoad_b__6_InlineColorID::InstallAtOffset(game::Address::TheaterTrackPlayer_c_DisplayClass37_1_OnLoad_b_6 + 0x2F8);
+    ColiseumOpcManager__DisplayClass0_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(game::Address::ColiseumOpcManager_c_DisplayClass0_0_CreateCharacter_b_0 + 0x19C);
+    UgOpcManager__DisplayClass10_0$$CreateCharacter_b__1_InlineColorID::InstallAtOffset(game::Address::UgOpcManager_c_DisplayClass10_0_CreateCharacter_b_1 + 0x2E8);
+    UnionOpcManager__DisplayClass4_0$$CreateCharacter_b__0_InlineColorID::InstallAtOffset(game::Address::UnionOpcManager_c_DisplayClass4_0_CreateCharacter_b_0 + 0x10C);
 
     // Inline edits when making a player trainer
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0x020388ac);
+    exl::patch::CodePatcher p(game::Address::Dpr_Battle_Logic_MainModule_trainerParam_StoreCore + 0xFC);
     p.WriteInst(Nop());
-    SetColorID_TrainerParam_StoreCore::InstallAtOffset(0x020387c4);
+    SetColorID_TrainerParam_StoreCore::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_trainerParam_StoreCore + 0x14);
 }

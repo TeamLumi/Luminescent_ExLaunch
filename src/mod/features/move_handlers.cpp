@@ -111,7 +111,7 @@ void InstallActivatedMoveHooks() {
 }
 
 void exl_move_handlers_main() {
-    Handler_Waza_newGetFunc::InstallAtOffset(0x018298a8);
+    Handler_Waza_newGetFunc::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Waza_cctor + 0x58);
 
     SetActivatedMoveHandlers(array_index(MOVES, "Jump Kick"));
     SetActivatedMoveHandlers(array_index(MOVES, "Sonic Boom"));

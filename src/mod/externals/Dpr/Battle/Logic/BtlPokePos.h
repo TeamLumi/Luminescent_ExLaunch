@@ -16,5 +16,5 @@ namespace Dpr::Battle::Logic {
         POS_NULL = 5,
     };
 
-    PRIMITIVE_ARRAY(BtlPokePos, 0x04c5a7f8)
+    PRIMITIVE_ARRAY(BtlPokePos, game::Address::Dpr_Battle_Logic_BtlPokePos_Array_TypeInfo)
 }

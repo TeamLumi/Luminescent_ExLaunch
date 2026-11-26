@@ -8,7 +8,7 @@
 bool DelPoffin(Dpr::EvScript::EvDataManager::Object* manager) {
     Logger::log("_DEL_POFFIN\n");
 
-    system_load_typeinfo(0x9cb0);
+    system_load_typeinfo(game::TypeInfo::Dpr_UI_UIPofinCase_ReloadScrollView);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

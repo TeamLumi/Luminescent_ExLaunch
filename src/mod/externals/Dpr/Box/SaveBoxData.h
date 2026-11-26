@@ -6,7 +6,7 @@
 
 namespace Dpr::Box {
     struct SaveBoxData : ILStruct<SaveBoxData> {
-        struct _STR17 : ILStruct<_STR17, 0x04c5ddb0> {
+        struct _STR17 : ILStruct<_STR17, game::Address::Dpr_Box_SaveBoxData_STR17_Array_TypeInfo> {
             struct Fields {
                 System::String::Object* str;
             };

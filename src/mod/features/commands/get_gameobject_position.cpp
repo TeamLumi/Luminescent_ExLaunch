@@ -7,8 +7,8 @@
 bool GetGameObjectPosition(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_GET_GAMEOBJECT_POSITION\n");
-    system_load_typeinfo(0x438c);
-    system_load_typeinfo(0x45dc);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call1);
+    system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_CmdGetRelPosHero_Call2);
     EvData::Aregment::Array* args = manager->fields._evArg;
 
     auto id = GetStringText(manager, args->m_Items[1]);

@@ -7,7 +7,7 @@
 #include "externals/UnityEngine/ScriptableObject.h"
 
 namespace XLSXContent {
-    struct UgRandMark : ILClass<UgRandMark, 0x04c657b0> {
+    struct UgRandMark : ILClass<UgRandMark, game::Address::XLSXContent_UgRandMark_TypeInfo> {
         struct Sheettable : ILClass<Sheettable> {
             struct Fields {
                 int32_t id;

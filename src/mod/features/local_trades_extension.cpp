@@ -36,7 +36,7 @@ Pml::PokePara::PokemonParam::Object* CreateTradePokeParam(int32_t npcindex, Dpr:
     auto data = LocalKoukan::GetTargetData(npcindex, lang);
     auto extraData = GetExtraLocalTradeData(npcindex);
 
-    system_load_typeinfo(0x5e90);
+    system_load_typeinfo(game::TypeInfo::LocalKoukan_CreateTradePokeParam);
 
     auto spec = Pml::PokePara::InitialSpec::newInstance();
 
@@ -110,7 +110,7 @@ HOOK_DEFINE_REPLACE(LocalKoukan_GetIndex) {
 
 HOOK_DEFINE_REPLACE(LocalKoukan_GetTargetData) {
     static XLSXContent::LocalKoukanData::Sheetdata::Object* Callback(int32_t npcindex, Dpr::Message::MessageEnumData::MsgLangId lang) {
-        system_load_typeinfo(0x5e91);
+        system_load_typeinfo(game::TypeInfo::LocalKoukan_GetTargetData);
         GameData::DataManager::getClass()->initIfNeeded();
         auto result = GameData::DataManager::getClass()->static_fields->LocalKoukanData->get_Item(npcindex);
         return result;
@@ -133,7 +133,7 @@ HOOK_DEFINE_REPLACE(LocalKoukan_CreateOperation) {
         /*if (targetFormNo != ((Pml::PokePara::CoreParam::Object*)myparam)->GetFormNo())
             return nullptr;*/
 
-        system_load_typeinfo(0x5e8f);
+        system_load_typeinfo(game::TypeInfo::LocalKoukan_CreateOperation);
 
         auto operation =  LocalKoukan::Operation::newInstance();
         operation->fields.from = myparam;
@@ -148,7 +148,7 @@ HOOK_DEFINE_REPLACE(LocalKoukan_CreateOperation) {
 
 HOOK_DEFINE_REPLACE(BoxWindow$$Open_BoxOpenParam_LocalTradeFix) {
     static void Callback(Dpr::UI::BoxWindow::Object* __this, int32_t openType, System::Action::Object* onSelected, int32_t prevWindowId) {
-        system_load_typeinfo(0x2672);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_BoxWindow_Open);
 
         auto openParam = Dpr::UI::BoxWindow::OpenParam::newInstance();
 
@@ -183,9 +183,9 @@ HOOK_DEFINE_REPLACE(BoxWindow$$Open_BoxOpenParam_LocalTradeFix) {
 };
 
 void exl_local_trades_main() {
-    LocalKoukan_GetIndex::InstallAtOffset(0x01af3390);
-    LocalKoukan_GetTargetData::InstallAtOffset(0x01af32a0);
-    LocalKoukan_CreateOperation::InstallAtOffset(0x01af3420);
+    LocalKoukan_GetIndex::InstallAtOffset(game::Address::LocalKoukan_GetIndex);
+    LocalKoukan_GetTargetData::InstallAtOffset(game::Address::LocalKoukan_GetTargetData);
+    LocalKoukan_CreateOperation::InstallAtOffset(game::Address::LocalKoukan_CreateOperation);
 
-    BoxWindow$$Open_BoxOpenParam_LocalTradeFix::InstallAtOffset(0x01cb62d0);
+    BoxWindow$$Open_BoxOpenParam_LocalTradeFix::InstallAtOffset(game::Address::Dpr_UI_BoxWindow_Open_Int32_Action_BoxWindow_SelectedPokemonArray_Int32);
 }

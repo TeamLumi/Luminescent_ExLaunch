@@ -6,7 +6,7 @@
 #include "externals/UnityEngine/Rect.h"
 
 namespace TMPro {
-    struct TextMeshProUGUI : ILClass<TextMeshProUGUI, 0x04c59018> {
+    struct TextMeshProUGUI : ILClass<TextMeshProUGUI, game::Address::TMPro_TextMeshProUGUI_TypeInfo> {
         struct Fields : TMPro::TMP_Text::Fields {
             bool m_hasFontAssetChanged;
             void* m_subTextObjects; //TMPro_TMP_SubMeshUI_array*

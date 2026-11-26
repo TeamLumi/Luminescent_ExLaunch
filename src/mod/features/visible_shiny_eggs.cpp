@@ -9,7 +9,7 @@
 
 HOOK_DEFINE_REPLACE(UniqueID) {
     static int32_t Callback(int32_t monsNo, int32_t formNo, uint8_t sex, uint8_t rareType, bool isEgg) {
-        system_load_typeinfo(0x3436);
+        system_load_typeinfo(game::TypeInfo::GameData_DataManager_GetUniqueID);
 
         GameData::DataManager::getClass()->initIfNeeded();
 
@@ -28,5 +28,5 @@ HOOK_DEFINE_REPLACE(UniqueID) {
 };
 
 void exl_visible_shiny_egg_main() {
-    UniqueID::InstallAtOffset(0x02ccd170);
+    UniqueID::InstallAtOffset(game::Address::GameData_DataManager_GetUniqueID);
 }

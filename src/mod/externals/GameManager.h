@@ -18,7 +18,7 @@
 #include "externals/XLSXContent/MapAttributeTable.h"
 #include "externals/XLSXContent/MapInfo.h"
 
-struct GameManager : ILClass<GameManager, 0x04c59b50> {
+struct GameManager : ILClass<GameManager, game::Address::GameManager_TypeInfo> {
     struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
         UnityEngine::Transform::Object* _fieldObjectHolder;
         UnityEngine::Transform::Object* _battleObjectHolder;
@@ -54,34 +54,34 @@ struct GameManager : ILClass<GameManager, 0x04c59b50> {
     static_assert(offsetof(StaticFields, useSubAttribute) == 0x39);
 
     static inline XLSXContent::FieldEncountTable::Sheettable::Object* GetFieldEncountData(int32_t zoneID) {
-        return external<XLSXContent::FieldEncountTable::Sheettable::Object*>(0x02cd1150, zoneID);
+        return external<XLSXContent::FieldEncountTable::Sheettable::Object*>(game::Address::GameManager_GetFieldEncountData, zoneID);
     }
 
     static inline XLSXContent::MapInfo::Object* get_mapInfo() {
-        return external<XLSXContent::MapInfo::Object*>(0x02cca5f0);
+        return external<XLSXContent::MapInfo::Object*>(game::Address::GameManager_get_mapInfo);
     }
 
     static inline PeriodOfDay get_currentPeriodOfDay() {
-        return external<PeriodOfDay>(0x02cd0c60);
+        return external<PeriodOfDay>(game::Address::GameManager_get_currentPeriodOfDay);
     }
 
     static inline int32_t GetUrayamaMonsNo(int32_t index) {
-        return external<int32_t>(0x02cd1590, index);
+        return external<int32_t>(game::Address::GameManager_GetUrayamaMonsNo, index);
     }
 
     static inline int32_t GetSafariMonsNo(int32_t index) {
-        return external<int32_t>(0x02cd1480, index);
+        return external<int32_t>(game::Address::GameManager_GetSafariMonsNo, index);
     }
 
     static inline void GetAttribute(UnityEngine::Vector2Int::Object grid, int32_t *code, int32_t *stop, bool debugdraw) {
-        external<void>(0x02cd3b60, grid, code, stop, debugdraw);
+        external<void>(game::Address::GameManager_GetAttribute, grid, code, stop, debugdraw);
     }
 
     static inline XLSXContent::MapAttributeTable::SheetData::Object* GetAttributeTable(int32_t code) {
-        return external<XLSXContent::MapAttributeTable::SheetData::Object*>(0x02cd3ed0, code);
+        return external<XLSXContent::MapAttributeTable::SheetData::Object*>(game::Address::GameManager_GetAttributeTable, code);
     }
 
     static inline XLSXContent::MapAttributeExTable::SheetData::Object* GetAttributeEx(UnityEngine::Vector2Int::Object grid, float height, bool debugdraw) {
-        return external<XLSXContent::MapAttributeExTable::SheetData::Object*>(0x02cd3f70, grid, height, debugdraw);
+        return external<XLSXContent::MapAttributeExTable::SheetData::Object*>(game::Address::GameManager_GetAttributeEx, grid, height, debugdraw);
     }
 };

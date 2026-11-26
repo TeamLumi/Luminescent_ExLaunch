@@ -16,7 +16,7 @@ HOOK_DEFINE_REPLACE(EvDataManager_ARRIVEDATA_SetArriveFlag) {
 
 HOOK_DEFINE_TRAMPOLINE(EvDataManager$$WarpUpdateEnd) {
     static void Callback(Dpr::EvScript::EvDataManager::Object* __this) {
-        system_load_typeinfo(0x4672);
+        system_load_typeinfo(game::TypeInfo::Dpr_EvScript_EvDataManager_WarpUpdate);
 
         PlayerWork::getClass()->initIfNeeded();
         int32_t zoneID = PlayerWork::get_zoneID();
@@ -36,82 +36,82 @@ HOOK_DEFINE_TRAMPOLINE(EvDataManager$$WarpUpdateEnd) {
 void area_codes_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     // Dpr.EvScript.EvDataManager.<PreRequestAssetSetUp>d__1779$$MoveNext
-    p.Seek(0x019afe40);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_PreRequestAssetSetUp_d_1779_MoveNext + 0xA0);
     p.BranchLinkInst((void*)&Convert_AreaID);
     p.WriteInst(MovRegister(X21, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager.<RequestAssetSetUp>d__1778$$MoveNext
-    p.Seek(0x019b07c0);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_RequestAssetSetUp_d_1778_MoveNext + 0x3C0);
     p.BranchLinkInst((void*)&Convert_AreaID);
     p.WriteInst(MovRegister(X21, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager.<StartUpCreate>d__1773$$MoveNext
-    p.Seek(0x019b1a34);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_StartUpCreate_d_1783_MoveNext + 0x484);
     p.BranchLinkInst((void*)&Convert_AreaID);
 
     // Dpr.EvScript.EvDataManager$$CreateWorpPoint
-    p.Seek(0x02c401a8);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_CreateWorpPoint + 0x1A8);
     p.BranchLinkInst((void*)&Convert_AreaID);
 
     // Dpr.EvScript.EvDataManager$$CheckPlaceData
-    p.Seek(0x02c52db8);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_CheckPlaceData + 0x58);
     p.BranchLinkInst((void*)&Convert_AreaID);
     p.WriteInst(MovRegister(X20, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager$$CreateWarpEntity
-    p.Seek(0x02ca2a94);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_CreateWarpEntity + 0xB4);
     p.BranchLinkInst((void*)&Convert_AreaID);
 }
 
 void zone_codes_main() {
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     // Viewer$$CreateLoadMenu
-    p.Seek(0x017ecae8);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x5D8);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X22, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ece8c);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x97C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X22, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ed298);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0xD88);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X24, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ed578);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x1068);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X28, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ed64c);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x113C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X27, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017edd5c);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x184C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X28, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ee1c4);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x1CB4);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X23, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ee27c);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x1D6C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X23, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ee344);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x1E34);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X23, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x017ee43c);
+    p.Seek(game::Address::Viewer_CreateLoadMenu + 0x1F2C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X23, X0));
     p.WriteInst(Branch(0x20));
@@ -150,68 +150,68 @@ void zone_codes_main() {
     p.WriteInst(Branch(0x28));*/
 
     // ColiseumRoomManager$$SetZoneData
-    p.Seek(0x018e9190);
+    p.Seek(game::Address::ColiseumRoomManager_SetZoneData + 0x50);
     p.BranchLinkInst((void*)&Convert_ZoneID);
 
     // Dpr.EvScript.EvDataManager$$SpLabel_Init
-    p.Seek(0x02c42bbc);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_SpLabel_Init + 0x4C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X20, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager$$SpLabel_Obj
-    p.Seek(0x02c42c8c);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_SpLabel_Obj + 0x4C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X20, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager$$SpLabel_Flag
-    p.Seek(0x02c42d5c);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_SpLabel_Flag + 0x4C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X20, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager$$SpLabel_Scene
-    p.Seek(0x02c42e2c);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_SpLabel_Scene + 0x4C);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X20, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager$$StackMapChange
-    p.Seek(0x02c59104);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_StackMapChange + 0xC4);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X23, X0));
     p.WriteInst(Branch(0x24));
 
     // Dpr.EvScript.EvDataManager$$EvCmdShopOpen
-    p.Seek(0x02c88ef4);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_EvCmdShopOpen + 0x134);
     p.BranchLinkInst((void*)&Convert_ZoneID);
     p.WriteInst(MovRegister(X23, X0));
     p.WriteInst(Branch(0x20));
-    p.Seek(0x02c88f28);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_EvCmdShopOpen + 0x168);
     p.WriteInst(Nop());
 }
 
 void arrive_flag_main() {
-    EvDataManager_ARRIVEDATA_SetArriveFlag::InstallAtOffset(0x02c436a0);
+    EvDataManager_ARRIVEDATA_SetArriveFlag::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_ARRIVEDATA_SetArriveFlag);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
 
     // Dpr.EvScript.EvDataManager$$MapJumpInit
-    p.Seek(0x02c426c0);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_MapJumpInit + 0x90);
     p.BranchLinkInst((void*)&ConvertZoneIDToArriveFlag);
     p.WriteInst(Branch(0x14));
 
     // Dpr.EvScript.EvDataManager$$WalkInit
-    p.Seek(0x02c425f4);
+    p.Seek(game::Address::Dpr_EvScript_EvDataManager_WalkInit + 0x64);
     p.BranchLinkInst((void*)&ConvertZoneIDToArriveFlag);
     p.WriteInst(Branch(0x14));
 }
 
 void extra_map_script_main() {
-    EvDataManager$$WarpUpdateEnd::InstallAtOffset(0x02c4da20);
+    EvDataManager$$WarpUpdateEnd::InstallAtOffset(game::Address::Dpr_EvScript_EvDataManager_WarpUpdateEnd);
 }
 
 void exl_area_zone_codes_main() {

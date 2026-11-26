@@ -45,7 +45,7 @@ HOOK_DEFINE_TRAMPOLINE(Fix_Swarm_Zone) {
 };
 
 void exl_swarm_forms_main() {
-    TairyouHasseiPokeManager_Loading::InstallAtOffset(0x02caee94);
-    Dpr_Message_MessageWordSetHelper_SetMonsNameWord::InstallAtOffset(0x01f9a0e0);
-    Fix_Swarm_Zone::InstallAtOffset(0x017da6f0);
+    TairyouHasseiPokeManager_Loading::InstallAtOffset(game::Address::TairyouHasseiPokeManager_Loading + 0x84);
+    Dpr_Message_MessageWordSetHelper_SetMonsNameWord::InstallAtOffset(game::Address::Dpr_Message_MessageWordSetHelper_SetMonsNameWord_Int32_Int32_Impl + 0xC0);
+    Fix_Swarm_Zone::InstallAtOffset(game::Address::ZoneWork_TairyouHassei_ZoneID);
 }

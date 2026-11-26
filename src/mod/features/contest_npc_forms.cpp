@@ -34,13 +34,13 @@ HOOK_DEFINE_INLINE(Dpr_Contest_ContestDataModel_CreateNPCPlayerData_MonsNo) {
 
 void exl_contest_npc_forms_main() {
     // Repoint npcLevel predicate check to monsno
-    Dpr_Contest_ContestDataModel_CreateNPCPlayerData_Predicate::InstallAtOffset(0x01c71710);
+    Dpr_Contest_ContestDataModel_CreateNPCPlayerData_Predicate::InstallAtOffset(game::Address::Dpr_Contest_ContestDataModel_c_DisplayClass72_0_CreateNPCPlayerData_b_0);
 
     // Repoint monsno, formno, and shininess to proper data formatting
-    Dpr_Contest_ContestDataModel_CreateNPCPlayerData_MonsNo::InstallAtOffset(0x01c6d974);
+    Dpr_Contest_ContestDataModel_CreateNPCPlayerData_MonsNo::InstallAtOffset(game::Address::Dpr_Contest_ContestDataModel_CreateNPCPlayerData + 0x1C4);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0x01c6e37c);
+    exl::patch::CodePatcher p(game::Address::Dpr_Contest_ContestDataModel_CreatePokemonInfo + 0x9C);
     p.WriteInst(Movz(W8, 1)); // Hardcode debug log to always use Bulbasaur in the enum
 };

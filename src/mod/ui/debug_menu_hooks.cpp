@@ -100,9 +100,9 @@ HOOK_DEFINE_TRAMPOLINE(FlyOverride2) {
 };
 
 void exl_debug_menu_main() {
-    ArenaHook::InstallAtOffset(0x02c3abc0);
-    CollissionOverride::InstallAtOffset(0x01a763a0);
-    CollissionOverride2::InstallAtOffset(0x02c1dd80);
-    FlyOverride::InstallAtOffset(0x0184e780);
-    FlyOverride2::InstallAtOffset(0x01850250);
+    ArenaHook::InstallAtOffset(game::Address::Dpr_EncountTools_SetupBattleWild);
+    CollissionOverride::InstallAtOffset(game::Address::Dpr_FieldGridCollision_CheckGriCollisionMoveEntity);
+    CollissionOverride2::InstallAtOffset(game::Address::UnityEngine_Physics_SphereCast);
+    FlyOverride::InstallAtOffset(game::Address::Dpr_UI_Townmap_Cell_IsFly);
+    FlyOverride2::InstallAtOffset(game::Address::Dpr_UI_TownmapWindow_IsFly);
 }

@@ -148,61 +148,61 @@ struct FieldPlayerEntity : ILClass<FieldPlayerEntity> {
     };
 
     static inline void set_colorID(int32_t value) {
-        external<void>(0x02cef870, value);
+        external<void>(game::Address::PlayerWork_set_colorID, value);
     }
 
     inline void AppearSwimBiidaru(float ofs, float time) {
-        external<void>(0x01db4000, this, ofs, time);
+        external<void>(game::Address::FieldPlayerEntity_AppearSwimBiidaru, this, ofs, time);
     }
 
     inline UnityEngine::Vector3::Object CalcSwimTargetPosition() {
         return {
-            .fields = external<UnityEngine::Vector3::Fields>(0x01db29c0, this)
+            .fields = external<UnityEngine::Vector3::Fields>(game::Address::FieldPlayerEntity_CalcSwimTargetPosition, this)
         };
     }
 
     inline void ChangeSwim(bool swim) {
-        external<void>(0x01db2640, this, swim);
+        external<void>(game::Address::FieldPlayerEntity_ChangeSwim, this, swim);
     }
 
     inline void GetInputVector(UnityEngine::Vector2::Object* stickL, float* stickPowerSq, float deltatime, bool* analogstick) {
-        external<void>(0x01dabb10, this, stickL, stickPowerSq, deltatime, analogstick);
+        external<void>(game::Address::FieldPlayerEntity_GetInputVector, this, stickL, stickPowerSq, deltatime, analogstick);
     }
 
     inline void PlayIdle() {
-        external<void>(0x01daf050, this);
+        external<void>(game::Address::FieldPlayerEntity_PlayIdle_NoArgs, this);
     }
 
     inline void PlayJumpStart() {
-        external<void>(0x01da7b50, this);
+        external<void>(game::Address::FieldPlayerEntity_PlayJumpStart, this);
     }
 
     inline void PlayJumpLoop() {
-        external<void>(0x01da9ed0, this);
+        external<void>(game::Address::FieldPlayerEntity_PlayJumpLoop, this);
     }
 
     inline void PlayJumpEnd() {
-        external<void>(0x01da9fc0, this);
+        external<void>(game::Address::FieldPlayerEntity_PlayJumpEnd, this);
     }
 
     inline void PlayNaminoriStart() {
-        external<void>(0x01dafe20, this);
+        external<void>(game::Address::FieldPlayerEntity_PlayNaminoriStart, this);
     }
 
     inline void PlaySwimEffect() {
-        external<void>(0x01db46d0, this);
+        external<void>(game::Address::FieldPlayerEntity_PlaySwimEffect, this);
     }
 
     inline bool IsRideBicycle() {
-        return external<bool>(0x01da7c70, this);
+        return external<bool>(game::Address::FieldPlayerEntity_IsRideBicycle, this);
     }
 
     inline void StopCrossInputAndBicycle() {
-        external<void>(0x01da4ed0, this);
+        external<void>(game::Address::FieldPlayerEntity_StopCrossInputAndBicycle, this);
     }
 
     inline void StopSwimEffect() {
-        external<void>(0x01db4a40, this);
+        external<void>(game::Address::FieldPlayerEntity_StopSwimEffect, this);
     }
 
     inline AnimationPlayer::Object* virtual_GetAnimationPlayer() {

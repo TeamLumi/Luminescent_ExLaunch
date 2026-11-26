@@ -7,7 +7,7 @@
 bool SetPlayerColorIndex(Dpr::EvScript::EvDataManager::Object* manager)
 {
     Logger::log("_SET_PLAYER_COLOR_INDEX\n");
-    system_load_typeinfo(0x6c1b);
+    system_load_typeinfo(game::TypeInfo::PlayerWork_SetPlayerStatus);
 
     EvData::Aregment::Array* args = manager->fields._evArg;
 

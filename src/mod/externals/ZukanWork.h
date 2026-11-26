@@ -6,36 +6,36 @@
 #include "externals/Dpr/Message/MessageEnumData.h"
 #include "externals/Pml/PokePara/PokemonParam.h"
 
-struct ZukanWork : ILClass<ZukanWork, 0x04c5b488> {
+struct ZukanWork : ILClass<ZukanWork, game::Address::ZukanWork_TypeInfo> {
     static inline bool GetZenkokuFlag() {
-        return external<bool>(0x017db490);
+        return external<bool>(game::Address::ZukanWork_GetZenkokuFlag);
     }
 
     static inline void SetPoke(uint32_t monsno, int32_t get, uint8_t sex, int32_t form, bool color) {
-        external<void>(0x017dbce0, monsno, get, sex, form, color);
+        external<void>(game::Address::ZukanWork_SetPoke_UInt32_Int32_UInt8_Int32_Bool, monsno, get, sex, form, color);
     }
 
     static inline void SetPoke(Pml::PokePara::PokemonParam::Object* mons, int32_t get) {
-        external<void>(0x017dc560, mons, get);
+        external<void>(game::Address::ZukanWork_SetPoke_PokemonParam_Int32, mons, get);
     }
 
     static inline void AddLangFlag(uint32_t monsno, Dpr::Message::MessageEnumData::MsgLangId msglang) {
-        external<void>(0x017dc870, monsno, msglang);
+        external<void>(game::Address::ZukanWork_AddLangFlag, monsno, msglang);
     }
 
     static inline void DebugSet(uint32_t monsno, DPData::GET_STATUS get, Pml::Sex sex, int32_t form, bool color, bool isGet) {
-        external<void>(0x017dd7e0, monsno, get, sex, form, color, isGet);
+        external<void>(game::Address::ZukanWork_DebugSet, monsno, get, sex, form, color, isGet);
     }
 
     static inline void ZukanON() {
-        external<void>(0x017db250);
+        external<void>(game::Address::ZukanWork_ZukanON);
     }
 
     static inline void ZenkokuON() {
-        external<void>(0x017db310);
+        external<void>(game::Address::ZukanWork_ZenkokuON);
     }
 
     static inline DPData::GET_STATUS GetStatus(uint32_t monsno) {
-        return external<DPData::GET_STATUS>(0x017dcbd0, monsno);
+        return external<DPData::GET_STATUS>(game::Address::ZukanWork_GetStatus, monsno);
     }
 };

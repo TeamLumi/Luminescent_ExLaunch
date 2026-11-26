@@ -6,7 +6,7 @@
 #include "externals/System/Primitives.h"
 #include "externals/System/String.h"
 
-struct FieldEventDoorEntity : ILClass<FieldEventDoorEntity, 0x04c5ed20> {
+struct FieldEventDoorEntity : ILClass<FieldEventDoorEntity, game::Address::FieldEventDoorEntity_TypeInfo> {
     struct Fields : FieldEventEntity::Fields {
         int32_t startVectol;
         System::String::Object* connectionName;

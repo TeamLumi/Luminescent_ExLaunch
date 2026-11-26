@@ -11,7 +11,7 @@
 #include "externals/XLSXContent/MapInfo.h"
 #include "externals/XLSXContent/WaterSettings.h"
 
-struct GameSettings : ILClass<GameSettings, 0x04c64038> {
+struct GameSettings : ILClass<GameSettings, game::Address::GameSettings_TypeInfo> {
     struct Fields : UnityEngine::ScriptableObject::Fields {
         XLSXContent::MapInfo::Object* mapInfo;
         XLSXContent::ArenaInfo::Object* arenaInfo;

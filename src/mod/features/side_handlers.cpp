@@ -73,24 +73,24 @@ void InstallActivatedSideEffectHooks() {
 }
 
 void exl_side_handlers_main() {
-    Side_system_array_new::InstallAtOffset(0x0193cbe4);
+    Side_system_array_new::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Side_cctor + 0x54);
 
     SetActivatedSideHandlers(array_index(SIDE_EFFECTS, "Lucky Chant"));
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01f70db0, Movz(W1, SIDE_EFFECT_COUNT) },
-        { 0x01f70f10, CmpImmediate(X27, SIDE_EFFECT_COUNT) },
-        { 0x01f70fd0, CmpImmediate(X28, (SIDE_EFFECT_COUNT + 4) * 8) },
-        { 0x01f710f0, CmpImmediate(X20, SIDE_EFFECT_COUNT) },
-        { 0x01f71138, CmpImmediate(X21, (SIDE_EFFECT_COUNT + 4) * 8) },
-        { 0x01f711c0, CmpImmediate(X8, SIDE_EFFECT_COUNT + 4) },
-        { 0x01f71248, CmpImmediate(X8, SIDE_EFFECT_COUNT + 4) },
-        { 0x01f712dc, CmpImmediate(W20, SIDE_EFFECT_COUNT) },
-        { 0x01f71330, CmpImmediate(W20, SIDE_EFFECT_COUNT) },
-        { 0x01f716a4, CmpImmediate(W19, SIDE_EFFECT_COUNT - 1) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_ctor + 0x40, Movz(W1, SIDE_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_CreateEffectStatusArray + 0x120, CmpImmediate(X27, SIDE_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_CreateEffectStatusArray + 0x1E0, CmpImmediate(X28, (SIDE_EFFECT_COUNT + 4) * 8) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_DeleteEffectStatusArray + 0x50, CmpImmediate(X20, SIDE_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_DeleteEffectStatusArray + 0x98, CmpImmediate(X21, (SIDE_EFFECT_COUNT + 4) * 8) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_CopyFrom + 0x60, CmpImmediate(X8, SIDE_EFFECT_COUNT + 4) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_CopyFrom + 0xE8, CmpImmediate(X8, SIDE_EFFECT_COUNT + 4) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_RemoveAllSideEffect + 0x1C, CmpImmediate(W20, SIDE_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_RemoveAllSideEffect + 0x70, CmpImmediate(W20, SIDE_EFFECT_COUNT) },
+        { game::Address::Dpr_Battle_Logic_SideEffectManager_GetSideEffectStatusConst + 0x74, CmpImmediate(W19, SIDE_EFFECT_COUNT - 1) },
     };
     p.WriteInst(inst);
 

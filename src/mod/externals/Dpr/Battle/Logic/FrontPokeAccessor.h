@@ -6,7 +6,7 @@
 #include "externals/Dpr/Battle/Logic/MainModule.h"
 
 namespace Dpr::Battle::Logic {
-    struct FrontPokeAccessor : ILClass<FrontPokeAccessor, 0x04c5a8e0> {
+    struct FrontPokeAccessor : ILClass<FrontPokeAccessor, game::Address::Dpr_Battle_Logic_FrontPokeAccessor_TypeInfo> {
         struct Fields {
             MainModule::Object* m_pMainModule;
             BattleEnv::Object* m_pBattleEnv;
@@ -16,11 +16,11 @@ namespace Dpr::Battle::Logic {
         };
 
         inline void ctor(MainModule::Object* pMainModule, BattleEnv::Object* pBattleEnv) {
-            external<void>(0x018fbce0, this, pMainModule, pBattleEnv);
+            external<void>(game::Address::Dpr_Battle_Logic_FrontPokeAccessor_ctor, this, pMainModule, pBattleEnv);
         }
 
         inline bool GetNext(BTL_POKEPARAM::Object** bpp) {
-            return external<bool>(0x018fc040, this, bpp);
+            return external<bool>(game::Address::Dpr_Battle_Logic_FrontPokeAccessor_GetNext, this, bpp);
         }
     };
 }

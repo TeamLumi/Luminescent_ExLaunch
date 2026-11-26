@@ -8,8 +8,8 @@
 #include "externals/Pml/WazaData/WazaRankEffect.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_RankEffect : ILClass<Section_FromEvent_RankEffect, 0x04c5b9c0> {
-        struct Description : ILClass<Description, 0x04c5b1b8> {
+    struct Section_FromEvent_RankEffect : ILClass<Section_FromEvent_RankEffect, game::Address::Dpr_Battle_Logic_Section_FromEvent_RankEffect_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_RankEffect_Description_TypeInfo> {
             struct Fields {
                 uint8_t pokeID;
                 uint8_t targetPokeCount;
@@ -30,7 +30,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb6e30, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_RankEffect_Description_ctor, this);
             }
         };
 

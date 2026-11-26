@@ -5,7 +5,7 @@
 #include "externals/UnityEngine/ScriptableObject.h"
 
 namespace XLSXContent {
-    struct UgEncount : ILClass<UgEncount, 0x04c65798> {
+    struct UgEncount : ILClass<UgEncount, game::Address::XLSXContent_UgEncount_TypeInfo> {
         struct Sheettable : ILClass<Sheettable> {
             struct Fields {
                 int32_t monsno;

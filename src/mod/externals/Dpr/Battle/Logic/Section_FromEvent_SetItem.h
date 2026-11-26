@@ -6,8 +6,8 @@
 #include "externals/Dpr/Battle/Logic/StrParam.h"
 
 namespace Dpr::Battle::Logic {
-    struct Section_FromEvent_SetItem : ILClass<Section_FromEvent_SetItem, 0x04c5ba20> {
-        struct Description : ILClass<Description, 0x04c5b1f8> {
+    struct Section_FromEvent_SetItem : ILClass<Section_FromEvent_SetItem, game::Address::Dpr_Battle_Logic_Section_FromEvent_SetItem_TypeInfo> {
+        struct Description : ILClass<Description, game::Address::Dpr_Battle_Logic_Section_FromEvent_SetItem_Description_TypeInfo> {
             struct Fields {
                 uint8_t userPokeID;
                 uint8_t targetPokeID;
@@ -22,7 +22,7 @@ namespace Dpr::Battle::Logic {
             };
 
             inline void ctor() {
-                external<void>(0x01fb7ab0, this);
+                external<void>(game::Address::Dpr_Battle_Logic_Section_FromEvent_SetItem_Description_ctor, this);
             }
         };
     };

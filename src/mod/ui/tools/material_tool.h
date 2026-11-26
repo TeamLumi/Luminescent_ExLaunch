@@ -18,9 +18,9 @@ namespace ui {
                 _.Button([](Button &_) {
                     _.label = "Log Renderers and Materials";
                     _.onClick = []() {
-                        system_load_typeinfo(0x7deb);
-                        system_load_typeinfo(0x1e84);
-                        system_load_typeinfo(0x1e8d);
+                        system_load_typeinfo(game::TypeInfo::SimpleCamera_GetPositions);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_Initialize);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_ChangeAnimStatePoke);
 
                         auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
@@ -82,9 +82,9 @@ namespace ui {
                         int32_t materialId = materialIndex->value;
                         auto selectedPropertyName = DEBUG_POKEMON_MATERIAL_FLOATS[floatProperty->selected];
 
-                        system_load_typeinfo(0x7deb);
-                        system_load_typeinfo(0x1e84);
-                        system_load_typeinfo(0x1e8d);
+                        system_load_typeinfo(game::TypeInfo::SimpleCamera_GetPositions);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_Initialize);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_ChangeAnimStatePoke);
 
                         auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
@@ -121,9 +121,9 @@ namespace ui {
                         int32_t materialId = materialIndex->value;
                         auto selectedPropertyName = DEBUG_POKEMON_MATERIAL_FLOATS[floatProperty->selected];
 
-                        system_load_typeinfo(0x7deb);
-                        system_load_typeinfo(0x1e84);
-                        system_load_typeinfo(0x1e8d);
+                        system_load_typeinfo(game::TypeInfo::SimpleCamera_GetPositions);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_Initialize);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_ChangeAnimStatePoke);
 
                         auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
@@ -170,9 +170,9 @@ namespace ui {
                         int32_t materialId = materialIndex->value;
                         auto selectedPropertyName = DEBUG_POKEMON_MATERIAL_COLORS[colorProperty->selected];
 
-                        system_load_typeinfo(0x7deb);
-                        system_load_typeinfo(0x1e84);
-                        system_load_typeinfo(0x1e8d);
+                        system_load_typeinfo(game::TypeInfo::SimpleCamera_GetPositions);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_Initialize);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_ChangeAnimStatePoke);
 
                         auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;
@@ -209,9 +209,9 @@ namespace ui {
                         int32_t materialId = materialIndex->value;
                         auto selectedPropertyName = DEBUG_POKEMON_MATERIAL_COLORS[colorProperty->selected];
 
-                        system_load_typeinfo(0x7deb);
-                        system_load_typeinfo(0x1e84);
-                        system_load_typeinfo(0x1e8d);
+                        system_load_typeinfo(game::TypeInfo::SimpleCamera_GetPositions);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_Initialize);
+                        system_load_typeinfo(game::TypeInfo::Dpr_Battle_View_Objects_BOPokemon_ChangeAnimStatePoke);
 
                         auto uiManager = Dpr::UI::UIManager::get_Instance();
                         UnityEngine::GameObject::Object* go = uiManager->fields._modelView->fields._modelParam->fields.gameObject;

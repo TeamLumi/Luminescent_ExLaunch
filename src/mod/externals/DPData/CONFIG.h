@@ -30,15 +30,15 @@ namespace DPData {
         static_assert(offsetof(Fields, voice_volume) == 0x33);
 
         inline int32_t GetValue(int32_t key) {
-            return external<int32_t>(0x02299720, this, key);
+            return external<int32_t>(game::Address::DPData_CONFIG_GetValue, this, key);
         }
 
         inline bool IsEqualValue(int32_t configId, DPData::CONFIG::Object* t) {
-            return external<bool>(0x022998a0, this, configId, t);
+            return external<bool>(game::Address::DPData_CONFIG_IsEqualValue, this, configId, t);
         }
 
         inline void SetValue(int32_t configId, int32_t value) {
-            external<void>(0x022997d0, this, configId, value);
+            external<void>(game::Address::DPData_CONFIG_SetValue, this, configId, value);
         }
     };
 }

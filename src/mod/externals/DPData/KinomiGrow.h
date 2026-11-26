@@ -3,7 +3,7 @@
 #include "externals/il2cpp-api.h"
 
 namespace DPData {
-    struct KinomiGrow : ILStruct<KinomiGrow, 0x04c5a4b0> {
+    struct KinomiGrow : ILStruct<KinomiGrow, game::Address::DPData_KinomiGrow_Array_TypeInfo> {
         struct Fields {
             int32_t tagNo;
             int32_t harvestCount;

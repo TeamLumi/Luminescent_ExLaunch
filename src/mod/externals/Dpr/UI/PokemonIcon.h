@@ -13,7 +13,7 @@ namespace Dpr::UI {
             UnityEngine::UI::Image::Object* _imageBallDecoIcon;
         };
 
-        static inline StaticILMethod<0x04c7f448, UnityEngine::Sprite> Method$$Load_10_0 {};
+        static inline StaticILMethod<game::Address::Method_Dpr_UI_PokemonIcon_Load_b_10_0, UnityEngine::Sprite> Method$$Load_10_0 {};
 
         static inline MethodInfo* Method$$BUISituationLoadIcon = nullptr;
         static MethodInfo* getMethod$$BUISituationLoadIcon(Il2CppMethodPointer method) {

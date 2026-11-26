@@ -32,7 +32,7 @@ namespace Dpr::Battle::View::UI {
         static_assert(offsetof(Fields, _Result_k__BackingField) == 0xC0);
 
         inline void SetInvalid() {
-            external<void>(0x01d229d0, this);
+            external<void>(game::Address::Dpr_Battle_View_UI_BUIPokeBallList_SetInvalid, this);
         }
     };
 }

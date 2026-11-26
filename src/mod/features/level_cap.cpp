@@ -37,5 +37,5 @@ HOOK_DEFINE_REPLACE(LevelCap) {
 };
 
 void exl_level_cap_main() {
-    LevelCap::InstallAtOffset(0x018f8040);
+    LevelCap::InstallAtOffset(game::Address::Dpr_Battle_Logic_Exp_getexp_calc_adjust_level);
 }

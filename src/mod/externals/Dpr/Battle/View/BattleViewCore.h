@@ -7,7 +7,7 @@
 #include "externals/Dpr/Battle/View/Systems/BattleViewSystem.h"
 
 namespace Dpr::Battle::View {
-    struct BattleViewCore : ILClass<BattleViewCore, 0x04c5ca30> {
+    struct BattleViewCore : ILClass<BattleViewCore, game::Address::SmartPoint_AssetAssistant_SingletonMonoBehaviour_BattleViewCore_TypeInfo> {
         struct Fields : SmartPoint::AssetAssistant::SingletonMonoBehaviour::Fields {
             void* _shadowCastMaterial;
             UnityEngine::Transform::Object* _cluster;
@@ -15,7 +15,7 @@ namespace Dpr::Battle::View {
             Dpr::Battle::View::Systems::BattleViewUISystem::Object* _UISystem_k__BackingField;
         };
 
-        static inline StaticILMethod<0x04c676c0, BattleViewCore> Method$BattleViewCore_get_Instance {};
+        static inline StaticILMethod<game::Address::Method_SmartPoint_AssetAssistant_SingletonMonoBehaviour_BattleViewCore_get_Instance, BattleViewCore> Method$BattleViewCore_get_Instance {};
 
         static inline Dpr::Battle::View::BattleViewCore::Object* get_Instance() {
             return SmartPoint::AssetAssistant::SingletonMonoBehaviour::get_Instance(Method$BattleViewCore_get_Instance);

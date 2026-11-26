@@ -45,7 +45,7 @@ void SetCaughtFlags(DPData::ZUKAN_WORK::Object* zukanData, uint32_t monsno, Pml:
 
 HOOK_DEFINE_REPLACE(ZukanWork$$SetPoke) {
     static void Callback(uint32_t monsno, DPData::GET_STATUS get, Pml::Sex sex, int32_t form, bool color) {
-        system_load_typeinfo(0xac82);
+        system_load_typeinfo(game::TypeInfo::ZukanWork_SetPoke);
         PlayerWork::getClass()->initIfNeeded();
         ZukanWork::getClass()->initIfNeeded();
 
@@ -74,7 +74,7 @@ HOOK_DEFINE_REPLACE(ZukanWork$$IsGet) {
 
 HOOK_DEFINE_REPLACE(ZukanWork$$DebugSet) {
     static void Callback(uint32_t monsno, DPData::GET_STATUS get, Pml::Sex sex, int32_t form, bool color, bool isGet) {
-        system_load_typeinfo(0xac6f);
+        system_load_typeinfo(game::TypeInfo::ZukanWork_DebugSet);
         PlayerWork::getClass()->initIfNeeded();
         ZukanWork::getClass()->initIfNeeded();
 
@@ -92,7 +92,7 @@ HOOK_DEFINE_REPLACE(ZukanWork$$DebugSet) {
 };
 
 void exl_dex_form_flags_main() {
-    ZukanWork$$SetPoke::InstallAtOffset(0x017dbce0);
-    ZukanWork$$IsGet::InstallAtOffset(0x017dcc90);
-    ZukanWork$$DebugSet::InstallAtOffset(0x017dd7e0);
+    ZukanWork$$SetPoke::InstallAtOffset(game::Address::ZukanWork_SetPoke_UInt32_Int32_UInt8_Int32_Bool);
+    ZukanWork$$IsGet::InstallAtOffset(game::Address::ZukanWork_IsGet_UInt32_UInt8_Int32_Bool);
+    ZukanWork$$DebugSet::InstallAtOffset(game::Address::ZukanWork_DebugSet);
 }

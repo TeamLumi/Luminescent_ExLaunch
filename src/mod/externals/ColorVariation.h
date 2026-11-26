@@ -22,7 +22,7 @@ struct ColorVariation : ILClass<ColorVariation> {
         };
 
         inline void Update(UnityEngine::MaterialPropertyBlock::Object* propertyBlock) {
-            external<void>(0x018ecef0, this, propertyBlock);
+            external<void>(game::Address::ColorVariation_Property_Update, this, propertyBlock);
         }
     };
 

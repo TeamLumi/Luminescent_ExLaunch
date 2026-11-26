@@ -23,7 +23,7 @@ bool DisguiseCanChangeForm(BTL_POKEPARAM::Object* bpp, uint8_t nextForm) {
 }
 
 bool AdjustDisguiseForm(EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID, bool displayAbility) {
-    system_load_typeinfo(0x890f);
+    system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Tokusei_common_TenkiFormChange);
     Common::getClass()->initIfNeeded();
 
     BTL_POKEPARAM::Object* bpp = Common::GetPokeParam(args, pokeID);

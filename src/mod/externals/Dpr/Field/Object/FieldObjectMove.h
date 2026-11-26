@@ -8,7 +8,7 @@
 struct FieldObjectEntity;
 namespace Dpr::Field::Object
 {
-    struct FieldObjectMove : ILClass<FieldObjectMove, 0x04c5ec48> {
+    struct FieldObjectMove : ILClass<FieldObjectMove, game::Address::Dpr_FieldObjectMove_TypeInfo> {
         struct Fields {
             bool IgnoreY;
             float JumpHeight;
@@ -19,24 +19,24 @@ namespace Dpr::Field::Object
         };
 
         inline void ctor() {
-            external<void>(0x01a780d0, this);
+            external<void>(game::Address::Dpr_FieldObjectMove_ctor, this);
         }
 
         inline bool get_IsBusy() {
-            return external<bool>(0x01a778d0, this);
+            return external<bool>(game::Address::Dpr_FieldObjectMove_get_IsBusy, this);
         }
 
         inline void MoveTime(UnityEngine::Vector3::Object targetWldPos, float moveTime) {
             UnityEngine::Vector3::Fields proxy = { .x = targetWldPos.fields.x, .y = targetWldPos.fields.y, .z = targetWldPos.fields.z };
-            external<void>(0x01a77e00, this, proxy, moveTime);
+            external<void>(game::Address::Dpr_FieldObjectMove_MoveTime, this, proxy, moveTime);
         }
 
         inline void SetObjectEntity(FieldObjectEntity* entity) {
-            external<void>(0x01a779e0, this, entity);
+            external<void>(game::Address::Dpr_FieldObjectMove_SetObjectEntity, this, entity);
         }
 
         inline void Update(float deltaTime) {
-            external<void>(0x01a77b00, this, deltaTime);
+            external<void>(game::Address::Dpr_FieldObjectMove_Update, this, deltaTime);
         }
     };
 }

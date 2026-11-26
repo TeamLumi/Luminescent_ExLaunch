@@ -6,7 +6,7 @@
 #include "externals/System/RuntimeTypeHandle.h"
 
 namespace System {
-    struct Type : ILClass<Type, 0x04c552a0> {
+    struct Type : ILClass<Type, game::Address::System_Type_TypeInfo> {
         struct Fields : System::Reflection::MemberInfo::Fields {
             System::RuntimeTypeHandle::Object _impl;
         };
@@ -124,7 +124,7 @@ namespace System {
         };
 
         inline static System::Type::Object* GetTypeFromHandle(System::RuntimeTypeHandle::Object handle) {
-            return external<System::Type::Object*>(0x02b194d0, handle);
+            return external<System::Type::Object*>(game::Address::System_Type_GetTypeFromHandle, handle);
         }
     };
 }

@@ -4,7 +4,7 @@
 
 #include "externals/UnityEngine/GameObject.h"
 
-struct TairyouHasseiPokeManager : ILClass<TairyouHasseiPokeManager, 0x04c5ecb8> {
+struct TairyouHasseiPokeManager : ILClass<TairyouHasseiPokeManager, game::Address::TairyouHasseiPokeManager_TypeInfo> {
     struct Fields {
         void* _objects; // TairyouHasseiPoke_array*
         void* _operation; // SmartPoint_AssetAssistant_AssetRequestOperation_o*

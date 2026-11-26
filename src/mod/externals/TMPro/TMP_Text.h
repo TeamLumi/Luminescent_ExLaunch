@@ -248,12 +248,12 @@ namespace TMPro {
         static_assert(offsetof(Fields, k_Power) == 0x698);
 
         inline void set_text(System::String::Object* value) {
-            external<void>(0x01e94520, this, value);
+            external<void>(game::Address::TMPro_TMP_Text_set_text, this, value);
         }
 
         inline void set_color(UnityEngine::Color::Object value) {
             UnityEngine::Color::Fields valueProxy = { .r = value.fields.r, .g = value.fields.g, .b = value.fields.b, .a = value.fields.a };
-            external<void>(0x01e94aa0, this, valueProxy);
+            external<void>(game::Address::TMPro_TMP_Text_set_color, this, valueProxy);
         }
     };
 }

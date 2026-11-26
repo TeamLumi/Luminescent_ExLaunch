@@ -30,7 +30,7 @@ HOOK_DEFINE_INLINE(CheckSurfFlags) {
 
 HOOK_DEFINE_REPLACE(UIBadgeGet_GetBadgeAnimation) {
     static System::String::Object* Callback(Dpr::UI::UIBadgeGet::Object *__this) {
-        system_load_typeinfo(0x99e2);
+        system_load_typeinfo(game::TypeInfo::Dpr_UI_UIBadgeGet_GetBadgeAnimation);
 
         switch (__this->fields.badgeNo)
         {
@@ -53,16 +53,16 @@ HOOK_DEFINE_REPLACE(UIBadgeGet_GetBadgeAnimation) {
 };
 
 void exl_badge_check_main() {
-    ObedienceMax::InstallAtOffset(0x020349e0);
-    CheckSurfFlags::InstallAtOffset(0x01daca9c);
-    UIBadgeGet_GetBadgeAnimation::InstallAtOffset(0x01858120);
+    ObedienceMax::InstallAtOffset(game::Address::Dpr_Battle_Logic_MainModule_GetMaxFollowPokeLevel);
+    CheckSurfFlags::InstallAtOffset(game::Address::FieldPlayerEntity_CheckSwim + 0x6C);
+    UIBadgeGet_GetBadgeAnimation::InstallAtOffset(game::Address::Dpr_UI_UIBadgeGet_GetBadgeAnimation);
 
     using namespace exl::armv8::inst;
     using namespace exl::armv8::reg;
-    exl::patch::CodePatcher p(0);
+    exl::patch::CodePatcher p;
     auto inst = nn::vector<exl::patch::Instruction> {
-        { 0x01dbc4cc, Movz(W1, (int32_t)FlagWork_SysFlag::BADGE_ID_C05) },
-        { 0x01dbc4f8, Movz(W1, (int32_t)FlagWork_SysFlag::BADGE_ID_C06) },
+        { game::Address::FieldPoketch_cctor + 0xFC, Movz(W1, (int32_t)FlagWork_SysFlag::BADGE_ID_C05) },
+        { game::Address::FieldPoketch_cctor + 0x128, Movz(W1, (int32_t)FlagWork_SysFlag::BADGE_ID_C06) },
     };
     p.WriteInst(inst);
 }

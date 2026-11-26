@@ -5,8 +5,8 @@
 #include "externals/UnityEngine/Coroutine.h"
 
 namespace SmartPoint::AssetAssistant {
-    struct Sequencer : ILClass<Sequencer, 0x04c58888> {
-        struct TickCallback : ILClass<TickCallback, 0x04c58980> {
+    struct Sequencer : ILClass<Sequencer, game::Address::SmartPoint_AssetAssistant_Sequencer_TypeInfo> {
+        struct TickCallback : ILClass<TickCallback, game::Address::SmartPoint_AssetAssistant_Sequencer_TickCallback_TypeInfo> {
             struct Fields : System::MulticastDelegate::Fields {};
 
             template <typename T, typename... Args>
@@ -15,7 +15,7 @@ namespace SmartPoint::AssetAssistant {
             }
 
             inline void ctor(void* owner, MethodInfo* mi) {
-                external<void>(0x02bc04e0, this, owner, mi);
+                external<void>(game::Address::SmartPoint_AssetAssistant_Sequencer_TickCallback_ctor, this, owner, mi);
             }
         };
 
@@ -58,7 +58,7 @@ namespace SmartPoint::AssetAssistant {
         };
 
         static inline void Stop(UnityEngine::Coroutine::Object *coroutine) {
-            external<void>(0x02bc29b0, coroutine);
+            external<void>(game::Address::SmartPoint_AssetAssistant_Sequencer_Stop, coroutine);
         }
     };
 }

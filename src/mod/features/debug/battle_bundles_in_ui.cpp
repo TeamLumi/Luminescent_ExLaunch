@@ -39,7 +39,7 @@ HOOK_DEFINE_REPLACE(ReplacePathMethod) {
 void exl_battle_bundles_in_ui_main() {
     //// StringLiteral_9287 "pokemons/field/"
     // Dpr.UI.UIManager$$GetPokemonAssetbundleName
-    ReplaceFullPath::InstallAtOffset(0x017c2014);
+    ReplaceFullPath::InstallAtOffset(game::Address::Dpr_UI_UIManager_GetPokemonAssetbundleName + 0x124);
 
     // Dpr.SubContents.Utils$$GetPokemonAssetbundleName
     //ReplacePathMethod::InstallAtOffset(0x0186b360);

@@ -9,8 +9,8 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Handler_Item_handler_Leek) {
     static void Callback(Dpr::Battle::Logic::EventFactor::EventHandlerArgs::Object** args, uint8_t pokeID) {
         using namespace Dpr::Battle::Logic;
 
-        system_load_typeinfo(0x58a2);
-        system_load_typeinfo(0x5910);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Item_handler_Naganegi);
+        system_load_typeinfo(game::TypeInfo::Dpr_Battle_Logic_Handler_Item_common_Juel_Decide);
 
         Common::getClass()->initIfNeeded();
 
@@ -30,5 +30,5 @@ HOOK_DEFINE_REPLACE(Dpr_Battle_Logic_Handler_Item_handler_Leek) {
 };
 
 void exl_items_leek_main() {
-    Dpr_Battle_Logic_Handler_Item_handler_Leek::InstallAtOffset(0x01911260);
+    Dpr_Battle_Logic_Handler_Item_handler_Leek::InstallAtOffset(game::Address::Dpr_Battle_Logic_Handler_Item_handler_Naganegi);
 };
