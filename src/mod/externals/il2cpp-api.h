@@ -6,7 +6,7 @@
 #include "exlaunch.hpp"
 #include "il2cpp.h"
 
-extern void (*system_load_typeinfo)(long obj);
+void system_load_typeinfo(game::TypeInfo metadata);
 extern void* (*system_array_new_raw)(Il2CppClass* type, long length);
 extern void* (*il2cpp_object_new_raw)(Il2CppClass* klass);
 extern void (*il2cpp_runtime_class_init_raw)(Il2CppClass* klass);
@@ -30,12 +30,12 @@ struct _ILExternal {
     char _zeroSizedFilled[0];
 
     template <typename Ret, typename... Args>
-    inline static Ret external(long addr, Args... args) {
+    inline static Ret external(game::Location addr, Args... args) {
         return reinterpret_cast<Ret(*)(Args...)>(exl::util::modules::GetTargetOffset(addr))(args...);
     }
 };
 
-template <typename T, long ArrayTypeInfo = 0>
+template <typename T, game::Address ArrayTypeInfo = game::Address::None>
 struct ILStruct : _ILExternal  {
 public:
     struct Fields { };
@@ -117,12 +117,12 @@ public:
     }
 
     static ArrayClass* getArrayClass() {
-        static_assert(ArrayTypeInfo != 0, "ArrayTypeInfo address not set");
+        static_assert(ArrayTypeInfo != game::Address::None, "ArrayTypeInfo address not set");
         return *reinterpret_cast<T::ArrayClass**>(exl::util::modules::GetTargetOffset(ArrayTypeInfo));
     }
 };
 
-template <typename T, long TypeInfo = 0, long ArrayTypeInfo = 0>
+template <typename T, game::Address TypeInfo = game::Address::None, game::Address ArrayTypeInfo = game::Address::None>
 struct ILClass : _ILExternal {
 protected:
     ILClass() = default;
@@ -268,16 +268,16 @@ public:
     }
 
     static Class* getClass() {
-        static_assert(TypeInfo != 0, "TypeInfo address not set");
+        static_assert(TypeInfo != game::Address::None, "TypeInfo address not set");
         return *reinterpret_cast<T::Class**>(exl::util::modules::GetTargetOffset(TypeInfo));
     }
 
-    static Class* getClass(long ti) {
+    static Class* getClass(game::Address ti) {
         return *reinterpret_cast<T::Class**>(exl::util::modules::GetTargetOffset(ti));
     }
 
     static Class* getArrayClass() {
-        static_assert(ArrayTypeInfo != 0, "ArrayTypeInfo address not set");
+        static_assert(ArrayTypeInfo != game::Address::None, "ArrayTypeInfo address not set");
         return *reinterpret_cast<T::Class**>(exl::util::modules::GetTargetOffset(ArrayTypeInfo));
     }
 };
@@ -333,7 +333,7 @@ private:
     MethodInfo* method;
 };
 
-template <long MI, typename... Args>
+template <game::Address MI, typename... Args>
 struct StaticILMethod : ILMethod<Args...> {
     StaticILMethod() : ILMethod<Args...>(nullptr) { }
 

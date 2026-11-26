@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 #include "sys/mem_layout.hpp"
+#include "offsets.hpp"
 
 namespace exl::util::modules {
     
@@ -9,12 +10,12 @@ namespace exl::util::modules {
         return GetSelfModuleInfo().m_Total.m_Start;
     }
     
-    inline uintptr_t GetTargetOffset(uintptr_t offset) {
-        return GetMainModuleInfo().m_Total.m_Start + offset;
+    inline uintptr_t GetTargetOffset(game::Location offset) {
+        return GetMainModuleInfo().m_Total.m_Start + offsets::Resolve(offset);
     }
 
     inline uintptr_t GetTargetStart() {
-        return GetTargetOffset(0);
+        return GetMainModuleInfo().m_Total.m_Start;
     }
 
 }

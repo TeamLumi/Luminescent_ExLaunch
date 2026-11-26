@@ -29,7 +29,8 @@ namespace exl::patch {
 
         public:
         template<typename T>
-        void Write(const uintptr_t addr, T value) {
+        void Write(game::Location address, T value) {
+            const auto addr = util::offsets::Resolve(address);
             /* Update low/high. */
             SetLowest(addr);
             SetHighest(addr + sizeof(T));
@@ -39,8 +40,8 @@ namespace exl::patch {
         }
 
         template<typename T>
-        T& Read(const uintptr_t index) {
-            return At<T>(index);
+        T& Read(game::Location index) {
+            return At<T>(util::offsets::Resolve(index));
         }
 
         inline void Flush() {

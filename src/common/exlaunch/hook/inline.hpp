@@ -15,10 +15,10 @@ namespace exl::hook::impl {
         template<typename T = Derived>
         using CallbackFuncPtr = decltype(&T::Callback);
 
-        static ALWAYS_INLINE void InstallAtOffset(ptrdiff_t address) {
+        static ALWAYS_INLINE void InstallAtOffset(game::Location address) {
             _HOOK_STATIC_CALLBACK_ASSERT();
 
-            hook::HookInline(util::modules::GetTargetStart() + address, Derived::Callback);
+            hook::HookInline(util::modules::GetTargetOffset(address), Derived::Callback);
         }
 
         static ALWAYS_INLINE void InstallAtPtr(uintptr_t ptr) {

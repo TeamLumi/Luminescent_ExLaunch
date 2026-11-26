@@ -21,18 +21,21 @@ add_module(
         SOURCE_SHALLOW imgui/
         EMBED_BINARIES embedded_files/shaders/imgui.bin
 )
-add_module_variant(
+add_module_binary(RomBase Runtime)        # One executable supports both games
+add_module_package(
         RomBase                         # Module name
-        Diamond                         # Variant name
-        0100000011D90000                # Variant Title ID
-        "Pokemon Brilliant Diamond"     # Variant Game Name
+        Runtime                         # Shared executable
+        Diamond                         # Package name
+        0100000011D90000                 # Package Title ID
+        "Pokemon Brilliant Diamond"     # Package Game Name
 )
-# add_module_variant(
-#         TestMod
-#         Pearl
-#         010018E011D92000
-#         "Pokemon Shining Pearl"
-# )
+add_module_package(
+        RomBase
+        Runtime
+        Pearl
+        010018E011D92000
+        "Pokemon Shining Pearl"
+)
 
 # Extra cmake code
 add_compile_definitions(

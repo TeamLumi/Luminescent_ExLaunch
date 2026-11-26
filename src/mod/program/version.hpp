@@ -1,18 +1,15 @@
 #pragma once
 
-#include <common.hpp>
+#include <cstdint>
 
 namespace exl::util {
-
-    enum class UserVersion {
-        DEFAULT,
-
+    enum class GameVersion : uint8_t {
+        Unknown,
+        BrilliantDiamond130,
+        ShiningPearl130
     };
 
     namespace impl {
-        ALWAYS_INLINE UserVersion DetermineUserVersion() {
-            
-            return UserVersion::DEFAULT;
-        }
+        GameVersion DetermineGameVersion();
     }
 }

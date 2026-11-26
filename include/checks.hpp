@@ -5,9 +5,8 @@
 #include <cstring>
 
 inline bool is_game(u64 game_id) {
-    u64 id;
-    svcGetInfo(&id, 18, CUR_PROCESS_HANDLE, 0);
-    return id == game_id;
+    u64 id = 0;
+    return R_SUCCEEDED(svcGetInfo(&id, 18, CUR_PROCESS_HANDLE, 0)) && id == game_id;
 }
 
 inline bool is_version(const char* version) {

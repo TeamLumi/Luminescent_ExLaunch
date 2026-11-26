@@ -2,6 +2,7 @@
 
 #include "patcher_impl.hpp"
 #include "armv8.hpp"
+#include "../util/offsets.hpp"
 
 namespace exl::patch {
     
@@ -30,8 +31,8 @@ namespace exl::patch {
         }
 
         protected:
-        inline ptrdiff_t RelativeAddressFromBase(uintptr_t address) const {
-            return address - m_Current;
+        inline ptrdiff_t RelativeAddressFromBase(game::Location address) const {
+            return util::offsets::Resolve(address) - m_Current;
         }
         inline ptrdiff_t RelativeAddressFromPointer(void* ptr) const {
             return AddrFromRoPointer(ptr) - m_Current;
@@ -41,7 +42,8 @@ namespace exl::patch {
         uintptr_t m_Current;
 
         public:
-        inline StreamPatcher(uintptr_t start) : m_Start(start), m_Current(start) {}
+        inline StreamPatcher() : m_Start(0), m_Current(0) {}
+        inline explicit StreamPatcher(game::Location start) : m_Start(util::offsets::Resolve(start)), m_Current(m_Start) {}
 
         template<typename T>
         inline void Write(T v) {
@@ -68,7 +70,7 @@ namespace exl::patch {
         }
 
         /* Address relative to the base (Ro). */
-        inline void Seek(uintptr_t address) {
+        inline void Seek(game::Location address) {
             SeekRel(RelativeAddressFromBase(address));
         }
         /* Absolute address. */

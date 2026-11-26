@@ -1,6 +1,6 @@
 #include "version.hpp"
 
 namespace exl::util::impl {
-    constinit UserVersion s_UserVersion{};
-    void InitVersion() { s_UserVersion = DetermineUserVersion(); }
+    constinit GameVersion s_GameVersion{};
+    void InitVersion() { s_GameVersion = DetermineGameVersion(); }
 }

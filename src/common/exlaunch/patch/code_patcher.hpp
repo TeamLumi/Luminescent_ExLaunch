@@ -10,7 +10,7 @@ namespace exl::patch {
     namespace inst = armv8::inst;
 
     struct Instruction {
-        uint32_t address = 0;
+        game::Location address = game::Address::None;
         exl::armv8::inst::Instruction inst;
     };
     
@@ -19,7 +19,8 @@ namespace exl::patch {
         using InstBitSet = armv8::InstBitSet;
 
         public:
-        inline CodePatcher(uintptr_t start) : StreamPatcher(start) {}
+        inline CodePatcher() = default;
+        inline explicit CodePatcher(game::Location start) : StreamPatcher(start) {}
 
         inline void WriteInst(InstBitSet inst) {
             Write<InstBitSet>(inst);
@@ -34,10 +35,10 @@ namespace exl::patch {
         }
         
         /* Address relative to the base (Ro). */
-        inline void BranchInst(uintptr_t address) {
+        inline void BranchInst(game::Location address) {
             BranchInstRel(RelativeAddressFromBase(address));
         }
-        inline void BranchLinkInst(uintptr_t address) {
+        inline void BranchLinkInst(game::Location address) {
             BranchLinkInstRel(RelativeAddressFromBase(address));
         }
         /* Absolute addresses. */

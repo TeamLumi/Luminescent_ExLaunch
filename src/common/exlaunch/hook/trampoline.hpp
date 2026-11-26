@@ -32,10 +32,10 @@ namespace exl::hook::impl {
             return OrigRef()(std::forward<Args>(args)...);
         }
 
-        static ALWAYS_INLINE void InstallAtOffset(ptrdiff_t address) {
+        static ALWAYS_INLINE void InstallAtOffset(game::Location address) {
             _HOOK_STATIC_CALLBACK_ASSERT();
 
-            OrigRef() = hook::Hook(util::modules::GetTargetStart() + address, Derived::Callback, true);
+            OrigRef() = hook::Hook(util::modules::GetTargetOffset(address), Derived::Callback, true);
         }
 
         template<typename R, typename ...A>

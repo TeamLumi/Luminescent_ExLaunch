@@ -3,8 +3,8 @@
 
 namespace exl::util {
     namespace impl {
-        extern UserVersion s_UserVersion;
+        extern GameVersion s_GameVersion;
         void InitVersion();
     }
-    inline UserVersion GetUserVersion() { return impl::s_UserVersion; }
+    inline GameVersion GetGameVersion() { return impl::s_GameVersion; }
 }
