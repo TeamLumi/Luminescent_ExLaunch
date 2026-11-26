@@ -68,6 +68,7 @@ extern "C" {
 #include <exlaunch/util/sys/soc.hpp>
 #include <exlaunch/util/sys/mem_layout.hpp>
 #include <exlaunch/patch/patcher_impl.hpp>
+#include <exlaunch/util/version.hpp>
 
 extern "C" void exl_init() {
     /* Getting the SOC type in an application context is more effort than it's worth. */
@@ -77,4 +78,5 @@ extern "C" void exl_init() {
     exl::util::impl::InitMemLayout();
     virtmemSetup();
     exl::patch::impl::InitPatcherImpl();
+    exl::util::impl::InitVersion();
 }

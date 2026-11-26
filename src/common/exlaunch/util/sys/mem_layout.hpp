@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include <array>
+#include <exlaunch/util/module_index.hpp>
 
 namespace exl::util {
 
@@ -72,4 +73,24 @@ namespace exl::util {
     
     static inline const ModuleInfo& GetSelfModuleInfo() { return GetModuleInfo(mem_layout::s_SelfModuleIdx); }
     static inline const ModuleInfo& GetSdkModuleInfo() { return GetModuleInfo(mem_layout::s_ModuleCount - 1); }
+
+    inline bool HasModule(ModuleIndex index) {
+        const auto value = static_cast<unsigned int>(index);
+        if (value >= static_cast<unsigned int>(ModuleIndex::End)) return false;
+        if (mem_layout::s_ModuleCount <= 0) return false;
+        #ifdef EXL_AS_MODULE
+        if (index == ModuleIndex::Sdk) return mem_layout::s_ModuleCount >= 3;
+        return value < static_cast<unsigned int>(mem_layout::s_ModuleCount - 1);
+        #else
+        return value < static_cast<unsigned int>(mem_layout::s_ModuleCount);
+        #endif
+    }
+
+    inline const ModuleInfo& GetModuleInfo(ModuleIndex index) {
+        EXL_ASSERT(HasModule(index));
+        #ifdef EXL_AS_MODULE
+        if (index == ModuleIndex::Sdk) return GetSdkModuleInfo();
+        #endif
+        return GetModuleInfo(static_cast<int>(index));
+    }
 };
